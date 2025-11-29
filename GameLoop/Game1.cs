@@ -7,18 +7,20 @@ namespace GameLoop;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+    private SpriteBatch _spriteBatch = null!;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
+        
         IsMouseVisible = true;
     }
 
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
+        _spriteBatch = new(GraphicsDevice);
 
         base.Initialize();
     }
