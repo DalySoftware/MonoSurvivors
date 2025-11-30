@@ -58,7 +58,10 @@ public class Game1 : Game
         // TODO: Add your drawing code here
         
         _spriteBatch.Begin();
-        _spriteBatch.Draw(_logo, Vector2.Zero, Color.White);
+        
+        var middleOfScreen = new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height) * 0.5f;
+        var middleOfLogo = new Vector2(_logo.Width, _logo.Height) *  0.5f;
+        _spriteBatch.Draw(_logo, middleOfScreen, origin: middleOfLogo);
         _spriteBatch.End();
 
         base.Draw(gameTime);
