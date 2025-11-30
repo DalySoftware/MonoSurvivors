@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLoop", "GameLoop\GameLoop.csproj", "{CE2889C3-BECC-45DD-BA5C-6BB7A1D133FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentLibrary", "ContentLibrary\ContentLibrary.csproj", "{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{CE2889C3-BECC-45DD-BA5C-6BB7A1D133FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE2889C3-BECC-45DD-BA5C-6BB7A1D133FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE2889C3-BECC-45DD-BA5C-6BB7A1D133FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
