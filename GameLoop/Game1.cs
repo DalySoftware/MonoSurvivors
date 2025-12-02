@@ -1,4 +1,5 @@
 ﻿using Characters;
+using Characters.Enemy;
 using ContentLibrary;
 using Input;
 using Microsoft.Xna.Framework;
@@ -13,6 +14,7 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch = null!;
     
     private PlayerCharacter _player = null!;
+    private BasicEnemy _enemy = null!;
     private InputManager _input = null!;
 
     private Vector2 MiddleOfScreen =>
@@ -39,17 +41,20 @@ public class Game1 : Game
         _spriteBatch = new(GraphicsDevice);
         
         _player = new PlayerCharacter(MiddleOfScreen);
+        _enemy = new BasicEnemy(Vector2.Zero, _player);
         _input = new(_player);
     }
 
     private Texture2D _logo = null!;
     private Texture2D _playerTexture = null!;
+    private Texture2D _enemyTexture = null!;
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
         _logo = Content.Load<Texture2D>(Paths.Images.MonoGameLogo);
         _playerTexture = Content.Load<Texture2D>(Paths.Images.Player);
+        _enemyTexture = Content.Load<Texture2D>(Paths.Images.Enemy);
 
         // TODO: use this.ContentLibrary to load your game content here
     }
@@ -64,6 +69,7 @@ public class Game1 : Game
         
         _input.Update();
         _player.UpdatePosition(gameTime);
+        _enemy.UpdatePosition(gameTime);
         
         base.Update(gameTime);
     }
@@ -78,6 +84,7 @@ public class Game1 : Game
         _spriteBatch.Begin();
 
         _spriteBatch.Draw(_logo, MiddleOfScreen, origin: _logo.Centre);
+        _spriteBatch.Draw(_enemyTexture, _enemy.Position, origin: _enemyTexture.Centre);
         _spriteBatch.Draw(_playerTexture, _player.Position, origin: _playerTexture.Centre);
         
         _spriteBatch.End();

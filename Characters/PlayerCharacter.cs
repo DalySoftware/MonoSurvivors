@@ -1,4 +1,6 @@
-﻿namespace Characters;
+﻿using Characters.Utilities;
+
+namespace Characters;
 
 public class PlayerCharacter(Vector2 position) : Character(position)
 {

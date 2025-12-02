@@ -1,4 +1,5 @@
 ﻿using Characters;
+using Characters.Utilities;
 using Microsoft.Xna.Framework.Input;
 
 namespace Input;
