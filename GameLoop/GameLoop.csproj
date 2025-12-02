@@ -29,6 +29,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Characters\Characters.csproj" />
         <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj" />
+        <ProjectReference Include="..\Input\Input.csproj" />
     </ItemGroup>
     
     <ItemGroup>

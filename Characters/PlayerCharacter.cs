@@ -1,15 +1,16 @@
 ﻿namespace Characters;
 
-public class PlayerCharacter
+public class PlayerCharacter(Vector2 position)
 {
-    public Vector2 Position { get; private set; }
-    public Vector2 Velocity { get; private set; }
+    public Vector2 Position { get; private set; } = position;
+    private Vector2 Velocity { get; set; } = Vector2.Zero;
 
-    public void UpdatePosition(GameTime gameTime) => Position += Velocity;
+    public void UpdatePosition(GameTime gameTime) => Position += Velocity * gameTime.ElapsedGameTime.Milliseconds;
 
-    private float speed = 0f;
+    private const float Speed = 0.5f;
+
     public void DirectionInput(UnitVector2 input)
     {
-        Velocity = (Vector2)input * speed;
+        Velocity = (Vector2)input * Speed;
     }
 }

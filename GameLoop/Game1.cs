@@ -1,5 +1,6 @@
 ﻿using Characters;
 using ContentLibrary;
+using Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,6 +11,13 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch = null!;
+    
+    private PlayerCharacter _player = null!;
+    private InputManager _input = null!;
+
+    private Vector2 MiddleOfScreen =>
+        new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height) * 0.5f;
+    
 
     public Game1()
     {
@@ -26,9 +34,12 @@ public class Game1 : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-        _spriteBatch = new(GraphicsDevice);
-
         base.Initialize();
+        
+        _spriteBatch = new(GraphicsDevice);
+        
+        _player = new PlayerCharacter(MiddleOfScreen);
+        _input = new(_player);
     }
 
     private Texture2D _logo = null!;
@@ -51,12 +62,13 @@ public class Game1 : Game
 
         // TODO: Add your update logic here
         
+        _input.Update();
         _player.UpdatePosition(gameTime);
         
         base.Update(gameTime);
     }
 
-    private readonly PlayerCharacter _player = new();
+    
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -65,9 +77,7 @@ public class Game1 : Game
         
         _spriteBatch.Begin();
 
-        var middleOfScreen = new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height) * 0.5f;
-        _spriteBatch.Draw(_logo, middleOfScreen, origin: _logo.Centre);
-        
+        _spriteBatch.Draw(_logo, MiddleOfScreen, origin: _logo.Centre);
         _spriteBatch.Draw(_playerTexture, _player.Position, origin: _playerTexture.Centre);
         
         _spriteBatch.End();

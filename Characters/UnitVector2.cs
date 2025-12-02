@@ -5,6 +5,9 @@ public readonly record struct UnitVector2
     public float X { get; }
     public float Y { get; }
     
+    /// <summary>
+    /// Keeps the direction of the input but ignores scale, normalizing to 1
+    /// </summary>
     public UnitVector2(float x, float y)
     {
         var v = new Vector2(x, y);
