@@ -50,7 +50,9 @@ public class Game1 : Game
             Exit();
 
         // TODO: Add your update logic here
-
+        
+        _player.UpdatePosition(gameTime);
+        
         base.Update(gameTime);
     }
 
