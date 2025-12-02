@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLoop", "GameLoop\GameLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentLibrary", "ContentLibrary\ContentLibrary.csproj", "{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Characters", "Characters\Characters.csproj", "{E0AD572B-013E-4DE6-8188-536EB407FE00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0AD572B-013E-4DE6-8188-536EB407FE00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0AD572B-013E-4DE6-8188-536EB407FE00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0AD572B-013E-4DE6-8188-536EB407FE00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0AD572B-013E-4DE6-8188-536EB407FE00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

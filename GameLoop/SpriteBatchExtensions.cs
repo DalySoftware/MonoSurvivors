@@ -11,4 +11,9 @@ public static class SpriteBatchExtensions
             float rotation = 0f, Vector2? origin = null, Vector2? scale = null, SpriteEffects? effects = null, float layerDepth = 0f) =>
             spriteBatch.Draw(texture, position, sourceRectangle, color ?? Color.White, rotation, origin ?? Vector2.Zero, scale ?? Vector2.One, effects ?? SpriteEffects.None, layerDepth);
     }
+
+    extension(Texture2D texture)
+    {
+        public Vector2 Centre => new Vector2(texture.Width, texture.Height) * 0.5f;
+    }
 }
