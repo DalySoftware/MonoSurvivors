@@ -13,6 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Fonts/Terminal-Grotesque-Open.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Terminal-Grotesque-Open.spritefont
+
 #begin Images/logo.png
 /importer:TextureImporter
 /processor:TextureProcessor

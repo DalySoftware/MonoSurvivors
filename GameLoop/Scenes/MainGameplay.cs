@@ -28,7 +28,7 @@ internal class MainGameplay : IScene
 
         _characterManager = new CharacterManager(_content);
 
-        var player = new PlayerCharacter(MiddleOfScreen);
+        var player = new PlayerCharacter(_window.Centre);
         _characterManager.Add(player);
 
         var enemySpawner = new EnemySpawner();
@@ -42,8 +42,6 @@ internal class MainGameplay : IScene
         _spriteBatch = new SpriteBatch(graphicsDevice);
     }
 
-    private Vector2 MiddleOfScreen =>
-        new Vector2(_window.ClientBounds.Width, _window.ClientBounds.Height) * 0.5f;
 
     public void Dispose()
     {

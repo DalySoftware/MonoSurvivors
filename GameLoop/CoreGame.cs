@@ -22,7 +22,8 @@ public class CoreGame : Game
     {
         Content.RootDirectory = "ContentLibrary";
 
-        _scene = new MainGameplay(GraphicsDevice, Window, Content, Exit);
+        // _scene = new MainGameplay(GraphicsDevice, Window, Content, Exit);
+        _scene = new TitleScreen(GraphicsDevice, Window, Content);
 
         base.LoadContent();
     }
