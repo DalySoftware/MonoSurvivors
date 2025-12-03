@@ -1,4 +1,4 @@
 ﻿using GameLoop;
 
-using var game = new MonoSurvivorsGame();
+using var game = new CoreGame();
 game.Run();
