@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
@@ -12,33 +13,25 @@ namespace Entities;
 
 public class EntityManager(ContentManager content)
 {
-    private readonly List<Bullet> _bullets = [];
     private readonly Texture2D _bulletTexture = content.Load<Texture2D>(Paths.Images.Bullet);
-    private readonly List<EnemyBase> _enemies = [];
     private readonly Texture2D _enemyTexture = content.Load<Texture2D>(Paths.Images.Enemy);
-    private readonly List<PlayerCharacter> _players = [];
+    private readonly ConcurrentBag<IEntity> _entities = [];
     private readonly Texture2D _playerTexture = content.Load<Texture2D>(Paths.Images.Player);
-    private readonly List<BasicGun> _weapons = [];
 
-    private IEnumerable<IEntity> Entities => [.._players, .._enemies, .._bullets, .._weapons];
+    private IEnumerable<EnemyBase> Enemies => _entities.OfType<EnemyBase>();
 
-    public void Add(BasicGun weapon) => _weapons.Add(weapon);
-
-    public void Add(Bullet bullet) => _bullets.Add(bullet);
-
-    public void Add(Func<EnemyBase> enemyFactory) => _enemies.Add(enemyFactory());
-
-    public void Add(PlayerCharacter character) => _players.Add(character);
+    public void Add(IEntity entity) => _entities.Add(entity);
+    public void Add(Func<IEntity> entityFactory) => _entities.Add(entityFactory());
 
     public void Update(GameTime gameTime)
     {
-        foreach (var entity in Entities)
+        foreach (var entity in _entities)
             entity.Update(gameTime);
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        foreach (var entity in Entities.OfType<IHasPosition>()) Draw(spriteBatch, entity);
+        foreach (var entity in _entities.OfType<IHasPosition>()) Draw(spriteBatch, entity);
     }
 
     private void Draw(SpriteBatch spriteBatch, IHasPosition entity)
@@ -56,5 +49,5 @@ public class EntityManager(ContentManager content)
     };
 
     internal EnemyBase? NearestEnemyTo(PlayerCharacter player) =>
-        _enemies.MinBy(e => Vector2.DistanceSquared(player.Position, e.Position));
+        Enemies.MinBy(e => Vector2.DistanceSquared(player.Position, e.Position));
 }

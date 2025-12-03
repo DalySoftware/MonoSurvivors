@@ -11,33 +11,30 @@ internal class MainGameScene : IScene
 {
     private readonly ContentManager _content;
     private readonly EntityManager _entityManager;
-    private readonly BasicGun _gun = null!;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
 
-    private readonly GameWindow _window;
-
     public MainGameScene(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent, Action exitGame)
     {
-        _window = window;
         _content = new ContentManager(coreContent.ServiceProvider)
         {
             RootDirectory = coreContent.RootDirectory
         };
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
-
         _entityManager = new EntityManager(_content);
 
-        var player = new PlayerCharacter(_window.Centre);
+        var player = new PlayerCharacter(window.Centre);
         _entityManager.Add(player);
+        _entityManager.Add(new BasicGun(player, _entityManager));
 
-        _gun = new BasicGun(player, _entityManager);
-        _entityManager.Add(_gun);
+        var enemySpawner = new EnemySpawner(_entityManager, player)
+        {
+            SpawnDelay = TimeSpan.FromSeconds(1),
+            BatchSize = 1
+        };
+        _entityManager.Add(enemySpawner);
 
-        var enemySpawner = new EnemySpawner();
-        for (var i = 0; i < 10; i++)
-            _entityManager.Add(() => enemySpawner.GetEnemyWithRandomPosition(player));
         _input = new GameplayInputManager(player)
         {
             OnExit = exitGame

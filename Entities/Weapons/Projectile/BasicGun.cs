@@ -12,8 +12,8 @@ public class BasicGun(PlayerCharacter owner, EntityManager entityManager) : IEnt
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;
 
-        Shoot();
         _remainingCooldown = _cooldown;
+        Shoot();
     }
 
     private void Shoot()
