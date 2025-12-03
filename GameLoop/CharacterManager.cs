@@ -12,13 +12,13 @@ namespace GameLoop;
 public class CharacterManager(ContentManager content)
 {
     private readonly List<Character> _characters = [];
-    private readonly Texture2D _playerTexture = content.Load<Texture2D>(Paths.Images.Player);
     private readonly Texture2D _enemyTexture = content.Load<Texture2D>(Paths.Images.Enemy);
+    private readonly Texture2D _playerTexture = content.Load<Texture2D>(Paths.Images.Player);
 
     public void Add(Func<Character> characterFactory) => _characters.Add(characterFactory());
-    
+
     public void Add(Character character) => _characters.Add(character);
-    
+
     public void Update(GameTime gameTime) => _characters.ForEach(c => c.UpdatePosition(gameTime));
 
     public void Draw(SpriteBatch spriteBatch) => _characters.ForEach(c => Draw(spriteBatch, c));

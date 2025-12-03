@@ -7,5 +7,5 @@ public static class Paths
         public const string MonoGameLogo = @"Images\logo";
         public const string Player = @"Images\Placeholder-Player";
         public const string Enemy = @"Images\Placeholder-Enemy";
-    } 
+    }
 }

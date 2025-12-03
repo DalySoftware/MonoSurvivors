@@ -27,12 +27,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Characters\Characters.csproj" />
-        <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj" />
-        <ProjectReference Include="..\Input\Input.csproj" />
+        <ProjectReference Include="..\Characters\Characters.csproj"/>
+        <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj"/>
+        <ProjectReference Include="..\Input\Input.csproj"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <MonoGameContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb" />
+        <MonoGameContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb"/>
     </ItemGroup>
 </Project>

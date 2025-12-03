@@ -10,8 +10,8 @@ public class InputManager(PlayerCharacter player)
     {
         var keyboardState = Keyboard.GetState();
 
-        float x = 0f;
-        float y = 0f;
+        var x = 0f;
+        var y = 0f;
 
         if (keyboardState.IsKeyDown(Keys.S)) x -= 1f;
         if (keyboardState.IsKeyDown(Keys.F)) x += 1f;
@@ -19,12 +19,8 @@ public class InputManager(PlayerCharacter player)
         if (keyboardState.IsKeyDown(Keys.D)) y += 1f;
 
         if (x != 0f || y != 0f)
-        {
             player.DirectionInput(new UnitVector2(x, y));
-        }
         else
-        {
             player.DirectionInput(new UnitVector2(0f, 0f));
-        }
     }
 }

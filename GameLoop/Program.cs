@@ -1,2 +1,4 @@
-﻿using var game = new GameLoop.Game1();
+﻿using GameLoop;
+
+using var game = new Game1();
 game.Run();

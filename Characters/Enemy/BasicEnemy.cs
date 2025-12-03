@@ -7,7 +7,7 @@ public class BasicEnemy(Vector2 initialPosition, PlayerCharacter player) : Chara
     public override void UpdatePosition(GameTime gameTime)
     {
         Velocity = this.Follow(player, 0.1f);
-        
+
         base.UpdatePosition(gameTime);
     }
 }
