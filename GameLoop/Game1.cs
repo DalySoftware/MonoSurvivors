@@ -1,5 +1,4 @@
 ﻿using Characters;
-using Characters.Enemy;
 using ContentLibrary;
 using Input;
 using Microsoft.Xna.Framework;
@@ -40,7 +39,10 @@ public class Game1 : Game
         
         var player = new PlayerCharacter(MiddleOfScreen);
         _characterManager.Add(player);
-        _characterManager.Add(() => new BasicEnemy(Vector2.Zero, player));
+        
+        var enemySpawner = new EnemySpawner();
+        for (var i = 0; i < 10; i++)
+            _characterManager.Add(() => enemySpawner.GetEnemyWithRandomPosition(player));
         _input = new(player);
     }
 
