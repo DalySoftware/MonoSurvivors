@@ -1,5 +1,6 @@
 ﻿using System;
-using Characters;
+using Entities;
+using Entities.Weapons.Projectile;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,8 +9,9 @@ namespace GameLoop.Scenes.Gameplay;
 
 internal class MainGameScene : IScene
 {
-    private readonly CharacterManager _characterManager;
     private readonly ContentManager _content;
+    private readonly EntityManager _entityManager;
+    private readonly BasicGun _gun = null!;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
 
@@ -25,14 +27,17 @@ internal class MainGameScene : IScene
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
 
-        _characterManager = new CharacterManager(_content);
+        _entityManager = new EntityManager(_content);
 
         var player = new PlayerCharacter(_window.Centre);
-        _characterManager.Add(player);
+        _entityManager.Add(player);
+
+        _gun = new BasicGun(player, _entityManager);
+        _entityManager.Add(_gun);
 
         var enemySpawner = new EnemySpawner();
         for (var i = 0; i < 10; i++)
-            _characterManager.Add(() => enemySpawner.GetEnemyWithRandomPosition(player));
+            _entityManager.Add(() => enemySpawner.GetEnemyWithRandomPosition(player));
         _input = new GameplayInputManager(player)
         {
             OnExit = exitGame
@@ -51,14 +56,14 @@ internal class MainGameScene : IScene
     public void Update(GameTime gameTime)
     {
         _input.Update();
-        _characterManager.Update(gameTime);
+        _entityManager.Update(gameTime);
     }
 
     public void Draw(GameTime gameTime)
     {
         _spriteBatch.Begin();
 
-        _characterManager.Draw(_spriteBatch);
+        _entityManager.Draw(_spriteBatch);
 
         _spriteBatch.End();
     }

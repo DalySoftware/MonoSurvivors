@@ -1,6 +1,6 @@
 ﻿using System;
-using Characters;
-using Characters.Enemy;
+using Entities;
+using Entities.Enemy;
 using Microsoft.Xna.Framework;
 
 namespace GameLoop.Scenes.Gameplay;

@@ -4,9 +4,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLoop", "GameLoop\GameLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentLibrary", "ContentLibrary\ContentLibrary.csproj", "{CA3F9EAC-0AD1-4CD2-AEAC-96378CC22C8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Characters", "Characters\Characters.csproj", "{E0AD572B-013E-4DE6-8188-536EB407FE00}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{E0AD572B-013E-4DE6-8188-536EB407FE00}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{050A7898-7A94-46D6-9D88-C0E56938FB12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering", "Rendering\Rendering.csproj", "{817641F0-C6E7-499F-8BA2-9B510D285341}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +32,9 @@ Global
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{817641F0-C6E7-499F-8BA2-9B510D285341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{817641F0-C6E7-499F-8BA2-9B510D285341}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{817641F0-C6E7-499F-8BA2-9B510D285341}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{817641F0-C6E7-499F-8BA2-9B510D285341}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,4 @@
-﻿namespace Characters.Utilities;
+﻿namespace Entities.Utilities;
 
 public readonly record struct UnitVector2
 {

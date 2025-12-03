@@ -1,8 +1,8 @@
-﻿using Characters.Utilities;
+﻿using Entities.Utilities;
 
-namespace Characters;
+namespace Entities;
 
-public class PlayerCharacter(Vector2 position) : Character(position)
+public class PlayerCharacter(Vector2 position) : MovableEntity(position)
 {
     private const float Speed = 0.5f;
 

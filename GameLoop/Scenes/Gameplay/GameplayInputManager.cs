@@ -1,5 +1,5 @@
-﻿using Characters;
-using Characters.Utilities;
+﻿using Entities;
+using Entities.Utilities;
 using GameLoop.Input;
 using Microsoft.Xna.Framework.Input;
 

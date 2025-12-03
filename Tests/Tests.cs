@@ -1,4 +1,4 @@
-﻿using Characters.Utilities;
+﻿using Entities.Utilities;
 
 namespace Tests;
 

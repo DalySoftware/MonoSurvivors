@@ -1,0 +1,27 @@
+﻿using System;
+
+namespace Entities.Weapons.Projectile;
+
+public class BasicGun(PlayerCharacter owner, EntityManager entityManager) : IEntity
+{
+    private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
+    private TimeSpan _remainingCooldown = TimeSpan.Zero;
+
+    public void Update(GameTime gameTime)
+    {
+        _remainingCooldown -= gameTime.ElapsedGameTime;
+        if (_remainingCooldown > TimeSpan.Zero) return;
+
+        Shoot();
+        _remainingCooldown = _cooldown;
+    }
+
+    private void Shoot()
+    {
+        var target = entityManager.NearestEnemyTo(owner);
+        if (target == null) return;
+
+        var bullet = new Bullet(owner.Position, target.Position);
+        entityManager.Add(bullet);
+    }
+}
