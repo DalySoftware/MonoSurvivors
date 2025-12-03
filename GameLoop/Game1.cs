@@ -10,7 +10,6 @@ namespace GameLoop;
 
 public class Game1 : Game
 {
-    private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch = null!;
     
     private CharacterManager _characterManager = null!;
@@ -22,12 +21,12 @@ public class Game1 : Game
 
     public Game1()
     {
-        _graphics = new GraphicsDeviceManager(this);
+        var graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "ContentLibrary";
         
         Window.Title = "Mono Survivors";
-        _graphics.PreferredBackBufferWidth = 1280;
-        _graphics.PreferredBackBufferHeight = 720;
+        graphics.PreferredBackBufferWidth = 1280;
+        graphics.PreferredBackBufferHeight = 720;
         
         IsMouseVisible = true;
     }
