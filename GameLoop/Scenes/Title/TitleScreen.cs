@@ -1,19 +1,23 @@
-﻿using ContentLibrary;
+﻿using System;
+using ContentLibrary;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameLoop.Scenes;
+namespace GameLoop.Scenes.Title;
 
 internal class TitleScreen : IScene
 {
     private readonly ContentManager _content;
+
+    private readonly TitleInputManager _input;
     private readonly SpriteBatch _spriteBatch;
 
     private readonly SpriteFont _titleFont;
     private readonly GameWindow _window;
 
-    public TitleScreen(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent)
+    public TitleScreen(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent, Action onStartGame,
+        Action onExit)
     {
         _window = window;
         _spriteBatch = new SpriteBatch(graphicsDevice);
@@ -24,9 +28,14 @@ internal class TitleScreen : IScene
         };
 
         _titleFont = _content.Load<SpriteFont>(Paths.Fonts.TerminalGrotequeOpen);
+        _input = new TitleInputManager
+        {
+            OnStartGame = onStartGame,
+            OnExit = onExit
+        };
     }
 
-    public void Update(GameTime gameTime) { }
+    public void Update(GameTime gameTime) => _input.Update();
 
     public void Draw(GameTime gameTime)
     {

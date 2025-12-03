@@ -1,4 +1,6 @@
 ﻿using GameLoop.Scenes;
+using GameLoop.Scenes.Gameplay;
+using GameLoop.Scenes.Title;
 using Microsoft.Xna.Framework;
 
 namespace GameLoop;
@@ -6,7 +8,7 @@ namespace GameLoop;
 public class CoreGame : Game
 {
     private readonly GraphicsDeviceManager _graphics;
-    private IScene _scene = null!;
+    private readonly SceneManager _sceneManager = new(null);
 
     public CoreGame()
     {
@@ -18,19 +20,23 @@ public class CoreGame : Game
         Window.Title = "Mono Survivors";
     }
 
+    private IScene Scene => _sceneManager.Current!;
+
     protected override void LoadContent()
     {
         Content.RootDirectory = "ContentLibrary";
 
-        // _scene = new MainGameplay(GraphicsDevice, Window, Content, Exit);
-        _scene = new TitleScreen(GraphicsDevice, Window, Content);
+        var title = new TitleScreen(GraphicsDevice, Window, Content, StartGame, Exit);
+        _sceneManager.Switch(title);
 
         base.LoadContent();
     }
 
+    private void StartGame() => _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit));
+
     protected override void Update(GameTime gameTime)
     {
-        _scene.Update(gameTime);
+        Scene.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -40,14 +46,14 @@ public class CoreGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        _scene.Draw(gameTime);
+        Scene.Draw(gameTime);
 
         base.Draw(gameTime);
     }
 
     protected override void Dispose(bool disposing)
     {
-        _scene.Dispose();
+        Scene.Dispose();
         base.Dispose(disposing);
     }
 }

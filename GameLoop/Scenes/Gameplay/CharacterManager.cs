@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameLoop;
+namespace GameLoop.Scenes.Gameplay;
 
 public class CharacterManager(ContentManager content)
 {

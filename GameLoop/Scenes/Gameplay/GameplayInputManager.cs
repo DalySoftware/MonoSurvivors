@@ -1,24 +1,18 @@
-﻿using System;
-using Characters;
+﻿using Characters;
 using Characters.Utilities;
+using GameLoop.Input;
 using Microsoft.Xna.Framework.Input;
 
-namespace Input;
+namespace GameLoop.Scenes.Gameplay;
 
-public class InputManager(PlayerCharacter player)
+internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
 {
-    public Action OnExit { get; init; } = () => { };
-
-    public void Update()
+    internal override void Update()
     {
+        base.Update();
+
         var keyboardState = Keyboard.GetState();
         var gamePadState = GamePad.GetState(0);
-
-        if (keyboardState.IsKeyDown(Keys.Escape) || gamePadState.Buttons.Back == ButtonState.Pressed)
-        {
-            OnExit();
-            return;
-        }
 
         var x = 0f;
         var y = 0f;

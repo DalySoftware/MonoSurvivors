@@ -3,7 +3,7 @@ using Characters;
 using Characters.Enemy;
 using Microsoft.Xna.Framework;
 
-namespace GameLoop;
+namespace GameLoop.Scenes.Gameplay;
 
 internal class EnemySpawner
 {

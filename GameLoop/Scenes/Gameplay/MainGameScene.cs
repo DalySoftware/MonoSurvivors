@@ -1,22 +1,21 @@
 ﻿using System;
 using Characters;
-using Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameLoop.Scenes;
+namespace GameLoop.Scenes.Gameplay;
 
-internal class MainGameplay : IScene
+internal class MainGameScene : IScene
 {
     private readonly CharacterManager _characterManager;
     private readonly ContentManager _content;
-    private readonly InputManager _input;
+    private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
 
     private readonly GameWindow _window;
 
-    public MainGameplay(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent, Action exitGame)
+    public MainGameScene(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent, Action exitGame)
     {
         _window = window;
         _content = new ContentManager(coreContent.ServiceProvider)
@@ -34,7 +33,7 @@ internal class MainGameplay : IScene
         var enemySpawner = new EnemySpawner();
         for (var i = 0; i < 10; i++)
             _characterManager.Add(() => enemySpawner.GetEnemyWithRandomPosition(player));
-        _input = new InputManager(player)
+        _input = new GameplayInputManager(player)
         {
             OnExit = exitGame
         };
