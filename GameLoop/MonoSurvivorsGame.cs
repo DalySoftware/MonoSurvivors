@@ -3,7 +3,6 @@ using ContentLibrary;
 using Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop;
 
@@ -42,7 +41,10 @@ public class MonoSurvivorsGame : Game
         var enemySpawner = new EnemySpawner();
         for (var i = 0; i < 10; i++)
             _characterManager.Add(() => enemySpawner.GetEnemyWithRandomPosition(player));
-        _input = new InputManager(player);
+        _input = new InputManager(player)
+        {
+            OnExit = Exit
+        };
     }
 
     protected override void LoadContent()
@@ -55,10 +57,6 @@ public class MonoSurvivorsGame : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-            Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-
         _input.Update();
         _characterManager.Update(gameTime);
 
