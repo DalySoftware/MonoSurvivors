@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop;
 
-public class Game1 : Game
+public class MonoSurvivorsGame : Game
 {
     private CharacterManager _characterManager = null!;
     private InputManager _input = null!;
@@ -15,7 +15,7 @@ public class Game1 : Game
     private Texture2D _logo = null!;
     private SpriteBatch _spriteBatch = null!;
 
-    public Game1()
+    public MonoSurvivorsGame()
     {
         var graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "ContentLibrary";
