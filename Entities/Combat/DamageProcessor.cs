@@ -29,6 +29,9 @@ public static class DamageProcessor
             .Where(pair => CircleChecker.HasOverlap(pair.damager, pair.enemy));
 
         foreach (var (damageableEnemy, damager) in enemyDamagePairs)
+        {
             damageableEnemy.Health -= damager.Damage;
+            damager.OnHit();
+        }
     }
 }

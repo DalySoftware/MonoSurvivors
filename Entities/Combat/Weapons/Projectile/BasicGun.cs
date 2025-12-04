@@ -7,6 +7,8 @@ public class BasicGun(PlayerCharacter owner, EntityManager entityManager) : IEnt
     private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
 
+    public bool MarkedForDeletion { get; set; }
+
     public void Update(GameTime gameTime)
     {
         _remainingCooldown -= gameTime.ElapsedGameTime;

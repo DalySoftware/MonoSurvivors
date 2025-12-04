@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
@@ -16,19 +15,30 @@ public class EntityManager(ContentManager content)
 {
     private readonly Texture2D _bulletTexture = content.Load<Texture2D>(Paths.Images.Bullet);
     private readonly Texture2D _enemyTexture = content.Load<Texture2D>(Paths.Images.Enemy);
-    private readonly ConcurrentBag<IEntity> _entities = [];
+    private readonly List<IEntity> _entities = [];
+    private readonly List<IEntity> _entitiesToAdd = [];
     private readonly Texture2D _playerTexture = content.Load<Texture2D>(Paths.Images.Player);
 
     private IEnumerable<EnemyBase> Enemies => _entities.OfType<EnemyBase>();
 
-    public void Add(IEntity entity) => _entities.Add(entity);
-    public void Add(Func<IEntity> entityFactory) => _entities.Add(entityFactory());
+    public void Add(IEntity entity) => _entitiesToAdd.Add(entity);
+    public void Add(Func<IEntity> entityFactory) => _entitiesToAdd.Add(entityFactory());
 
     public void Update(GameTime gameTime)
     {
-        foreach (var entity in _entities)
+        foreach (var entity in _entities.ToList())
             entity.Update(gameTime);
         DamageProcessor.ApplyDamage(_entities);
+        RemoveEntities();
+        AddPendingEntities();
+    }
+
+    private void RemoveEntities() => _entities.RemoveAll(e => e.MarkedForDeletion);
+
+    private void AddPendingEntities()
+    {
+        _entities.AddRange(_entitiesToAdd);
+        _entitiesToAdd.Clear();
     }
 
     public void Draw(SpriteBatch spriteBatch)

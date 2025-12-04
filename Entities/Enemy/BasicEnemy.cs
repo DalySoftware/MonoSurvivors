@@ -9,11 +9,10 @@ public class BasicEnemy : EnemyBase
     public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition)
     {
         _followEntity = new FollowEntity(this, target, 0.1f);
+        Health = 20f;
+        CollisionRadius = 16f;
+        Damage = 10f;
     }
-
-    public override float Health { get; set; } = 20f;
-    public override float CollisionRadius => 16f;
-    public override float Damage => 10f;
 
     public override void Update(GameTime gameTime)
     {

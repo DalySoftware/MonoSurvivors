@@ -12,6 +12,8 @@ internal class EnemySpawner(EntityManager entityManager, PlayerCharacter target)
     internal TimeSpan SpawnDelay { get; set; } = TimeSpan.FromSeconds(1);
     internal int BatchSize { get; set; } = 1;
 
+    public bool MarkedForDeletion => false;
+
     public void Update(GameTime gameTime)
     {
         _remainingCooldown -= gameTime.ElapsedGameTime;

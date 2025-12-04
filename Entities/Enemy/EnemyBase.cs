@@ -4,7 +4,17 @@ namespace Entities.Enemy;
 
 public abstract class EnemyBase(Vector2 position) : MovableEntity(position), IDamageableEnemy, IDamagesPlayer
 {
-    public abstract float Health { get; set; }
-    public abstract float CollisionRadius { get; }
-    public abstract float Damage { get; }
+    public float Health
+    {
+        get;
+        set
+        {
+            if (value <= 0)
+                MarkedForDeletion = true;
+            field = value;
+        }
+    }
+
+    public float CollisionRadius { get; init; }
+    public float Damage { get; init; }
 }

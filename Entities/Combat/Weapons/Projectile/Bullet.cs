@@ -11,4 +11,9 @@ public class Bullet : MovableEntity, IDamagesEnemies
 
     public float Damage => 10f;
     public float CollisionRadius => 8f;
+
+    public void OnHit()
+    {
+        MarkedForDeletion = true;
+    }
 }
