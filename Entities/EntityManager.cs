@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Entities.Combat;
 using Entities.Enemy;
+using Entities.Levelling;
 using Entities.Rendering;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -25,6 +26,7 @@ public class EntityManager(ContentManager content)
         foreach (var entity in _entities.ToList())
             entity.Update(gameTime);
         DamageProcessor.ApplyDamage(_entities);
+        PickupProcessor.ProcessPickups(_entities);
         RemoveEntities();
         AddPendingEntities();
     }

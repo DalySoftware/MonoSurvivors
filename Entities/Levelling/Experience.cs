@@ -2,7 +2,7 @@
 
 namespace Entities.Levelling;
 
-public class Experience : MovableEntity
+public class Experience : MovableEntity, IPickup
 {
     private readonly GravitateToEntity _followEntity;
 
@@ -13,6 +13,14 @@ public class Experience : MovableEntity
     }
 
     public float Value { get; init; }
+
+    public float CollisionRadius => 8f;
+
+    public void OnPickupBy(PlayerCharacter player)
+    {
+        player.Experience += Value;
+        MarkedForDeletion = true;
+    }
 
     public override void Update(GameTime gameTime)
     {

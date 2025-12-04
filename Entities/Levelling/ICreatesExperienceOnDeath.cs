@@ -1,6 +1,6 @@
 ﻿namespace Entities.Levelling;
 
-internal interface IGivesExperience
+internal interface ICreatesExperienceOnDeath
 {
     public float Experience { get; }
 }

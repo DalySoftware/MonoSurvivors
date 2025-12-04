@@ -1,8 +1,9 @@
-﻿namespace Entities.Combat;
+﻿using Entities.CollisionDetection;
 
-internal interface IDamagesEnemies : IHasPosition
+namespace Entities.Combat;
+
+internal interface IDamagesEnemies : ICircleCollider
 {
     public float Damage { get; }
-    public float CollisionRadius { get; }
     public void OnHit() { }
 }

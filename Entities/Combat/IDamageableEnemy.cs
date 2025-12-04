@@ -1,7 +1,8 @@
-﻿namespace Entities.Combat;
+﻿using Entities.CollisionDetection;
 
-internal interface IDamageableEnemy : IHasPosition
+namespace Entities.Combat;
+
+internal interface IDamageableEnemy : ICircleCollider
 {
     public float Health { get; set; }
-    public float CollisionRadius { get; }
 }

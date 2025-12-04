@@ -7,6 +7,8 @@ public class PlayerCharacter(Vector2 position) : MovableEntity(position), IDamag
 {
     private const float Speed = 0.5f;
 
+    public float Experience { get; set; } = 0f;
+
     public float Health
     {
         get;
