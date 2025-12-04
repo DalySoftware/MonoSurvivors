@@ -4,6 +4,5 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj"/>
-        <ProjectReference Include="..\Rendering\Rendering.csproj"/>
     </ItemGroup>
 </Project>

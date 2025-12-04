@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entiti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{050A7898-7A94-46D6-9D88-C0E56938FB12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering", "Rendering\Rendering.csproj", "{817641F0-C6E7-499F-8BA2-9B510D285341}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,9 +30,5 @@ Global
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.Build.0 = Release|Any CPU
-		{817641F0-C6E7-499F-8BA2-9B510D285341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{817641F0-C6E7-499F-8BA2-9B510D285341}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{817641F0-C6E7-499F-8BA2-9B510D285341}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{817641F0-C6E7-499F-8BA2-9B510D285341}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
