@@ -14,6 +14,8 @@ public class BasicEnemy : EnemyBase
         Damage = 10f;
     }
 
+    public override float Experience => 3f;
+
     public override void Update(GameTime gameTime)
     {
         Velocity = _followEntity.CalculateVelocity();

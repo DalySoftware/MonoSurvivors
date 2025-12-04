@@ -7,6 +7,7 @@ public static class Paths
         public const string Player = @"Images\Placeholder-Player";
         public const string Enemy = @"Images\Placeholder-Enemy";
         public const string Bullet = @"Images\Placeholder-Bullet";
+        public const string Experience = @"Images\Experience";
     }
 
     public static class Fonts

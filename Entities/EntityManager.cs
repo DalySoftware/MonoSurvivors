@@ -17,7 +17,7 @@ public class EntityManager(ContentManager content)
 
     private IEnumerable<EnemyBase> Enemies => _entities.OfType<EnemyBase>();
 
-    public void Add(IEntity entity) => _entitiesToAdd.Add(entity);
+    public void Add(params IEnumerable<IEntity> entities) => _entitiesToAdd.AddRange(entities);
     public void Add(Func<IEntity> entityFactory) => _entitiesToAdd.Add(entityFactory());
 
     public void Update(GameTime gameTime)

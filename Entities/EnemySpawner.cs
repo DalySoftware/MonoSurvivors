@@ -1,16 +1,16 @@
 ﻿using System;
-using Entities;
+using System.Collections.Generic;
 using Entities.Enemy;
-using Microsoft.Xna.Framework;
+using Entities.Levelling;
 
-namespace GameLoop.Scenes.Gameplay;
+namespace Entities;
 
-internal class EnemySpawner(EntityManager entityManager, PlayerCharacter target) : IEntity
+public class EnemySpawner(EntityManager entityManager, PlayerCharacter target) : IEntity
 {
     private readonly Random _random = new();
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
-    internal TimeSpan SpawnDelay { get; set; } = TimeSpan.FromSeconds(1);
-    internal int BatchSize { get; set; } = 1;
+    public TimeSpan SpawnDelay { get; set; } = TimeSpan.FromSeconds(1);
+    public int BatchSize { get; set; } = 1;
 
     public bool MarkedForDeletion => false;
 
@@ -34,6 +34,24 @@ internal class EnemySpawner(EntityManager entityManager, PlayerCharacter target)
 
         var position = new Vector2(x, y);
 
-        return new BasicEnemy(position, target);
+        return new BasicEnemy(position, target)
+        {
+            OnDeath = OnDeath
+        };
+    }
+
+    private void OnDeath(EnemyBase deadEnemy)
+    {
+        foreach (var experience in GetExperiences(deadEnemy))
+            entityManager.Add(experience);
+    }
+
+    private IEnumerable<Experience> GetExperiences(EnemyBase deadEnemy)
+    {
+        for (var i = 0; i < deadEnemy.Experience; i++)
+        {
+            var position = deadEnemy.Position + new Vector2(_random.Next(-10, 10), _random.Next(-10, 10));
+            yield return new Experience(position, 1f);
+        }
     }
 }
