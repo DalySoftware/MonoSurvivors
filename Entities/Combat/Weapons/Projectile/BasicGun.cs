@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Entities.Weapons.Projectile;
+namespace Entities.Combat.Weapons.Projectile;
 
 public class BasicGun(PlayerCharacter owner, EntityManager entityManager) : IEntity
 {

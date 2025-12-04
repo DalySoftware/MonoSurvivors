@@ -1,6 +1,6 @@
 ﻿using System;
 using Entities;
-using Entities.Weapons.Projectile;
+using Entities.Combat.Weapons.Projectile;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

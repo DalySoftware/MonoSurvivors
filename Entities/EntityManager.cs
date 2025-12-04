@@ -3,8 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
+using Entities.Combat;
+using Entities.Combat.Weapons.Projectile;
 using Entities.Enemy;
-using Entities.Weapons.Projectile;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Rendering;
@@ -27,6 +28,7 @@ public class EntityManager(ContentManager content)
     {
         foreach (var entity in _entities)
             entity.Update(gameTime);
+        DamageProcessor.ApplyDamage(_entities);
     }
 
     public void Draw(SpriteBatch spriteBatch)

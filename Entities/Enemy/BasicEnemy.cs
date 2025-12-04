@@ -11,6 +11,10 @@ public class BasicEnemy : EnemyBase
         _followEntity = new FollowEntity(this, target, 0.1f);
     }
 
+    public override float Health { get; set; } = 20f;
+    public override float CollisionRadius => 16f;
+    public override float Damage => 10f;
+
     public override void Update(GameTime gameTime)
     {
         Velocity = _followEntity.CalculateVelocity();
