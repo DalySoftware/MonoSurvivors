@@ -1,4 +1,4 @@
-﻿using Entities.Utilities;
+﻿using Gameplay.Utilities;
 
 namespace Tests;
 

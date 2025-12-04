@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Entities\Entities.csproj"/>
+        <ProjectReference Include="..\Gameplay\Gameplay.csproj"/>
         <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj"/>
     </ItemGroup>
 

@@ -1,6 +1,6 @@
-﻿using Entities;
-using Entities.Utilities;
-using GameLoop.Input;
+﻿using GameLoop.Input;
+using Gameplay;
+using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Gameplay;
