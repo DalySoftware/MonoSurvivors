@@ -51,7 +51,7 @@ public class EnemySpawner(EntityManager entityManager, PlayerCharacter target) :
         for (var i = 0; i < deadEnemy.Experience; i++)
         {
             var position = deadEnemy.Position + new Vector2(_random.Next(-10, 10), _random.Next(-10, 10));
-            yield return new Experience(position, 1f);
+            yield return new Experience(position, 1f, target);
         }
     }
 }
