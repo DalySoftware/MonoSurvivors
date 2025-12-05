@@ -18,13 +18,14 @@ public class Experience : MovableEntity, IPickup, IVisual
     public float Value { get; init; }
 
     public float CollisionRadius => 8f;
-    public string TexturePath => Paths.Images.Experience;
 
     public void OnPickupBy(PlayerCharacter player)
     {
         player.Experience += Value;
         MarkedForDeletion = true;
     }
+
+    public string TexturePath => Paths.Images.Experience;
 
     public override void Update(GameTime gameTime)
     {

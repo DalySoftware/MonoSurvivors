@@ -1,15 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Gameplay.Behaviour;
+using Gameplay.Entities;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-internal class EntityRenderer(ContentManager content)
+public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch)
 {
     private readonly Dictionary<string, Texture2D> _textureCache = new();
 
-    internal void Draw(SpriteBatch spriteBatch, IHasPosition entity)
+    public void Draw(IEnumerable<IEntity> entities)
+    {
+        spriteBatch.Begin();
+        foreach (var entity in entities.OfType<IHasPosition>()) Draw(entity);
+        spriteBatch.End();
+    }
+
+    private void Draw(IHasPosition entity)
     {
         if (entity is not IVisual visual) return;
 

@@ -3,6 +3,7 @@ using ContentLibrary;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
+using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,6 +15,7 @@ internal class MainGameScene : IScene
     private readonly Texture2D _backgroundTile;
     private readonly ContentManager _content;
     private readonly EntityManager _entityManager;
+    private readonly EntityRenderer _entityRenderer;
     private readonly GraphicsDevice _graphics;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
@@ -27,19 +29,20 @@ internal class MainGameScene : IScene
         };
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
-        _entityManager = new EntityManager(_content);
+        _entityManager = new EntityManager();
+        _entityRenderer = new EntityRenderer(_content, _spriteBatch);
         _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
         var player = new PlayerCharacter(window.Centre);
-        _entityManager.Add(player);
-        _entityManager.Add(new BasicGun(player, _entityManager));
+        _entityManager.Spawn(player);
+        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager));
 
         var enemySpawner = new EnemySpawner(_entityManager, player)
         {
             SpawnDelay = TimeSpan.FromSeconds(1),
             BatchSize = 1
         };
-        _entityManager.Add(enemySpawner);
+        _entityManager.Spawn(enemySpawner);
 
         _input = new GameplayInputManager(player)
         {
@@ -64,11 +67,7 @@ internal class MainGameScene : IScene
     {
         DrawBackground();
 
-        _spriteBatch.Begin();
-
-        _entityManager.Draw(_spriteBatch);
-
-        _spriteBatch.End();
+        _entityRenderer.Draw(_entityManager.Entities);
     }
 
     private void DrawBackground()

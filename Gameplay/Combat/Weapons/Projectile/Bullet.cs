@@ -14,7 +14,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, IVisual
 
     public float Damage => 10f;
     public float CollisionRadius => 8f;
-    public string TexturePath => Paths.Images.Bullet;
 
     public void OnHit() => MarkedForDeletion = true;
+    public string TexturePath => Paths.Images.Bullet;
 }

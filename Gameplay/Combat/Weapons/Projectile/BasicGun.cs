@@ -3,7 +3,7 @@ using Gameplay.Entities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
-public class BasicGun(PlayerCharacter owner, EntityManager entityManager) : IEntity
+public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFinder entityFinder) : IEntity
 {
     private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
@@ -21,10 +21,10 @@ public class BasicGun(PlayerCharacter owner, EntityManager entityManager) : IEnt
 
     private void Shoot()
     {
-        var target = entityManager.NearestEnemyTo(owner);
+        var target = entityFinder.NearestEnemyTo(owner);
         if (target == null) return;
 
         var bullet = new Bullet(owner.Position, target.Position);
-        entityManager.Add(bullet);
+        spawnEntity.Spawn(bullet);
     }
 }

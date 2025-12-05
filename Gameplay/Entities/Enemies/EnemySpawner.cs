@@ -20,7 +20,7 @@ public class EnemySpawner(EntityManager entityManager, PlayerCharacter target) :
 
         _remainingCooldown = SpawnDelay;
         for (var i = 0; i < BatchSize; i++)
-            entityManager.Add(GetEnemyWithRandomPosition);
+            entityManager.Spawn(GetEnemyWithRandomPosition());
     }
 
     private BasicEnemy GetEnemyWithRandomPosition()
@@ -42,7 +42,7 @@ public class EnemySpawner(EntityManager entityManager, PlayerCharacter target) :
     private void OnDeath(EnemyBase deadEnemy)
     {
         foreach (var experience in GetExperiences(deadEnemy))
-            entityManager.Add(experience);
+            entityManager.Spawn(experience);
     }
 
     private IEnumerable<Experience> GetExperiences(EnemyBase deadEnemy)
