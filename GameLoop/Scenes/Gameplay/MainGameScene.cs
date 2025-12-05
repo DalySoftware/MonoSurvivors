@@ -45,8 +45,6 @@ internal class MainGameScene : IScene
         {
             OnExit = exitGame
         };
-
-        _spriteBatch = new SpriteBatch(graphicsDevice);
     }
 
 
