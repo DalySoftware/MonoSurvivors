@@ -1,7 +1,7 @@
-﻿using Gameplay;
-using Gameplay.CollisionDetection;
+﻿using Gameplay.CollisionDetection;
 using Gameplay.Combat.Weapons.Projectile;
-using Gameplay.Enemy;
+using Gameplay.Entities;
+using Gameplay.Entities.Enemies;
 using Gameplay.Levelling;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;

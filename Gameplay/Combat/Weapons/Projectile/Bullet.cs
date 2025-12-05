@@ -1,4 +1,5 @@
 ﻿using ContentLibrary;
+using Gameplay.Entities;
 using Gameplay.Rendering;
 using Gameplay.Utilities;
 

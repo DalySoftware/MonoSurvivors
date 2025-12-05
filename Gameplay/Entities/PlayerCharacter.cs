@@ -3,7 +3,7 @@ using Gameplay.Combat;
 using Gameplay.Rendering;
 using Gameplay.Utilities;
 
-namespace Gameplay;
+namespace Gameplay.Entities;
 
 public class PlayerCharacter(Vector2 position) : MovableEntity(position), IDamageablePlayer, IVisual
 {

@@ -1,5 +1,5 @@
 ﻿using GameLoop.Input;
-using Gameplay;
+using Gameplay.Entities;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Input;
 

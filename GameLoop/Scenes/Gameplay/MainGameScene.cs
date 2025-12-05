@@ -1,8 +1,8 @@
 ﻿using System;
 using ContentLibrary;
-using Gameplay;
 using Gameplay.Combat.Weapons.Projectile;
-using Gameplay.Enemy;
+using Gameplay.Entities;
+using Gameplay.Entities.Enemies;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

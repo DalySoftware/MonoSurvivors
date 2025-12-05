@@ -1,4 +1,4 @@
-﻿namespace Gameplay;
+﻿namespace Gameplay.Entities;
 
 public interface IEntity
 {

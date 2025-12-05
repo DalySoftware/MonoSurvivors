@@ -1,4 +1,5 @@
 ﻿using System;
+using Gameplay.Entities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 

@@ -1,5 +1,6 @@
 ﻿using ContentLibrary;
 using Gameplay.Behaviour;
+using Gameplay.Entities;
 using Gameplay.Rendering;
 
 namespace Gameplay.Levelling;

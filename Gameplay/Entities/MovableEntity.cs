@@ -1,6 +1,6 @@
 ﻿using Gameplay.Behaviour;
 
-namespace Gameplay;
+namespace Gameplay.Entities;
 
 public abstract class MovableEntity(Vector2 position) : IEntity, IHasPosition
 {

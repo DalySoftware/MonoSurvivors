@@ -2,7 +2,7 @@
 using Gameplay.Combat;
 using Gameplay.Levelling;
 
-namespace Gameplay.Enemy;
+namespace Gameplay.Entities.Enemies;
 
 public abstract class EnemyBase(Vector2 position)
     : MovableEntity(position), IDamageableEnemy, IDamagesPlayer, ICreatesExperienceOnDeath

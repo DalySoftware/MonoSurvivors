@@ -2,7 +2,7 @@
 using Gameplay.Behaviour;
 using Gameplay.Rendering;
 
-namespace Gameplay.Enemy;
+namespace Gameplay.Entities.Enemies;
 
 public class BasicEnemy : EnemyBase, IVisual
 {

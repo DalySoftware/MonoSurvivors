@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Gameplay.CollisionDetection;
+using Gameplay.Entities;
 
 namespace Gameplay.Combat;
 

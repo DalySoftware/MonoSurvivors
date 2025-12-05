@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Gameplay.Levelling;
 
-namespace Gameplay.Enemy;
+namespace Gameplay.Entities.Enemies;
 
 public class EnemySpawner(EntityManager entityManager, PlayerCharacter target) : IEntity
 {

@@ -1,4 +1,5 @@
 ﻿using Gameplay.CollisionDetection;
+using Gameplay.Entities;
 
 namespace Gameplay.Levelling;
 

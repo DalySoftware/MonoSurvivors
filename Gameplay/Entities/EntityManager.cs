@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Behaviour;
 using Gameplay.Combat;
-using Gameplay.Enemy;
+using Gameplay.Entities.Enemies;
 using Gameplay.Levelling;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Gameplay;
+namespace Gameplay.Entities;
 
 public class EntityManager(ContentManager content)
 {
