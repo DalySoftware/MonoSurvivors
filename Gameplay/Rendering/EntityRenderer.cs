@@ -7,13 +7,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch)
+public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, ChaseCamera camera)
 {
     private readonly Dictionary<string, Texture2D> _textureCache = new();
 
     public void Draw(IEnumerable<IEntity> entities)
     {
-        spriteBatch.Begin();
+        spriteBatch.Begin(transformMatrix: camera.Transform);
         foreach (var entity in entities.OfType<IHasPosition>()) Draw(entity);
         spriteBatch.End();
     }

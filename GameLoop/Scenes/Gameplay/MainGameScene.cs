@@ -13,6 +13,7 @@ namespace GameLoop.Scenes.Gameplay;
 internal class MainGameScene : IScene
 {
     private readonly Texture2D _backgroundTile;
+    private readonly ChaseCamera _camera;
     private readonly ContentManager _content;
     private readonly EntityManager _entityManager;
     private readonly EntityRenderer _entityRenderer;
@@ -30,12 +31,17 @@ internal class MainGameScene : IScene
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
         _entityManager = new EntityManager();
-        _entityRenderer = new EntityRenderer(_content, _spriteBatch);
-        _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
         var player = new PlayerCharacter(window.Centre);
         _entityManager.Spawn(player);
         _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager));
+
+        Vector2 viewportSize = new(_graphics.PresentationParameters.BackBufferWidth,
+            _graphics.PresentationParameters.BackBufferHeight);
+        _camera = new ChaseCamera(viewportSize, player);
+
+        _entityRenderer = new EntityRenderer(_content, _spriteBatch, _camera);
+        _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
         var enemySpawner = new EnemySpawner(_entityManager, player)
         {
@@ -50,7 +56,6 @@ internal class MainGameScene : IScene
         };
     }
 
-
     public void Dispose()
     {
         _content.Dispose();
@@ -61,6 +66,7 @@ internal class MainGameScene : IScene
     {
         _input.Update();
         _entityManager.Update(gameTime);
+        _camera.Follow(gameTime);
     }
 
     public void Draw(GameTime gameTime)
@@ -72,9 +78,8 @@ internal class MainGameScene : IScene
 
     private void DrawBackground()
     {
-        _spriteBatch.Begin(samplerState: SamplerState.PointWrap);
-        _spriteBatch.Draw(_backgroundTile, _graphics.PresentationParameters.Bounds,
-            _graphics.PresentationParameters.Bounds, Color.White);
+        _spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: _camera.Transform);
+        _spriteBatch.Draw(_backgroundTile, _camera.VisibleWorldBounds, _camera.VisibleWorldBounds, Color.White);
         _spriteBatch.End();
     }
 }
