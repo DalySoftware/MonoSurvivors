@@ -1,8 +1,10 @@
-﻿using Gameplay.Behaviour;
+﻿using ContentLibrary;
+using Gameplay.Behaviour;
+using Gameplay.Rendering;
 
 namespace Gameplay.Enemy;
 
-public class BasicEnemy : EnemyBase
+public class BasicEnemy : EnemyBase, IVisual
 {
     private readonly FollowEntity _followEntity;
 
@@ -15,6 +17,7 @@ public class BasicEnemy : EnemyBase
     }
 
     public override float Experience => 3f;
+    public string TexturePath => Paths.Images.Enemy;
 
     public override void Update(GameTime gameTime)
     {

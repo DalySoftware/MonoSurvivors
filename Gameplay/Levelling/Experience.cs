@@ -1,8 +1,10 @@
-﻿using Gameplay.Behaviour;
+﻿using ContentLibrary;
+using Gameplay.Behaviour;
+using Gameplay.Rendering;
 
 namespace Gameplay.Levelling;
 
-public class Experience : MovableEntity, IPickup
+public class Experience : MovableEntity, IPickup, IVisual
 {
     private readonly GravitateToEntity _followEntity;
 
@@ -15,6 +17,7 @@ public class Experience : MovableEntity, IPickup
     public float Value { get; init; }
 
     public float CollisionRadius => 8f;
+    public string TexturePath => Paths.Images.Experience;
 
     public void OnPickupBy(PlayerCharacter player)
     {
