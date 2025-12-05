@@ -12,6 +12,6 @@ public static class Paths
 
     public static class Fonts
     {
-        public const string TerminalGrotequeOpen = @"Fonts\Terminal-Grotesque-Open";
+        public const string TerminalGrotesqueOpen = @"Fonts\Terminal-Grotesque-Open";
     }
 }
