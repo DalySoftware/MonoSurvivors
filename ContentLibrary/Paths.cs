@@ -15,4 +15,13 @@ public static class Paths
     {
         public const string TerminalGrotesqueOpen = @"Fonts\Terminal-Grotesque-Open";
     }
+
+    public static class SoundEffects
+    {
+        public const string Shoot1 = @"SoundEffects\Shoot1";
+        public const string Shoot2 = @"SoundEffects\Shoot2";
+        public const string Shoot3 = @"SoundEffects\Shoot3";
+        public const string Shoot4 = @"SoundEffects\Shoot4";
+        public const string Shoot5 = @"SoundEffects\Shoot5";
+    }
 }

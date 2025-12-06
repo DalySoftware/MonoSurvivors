@@ -44,6 +44,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/logo.png
 
+#begin Images/Placeholder-BackgroundTile.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Placeholder-BackgroundTile.png
+
 #begin Images/Placeholder-Bullet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -80,15 +92,33 @@
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Player.png
 
-#begin Images/Placeholder-BackgroundTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Placeholder-BackgroundTile.png
+#begin SoundEffects/Shoot1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Shoot1.wav
+
+#begin SoundEffects/Shoot2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Shoot2.wav
+
+#begin SoundEffects/Shoot3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Shoot3.wav
+
+#begin SoundEffects/Shoot4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Shoot4.wav
+
+#begin SoundEffects/Shoot5.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Shoot5.wav
 

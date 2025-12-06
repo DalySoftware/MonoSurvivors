@@ -1,5 +1,6 @@
 ﻿using System;
 using ContentLibrary;
+using Gameplay.Audio;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
@@ -12,6 +13,7 @@ namespace GameLoop.Scenes.Gameplay;
 
 internal class MainGameScene : IScene
 {
+    private readonly IAudioPlayer _audio;
     private readonly Texture2D _backgroundTile;
     private readonly ChaseCamera _camera;
     private readonly ContentManager _content;
@@ -32,9 +34,10 @@ internal class MainGameScene : IScene
         _spriteBatch = new SpriteBatch(graphicsDevice);
         _entityManager = new EntityManager();
 
+        _audio = new AudioPlayer(_content);
         var player = new PlayerCharacter(window.Centre);
         _entityManager.Spawn(player);
-        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager));
+        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, _audio));
 
         Vector2 viewportSize = new(_graphics.PresentationParameters.BackBufferWidth,
             _graphics.PresentationParameters.BackBufferHeight);
