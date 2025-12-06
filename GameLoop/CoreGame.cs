@@ -1,6 +1,10 @@
-﻿using GameLoop.Scenes;
+﻿using System;
+using GameLoop.Scenes;
 using GameLoop.Scenes.Gameplay;
 using GameLoop.Scenes.Title;
+using Gameplay.Audio;
+using Gameplay.Entities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 
 namespace GameLoop;
@@ -9,6 +13,7 @@ public class CoreGame : Game
 {
     private readonly GraphicsDeviceManager _graphics;
     private readonly SceneManager _sceneManager = new(null);
+    private readonly IServiceProvider _services;
 
     public CoreGame()
     {
@@ -18,6 +23,8 @@ public class CoreGame : Game
         IsMouseVisible = true;
 
         Window.Title = "Mono Survivors";
+
+        _services = ServiceConfiguration.ConfigureServices(Content);
     }
 
     private IScene Scene => _sceneManager.Current!;
@@ -32,7 +39,13 @@ public class CoreGame : Game
         base.LoadContent();
     }
 
-    private void StartGame() => _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit));
+    private void StartGame()
+    {
+        var entityManager = _services.GetRequiredService<EntityManager>();
+        var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
+
+        _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit, entityManager, audioPlayer));
+    }
 
     protected override void Update(GameTime gameTime)
     {

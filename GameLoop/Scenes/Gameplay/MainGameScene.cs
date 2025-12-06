@@ -23,7 +23,13 @@ internal class MainGameScene : IScene
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
 
-    public MainGameScene(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent, Action exitGame)
+    public MainGameScene(
+        GraphicsDevice graphicsDevice,
+        GameWindow window,
+        ContentManager coreContent,
+        Action exitGame,
+        EntityManager entityManager,
+        IAudioPlayer audioPlayer)
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
@@ -31,12 +37,11 @@ internal class MainGameScene : IScene
         };
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
-        _entityManager = new EntityManager();
+        _entityManager = entityManager;
 
-        IAudioPlayer audio = new AudioPlayer(_content);
         var player = new PlayerCharacter(window.Centre);
         _entityManager.Spawn(player);
-        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audio));
+        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
 
         Vector2 viewportSize = new(graphicsDevice.PresentationParameters.BackBufferWidth,
             graphicsDevice.PresentationParameters.BackBufferHeight);
@@ -45,7 +50,7 @@ internal class MainGameScene : IScene
         _entityRenderer = new EntityRenderer(_content, _spriteBatch, _camera);
         _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
-        var enemySpawner = new EnemySpawner(_entityManager, player, audio)
+        var enemySpawner = new EnemySpawner(_entityManager, player, audioPlayer)
         {
             SpawnDelay = TimeSpan.FromSeconds(1),
             BatchSize = 1
