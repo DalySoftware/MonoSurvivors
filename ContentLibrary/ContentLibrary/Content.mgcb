@@ -13,24 +13,26 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Fonts/Terminal-Grotesque-Open.spritefont
+#begin Fonts/Terminal-Grotesque-Open-Large.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/Terminal-Grotesque-Open.spritefont
+/build:Fonts/Terminal-Grotesque-Open-Large.spritefont
 
-#begin Images/Experience.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+#begin Fonts/Terminal-Grotesque-Open-Medium.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Experience.png
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Terminal-Grotesque-Open-Medium.spritefont
+
+#begin Fonts/Terminal-Grotesque-Open-Small.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Terminal-Grotesque-Open-Small.spritefont
 
 #begin Images/Experience.png
 /importer:TextureImporter
@@ -92,30 +94,6 @@
 /processorParam:TextureFormat=Color
 /build:Images/logo.png
 
-#begin Images/logo.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/logo.png
-
-#begin Images/Placeholder-BackgroundTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Placeholder-BackgroundTile.png
-
 #begin Images/Placeholder-BackgroundTile.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -140,18 +118,6 @@
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Bullet.png
 
-#begin Images/Placeholder-Bullet.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Placeholder-Bullet.png
-
 #begin Images/Placeholder-Enemy.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -163,30 +129,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Enemy.png
-
-#begin Images/Placeholder-Enemy.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Placeholder-Enemy.png
-
-#begin Images/Placeholder-Player.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Placeholder-Player.png
 
 #begin Images/Placeholder-Player.png
 /importer:TextureImporter

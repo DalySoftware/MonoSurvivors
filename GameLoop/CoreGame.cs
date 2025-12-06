@@ -1,5 +1,6 @@
 ﻿using System;
 using GameLoop.Scenes;
+using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
 using GameLoop.Scenes.Title;
 using Gameplay.Audio;
@@ -44,7 +45,19 @@ public class CoreGame : Game
         var entityManager = _services.GetRequiredService<EntityManager>();
         var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
 
-        _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit, entityManager, audioPlayer));
+        _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit, ShowGameOver, entityManager, audioPlayer));
+    }
+
+    private void ShowGameOver()
+    {
+        var gameOverScene = new GameOverScene(GraphicsDevice, Window, Content, StartGame, ReturnToTitle);
+        _sceneManager.Switch(gameOverScene);
+    }
+
+    private void ReturnToTitle()
+    {
+        var title = new TitleScreen(GraphicsDevice, Window, Content, StartGame, Exit);
+        _sceneManager.Switch(title);
     }
 
     protected override void Update(GameTime gameTime)

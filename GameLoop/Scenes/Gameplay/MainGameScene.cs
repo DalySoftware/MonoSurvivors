@@ -22,12 +22,14 @@ internal class MainGameScene : IScene
     private readonly HealthBar _healthBar;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
+    private readonly Action _onPlayerDeath;
 
     public MainGameScene(
         GraphicsDevice graphicsDevice,
         GameWindow window,
         ContentManager coreContent,
         Action exitGame,
+        Action onPlayerDeath,
         EntityManager entityManager,
         IAudioPlayer audioPlayer)
     {
@@ -38,8 +40,9 @@ internal class MainGameScene : IScene
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
         _entityManager = entityManager;
+        _onPlayerDeath = onPlayerDeath;
 
-        var player = new PlayerCharacter(window.Centre);
+        var player = new PlayerCharacter(window.Centre, _onPlayerDeath);
         _entityManager.Spawn(player);
         _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
 

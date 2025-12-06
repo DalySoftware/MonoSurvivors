@@ -27,7 +27,7 @@ internal class TitleScreen : IScene
             RootDirectory = coreContent.RootDirectory
         };
 
-        _titleFont = _content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen);
+        _titleFont = _content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Large);
         _input = new TitleInputManager
         {
             OnStartGame = onStartGame,

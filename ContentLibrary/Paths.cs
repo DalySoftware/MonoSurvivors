@@ -20,7 +20,12 @@ public static class Paths
 
     public static class Fonts
     {
-        public const string TerminalGrotesqueOpen = @"Fonts\Terminal-Grotesque-Open";
+        public static class TerminalGrotesqueOpen
+        {
+            public const string Large = @"Fonts\Terminal-Grotesque-Open-Large";
+            public const string Medium = @"Fonts\Terminal-Grotesque-Open-Medium";
+            public const string Small = @"Fonts\Terminal-Grotesque-Open-Small";
+		}
     }
 
     public static class SoundEffects
