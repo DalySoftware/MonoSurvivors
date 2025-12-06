@@ -1,5 +1,6 @@
 ﻿using System;
 using ContentLibrary;
+using GameLoop.UI;
 using Gameplay.Audio;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
@@ -20,6 +21,7 @@ internal class MainGameScene : IScene
     private readonly EntityManager _entityManager;
     private readonly EntityRenderer _entityRenderer;
     private readonly GraphicsDevice _graphics;
+    private readonly HealthBar _healthBar;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
 
@@ -57,6 +59,11 @@ internal class MainGameScene : IScene
         {
             OnExit = exitGame
         };
+
+        _healthBar = new HealthBar(_content, player)
+        {
+            Position = new Vector2(10, 10)
+        };
     }
 
     public void Dispose()
@@ -77,6 +84,7 @@ internal class MainGameScene : IScene
         DrawBackground();
 
         _entityRenderer.Draw(_entityManager.Entities);
+        _healthBar.Draw(_spriteBatch);
     }
 
     private void DrawBackground()

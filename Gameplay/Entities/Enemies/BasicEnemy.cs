@@ -13,7 +13,7 @@ public class BasicEnemy : EnemyBase, IVisual
         _followEntity = new FollowEntity(this, target, 0.1f);
         Health = 20f;
         CollisionRadius = 16f;
-        Damage = 10f;
+        Damage = 1;
     }
 
     public override float Experience => 3f;

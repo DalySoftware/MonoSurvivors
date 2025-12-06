@@ -10,8 +10,9 @@ public class PlayerCharacter(Vector2 position) : MovableEntity(position), IDamag
     private const float Speed = 0.5f;
 
     public float Experience { get; set; } = 0f;
+    public int MaxHealth => 6;
 
-    public float Health
+    public int Health
     {
         get;
         set
@@ -20,7 +21,7 @@ public class PlayerCharacter(Vector2 position) : MovableEntity(position), IDamag
                 MarkedForDeletion = true;
             field = value;
         }
-    } = 100f;
+    } = 6;
 
     public float CollisionRadius => 16f;
     public string TexturePath => Paths.Images.Player;

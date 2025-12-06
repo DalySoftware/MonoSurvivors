@@ -9,6 +9,13 @@ public static class Paths
         public const string Enemy = @"Images\Placeholder-Enemy";
         public const string Bullet = @"Images\Placeholder-Bullet";
         public const string Experience = @"Images\Experience";
+
+        public static class Heart
+        {
+            public const string Full = @"Images\Heart-Full";
+            public const string Empty = @"Images\Heart-Empty";
+            public const string Half = @"Images\Heart-Half";
+        }
     }
 
     public static class Fonts

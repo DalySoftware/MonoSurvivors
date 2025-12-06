@@ -32,6 +32,54 @@
 /processorParam:TextureFormat=Color
 /build:Images/Experience.png
 
+#begin Images/Experience.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Experience.png
+
+#begin Images/Heart-Empty.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Heart-Empty.png
+
+#begin Images/Heart-Full.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Heart-Full.png
+
+#begin Images/Heart-Half.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Heart-Half.png
+
 #begin Images/logo.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -43,6 +91,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/logo.png
+
+#begin Images/logo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/logo.png
+
+#begin Images/Placeholder-BackgroundTile.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Placeholder-BackgroundTile.png
 
 #begin Images/Placeholder-BackgroundTile.png
 /importer:TextureImporter
@@ -68,6 +140,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Bullet.png
 
+#begin Images/Placeholder-Bullet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Placeholder-Bullet.png
+
 #begin Images/Placeholder-Enemy.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -79,6 +163,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Enemy.png
+
+#begin Images/Placeholder-Enemy.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Placeholder-Enemy.png
+
+#begin Images/Placeholder-Player.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Placeholder-Player.png
 
 #begin Images/Placeholder-Player.png
 /importer:TextureImporter
@@ -116,29 +224,11 @@
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp1.wav
 
-#begin SoundEffects/ExperienceUp1.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp1.wav
-
 #begin SoundEffects/ExperienceUp2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp2.wav
-
-#begin SoundEffects/ExperienceUp2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp2.wav
-
-#begin SoundEffects/ExperienceUp3.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp3.wav
 
 #begin SoundEffects/ExperienceUp3.wav
 /importer:WavImporter
@@ -152,29 +242,11 @@
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp4.wav
 
-#begin SoundEffects/ExperienceUp4.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp4.wav
-
 #begin SoundEffects/ExperienceUp5.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp5.wav
-
-#begin SoundEffects/ExperienceUp5.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp5.wav
-
-#begin SoundEffects/Shoot1.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot1.wav
 
 #begin SoundEffects/Shoot1.wav
 /importer:WavImporter
@@ -188,18 +260,6 @@
 /processorParam:Quality=Best
 /build:SoundEffects/Shoot2.wav
 
-#begin SoundEffects/Shoot2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot2.wav
-
-#begin SoundEffects/Shoot3.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot3.wav
-
 #begin SoundEffects/Shoot3.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -211,18 +271,6 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/Shoot4.wav
-
-#begin SoundEffects/Shoot4.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot4.wav
-
-#begin SoundEffects/Shoot5.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot5.wav
 
 #begin SoundEffects/Shoot5.wav
 /importer:WavImporter

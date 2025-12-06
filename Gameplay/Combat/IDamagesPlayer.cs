@@ -4,5 +4,5 @@ namespace Gameplay.Combat;
 
 internal interface IDamagesPlayer : ICircleCollider
 {
-    public float Damage { get; }
+    public int Damage { get; }
 }

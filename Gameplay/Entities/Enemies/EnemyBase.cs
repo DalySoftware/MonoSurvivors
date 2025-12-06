@@ -30,5 +30,5 @@ public abstract class EnemyBase(Vector2 position)
     }
 
     public float CollisionRadius { get; init; }
-    public float Damage { get; init; }
+    public int Damage { get; init; }
 }
