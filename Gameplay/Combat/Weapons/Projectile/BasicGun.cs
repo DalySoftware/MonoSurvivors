@@ -10,7 +10,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
     private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
 
-    public bool MarkedForDeletion { get; set; }
+    public bool MarkedForDeletion => false;
 
     public void Update(GameTime gameTime)
     {
