@@ -14,20 +14,17 @@ namespace GameLoop.Scenes.Gameplay;
 
 internal class MainGameScene : IScene
 {
-    private readonly IAudioPlayer _audio;
     private readonly Texture2D _backgroundTile;
     private readonly ChaseCamera _camera;
     private readonly ContentManager _content;
     private readonly EntityManager _entityManager;
     private readonly EntityRenderer _entityRenderer;
-    private readonly GraphicsDevice _graphics;
     private readonly HealthBar _healthBar;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
 
     public MainGameScene(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent, Action exitGame)
     {
-        _graphics = graphicsDevice;
         _content = new ContentManager(coreContent.ServiceProvider)
         {
             RootDirectory = coreContent.RootDirectory
@@ -36,19 +33,19 @@ internal class MainGameScene : IScene
         _spriteBatch = new SpriteBatch(graphicsDevice);
         _entityManager = new EntityManager();
 
-        _audio = new AudioPlayer(_content);
+        IAudioPlayer audio = new AudioPlayer(_content);
         var player = new PlayerCharacter(window.Centre);
         _entityManager.Spawn(player);
-        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, _audio));
+        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audio));
 
-        Vector2 viewportSize = new(_graphics.PresentationParameters.BackBufferWidth,
-            _graphics.PresentationParameters.BackBufferHeight);
+        Vector2 viewportSize = new(graphicsDevice.PresentationParameters.BackBufferWidth,
+            graphicsDevice.PresentationParameters.BackBufferHeight);
         _camera = new ChaseCamera(viewportSize, player);
 
         _entityRenderer = new EntityRenderer(_content, _spriteBatch, _camera);
         _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
-        var enemySpawner = new EnemySpawner(_entityManager, player, _audio)
+        var enemySpawner = new EnemySpawner(_entityManager, player, audio)
         {
             SpawnDelay = TimeSpan.FromSeconds(1),
             BatchSize = 1
