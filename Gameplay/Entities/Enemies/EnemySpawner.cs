@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gameplay.Audio;
 using Gameplay.Levelling;
 
 namespace Gameplay.Entities.Enemies;
 
-public class EnemySpawner(EntityManager entityManager, PlayerCharacter target) : IEntity
+public class EnemySpawner(EntityManager entityManager, PlayerCharacter target, IAudioPlayer audio) : IEntity
 {
     private readonly Random _random = new();
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
-    public TimeSpan SpawnDelay { get; set; } = TimeSpan.FromSeconds(1);
+    public required TimeSpan SpawnDelay { get; set; }
     public int BatchSize { get; set; } = 1;
 
     public bool MarkedForDeletion => false;
@@ -50,7 +51,7 @@ public class EnemySpawner(EntityManager entityManager, PlayerCharacter target) :
         for (var i = 0; i < deadEnemy.Experience; i++)
         {
             var position = deadEnemy.Position + new Vector2(_random.Next(-10, 10), _random.Next(-10, 10));
-            yield return new Experience(position, 1f, target);
+            yield return new Experience(position, 1f, target, audio);
         }
     }
 }

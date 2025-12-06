@@ -1,4 +1,5 @@
 ﻿using ContentLibrary;
+using Gameplay.Audio;
 using Gameplay.Behaviour;
 using Gameplay.Entities;
 using Gameplay.Rendering;
@@ -7,10 +8,12 @@ namespace Gameplay.Levelling;
 
 public class Experience : MovableEntity, IPickup, IVisual
 {
+    private readonly IAudioPlayer _audio;
     private readonly GravitateToEntity _followEntity;
 
-    public Experience(Vector2 position, float value, PlayerCharacter player) : base(position)
+    public Experience(Vector2 position, float value, PlayerCharacter player, IAudioPlayer audio) : base(position)
     {
+        _audio = audio;
         _followEntity = new GravitateToEntity(this, player);
         Value = value;
     }
@@ -22,6 +25,7 @@ public class Experience : MovableEntity, IPickup, IVisual
     public void OnPickupBy(PlayerCharacter player)
     {
         player.Experience += Value;
+        _audio.Play(SoundEffectTypes.ExperiencePickup);
         MarkedForDeletion = true;
     }
 

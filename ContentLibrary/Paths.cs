@@ -23,5 +23,11 @@ public static class Paths
         public const string Shoot3 = @"SoundEffects\Shoot3";
         public const string Shoot4 = @"SoundEffects\Shoot4";
         public const string Shoot5 = @"SoundEffects\Shoot5";
+
+        public const string ExperienceUp1 = @"SoundEffects\ExperienceUp1";
+        public const string ExperienceUp2 = @"SoundEffects\ExperienceUp2";
+        public const string ExperienceUp3 = @"SoundEffects\ExperienceUp3";
+        public const string ExperienceUp4 = @"SoundEffects\ExperienceUp4";
+        public const string ExperienceUp5 = @"SoundEffects\ExperienceUp5";
     }
 }
