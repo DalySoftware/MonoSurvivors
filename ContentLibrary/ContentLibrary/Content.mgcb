@@ -92,11 +92,41 @@
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Player.png
 
+#begin SoundEffects/EnemyDeath1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/EnemyDeath1.wav
+
+#begin SoundEffects/EnemyDeath2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/EnemyDeath2.wav
+
+#begin SoundEffects/EnemyDeath3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/EnemyDeath3.wav
+
 #begin SoundEffects/ExperienceUp1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp1.wav
+
+#begin SoundEffects/ExperienceUp1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/ExperienceUp1.wav
+
+#begin SoundEffects/ExperienceUp2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/ExperienceUp2.wav
 
 #begin SoundEffects/ExperienceUp2.wav
 /importer:WavImporter
@@ -110,11 +140,29 @@
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp3.wav
 
+#begin SoundEffects/ExperienceUp3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/ExperienceUp3.wav
+
 #begin SoundEffects/ExperienceUp4.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp4.wav
+
+#begin SoundEffects/ExperienceUp4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/ExperienceUp4.wav
+
+#begin SoundEffects/ExperienceUp5.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/ExperienceUp5.wav
 
 #begin SoundEffects/ExperienceUp5.wav
 /importer:WavImporter

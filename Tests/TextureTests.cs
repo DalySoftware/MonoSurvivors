@@ -58,7 +58,7 @@ public class TextureTests : IDisposable
             Player,
             () => new Bullet(Zero, Zero),
             () => new BasicEnemy(Zero, Player()),
-            () => new Experience(Zero, 0f, Player())
+            () => new Experience(Zero, 0f, Player(), null!)
         ];
     }
 }

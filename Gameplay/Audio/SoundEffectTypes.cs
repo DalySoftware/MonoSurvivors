@@ -3,5 +3,6 @@
 public enum SoundEffectTypes
 {
     Shoot,
-    ExperiencePickup
+    ExperiencePickup,
+    EnemyDeath
 }

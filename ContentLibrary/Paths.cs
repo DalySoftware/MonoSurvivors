@@ -29,5 +29,9 @@ public static class Paths
         public const string ExperienceUp3 = @"SoundEffects\ExperienceUp3";
         public const string ExperienceUp4 = @"SoundEffects\ExperienceUp4";
         public const string ExperienceUp5 = @"SoundEffects\ExperienceUp5";
+
+        public const string EnemyDeath1 = @"SoundEffects\EnemyDeath1";
+        public const string EnemyDeath2 = @"SoundEffects\EnemyDeath2";
+        public const string EnemyDeath3 = @"SoundEffects\EnemyDeath3";
     }
 }

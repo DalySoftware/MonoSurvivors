@@ -44,6 +44,7 @@ public class EnemySpawner(EntityManager entityManager, PlayerCharacter target, I
     {
         foreach (var experience in GetExperiences(deadEnemy))
             entityManager.Spawn(experience);
+        audio.Play(SoundEffectTypes.EnemyDeath);
     }
 
     private IEnumerable<Experience> GetExperiences(EnemyBase deadEnemy)
