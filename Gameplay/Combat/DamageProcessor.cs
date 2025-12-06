@@ -15,12 +15,13 @@ public static class DamageProcessor
         var playerDamagers = entities.OfType<IDamagesPlayer>();
         var players = entities.OfType<IDamageablePlayer>();
 
-        var playerDamagePairs = playerDamagers
-            .SelectMany(damager => players.Select(player => (player, damager)))
+        var playerDamagePairs = players
+            .Where(player => player.Damageable)
+            .SelectMany(player => playerDamagers.Select(damager => (player, damager)))
             .Where(pair => CircleChecker.HasOverlap(pair.damager, pair.player));
 
         foreach (var (damageablePlayer, damager) in playerDamagePairs)
-            damageablePlayer.Health -= damager.Damage;
+            damageablePlayer.TakeDamage(damager.Damage);
 
         var enemyDamagers = entities.OfType<IDamagesEnemies>();
         var enemies = entities.OfType<IDamageableEnemy>();
