@@ -23,11 +23,11 @@ internal class TestGame : Game
 ///     Check that entity collision radii are close to rendered size
 /// </summary>
 [NotInParallel] // We can't run the game multiple times at once
-public class TextureTests : IDisposable
+public sealed class CollisionRadiusTests : IDisposable
 {
     private readonly TestGame _game;
 
-    public TextureTests()
+    public CollisionRadiusTests()
     {
         _game = new TestGame();
         _game.RunOneFrame();
