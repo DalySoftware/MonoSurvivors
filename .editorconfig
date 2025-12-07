@@ -2,3 +2,6 @@
 
 # CA1826: Do not use Enumerable methods on indexable collections
 dotnet_diagnostic.CA1826.severity = none
+
+# IDE0011: Add braces
+dotnet_diagnostic.IDE0011.severity = none

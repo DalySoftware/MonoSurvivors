@@ -142,6 +142,12 @@
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Player.png
 
+#begin Shaders/greyscale.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/greyscale.fx
+
 #begin SoundEffects/EnemyDeath1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

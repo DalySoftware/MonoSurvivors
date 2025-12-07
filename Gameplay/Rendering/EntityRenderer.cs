@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Gameplay.Behaviour;
+using ContentLibrary;
 using Gameplay.Entities;
 using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework.Content;
@@ -10,27 +10,48 @@ namespace Gameplay.Rendering;
 
 public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, ChaseCamera camera, EffectManager effectManager)
 {
-    private readonly Dictionary<string, Texture2D> _textureCache = new();
+    private readonly Dictionary<string, Texture2D> _textureCache = [];
+
+    private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
 
     public void Draw(IEnumerable<IEntity> entities)
     {
+        var effectsLookup = entities
+            .OfType<IVisual>()
+            .ToDictionary(
+                e => e,
+                e => effectManager.GetEffects(e).ToList());
+
+
         spriteBatch.Begin(transformMatrix: camera.Transform);
-        foreach (var entity in entities.OfType<IHasPosition>()) Draw(entity);
+        foreach (var (entity, _) in effectsLookup.Where(pair => pair.Value.Count == 0))
+            Draw(entity);
         spriteBatch.End();
+
+        // Todo - This is quite inefficient. We're individually flushing entities with effects
+        foreach (var (entity, effects) in effectsLookup)
+            foreach (var effect in effects)
+                DrawWithEffect(entity, effect, spriteBatch);
     }
 
-    private void Draw(IHasPosition entity)
+    private void Draw(IVisual visual)
     {
-        if (entity is not IVisual visual) return;
-
         var texture = GetTexture(visual.TexturePath);
-        var effects = effectManager.GetEffects(entity);
-        var color = GetEffectiveColor(effects);
-        spriteBatch.Draw(texture, entity.Position, color: color, origin: texture.Centre);
+        spriteBatch.Draw(texture, visual.Position, origin: texture.Centre);
     }
 
-    private static Color GetEffectiveColor(IReadOnlyList<VisualEffect> effects) =>
-        effects.FirstOrDefault()?.ComputeColor() ?? Color.White;
+    private void DrawWithEffect(IVisual visual, VisualEffect effect, SpriteBatch spriteBatch)
+    {
+        var texture = GetTexture(visual.TexturePath);
+        switch (effect)
+        {
+            case GreyscaleEffect:
+                spriteBatch.Begin(transformMatrix: camera.Transform, effect: _grayscaleEffect);
+                spriteBatch.Draw(texture, visual.Position, origin: texture.Centre);
+                spriteBatch.End();
+                break;
+        }
+    }
 
     private Texture2D GetTexture(string path)
     {

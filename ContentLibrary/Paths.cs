@@ -25,7 +25,7 @@ public static class Paths
             public const string Large = @"Fonts\Terminal-Grotesque-Open-Large";
             public const string Medium = @"Fonts\Terminal-Grotesque-Open-Medium";
             public const string Small = @"Fonts\Terminal-Grotesque-Open-Small";
-		}
+        }
     }
 
     public static class SoundEffects
@@ -45,5 +45,10 @@ public static class Paths
         public const string EnemyDeath1 = @"SoundEffects\EnemyDeath1";
         public const string EnemyDeath2 = @"SoundEffects\EnemyDeath2";
         public const string EnemyDeath3 = @"SoundEffects\EnemyDeath3";
+    }
+
+    public static class ShaderEffects
+    {
+        public const string Greyscale = @"Shaders\greyscale";
     }
 }
