@@ -8,14 +8,18 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Entities;
 
-public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAudioPlayer audio, Action? onDeath = null) : MovableEntity(position), IDamageablePlayer, IVisual
+public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAudioPlayer audio, Action? onDeath = null)
+    : MovableEntity(position), IDamageablePlayer, IVisual
 {
     private const float Speed = 0.5f;
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
 
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
 
-    public float Experience { get; set; } = 0f;
+    public float Experience { get; private set; }
+
+    public void GainExperience(float amount) => Experience += amount;
+
     public int MaxHealth => 6;
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
 

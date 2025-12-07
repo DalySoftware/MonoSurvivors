@@ -10,21 +10,20 @@ public class Experience : MovableEntity, IPickup, IVisual
 {
     private readonly IAudioPlayer _audio;
     private readonly GravitateToEntity _followEntity;
+    private readonly float _value;
 
     public Experience(Vector2 position, float value, PlayerCharacter player, IAudioPlayer audio) : base(position)
     {
         _audio = audio;
         _followEntity = new GravitateToEntity(this, player);
-        Value = value;
+        _value = value;
     }
-
-    public float Value { get; init; }
 
     public float CollisionRadius => 8f;
 
     public void OnPickupBy(PlayerCharacter player)
     {
-        player.Experience += Value;
+        player.GainExperience(_value);
         _audio.Play(SoundEffectTypes.ExperiencePickup);
         MarkedForDeletion = true;
     }
