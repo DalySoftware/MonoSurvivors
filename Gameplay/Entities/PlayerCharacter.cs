@@ -2,11 +2,12 @@
 using ContentLibrary;
 using Gameplay.Combat;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Effects;
 using Gameplay.Utilities;
 
 namespace Gameplay.Entities;
 
-public class PlayerCharacter(Vector2 position, Action? onDeath = null) : MovableEntity(position), IDamageablePlayer, IVisual
+public class PlayerCharacter(Vector2 position, EffectManager effectManager, Action? onDeath = null) : MovableEntity(position), IDamageablePlayer, IVisual
 {
     private const float Speed = 0.5f;
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
@@ -17,7 +18,7 @@ public class PlayerCharacter(Vector2 position, Action? onDeath = null) : Movable
     public int MaxHealth => 6;
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
 
-	public int Health { get; private set; } = 6;
+    public int Health { get; private set; } = 6;
 
     public float CollisionRadius => 16f;
 
@@ -27,13 +28,14 @@ public class PlayerCharacter(Vector2 position, Action? onDeath = null) : Movable
 
         Health -= damage;
         _invincibilityDuration = _invincibilityOnHit;
+        effectManager.FireEffect(this, new GreyscaleEffect(_invincibilityOnHit));
 
         if (Health > 0) return;
 
         Health = 0;
         MarkedForDeletion = true;
         onDeath?.Invoke();
-	}
+    }
 
     public string TexturePath => Paths.Images.Player;
 

@@ -5,6 +5,7 @@ using GameLoop.Scenes.Gameplay;
 using GameLoop.Scenes.Title;
 using Gameplay.Audio;
 using Gameplay.Entities;
+using Gameplay.Rendering.Effects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 
@@ -44,8 +45,9 @@ public class CoreGame : Game
     {
         var entityManager = _services.GetRequiredService<EntityManager>();
         var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
+        var effectManager = _services.GetRequiredService<EffectManager>();
 
-        _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit, ShowGameOver, entityManager, audioPlayer));
+        _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit, ShowGameOver, entityManager, audioPlayer, effectManager));
     }
 
     private void ShowGameOver()

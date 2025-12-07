@@ -2,12 +2,13 @@
 using System.Linq;
 using Gameplay.Behaviour;
 using Gameplay.Entities;
+using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, ChaseCamera camera)
+public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, ChaseCamera camera, EffectManager effectManager)
 {
     private readonly Dictionary<string, Texture2D> _textureCache = new();
 
@@ -23,8 +24,13 @@ public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, Cha
         if (entity is not IVisual visual) return;
 
         var texture = GetTexture(visual.TexturePath);
-        spriteBatch.Draw(texture, entity.Position, origin: texture.Centre);
+        var effects = effectManager.GetEffects(entity);
+        var color = GetEffectiveColor(effects);
+        spriteBatch.Draw(texture, entity.Position, color: color, origin: texture.Centre);
     }
+
+    private static Color GetEffectiveColor(IReadOnlyList<VisualEffect> effects) =>
+        effects.FirstOrDefault()?.ComputeColor() ?? Color.White;
 
     private Texture2D GetTexture(string path)
     {

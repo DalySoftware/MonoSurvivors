@@ -6,6 +6,7 @@ using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,6 +20,7 @@ internal class MainGameScene : IScene
     private readonly ContentManager _content;
     private readonly EntityManager _entityManager;
     private readonly EntityRenderer _entityRenderer;
+    private readonly EffectManager _effectManager;
     private readonly HealthBar _healthBar;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
@@ -31,7 +33,8 @@ internal class MainGameScene : IScene
         Action exitGame,
         Action onPlayerDeath,
         EntityManager entityManager,
-        IAudioPlayer audioPlayer)
+        IAudioPlayer audioPlayer,
+        EffectManager effectManager)
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
@@ -41,8 +44,9 @@ internal class MainGameScene : IScene
         _spriteBatch = new SpriteBatch(graphicsDevice);
         _entityManager = entityManager;
         _onPlayerDeath = onPlayerDeath;
+        _effectManager = effectManager;
 
-        var player = new PlayerCharacter(window.Centre, _onPlayerDeath);
+        var player = new PlayerCharacter(window.Centre, _effectManager, _onPlayerDeath);
         _entityManager.Spawn(player);
         _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
 
@@ -50,7 +54,7 @@ internal class MainGameScene : IScene
             graphicsDevice.PresentationParameters.BackBufferHeight);
         _camera = new ChaseCamera(viewportSize, player);
 
-        _entityRenderer = new EntityRenderer(_content, _spriteBatch, _camera);
+        _entityRenderer = new EntityRenderer(_content, _spriteBatch, _camera, _effectManager);
         _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
         var enemySpawner = new EnemySpawner(_entityManager, player, audioPlayer)
@@ -80,6 +84,7 @@ internal class MainGameScene : IScene
     public void Update(GameTime gameTime)
     {
         _input.Update();
+        _effectManager.Update(gameTime);
         _entityManager.Update(gameTime);
         _camera.Follow(gameTime);
     }

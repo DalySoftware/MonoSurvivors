@@ -1,6 +1,7 @@
 using System;
 using Gameplay.Audio;
 using Gameplay.Entities;
+using Gameplay.Rendering.Effects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework.Content;
 
@@ -17,6 +18,7 @@ internal static class ServiceConfiguration
         // Register gameplay services as transient (new instance per scene)
         services.AddTransient<EntityManager>();
         services.AddTransient<IAudioPlayer, AudioPlayer>();
+        services.AddTransient<EffectManager>();
 
         return services.BuildServiceProvider();
     }
