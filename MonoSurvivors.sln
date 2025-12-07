@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{77808CBB-6A2B-4C97-96AD-2D624390D718}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.github\instructions.md = .github\instructions.md
 	EndProjectSection
 EndProject
 Global
