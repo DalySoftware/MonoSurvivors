@@ -13,6 +13,34 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Fonts/BoldPixels-Large.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/BoldPixels-Large.spritefont
+
+#begin Fonts/BoldPixels-Medium.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/BoldPixels-Medium.spritefont
+
+#begin Fonts/BoldPixels-Small.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/BoldPixels-Small.spritefont
+
+#begin Fonts/KarmaticArcade-Large.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/KarmaticArcade-Large.spritefont
+
 #begin Fonts/Terminal-Grotesque-Open-Large.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -154,29 +182,11 @@
 /processorParam:Quality=Best
 /build:SoundEffects/EnemyDeath1.wav
 
-#begin SoundEffects/EnemyDeath1.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/EnemyDeath1.wav
-
 #begin SoundEffects/EnemyDeath2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/EnemyDeath2.wav
-
-#begin SoundEffects/EnemyDeath2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/EnemyDeath2.wav
-
-#begin SoundEffects/EnemyDeath3.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/EnemyDeath3.wav
 
 #begin SoundEffects/EnemyDeath3.wav
 /importer:WavImporter
@@ -190,18 +200,6 @@
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp1.wav
 
-#begin SoundEffects/ExperienceUp1.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp1.wav
-
-#begin SoundEffects/ExperienceUp2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp2.wav
-
 #begin SoundEffects/ExperienceUp2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -214,29 +212,11 @@
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp3.wav
 
-#begin SoundEffects/ExperienceUp3.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp3.wav
-
 #begin SoundEffects/ExperienceUp4.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp4.wav
-
-#begin SoundEffects/ExperienceUp4.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp4.wav
-
-#begin SoundEffects/ExperienceUp5.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/ExperienceUp5.wav
 
 #begin SoundEffects/ExperienceUp5.wav
 /importer:WavImporter
@@ -268,18 +248,6 @@
 /processorParam:Quality=Best
 /build:SoundEffects/Shoot1.wav
 
-#begin SoundEffects/Shoot1.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot1.wav
-
-#begin SoundEffects/Shoot2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot2.wav
-
 #begin SoundEffects/Shoot2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -292,29 +260,11 @@
 /processorParam:Quality=Best
 /build:SoundEffects/Shoot3.wav
 
-#begin SoundEffects/Shoot3.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot3.wav
-
 #begin SoundEffects/Shoot4.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/Shoot4.wav
-
-#begin SoundEffects/Shoot4.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot4.wav
-
-#begin SoundEffects/Shoot5.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SoundEffects/Shoot5.wav
 
 #begin SoundEffects/Shoot5.wav
 /importer:WavImporter

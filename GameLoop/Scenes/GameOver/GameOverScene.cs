@@ -30,8 +30,8 @@ internal class GameOverScene : IScene
         _spriteBatch = new SpriteBatch(graphicsDevice);
         _window = window;
 
-        _titleFont = _content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Large);
-        _messageFont = _content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Medium);
+        _titleFont = _content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
+        _messageFont = _content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
 
         _input = new GameOverInputManager
         {
@@ -47,15 +47,15 @@ internal class GameOverScene : IScene
         _spriteBatch.Begin();
 
         // Draw "Game Over" title
-        var titleText = "GAME OVER";
+        const string titleText = "Game Over";
         var titleSize = _titleFont.MeasureString(titleText);
         var titlePosition = new Vector2(
             _window.Centre.X - titleSize.X / 2,
             _window.Centre.Y - 100);
-        _spriteBatch.DrawString(_titleFont, titleText, titlePosition, Color.OrangeRed);
+        _spriteBatch.DrawString(_titleFont, titleText, titlePosition, Color.Firebrick);
 
         // Draw instructions
-        var instructionsText = "SPACE to Restart | ESC to Exit";
+        const string instructionsText = "SPACE to Restart | ESC to Exit";
         var instructionsSize = _messageFont.MeasureString(instructionsText);
         var instructionsPosition = new Vector2(
             _window.Centre.X - instructionsSize.X / 2,

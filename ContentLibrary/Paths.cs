@@ -26,6 +26,18 @@ public static class Paths
             public const string Medium = @"Fonts\Terminal-Grotesque-Open-Medium";
             public const string Small = @"Fonts\Terminal-Grotesque-Open-Small";
         }
+
+        public static class KarmaticArcade
+        {
+            public const string Large = @"Fonts\KarmaticArcade-Large";
+        }
+
+        public static class BoldPixels
+        {
+            public const string Large = @"Fonts\BoldPixels-Large";
+            public const string Medium = @"Fonts\BoldPixels-Medium";
+            public const string Small = @"Fonts\BoldPixels-Small";
+        }
     }
 
     public static class SoundEffects

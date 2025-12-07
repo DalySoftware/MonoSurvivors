@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Numerics;
 using ContentLibrary;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameLoop.Scenes.Title;
 
@@ -27,7 +29,7 @@ internal class TitleScreen : IScene
             RootDirectory = coreContent.RootDirectory
         };
 
-        _titleFont = _content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Large);
+        _titleFont = _content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
         _input = new TitleInputManager
         {
             OnStartGame = onStartGame,
@@ -41,9 +43,20 @@ internal class TitleScreen : IScene
     {
         _spriteBatch.Begin();
 
-        var titleCentre = _titleFont.MeasureString("MonoSurvivors") / 2;
         var windowCentre = _window.Centre;
-        _spriteBatch.DrawString(_titleFont, "MonoSurvivors", windowCentre, Color.OrangeRed, origin: titleCentre);
+        var shadowOffset = new Vector2(5f, 5f);
+        
+        const string line1 = "Mono";
+        var line1Centre = _titleFont.MeasureString(line1) / 2;
+        var line1Position = windowCentre + new Vector2(0f, -75f); 
+        _spriteBatch.DrawString(_titleFont, line1, line1Position + shadowOffset, Color.DarkSlateGray, origin: line1Centre);
+        _spriteBatch.DrawString(_titleFont, line1, line1Position, Color.DarkOrange, origin: line1Centre);
+
+        const string line2 = "Survivors";
+        var line2Centre = _titleFont.MeasureString(line2) / 2;
+        var line2Position = windowCentre + new Vector2(0f, 75f);
+        _spriteBatch.DrawString(_titleFont, line2, line2Position + shadowOffset, Color.DarkSlateGray, origin: line2Centre);
+        _spriteBatch.DrawString(_titleFont, line2, line2Position, Color.DarkOrange, origin: line2Centre);
 
         _spriteBatch.End();
     }
