@@ -46,7 +46,7 @@ internal class MainGameScene : IScene
         _onPlayerDeath = onPlayerDeath;
         _effectManager = effectManager;
 
-        var player = new PlayerCharacter(window.Centre, _effectManager, _onPlayerDeath);
+        var player = new PlayerCharacter(window.Centre, _effectManager, audioPlayer, _onPlayerDeath);
         _entityManager.Spawn(player);
         _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
 

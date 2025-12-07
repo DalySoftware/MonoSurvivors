@@ -45,6 +45,10 @@ public static class Paths
         public const string EnemyDeath1 = @"SoundEffects\EnemyDeath1";
         public const string EnemyDeath2 = @"SoundEffects\EnemyDeath2";
         public const string EnemyDeath3 = @"SoundEffects\EnemyDeath3";
+
+        public const string PlayerHurt1 = @"SoundEffects\PlayerHurt1";
+        public const string PlayerHurt2 = @"SoundEffects\PlayerHurt2";
+        public const string PlayerHurt3 = @"SoundEffects\PlayerHurt3";
     }
 
     public static class ShaderEffects

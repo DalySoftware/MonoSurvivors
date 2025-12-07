@@ -16,6 +16,7 @@ public class AudioPlayer(ContentManager content) : IAudioPlayer
         SoundEffectTypes.Shoot => _effects.Shoot,
         SoundEffectTypes.ExperiencePickup => _effects.ExperienceUp,
         SoundEffectTypes.EnemyDeath => _effects.EnemyDeath,
+        SoundEffectTypes.PlayerHurt => _effects.PlayerHurt,
         _ => throw new ArgumentException("Unknown sound effect type")
     };
 }

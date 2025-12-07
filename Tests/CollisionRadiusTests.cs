@@ -51,7 +51,7 @@ public sealed class CollisionRadiusTests : IDisposable
 
     internal class TestData
     {
-        private static PlayerCharacter Player() => new(Zero, null!);
+        private static PlayerCharacter Player() => new(Zero, null!, null!);
 
         public static IEnumerable<Func<ICircleCollider>> Entities() =>
         [
