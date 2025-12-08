@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
@@ -25,7 +24,8 @@ public class SphereGridUi : UiElement
     private readonly SphereGrid _grid;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
-    private readonly SpriteFont _font;
+    private readonly SpriteFont _fontSmall;
+    private readonly SpriteFont _fontLarge;
     private readonly Texture2D _gridNodeSprite;
     private readonly GraphicsDevice _graphicsDevice;
 
@@ -40,7 +40,8 @@ public class SphereGridUi : UiElement
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
         _graphicsDevice = graphicsDevice;
-        _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
+        _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
+        _fontLarge =  content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
         _gridNodeSprite = content.Load<Texture2D>(Paths.Images.GridNode);
 
         // Center the grid on screen
@@ -57,26 +58,22 @@ public class SphereGridUi : UiElement
         var mouseState = Mouse.GetState();
         _hoveredNode = null;
 
-        // Find hovered node
-        foreach (var node in _grid.Nodes)
+        _hoveredNode = _grid.Nodes.FirstOrDefault(node =>
         {
-            if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
+            if (!_nodePositions.TryGetValue(node, out var nodePos)) return false;
 
             var screenPos = Position + _offset + nodePos;
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
-            if (Vector2.Distance(mousePos, screenPos) <= NodeRadius)
-            {
-                _hoveredNode = node;
+            return Vector2.Distance(mousePos, screenPos) <= NodeRadius;
+        });
 
-                // Click to unlock
-                if (mouseState.LeftButton == ButtonState.Pressed &&
-                    _previousMouseState.LeftButton == ButtonState.Released)
-                {
-                    _grid.Unlock(node);
-                }
-                break;
-            }
+        // Click to unlock
+        if (_hoveredNode != null  &&
+            mouseState.LeftButton == ButtonState.Pressed &&
+            _previousMouseState.LeftButton == ButtonState.Released)
+        {
+            _grid.Unlock(_hoveredNode);
         }
 
         _previousMouseState = mouseState;
@@ -93,14 +90,14 @@ public class SphereGridUi : UiElement
         var viewport = _graphicsDevice.Viewport;
 
         // Draw title
-        var title = "Sphere Grid";
-        var titleSize = _font.MeasureString(title);
-        spriteBatch.DrawString(_font, title, new Vector2(viewport.Width / 2 - titleSize.X / 2, 20),
+        const string title = "Level Up";
+        var titleSize = _fontLarge.MeasureString(title);
+        spriteBatch.DrawString(_fontLarge, title, new Vector2(viewport.Width / 2 - titleSize.X / 2, 20),
             Color.White);
 
-        var helpText = "Click nodes to unlock | Tab to close";
-        var helpSize = _font.MeasureString(helpText);
-        spriteBatch.DrawString(_font, helpText,
+        const string helpText = "Click nodes to unlock | Tab to close";
+        var helpSize = _fontSmall.MeasureString(helpText);
+        spriteBatch.DrawString(_fontSmall, helpText,
             new Vector2(viewport.Width / 2 - helpSize.X / 2, viewport.Height - 40),
             Color.Gray);
 
@@ -123,17 +120,8 @@ public class SphereGridUi : UiElement
             }
         }
 
-        // Draw nodes
         foreach (var node in _grid.Nodes)
-        {
             DrawNode(spriteBatch, node);
-        }
-
-        // Draw tooltip for hovered node
-        if (_hoveredNode != null)
-        {
-            DrawTooltip(spriteBatch, _hoveredNode);
-        }
 
         spriteBatch.End();
     }
@@ -153,9 +141,12 @@ public class SphereGridUi : UiElement
         var screenNodePos = Position + _offset + nodePos;
         DrawNode(spriteBatch, screenNodePos, color);
 
-        // Draw a highlight on top
         if (node == _hoveredNode)
+        {
+            // Draw a highlight on top
             DrawNode(spriteBatch, screenNodePos, Color.White * 0.4f);
+            DrawTooltip(spriteBatch, _hoveredNode);
+        }
     }
 
     private void DrawNode(SpriteBatch spriteBatch, Vector2 center, Color color) => 
