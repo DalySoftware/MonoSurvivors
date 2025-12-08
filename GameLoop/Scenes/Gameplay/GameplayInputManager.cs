@@ -9,19 +9,14 @@ namespace GameLoop.Scenes.Gameplay;
 internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
 {
     internal Action OnOpenSphereGrid { get; init; } = () => { };
-    private KeyboardState _previousKeyboardState;
 
     internal override void Update()
     {
         base.Update();
 
-        var keyboardState = Keyboard.GetState();
-        var gamePadState = GamePad.GetState(0);
-
-        if (keyboardState.IsKeyDown(Keys.Tab) && !_previousKeyboardState.IsKeyDown(Keys.Tab))
+        if (WasPressedThisFrame(Keys.Tab))
         {
             OnOpenSphereGrid();
-            _previousKeyboardState = keyboardState;
             return;
         }
 
@@ -29,15 +24,15 @@ internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
         var y = 0f;
 
         // Keyboard input
-        if (keyboardState.IsKeyDown(Keys.S)) x -= 1f;
-        if (keyboardState.IsKeyDown(Keys.F)) x += 1f;
-        if (keyboardState.IsKeyDown(Keys.E)) y -= 1f;
-        if (keyboardState.IsKeyDown(Keys.D)) y += 1f;
+        if (KeyboardState.IsKeyDown(Keys.S)) x -= 1f;
+        if (KeyboardState.IsKeyDown(Keys.F)) x += 1f;
+        if (KeyboardState.IsKeyDown(Keys.E)) y -= 1f;
+        if (KeyboardState.IsKeyDown(Keys.D)) y += 1f;
 
         // GamePad input (left thumbstick)
-        if (gamePadState.IsConnected)
+        if (GamePadState.IsConnected)
         {
-            var thumbStick = gamePadState.ThumbSticks.Left;
+            var thumbStick = GamePadState.ThumbSticks.Left;
             x += thumbStick.X;
             y -= thumbStick.Y; // Y is inverted on thumbsticks
         }
@@ -46,7 +41,5 @@ internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
             player.DirectionInput(new UnitVector2(x, y));
         else
             player.DirectionInput(new UnitVector2(0f, 0f));
-
-        _previousKeyboardState = keyboardState;
     }
 }

@@ -12,9 +12,6 @@ internal class TitleInputManager : BaseInputManager
     {
         base.Update();
 
-        var keyboardState = Keyboard.GetState();
-        var gamePadState = GamePad.GetState(0);
-
-        if (keyboardState.IsKeyDown(Keys.Enter) || gamePadState.Buttons.Start == ButtonState.Pressed) OnStartGame();
+        if (WasPressedThisFrame(Keys.Enter) || GamePadState.Buttons.Start == ButtonState.Pressed) OnStartGame();
     }
 }
