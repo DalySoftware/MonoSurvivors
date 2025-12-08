@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace Gameplay.Levelling;
 
@@ -16,34 +14,6 @@ public class NoOpEffect : ISphereGridNodeEffect
     public void Apply(object target) { }
 }
 
-public class StatBoostEffect : ISphereGridNodeEffect
-{
-    public string StatName { get; init; } = "";
-    public float Amount { get; init; }
-    public bool IsPercentage { get; init; }
-
-    public string Description => IsPercentage
-        ? $"+{Amount}% {StatName}"
-        : $"+{Amount} {StatName}";
-
-    public void Apply(object target)
-    {
-        // Implementation will depend on your player stats system
-        // For now, this is a placeholder
-    }
-}
-
-public class AbilityUnlockEffect : ISphereGridNodeEffect
-{
-    public string AbilityName { get; init; } = "";
-
-    public string Description => $"Unlock: {AbilityName}";
-
-    public void Apply(object target)
-    {
-        // Implementation will depend on your ability system
-    }
-}
 
 public enum SphereGridNodeType
 {
@@ -68,7 +38,7 @@ public class SphereGrid
 {
     private readonly Dictionary<string, SphereGridNode> _nodes = new();
     private readonly HashSet<string> _unlocked = [];
-    private int _availablePoints = 0;
+    private int _availablePoints;
 
     public IReadOnlyDictionary<string, SphereGridNode> Nodes => _nodes;
     public IReadOnlyCollection<string> Unlocked => _unlocked;
@@ -139,7 +109,7 @@ public class SphereGrid
             Name = "Origin",
             Type = SphereGridNodeType.KeyNode,
             Position = new Vector2(0, 0),
-            Effect = new StatBoostEffect { StatName = "HP", Amount = 10 }
+            Effect = new NoOpEffect()
         };
         grid.AddNode(start);
 
@@ -150,7 +120,7 @@ public class SphereGrid
             Name = "+STR",
             Type = SphereGridNodeType.Small,
             Position = new Vector2(100, 0),
-            Effect = new StatBoostEffect { StatName = "Strength", Amount = 5 }
+            Effect = new NoOpEffect()
         };
         var str2 = new SphereGridNode
         {
@@ -158,7 +128,7 @@ public class SphereGrid
             Name = "+STR",
             Type = SphereGridNodeType.Small,
             Position = new Vector2(200, 0),
-            Effect = new StatBoostEffect { StatName = "Strength", Amount = 5 }
+            Effect = new NoOpEffect()
         };
         var strKey = new SphereGridNode
         {
@@ -167,7 +137,7 @@ public class SphereGrid
             Type = SphereGridNodeType.KeyNode,
             Position = new Vector2(300, 0),
             Cost = 3,
-            Effect = new AbilityUnlockEffect { AbilityName = "Power Strike" }
+            Effect = new NoOpEffect()
         };
         grid.AddNode(str1);
         grid.AddNode(str2);
@@ -180,7 +150,7 @@ public class SphereGrid
             Name = "+AGI",
             Type = SphereGridNodeType.Small,
             Position = new Vector2(70, -70),
-            Effect = new StatBoostEffect { StatName = "Agility", Amount = 5 }
+            Effect = new NoOpEffect()
         };
         var agi2 = new SphereGridNode
         {
@@ -189,7 +159,7 @@ public class SphereGrid
             Type = SphereGridNodeType.Medium,
             Position = new Vector2(140, -140),
             Cost = 2,
-            Effect = new StatBoostEffect { StatName = "Speed", Amount = 10, IsPercentage = true }
+            Effect = new NoOpEffect()
         };
         grid.AddNode(agi1);
         grid.AddNode(agi2);
@@ -201,7 +171,7 @@ public class SphereGrid
             Name = "+DEF",
             Type = SphereGridNodeType.Small,
             Position = new Vector2(70, 70),
-            Effect = new StatBoostEffect { StatName = "Defense", Amount = 3 }
+            Effect = new NoOpEffect()
         };
         var def2 = new SphereGridNode
         {
@@ -210,7 +180,7 @@ public class SphereGrid
             Type = SphereGridNodeType.Medium,
             Position = new Vector2(140, 140),
             Cost = 2,
-            Effect = new StatBoostEffect { StatName = "HP", Amount = 20 }
+            Effect = new NoOpEffect()
         };
         grid.AddNode(def1);
         grid.AddNode(def2);
