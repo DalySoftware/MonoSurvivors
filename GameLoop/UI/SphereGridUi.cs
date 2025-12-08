@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
 using Gameplay.Levelling;
@@ -14,6 +15,11 @@ namespace GameLoop.UI;
 /// </summary>
 public class SphereGridUi : UiElement
 {
+    private const string PlaceholderName = "NAME";
+    private const string PlaceholderDescription = "DESCRIPTION";
+    private const float HexRadius = 40f;
+    private const float NodeRadius = 8f;
+
     private readonly SphereGrid _grid;
     private readonly SpriteFont _font;
     private readonly GraphicsDevice _graphicsDevice;
@@ -22,16 +28,75 @@ public class SphereGridUi : UiElement
     private readonly Vector2 _offset;
     private Node? _hoveredNode;
     private MouseState _previousMouseState;
+    private readonly Dictionary<Node, Vector2> _nodePositions = new();
 
     public SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid)
     {
         _grid = grid;
         _graphicsDevice = graphicsDevice;
         _font = content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Small);
-        
+
         // Center the grid on screen
         var viewport = _graphicsDevice.Viewport;
         _offset = new Vector2(viewport.Width, viewport.Height) / 2;
+
+        // Calculate hexagonal positions for all nodes
+        CalculateNodePositions();
+    }
+
+    private void CalculateNodePositions()
+    {
+        _nodePositions.Clear();
+
+        // Find a starting node (pick any node from the grid)
+        var startNode = _grid.Nodes.FirstOrDefault();
+        if (startNode == null) return;
+
+        // Place start node at origin
+        _nodePositions[startNode] = Vector2.Zero;
+
+        // BFS to position all connected nodes
+        var visited = new HashSet<Node>();
+        var queue = new Queue<Node>();
+        queue.Enqueue(startNode);
+        visited.Add(startNode);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            var currentPos = _nodePositions[current];
+
+            foreach (var (direction, neighbor) in current.Neighbours)
+            {
+                if (visited.Contains(neighbor)) continue;
+
+                // Calculate hex offset based on direction
+                var offset = GetHexOffset(direction);
+                _nodePositions[neighbor] = currentPos + offset;
+
+                visited.Add(neighbor);
+                queue.Enqueue(neighbor);
+            }
+        }
+    }
+
+    private static Vector2 GetHexOffset(EdgeDirection direction)
+    {
+        // Flat-top hexagon positioning
+        // Using hex coordinate math where each direction has a specific offset
+        var xStep = HexRadius * 1.5f;
+        var yStep = HexRadius * (float)Math.Sqrt(3) / 2;
+
+        return direction switch
+        {
+            EdgeDirection.TopLeft => new Vector2(-xStep, -yStep),
+            EdgeDirection.TopRight => new Vector2(xStep, -yStep),
+            EdgeDirection.MiddleLeft => new Vector2(-xStep * 2, 0),
+            EdgeDirection.MiddleRight => new Vector2(xStep * 2, 0),
+            EdgeDirection.BottomLeft => new Vector2(-xStep, yStep),
+            EdgeDirection.BottomRight => new Vector2(xStep, yStep),
+            _ => Vector2.Zero
+        };
     }
 
     private Texture2D PixelTexture
@@ -57,11 +122,12 @@ public class SphereGridUi : UiElement
         // Find hovered node
         foreach (var node in _grid.Nodes)
         {
-            var screenPos = Position + _offset + node.Position;
-            var radius = GetNodeRadius();
+            if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
+
+            var screenPos = Position + _offset + nodePos;
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
-            if (Vector2.Distance(mousePos, screenPos) <= radius)
+            if (Vector2.Distance(mousePos, screenPos) <= NodeRadius)
             {
                 _hoveredNode = node;
 
@@ -86,17 +152,13 @@ public class SphereGridUi : UiElement
 
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        // Draw semi-transparent background
         var viewport = _graphicsDevice.Viewport;
 
-        // Draw title and skill points
+        // Draw title
         var title = "Sphere Grid";
         var titleSize = _font.MeasureString(title);
         spriteBatch.DrawString(_font, title, new Vector2(viewport.Width / 2 - titleSize.X / 2, 20),
             Color.White);
-
-        var skillPointsText = $"Skill Points: {_grid.AvailablePoints}";
-        spriteBatch.DrawString(_font, skillPointsText, new Vector2(20, 20), Color.Yellow);
 
         var helpText = "Click nodes to unlock | Tab to close";
         var helpSize = _font.MeasureString(helpText);
@@ -107,14 +169,19 @@ public class SphereGridUi : UiElement
         // Draw connections first (so they're behind nodes)
         foreach (var node in _grid.Nodes)
         {
-            var nodePos = Position + _offset + node.Position;
-            foreach (var neighbor in node.Neighbours)
+            if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
+
+            var screenNodePos = Position + _offset + nodePos;
+
+            foreach (var (_, neighbor) in node.Neighbours)
             {
-                var neighborPos = Position + _offset + neighbor.Position;
-                DrawLine(spriteBatch, nodePos, neighborPos,
-                    _grid.IsUnlocked(node.Id) && _grid.IsUnlocked(neighbor)
-                        ? Color.Gold
-                        : Color.Gray * 0.5f,
+                if (!_nodePositions.TryGetValue(neighbor, out var neighborPos)) continue;
+
+                var screenNeighborPos = Position + _offset + neighborPos;
+                var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
+
+                DrawLine(spriteBatch, screenNodePos, screenNeighborPos,
+                    isUnlocked ? Color.Gold : Color.Gray * 0.5f,
                     2f);
             }
         }
@@ -122,7 +189,9 @@ public class SphereGridUi : UiElement
         // Draw nodes
         foreach (var node in _grid.Nodes)
         {
-            var nodePos = Position + _offset + node.Position;
+            if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
+
+            var screenNodePos = Position + _offset + nodePos;
             var isUnlocked = _grid.IsUnlocked(node);
             var canUnlock = _grid.CanUnlock(node);
             var isHovered = node == _hoveredNode;
@@ -137,12 +206,12 @@ public class SphereGridUi : UiElement
             else
                 nodeColor = Color.DarkGray;
 
-            DrawCircle(spriteBatch, nodePos, GetNodeRadius(), nodeColor);
+            DrawCircle(spriteBatch, screenNodePos, NodeRadius, nodeColor);
 
             // Draw border if hovered
             if (isHovered)
             {
-                DrawCircleOutline(spriteBatch, nodePos, GetNodeRadius() + 3, Color.White, 2f);
+                DrawCircleOutline(spriteBatch, screenNodePos, NodeRadius + 3, Color.White, 2f);
             }
         }
 
@@ -162,8 +231,8 @@ public class SphereGridUi : UiElement
 
         var lines = new[]
         {
-            node.Name,
-            node.Effect.Description,
+            PlaceholderName,
+            PlaceholderDescription,
             $"Cost: {node.Cost} SP",
             _grid.IsUnlocked(node) ? "[Unlocked]" :
                 _grid.CanUnlock(node) ? "[Click to unlock]" : "[Cannot unlock]"
@@ -191,8 +260,6 @@ public class SphereGridUi : UiElement
             spriteBatch.DrawString(_font, lines[i], textPos, color);
         }
     }
-
-    private static float GetNodeRadius() => 8f;
 
     private void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
     {
