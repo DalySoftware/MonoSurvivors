@@ -4,6 +4,7 @@ using System.Linq;
 using ContentLibrary;
 using Gameplay.Levelling;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,6 +24,7 @@ public class SphereGridUi : UiElement
 
     private readonly SphereGrid _grid;
     private readonly PrimitiveRenderer _primitiveRenderer;
+    private readonly ToolTipRenderer _toolTipRenderer;
     private readonly SpriteFont _font;
     private readonly Texture2D _gridNodeSprite;
     private readonly GraphicsDevice _graphicsDevice;
@@ -36,6 +38,7 @@ public class SphereGridUi : UiElement
     {
         _grid = grid;
         _primitiveRenderer = primitiveRenderer;
+        _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
         _graphicsDevice = graphicsDevice;
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
         _gridNodeSprite = content.Load<Texture2D>(Paths.Images.GridNode);
@@ -160,35 +163,18 @@ public class SphereGridUi : UiElement
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node)
     {
-        var mouseState = Mouse.GetState();
-        var tooltipPos = new Vector2(mouseState.X + 20, mouseState.Y);
-
-        var lines = new[]
-        {
-            PlaceholderName,
-            PlaceholderDescription,
-            $"Cost: {node.Cost} SP",
+        var unlockText =
             _grid.IsUnlocked(node) ? "[Unlocked]" :
-                _grid.CanUnlock(node) ? "[Click to unlock]" : "[Cannot unlock]"
-        };
+            _grid.CanUnlock(node) ? "[Click to unlock]" : "[Cannot unlock]";
 
-        var maxWidth = lines.Max(line => _font.MeasureString(line).X);
-        var lineHeight = _font.MeasureString("A").Y;
-        var padding = 8;
-        var tooltipWidth = maxWidth + padding * 2;
-        var tooltipHeight = lineHeight * lines.Length + padding * 2;
-
-        // Draw background
-        var tooltipRect = new Rectangle((int)tooltipPos.X, (int)tooltipPos.Y,
-            (int)tooltipWidth, (int)tooltipHeight);
-        _primitiveRenderer.DrawRectangle(spriteBatch, tooltipRect, Color.Black * 0.9f);
-
-        // Draw text
-        for (var i = 0; i < lines.Length; i++)
-        {
-            var textPos = tooltipPos + new Vector2(padding, padding + i * lineHeight);
-            var color = i == lines.Length - 1 ? Color.Gray : Color.White;
-            spriteBatch.DrawString(_font, lines[i], textPos, color);
-        }
+        ToolTipBodyLine[] body =
+        [
+            new(PlaceholderDescription),
+            new($"Cost: {node.Cost} SP"),
+            new(unlockText, Color.Gray),
+        ];
+        
+        var tooltip = new ToolTip(PlaceholderName, body);
+        _toolTipRenderer.DrawTooltip(spriteBatch, tooltip);
     }
 }
