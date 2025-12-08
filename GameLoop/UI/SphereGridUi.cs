@@ -22,6 +22,7 @@ public class SphereGridUi : UiElement
 
     private readonly SphereGrid _grid;
     private readonly SpriteFont _font;
+    private readonly Texture2D _gridNodeSprite;
     private readonly GraphicsDevice _graphicsDevice;
 
     private Texture2D? _pixelTexture;
@@ -35,6 +36,7 @@ public class SphereGridUi : UiElement
         _grid = grid;
         _graphicsDevice = graphicsDevice;
         _font = content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Small);
+        _gridNodeSprite = content.Load<Texture2D>(Paths.Images.GridNode);
 
         // Center the grid on screen
         var viewport = _graphicsDevice.Viewport;
@@ -265,7 +267,7 @@ public class SphereGridUi : UiElement
     {
         var rect = new Rectangle((int)(center.X - radius), (int)(center.Y - radius),
             (int)(radius * 2), (int)(radius * 2));
-        spriteBatch.Draw(PixelTexture, rect, color);
+        spriteBatch.Draw(_gridNodeSprite, rect.Center.ToVector2(), origin: _gridNodeSprite.Centre, color: color);
     }
 
     private void DrawCircleOutline(SpriteBatch spriteBatch, Vector2 center, float radius,
