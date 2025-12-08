@@ -29,8 +29,6 @@ internal class SphereGridScene : IScene
 
         
         _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid);
-        _sphereGridUi.Show();
-
         _input = new SphereGridInputManager
         {
             OnClose = onClose

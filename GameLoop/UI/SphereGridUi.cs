@@ -19,7 +19,7 @@ public class SphereGridUi : UiElement
     private readonly GraphicsDevice _graphicsDevice;
 
     private Texture2D? _pixelTexture;
-    private Vector2 _offset = Vector2.Zero;
+    private readonly Vector2 _offset;
     private string? _hoveredNodeId;
     private MouseState _previousMouseState;
 
@@ -28,7 +28,10 @@ public class SphereGridUi : UiElement
         _grid = grid;
         _graphicsDevice = graphicsDevice;
         _font = content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Small);
-        IsVisible = false; // Start hidden
+        
+        // Center the grid on screen
+        var viewport = _graphicsDevice.Viewport;
+        _offset = new Vector2(viewport.Width, viewport.Height) / 2;
     }
 
     private Texture2D PixelTexture
@@ -38,7 +41,7 @@ public class SphereGridUi : UiElement
             if (_pixelTexture == null)
             {
                 _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
-                _pixelTexture.SetData(new[] { Color.White });
+                _pixelTexture.SetData([Color.White]);
             }
             return _pixelTexture;
         }
@@ -79,12 +82,12 @@ public class SphereGridUi : UiElement
     {
         if (!IsVisible) return;
 
+        _graphicsDevice.Clear(Color.DarkSlateGray);
+
         spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
         // Draw semi-transparent background
         var viewport = _graphicsDevice.Viewport;
-        spriteBatch.Draw(PixelTexture, new Rectangle(0, 0, viewport.Width, viewport.Height),
-            Color.Black * 0.8f);
 
         // Draw title and skill points
         var title = "Sphere Grid";
@@ -248,26 +251,5 @@ public class SphereGridUi : UiElement
         // Right
         spriteBatch.Draw(PixelTexture, new Rectangle(rect.X + rect.Width - thickness, rect.Y,
             thickness, rect.Height), color);
-    }
-
-    public void Show()
-    {
-        IsVisible = true;
-        // Center the grid on screen
-        var viewport = _graphicsDevice.Viewport;
-        _offset = new Vector2(viewport.Width / 2, viewport.Height / 2);
-    }
-
-    public void Hide()
-    {
-        IsVisible = false;
-    }
-
-    public void Toggle()
-    {
-        if (IsVisible)
-            Hide();
-        else
-            Show();
     }
 }
