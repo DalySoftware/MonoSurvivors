@@ -20,7 +20,7 @@ public class SphereGridUi : UiElement
 
     private Texture2D? _pixelTexture;
     private readonly Vector2 _offset;
-    private string? _hoveredNodeId;
+    private Node? _hoveredNode;
     private MouseState _previousMouseState;
 
     public SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid)
@@ -52,24 +52,24 @@ public class SphereGridUi : UiElement
         if (!IsVisible) return;
 
         var mouseState = Mouse.GetState();
-        _hoveredNodeId = null;
+        _hoveredNode = null;
 
         // Find hovered node
-        foreach (var node in _grid.Nodes.Values)
+        foreach (var node in _grid.Nodes)
         {
             var screenPos = Position + _offset + node.Position;
-            var radius = GetNodeRadius(node.Type);
+            var radius = GetNodeRadius();
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
             if (Vector2.Distance(mousePos, screenPos) <= radius)
             {
-                _hoveredNodeId = node.Id;
+                _hoveredNode = node;
 
                 // Click to unlock
                 if (mouseState.LeftButton == ButtonState.Pressed &&
                     _previousMouseState.LeftButton == ButtonState.Released)
                 {
-                    _grid.Unlock(node.Id);
+                    _grid.Unlock(node);
                 }
                 break;
             }
@@ -105,30 +105,27 @@ public class SphereGridUi : UiElement
             Color.Gray);
 
         // Draw connections first (so they're behind nodes)
-        foreach (var node in _grid.Nodes.Values)
+        foreach (var node in _grid.Nodes)
         {
             var nodePos = Position + _offset + node.Position;
-            foreach (var neighborId in node.Neighbors)
+            foreach (var neighbor in node.Neighbours)
             {
-                if (_grid.Nodes.TryGetValue(neighborId, out var neighbor))
-                {
-                    var neighborPos = Position + _offset + neighbor.Position;
-                    DrawLine(spriteBatch, nodePos, neighborPos,
-                        _grid.IsUnlocked(node.Id) && _grid.IsUnlocked(neighborId)
-                            ? Color.Gold
-                            : Color.Gray * 0.5f,
-                        2f);
-                }
+                var neighborPos = Position + _offset + neighbor.Position;
+                DrawLine(spriteBatch, nodePos, neighborPos,
+                    _grid.IsUnlocked(node.Id) && _grid.IsUnlocked(neighbor)
+                        ? Color.Gold
+                        : Color.Gray * 0.5f,
+                    2f);
             }
         }
 
         // Draw nodes
-        foreach (var node in _grid.Nodes.Values)
+        foreach (var node in _grid.Nodes)
         {
             var nodePos = Position + _offset + node.Position;
-            var isUnlocked = _grid.IsUnlocked(node.Id);
-            var canUnlock = _grid.CanUnlock(node.Id);
-            var isHovered = node.Id == _hoveredNodeId;
+            var isUnlocked = _grid.IsUnlocked(node);
+            var canUnlock = _grid.CanUnlock(node);
+            var isHovered = node == _hoveredNode;
 
             Color nodeColor;
             if (isUnlocked)
@@ -140,25 +137,25 @@ public class SphereGridUi : UiElement
             else
                 nodeColor = Color.DarkGray;
 
-            DrawCircle(spriteBatch, nodePos, GetNodeRadius(node.Type), nodeColor);
+            DrawCircle(spriteBatch, nodePos, GetNodeRadius(), nodeColor);
 
             // Draw border if hovered
             if (isHovered)
             {
-                DrawCircleOutline(spriteBatch, nodePos, GetNodeRadius(node.Type) + 3, Color.White, 2f);
+                DrawCircleOutline(spriteBatch, nodePos, GetNodeRadius() + 3, Color.White, 2f);
             }
         }
 
         // Draw tooltip for hovered node
-        if (_hoveredNodeId != null && _grid.Nodes.TryGetValue(_hoveredNodeId, out var hoveredNode))
+        if (_hoveredNode != null)
         {
-            DrawTooltip(spriteBatch, hoveredNode);
+            DrawTooltip(spriteBatch, _hoveredNode);
         }
 
         spriteBatch.End();
     }
 
-    private void DrawTooltip(SpriteBatch spriteBatch, SphereGridNode node)
+    private void DrawTooltip(SpriteBatch spriteBatch, Node node)
     {
         var mouseState = Mouse.GetState();
         var tooltipPos = new Vector2(mouseState.X + 20, mouseState.Y);
@@ -168,8 +165,8 @@ public class SphereGridUi : UiElement
             node.Name,
             node.Effect.Description,
             $"Cost: {node.Cost} SP",
-            _grid.IsUnlocked(node.Id) ? "[Unlocked]" :
-                _grid.CanUnlock(node.Id) ? "[Click to unlock]" : "[Cannot unlock]"
+            _grid.IsUnlocked(node) ? "[Unlocked]" :
+                _grid.CanUnlock(node) ? "[Click to unlock]" : "[Cannot unlock]"
         };
 
         var maxWidth = lines.Max(line => _font.MeasureString(line).X);
@@ -195,17 +192,7 @@ public class SphereGridUi : UiElement
         }
     }
 
-    private float GetNodeRadius(SphereGridNodeType type)
-    {
-        return type switch
-        {
-            SphereGridNodeType.Small => 8f,
-            SphereGridNodeType.Medium => 12f,
-            SphereGridNodeType.Large => 16f,
-            SphereGridNodeType.KeyNode => 20f,
-            _ => 10f
-        };
-    }
+    private static float GetNodeRadius() => 8f;
 
     private void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
     {

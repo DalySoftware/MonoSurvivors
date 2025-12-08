@@ -1,205 +1,133 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Gameplay.Levelling;
 
-public interface ISphereGridNodeEffect
+public class Node
 {
-    string Description { get; }
-    void Apply(object target);
-}
+    public int Cost { get; init; } = 1;
+    
+    private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
 
-public class NoOpEffect : ISphereGridNodeEffect
-{
-    public string Description => "No effect";
-    public void Apply(object target) { }
-}
+    public Node? GetNeighbour(EdgeDirection direction) => _neighbours.GetValueOrDefault(direction);
 
+    public void SetNeighbour(EdgeDirection direction, Node node) => _neighbours[direction] = node;
 
-public enum SphereGridNodeType
-{
-    Small,      // Minor stat boost
-    Medium,     // Moderate stat boost
-    Large,      // Major stat boost or notable ability
-    KeyNode     // Major ability or large stat change
-}
-
-public sealed class SphereGridNode
-{
-    public required string Id { get; init; }
-    public required string Name { get; init; }
-    public SphereGridNodeType Type { get; init; } = SphereGridNodeType.Small;
-    public HashSet<string> Neighbors { get; } = [];
-    public ISphereGridNodeEffect Effect { get; init; } = new NoOpEffect();
-    public Vector2 Position { get; init; } // For rendering
-    public int Cost { get; init; } = 1; // Skill points required
+    public IReadOnlyDictionary<EdgeDirection, Node> Neighbours => _neighbours;
 }
 
 public class SphereGrid
 {
-    private readonly Dictionary<string, SphereGridNode> _nodes = new();
-    private readonly HashSet<string> _unlocked = [];
-    private int _availablePoints;
+    private readonly HashSet<Node> _nodes = [];
+    private readonly HashSet<Node> _unlockedNodes = [];
+    private int _availablePoints = 0;
+    
+    public IReadOnlySet<Node> Nodes => _nodes;
+    
+    private void AddNode(Node node) => _nodes.Add(node);
+    
+    public void AddSkillPoints(int points) => _availablePoints += points;
 
-    public IReadOnlyDictionary<string, SphereGridNode> Nodes => _nodes;
-    public IReadOnlyCollection<string> Unlocked => _unlocked;
-    public int AvailablePoints => _availablePoints;
+    public bool CanUnlock(Node node) =>
+        _availablePoints >= node.Cost &&
+        _unlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
+    
+    
+    public bool IsUnlocked(Node node) => _unlockedNodes.Contains(node);
 
-    public void AddNode(SphereGridNode node)
+    public void Unlock(Node node)
     {
-        _nodes[node.Id] = node;
-    }
-
-    private static void ConnectNodes(SphereGridNode node1, SphereGridNode node2)
-    {
-        node1.Neighbors.Add(node2.Id);
-        node2.Neighbors.Add(node1.Id);
-    }
-
-    public void AddSkillPoints(int points)
-    {
-        _availablePoints += points;
-    }
-
-    public bool IsUnlocked(string nodeId) => _unlocked.Contains(nodeId);
-
-    public bool CanUnlock(string nodeId)
-    {
-        if (!_nodes.ContainsKey(nodeId)) return false;
-        if (_unlocked.Contains(nodeId)) return false;
-
-        var node = _nodes[nodeId];
-        if (_availablePoints < node.Cost) return false;
-
-        // First node can be unlocked anywhere
-        if (_unlocked.Count == 0) return true;
-
-        // Otherwise must be adjacent to an unlocked node
-        foreach (var unlockedId in _unlocked)
-        {
-            if (_nodes[unlockedId].Neighbors.Contains(nodeId))
-                return true;
-        }
-
-        return false;
-    }
-
-    public bool Unlock(string nodeId, object? target = null)
-    {
-        if (!CanUnlock(nodeId)) return false;
-
-        var node = _nodes[nodeId];
+        if (!CanUnlock(node))
+            return;
+        
+        _unlockedNodes.Add(node);
         _availablePoints -= node.Cost;
-        _unlocked.Add(nodeId);
+    }
+    
+    
+    private void UnlockRoot(Node rootNode) => _unlockedNodes.Add(rootNode);
+    
+    /// <summary>
+    /// Discovers all nodes in the graph. Adds them to <see cref="_nodes"/>. Maps reverse paths.
+    /// </summary>
+    private void DiscoverAndAddNodes(Node root)
+    {
+        var toVisit = new Stack<Node>();
+        var visited = new HashSet<Node>();
+        toVisit.Push(root);
 
-        if (target != null)
-            node.Effect.Apply(target);
+        while (toVisit.TryPop(out var node))
+        {
+            if (!visited.Add(node))
+                continue;
 
-        return true;
+            AddNode(node);
+
+            foreach (var (dir, neighbour) in node.Neighbours)
+            {
+                toVisit.Push(neighbour);
+
+                // Assign reverse copy of edge
+                neighbour.SetNeighbour(dir.Opposite(), node);
+            }
+        }
     }
 
     public static SphereGrid CreateDemo()
     {
         var grid = new SphereGrid();
 
-        // Create a small branching path system
-        // Start node (center)
-        var start = new SphereGridNode
-        {
-            Id = "start",
-            Name = "Origin",
-            Type = SphereGridNodeType.KeyNode,
-            Position = new Vector2(0, 0),
-            Effect = new NoOpEffect()
-        };
-        grid.AddNode(start);
-
         // Strength path (right)
-        var str1 = new SphereGridNode
-        {
-            Id = "str1",
-            Name = "+STR",
-            Type = SphereGridNodeType.Small,
-            Position = new Vector2(100, 0),
-            Effect = new NoOpEffect()
-        };
-        var str2 = new SphereGridNode
-        {
-            Id = "str2",
-            Name = "+STR",
-            Type = SphereGridNodeType.Small,
-            Position = new Vector2(200, 0),
-            Effect = new NoOpEffect()
-        };
-        var strKey = new SphereGridNode
-        {
-            Id = "str_key",
-            Name = "Power Strike",
-            Type = SphereGridNodeType.KeyNode,
-            Position = new Vector2(300, 0),
-            Cost = 3,
-            Effect = new NoOpEffect()
-        };
-        grid.AddNode(str1);
-        grid.AddNode(str2);
-        grid.AddNode(strKey);
+        var strKey = new Node();
+        var str2 = new Node();
+        str2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
+        var str1 = new Node();
+        str1.SetNeighbour(EdgeDirection.MiddleRight, str2);
 
         // Agility path (up-right)
-        var agi1 = new SphereGridNode
-        {
-            Id = "agi1",
-            Name = "+AGI",
-            Type = SphereGridNodeType.Small,
-            Position = new Vector2(70, -70),
-            Effect = new NoOpEffect()
-        };
-        var agi2 = new SphereGridNode
-        {
-            Id = "agi2",
-            Name = "+SPD",
-            Type = SphereGridNodeType.Medium,
-            Position = new Vector2(140, -140),
-            Cost = 2,
-            Effect = new NoOpEffect()
-        };
-        grid.AddNode(agi1);
-        grid.AddNode(agi2);
+        var agi2 = new Node();
+        var agi1 = new Node();
+        agi1.SetNeighbour(EdgeDirection.TopRight, agi2);
 
-        // Defense path (down-right)
-        var def1 = new SphereGridNode
-        {
-            Id = "def1",
-            Name = "+DEF",
-            Type = SphereGridNodeType.Small,
-            Position = new Vector2(70, 70),
-            Effect = new NoOpEffect()
-        };
-        var def2 = new SphereGridNode
-        {
-            Id = "def2",
-            Name = "+HP",
-            Type = SphereGridNodeType.Medium,
-            Position = new Vector2(140, 140),
-            Cost = 2,
-            Effect = new NoOpEffect()
-        };
-        grid.AddNode(def1);
-        grid.AddNode(def2);
+        // Defence path (down-right)
+        var def2 = new Node();
+        var def1 = new Node();
+        def1.SetNeighbour(EdgeDirection.BottomRight, def2);
 
-        // Connect nodes
-        ConnectNodes(start, str1);
-        ConnectNodes(str1, str2);
-        ConnectNodes(str2, strKey);
+        var root = new Node { Cost = 0};
+        root.SetNeighbour(EdgeDirection.TopRight, agi1);
+        root.SetNeighbour(EdgeDirection.MiddleRight, str1);
+        root.SetNeighbour(EdgeDirection.BottomRight, def1);
 
-        ConnectNodes(start, agi1);
-        ConnectNodes(agi1, agi2);
-
-        ConnectNodes(start, def1);
-        ConnectNodes(def1, def2);
-
-        // Cross-connection between paths
-        ConnectNodes(str1, agi1);
-        ConnectNodes(str1, def1);
-
+        grid.DiscoverAndAddNodes(root);
+        grid.UnlockRoot(root);
+        
         return grid;
     }
 }
+
+public enum EdgeDirection
+{
+    TopLeft,
+    TopRight,
+    MiddleLeft,
+    MiddleRight,
+    BottomLeft,
+    BottomRight,
+}
+
+internal static class EdgeDirectionExtensions
+{
+    internal static EdgeDirection Opposite(this EdgeDirection direction) => direction switch
+    {
+        EdgeDirection.TopLeft      => EdgeDirection.BottomRight,
+        EdgeDirection.TopRight     => EdgeDirection.BottomLeft,
+        EdgeDirection.MiddleLeft   => EdgeDirection.MiddleRight,
+        EdgeDirection.MiddleRight  => EdgeDirection.MiddleLeft,
+        EdgeDirection.BottomLeft   => EdgeDirection.TopRight,
+        EdgeDirection.BottomRight  => EdgeDirection.TopLeft,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+    };
+}
+
