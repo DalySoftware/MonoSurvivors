@@ -35,7 +35,7 @@ public class SphereGridUi : UiElement
     {
         _grid = grid;
         _graphicsDevice = graphicsDevice;
-        _font = content.Load<SpriteFont>(Paths.Fonts.TerminalGrotesqueOpen.Small);
+        _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
         _gridNodeSprite = content.Load<Texture2D>(Paths.Images.GridNode);
 
         // Center the grid on screen
