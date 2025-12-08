@@ -1,6 +1,7 @@
 using System;
 using GameLoop.UI;
 using Gameplay.Levelling;
+using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,6 +19,7 @@ internal class SphereGridScene : IScene
         GraphicsDevice graphicsDevice,
         ContentManager coreContent,
         SphereGrid sphereGrid,
+        PrimitiveRenderer primitiveRenderer,
         Action onClose)
     {
         _content = new ContentManager(coreContent.ServiceProvider)
@@ -28,7 +30,7 @@ internal class SphereGridScene : IScene
         _spriteBatch = new SpriteBatch(graphicsDevice);
 
         
-        _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid);
+        _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid, primitiveRenderer);
         _input = new SphereGridInputManager
         {
             OnClose = onClose

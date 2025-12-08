@@ -22,6 +22,7 @@ public class SphereGridUi : UiElement
     private float NodeRadius => _gridNodeSprite.Width / 2f;
 
     private readonly SphereGrid _grid;
+    private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly SpriteFont _font;
     private readonly Texture2D _gridNodeSprite;
     private readonly GraphicsDevice _graphicsDevice;
@@ -31,9 +32,10 @@ public class SphereGridUi : UiElement
     private MouseState _previousMouseState;
     private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
 
-    public SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid)
+    public SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid, PrimitiveRenderer primitiveRenderer)
     {
         _grid = grid;
+        _primitiveRenderer = primitiveRenderer;
         _graphicsDevice = graphicsDevice;
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
         _gridNodeSprite = content.Load<Texture2D>(Paths.Images.GridNode);
@@ -43,19 +45,6 @@ public class SphereGridUi : UiElement
         _offset = new Vector2(viewport.Width, viewport.Height) / 2;
 
         _nodePositions = new SphereGridPositioner(_grid, NodeSpacing).NodePositions();
-    }
-
-    private Texture2D PixelTexture
-    {
-        get
-        {
-            if (field == null)
-            {
-                field = new Texture2D(_graphicsDevice, 1, 1);
-                field.SetData([Color.White]);
-            }
-            return field;
-        }
     }
 
     public void Update()
@@ -126,9 +115,8 @@ public class SphereGridUi : UiElement
                 var screenNeighborPos = Position + _offset + neighborPos;
                 var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
 
-                DrawLine(spriteBatch, screenNodePos, screenNeighborPos,
-                    isUnlocked ? Color.Gold : Color.Gray * 0.5f,
-                    2f);
+                var color = isUnlocked ? Color.Gold : Color.Gray * 0.5f;
+                _primitiveRenderer.DrawLine(spriteBatch, screenNodePos, screenNeighborPos, color,2f);
             }
         }
 
@@ -193,7 +181,7 @@ public class SphereGridUi : UiElement
         // Draw background
         var tooltipRect = new Rectangle((int)tooltipPos.X, (int)tooltipPos.Y,
             (int)tooltipWidth, (int)tooltipHeight);
-        spriteBatch.Draw(PixelTexture, tooltipRect, Color.Black * 0.9f);
+        _primitiveRenderer.DrawRectangle(spriteBatch, tooltipRect, Color.Black * 0.9f);
 
         // Draw text
         for (var i = 0; i < lines.Length; i++)
@@ -202,14 +190,5 @@ public class SphereGridUi : UiElement
             var color = i == lines.Length - 1 ? Color.Gray : Color.White;
             spriteBatch.DrawString(_font, lines[i], textPos, color);
         }
-    }
-
-    private void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float thickness)
-    {
-        var distance = Vector2.Distance(start, end);
-        var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
-
-        spriteBatch.Draw(PixelTexture, start, null, color, angle, Vector2.Zero,
-            new Vector2(distance, thickness), SpriteEffects.None, 0);
     }
 }

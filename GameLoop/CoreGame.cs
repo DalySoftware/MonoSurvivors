@@ -16,17 +16,17 @@ namespace GameLoop;
 
 public class CoreGame : Game
 {
-    private readonly GraphicsDeviceManager _graphics;
     private readonly SceneManager _sceneManager = new(null);
     private readonly IServiceProvider _services;
     private readonly SphereGrid _sphereGrid = SphereGrid.CreateDemo();
     private LevelManager _levelSystem = null!;
+    private PrimitiveRenderer _primitiveRenderer = null!;
 
     public CoreGame()
     {
-        _graphics = new GraphicsDeviceManager(this);
-        _graphics.PreferredBackBufferWidth = 1280;
-        _graphics.PreferredBackBufferHeight = 720;
+        var graphicsManager = new GraphicsDeviceManager(this);
+        graphicsManager.PreferredBackBufferWidth = 1280;
+        graphicsManager.PreferredBackBufferHeight = 720;
         IsMouseVisible = true;
 
         Window.Title = "Mono Survivors";
@@ -48,6 +48,8 @@ public class CoreGame : Game
 
     private void StartGame()
     {
+        _primitiveRenderer = new PrimitiveRenderer(GraphicsDevice);
+        
         var entityManager = _services.GetRequiredService<EntityManager>();
         var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
         var effectManager = _services.GetRequiredService<EffectManager>();
@@ -82,6 +84,7 @@ public class CoreGame : Game
             GraphicsDevice,
             Content,
             _sphereGrid,
+            _primitiveRenderer,
             _sceneManager.Pop);
         _sceneManager.Push(scene);
     }
