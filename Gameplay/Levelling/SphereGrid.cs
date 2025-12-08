@@ -58,7 +58,7 @@ public sealed class SphereGridNode
     public required string Id { get; init; }
     public required string Name { get; init; }
     public SphereGridNodeType Type { get; init; } = SphereGridNodeType.Small;
-    public List<string> Neighbors { get; } = new();
+    public HashSet<string> Neighbors { get; } = [];
     public ISphereGridNodeEffect Effect { get; init; } = new NoOpEffect();
     public Vector2 Position { get; init; } // For rendering
     public int Cost { get; init; } = 1; // Skill points required
@@ -67,28 +67,22 @@ public sealed class SphereGridNode
 public class SphereGrid
 {
     private readonly Dictionary<string, SphereGridNode> _nodes = new();
-    private readonly HashSet<string> _unlocked = new();
+    private readonly HashSet<string> _unlocked = [];
     private int _availablePoints = 0;
 
     public IReadOnlyDictionary<string, SphereGridNode> Nodes => _nodes;
     public IReadOnlyCollection<string> Unlocked => _unlocked;
     public int AvailablePoints => _availablePoints;
-    public int SpentPoints { get; private set; } = 0;
 
     public void AddNode(SphereGridNode node)
     {
         _nodes[node.Id] = node;
     }
 
-    public void ConnectNodes(string nodeId1, string nodeId2)
+    private static void ConnectNodes(SphereGridNode node1, SphereGridNode node2)
     {
-        if (_nodes.ContainsKey(nodeId1) && _nodes.ContainsKey(nodeId2))
-        {
-            if (!_nodes[nodeId1].Neighbors.Contains(nodeId2))
-                _nodes[nodeId1].Neighbors.Add(nodeId2);
-            if (!_nodes[nodeId2].Neighbors.Contains(nodeId1))
-                _nodes[nodeId2].Neighbors.Add(nodeId1);
-        }
+        node1.Neighbors.Add(node2.Id);
+        node2.Neighbors.Add(node1.Id);
     }
 
     public void AddSkillPoints(int points)
@@ -125,20 +119,12 @@ public class SphereGrid
 
         var node = _nodes[nodeId];
         _availablePoints -= node.Cost;
-        SpentPoints += node.Cost;
         _unlocked.Add(nodeId);
 
         if (target != null)
             node.Effect.Apply(target);
 
         return true;
-    }
-
-    public void Reset()
-    {
-        _availablePoints += SpentPoints;
-        SpentPoints = 0;
-        _unlocked.Clear();
     }
 
     public static SphereGrid CreateDemo()
@@ -230,19 +216,19 @@ public class SphereGrid
         grid.AddNode(def2);
 
         // Connect nodes
-        grid.ConnectNodes("start", "str1");
-        grid.ConnectNodes("str1", "str2");
-        grid.ConnectNodes("str2", "str_key");
+        ConnectNodes(start, str1);
+        ConnectNodes(str1, str2);
+        ConnectNodes(str2, strKey);
 
-        grid.ConnectNodes("start", "agi1");
-        grid.ConnectNodes("agi1", "agi2");
+        ConnectNodes(start, agi1);
+        ConnectNodes(agi1, agi2);
 
-        grid.ConnectNodes("start", "def1");
-        grid.ConnectNodes("def1", "def2");
+        ConnectNodes(start, def1);
+        ConnectNodes(def1, def2);
 
         // Cross-connection between paths
-        grid.ConnectNodes("str1", "agi1");
-        grid.ConnectNodes("str1", "def1");
+        ConnectNodes(str1, agi1);
+        ConnectNodes(str1, def1);
 
         return grid;
     }
