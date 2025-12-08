@@ -7,6 +7,7 @@ using GameLoop.Scenes.Title;
 using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Levelling;
+using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
