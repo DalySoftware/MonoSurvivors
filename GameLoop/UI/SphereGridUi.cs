@@ -191,30 +191,7 @@ public class SphereGridUi : UiElement
         // Draw nodes
         foreach (var node in _grid.Nodes)
         {
-            if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
-
-            var screenNodePos = Position + _offset + nodePos;
-            var isUnlocked = _grid.IsUnlocked(node);
-            var canUnlock = _grid.CanUnlock(node);
-            var isHovered = node == _hoveredNode;
-
-            Color nodeColor;
-            if (isUnlocked)
-                nodeColor = Color.Gold;
-            else if (canUnlock && isHovered)
-                nodeColor = Color.LightGreen;
-            else if (canUnlock)
-                nodeColor = Color.Green;
-            else
-                nodeColor = Color.DarkGray;
-
-            DrawCircle(spriteBatch, screenNodePos, NodeRadius, nodeColor);
-
-            // Draw border if hovered
-            if (isHovered)
-            {
-                DrawCircleOutline(spriteBatch, screenNodePos, NodeRadius + 3, Color.White, 2f);
-            }
+            DrawNode(spriteBatch, node);
         }
 
         // Draw tooltip for hovered node
@@ -225,6 +202,29 @@ public class SphereGridUi : UiElement
 
         spriteBatch.End();
     }
+
+    private void DrawNode(SpriteBatch spriteBatch, Node node)
+    {
+        if (!_nodePositions.TryGetValue(node, out var nodePos)) return;
+
+        var isUnlocked = _grid.IsUnlocked(node);
+        var canUnlock = _grid.CanUnlock(node);
+
+        var color =
+            isUnlocked ? Color.Gold :
+            canUnlock ? Color.Green :
+            Color.DarkGray;
+
+        var screenNodePos = Position + _offset + nodePos;
+        DrawNode(spriteBatch, screenNodePos, color);
+
+        // Draw a highlight on top
+        if (node == _hoveredNode)
+            DrawNode(spriteBatch, screenNodePos, Color.White * 0.4f);
+    }
+
+    private void DrawNode(SpriteBatch spriteBatch, Vector2 center, Color color) => 
+        spriteBatch.Draw(_gridNodeSprite, center, origin: _gridNodeSprite.Centre, color: color);
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node)
     {
@@ -251,38 +251,12 @@ public class SphereGridUi : UiElement
             (int)tooltipWidth, (int)tooltipHeight);
         spriteBatch.Draw(PixelTexture, tooltipRect, Color.Black * 0.9f);
 
-        // Draw border
-        DrawRectangleOutline(spriteBatch, tooltipRect, Color.White, 1);
-
         // Draw text
         for (var i = 0; i < lines.Length; i++)
         {
             var textPos = tooltipPos + new Vector2(padding, padding + i * lineHeight);
             var color = i == lines.Length - 1 ? Color.Gray : Color.White;
             spriteBatch.DrawString(_font, lines[i], textPos, color);
-        }
-    }
-
-    private void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
-    {
-        var rect = new Rectangle((int)(center.X - radius), (int)(center.Y - radius),
-            (int)(radius * 2), (int)(radius * 2));
-        spriteBatch.Draw(_gridNodeSprite, rect.Center.ToVector2(), origin: _gridNodeSprite.Centre, color: color);
-    }
-
-    private void DrawCircleOutline(SpriteBatch spriteBatch, Vector2 center, float radius,
-        Color color, float thickness)
-    {
-        const int segments = 16;
-        for (var i = 0; i < segments; i++)
-        {
-            var angle1 = MathHelper.TwoPi * i / segments;
-            var angle2 = MathHelper.TwoPi * (i + 1) / segments;
-
-            var point1 = center + new Vector2((float)Math.Cos(angle1), (float)Math.Sin(angle1)) * radius;
-            var point2 = center + new Vector2((float)Math.Cos(angle2), (float)Math.Sin(angle2)) * radius;
-
-            DrawLine(spriteBatch, point1, point2, color, thickness);
         }
     }
 
@@ -293,19 +267,5 @@ public class SphereGridUi : UiElement
 
         spriteBatch.Draw(PixelTexture, start, null, color, angle, Vector2.Zero,
             new Vector2(distance, thickness), SpriteEffects.None, 0);
-    }
-
-    private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
-    {
-        // Top
-        spriteBatch.Draw(PixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
-        // Bottom
-        spriteBatch.Draw(PixelTexture, new Rectangle(rect.X, rect.Y + rect.Height - thickness,
-            rect.Width, thickness), color);
-        // Left
-        spriteBatch.Draw(PixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);
-        // Right
-        spriteBatch.Draw(PixelTexture, new Rectangle(rect.X + rect.Width - thickness, rect.Y,
-            thickness, rect.Height), color);
     }
 }
