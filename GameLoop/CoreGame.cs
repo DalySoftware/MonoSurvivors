@@ -18,7 +18,7 @@ public class CoreGame : Game
 {
     private readonly SceneManager _sceneManager = new(null);
     private readonly IServiceProvider _services;
-    private readonly SphereGrid _sphereGrid = SphereGrid.CreateDemo();
+    private readonly SphereGrid _sphereGrid = SphereGrid.Create();
     private LevelManager _levelSystem = null!;
     private PrimitiveRenderer _primitiveRenderer = null!;
 

@@ -76,9 +76,8 @@ public class SphereGrid
         }
     }
 
-    public static SphereGrid CreateDemo()
+    public static SphereGrid Create()
     {
-
         // Strength path (right)
         var strKey = new Node();
         var str2 = new Node();
