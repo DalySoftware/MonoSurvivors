@@ -14,15 +14,15 @@ public class PrimitiveRenderer(GraphicsDevice graphicsDevice)
         return texture;
     }
     
-    public void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float thickness)
+    public void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float thickness, float layerDepth = 0f)
     {
         var distance = Vector2.Distance(start, end);
         var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
 
         spriteBatch.Draw(_pixelTexture, start, null, color, angle, Vector2.Zero,
-            new Vector2(distance, thickness), SpriteEffects.None, 0);
+            new Vector2(distance, thickness), SpriteEffects.None, layerDepth);
     }
 
-    public void DrawRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color) => 
-        spriteBatch.Draw(_pixelTexture, rect, color);
+    public void DrawRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color, float layerDepth = 0f) => 
+        spriteBatch.Draw(_pixelTexture, rect, color, layerDepth: layerDepth);
 }

@@ -24,6 +24,32 @@ public static class RenderingHelpers
                 scale ?? Vector2.One,
                 effects ?? SpriteEffects.None,
                 layerDepth);
+        
+        public void Draw(Texture2D texture,
+            Rectangle destinationRectangle,
+            Color? color = null,
+            Rectangle? sourceRectangle = null,
+            float rotation = 0f,
+            Vector2? origin = null,
+            SpriteEffects? effects = null,
+            float layerDepth = 0f) =>
+            spriteBatch.Draw(texture,
+                destinationRectangle,
+                sourceRectangle,
+                color ?? Color.White,
+                rotation,
+                origin ?? Vector2.Zero,
+                effects ?? SpriteEffects.None,
+                layerDepth);
+        
+        // Texture2D texture,
+        //     Rectangle destinationRectangle,
+        // Rectangle? sourceRectangle,
+        //     Color color,
+        // float rotation,
+        //     Vector2 origin,
+        // SpriteEffects effects,
+        // float layerDepth)
 
         public void DrawString(SpriteFont font,
             string text,

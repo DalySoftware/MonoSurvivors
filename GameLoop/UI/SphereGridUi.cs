@@ -34,6 +34,14 @@ public class SphereGridUi : UiElement
     private MouseState _previousMouseState;
     private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
 
+    private static class Layers
+    {
+        internal const float Edges = 0.40f;
+        internal const float Nodes = 0.50f;
+        internal const float Title = 0.80f;
+        internal const float ToolTip = 0.90f;
+    }
+
     public SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid, PrimitiveRenderer primitiveRenderer)
     {
         _grid = grid;
@@ -85,7 +93,7 @@ public class SphereGridUi : UiElement
 
         _graphicsDevice.Clear(Color.DarkSlateGray);
 
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
 
         var viewport = _graphicsDevice.Viewport;
 
@@ -93,13 +101,13 @@ public class SphereGridUi : UiElement
         const string title = "Level Up";
         var titleSize = _fontLarge.MeasureString(title);
         spriteBatch.DrawString(_fontLarge, title, new Vector2(viewport.Width / 2 - titleSize.X / 2, 20),
-            Color.White);
+            Color.White, layerDepth: Layers.Title);
 
         const string helpText = "Click nodes to unlock | Tab to close";
         var helpSize = _fontSmall.MeasureString(helpText);
         spriteBatch.DrawString(_fontSmall, helpText,
             new Vector2(viewport.Width / 2 - helpSize.X / 2, viewport.Height - 40),
-            Color.Gray);
+            Color.Gray, layerDepth: Layers.Title);
 
         // Draw connections first (so they're behind nodes)
         foreach (var node in _grid.Nodes)
@@ -116,7 +124,7 @@ public class SphereGridUi : UiElement
                 var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
 
                 var color = isUnlocked ? Color.Gold : Color.Gray * 0.5f;
-                _primitiveRenderer.DrawLine(spriteBatch, screenNodePos, screenNeighborPos, color,2f);
+                _primitiveRenderer.DrawLine(spriteBatch, screenNodePos, screenNeighborPos, color,2f, layerDepth: Layers.Edges);
             }
         }
 
@@ -150,7 +158,7 @@ public class SphereGridUi : UiElement
     }
 
     private void DrawNode(SpriteBatch spriteBatch, Vector2 center, Color color) => 
-        spriteBatch.Draw(_gridNodeSprite, center, origin: _gridNodeSprite.Centre, color: color);
+        spriteBatch.Draw(_gridNodeSprite, center, origin: _gridNodeSprite.Centre, color: color, layerDepth: Layers.Nodes);
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node)
     {
@@ -166,6 +174,6 @@ public class SphereGridUi : UiElement
         ];
         
         var tooltip = new ToolTip(PlaceholderName, body);
-        _toolTipRenderer.DrawTooltip(spriteBatch, tooltip);
+        _toolTipRenderer.DrawTooltip(spriteBatch, tooltip, Layers.ToolTip);
     }
 }
