@@ -7,8 +7,19 @@ namespace Gameplay.Levelling;
 /// XP → Level progression derived from a single source of truth: total XP.
 /// Level and thresholds are computed on demand using a simple deterministic growth curve.
 /// </summary>
-public class LevelSystem(PlayerCharacter player, Action onLevelUp)
+public class LevelManager
 {
+    private readonly PlayerCharacter _player;
+    private readonly Action _onLevelUp;
+
+    public LevelManager(PlayerCharacter player, Action onLevelUp)
+    {
+        _player = player;
+        _onLevelUp = onLevelUp;
+        
+        _player.OnExperienceGain -= OnExperienceGain;
+        _player.OnExperienceGain += OnExperienceGain;
+    }
     /// <summary>
     /// Experience requirement to reach level 2
     /// </summary>
@@ -25,11 +36,11 @@ public class LevelSystem(PlayerCharacter player, Action onLevelUp)
     public float ExperienceToNextLevel => (float)ExtraExperienceToLevelUpFrom(Level);
 
     private int _lastSeenPlayerLevel = 1;
-    public void OnExperienceGain()
+    private void OnExperienceGain(object? _, PlayerCharacter __)
     {
         if (_lastSeenPlayerLevel == Level) return;
         
-        onLevelUp();
+        _onLevelUp();
         _lastSeenPlayerLevel = Level;
     }
 
@@ -38,7 +49,7 @@ public class LevelSystem(PlayerCharacter player, Action onLevelUp)
     /// </summary>
     private int GetLevel() 
         // would need updating if we ever need negative exp
-        => (int)Math.Pow(player.Experience / BaseRequirement, 1f / GrowthFactor) + 1; 
+        => (int)Math.Pow(_player.Experience / BaseRequirement, 1f / GrowthFactor) + 1; 
 
     private static double TotalExperienceToReach(int level) 
         => BaseRequirement * Math.Pow(level - 1, GrowthFactor);

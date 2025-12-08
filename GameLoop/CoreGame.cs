@@ -2,9 +2,11 @@
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
+using GameLoop.Scenes.SphereGridScene;
 using GameLoop.Scenes.Title;
 using Gameplay.Audio;
 using Gameplay.Entities;
+using Gameplay.Levelling;
 using Gameplay.Rendering.Effects;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
@@ -16,6 +18,8 @@ public class CoreGame : Game
     private readonly GraphicsDeviceManager _graphics;
     private readonly SceneManager _sceneManager = new(null);
     private readonly IServiceProvider _services;
+    private readonly SphereGrid _sphereGrid = SphereGrid.CreateDemo();
+    private LevelManager _levelSystem = null!;
 
     public CoreGame()
     {
@@ -36,7 +40,7 @@ public class CoreGame : Game
         Content.RootDirectory = "ContentLibrary";
 
         var title = new TitleScreen(GraphicsDevice, Window, Content, StartGame, Exit);
-        _sceneManager.Switch(title);
+        _sceneManager.Push(title);
 
         base.LoadContent();
     }
@@ -46,20 +50,39 @@ public class CoreGame : Game
         var entityManager = _services.GetRequiredService<EntityManager>();
         var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
         var effectManager = _services.GetRequiredService<EffectManager>();
+        
+        var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, ShowGameOver);
+        _levelSystem = new LevelManager(player, OnLevelUp);
 
-        _sceneManager.Switch(new MainGameScene(GraphicsDevice, Window, Content, Exit, ShowGameOver, entityManager, audioPlayer, effectManager));
+        _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager, ShowSphereGrid, player));
     }
 
     private void ShowGameOver()
     {
         var gameOverScene = new GameOverScene(GraphicsDevice, Window, Content, StartGame, ReturnToTitle);
-        _sceneManager.Switch(gameOverScene);
+        _sceneManager.Push(gameOverScene);
     }
 
     private void ReturnToTitle()
     {
         var title = new TitleScreen(GraphicsDevice, Window, Content, StartGame, Exit);
-        _sceneManager.Switch(title);
+        _sceneManager.Push(title);
+    }
+
+    private void OnLevelUp()
+    {
+        _sphereGrid.AddSkillPoints(1);
+        ShowSphereGrid();
+    }
+
+    private void ShowSphereGrid()
+    {
+        var scene = new SphereGridScene(
+            GraphicsDevice,
+            Content,
+            _sphereGrid,
+            _sceneManager.Pop);
+        _sceneManager.Push(scene);
     }
 
     protected override void Update(GameTime gameTime)
@@ -82,6 +105,7 @@ public class CoreGame : Game
     protected override void Dispose(bool disposing)
     {
         Scene.Dispose();
+        _sceneManager.Dispose();
         base.Dispose(disposing);
     }
 }

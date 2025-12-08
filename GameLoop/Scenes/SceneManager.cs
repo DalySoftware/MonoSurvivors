@@ -1,13 +1,32 @@
-﻿namespace GameLoop.Scenes;
+﻿using System;
+using System.Collections.Generic;
 
-internal class SceneManager(IScene? initial)
+namespace GameLoop.Scenes;
+
+internal class SceneManager(IScene? initial) : IDisposable
 {
+    private readonly Stack<IScene> _sceneStack = new();
+
     internal IScene? Current { get; private set; } = initial;
 
-    internal void Switch(IScene scene)
+    internal void Push(IScene scene)
     {
-        var old = Current;
+        if (Current != null)
+            _sceneStack.Push(Current);
         Current = scene;
-        old?.Dispose();
+    }
+
+    internal void Pop()
+    {
+        Current?.Dispose();
+        if (_sceneStack.Count > 0)
+            Current = _sceneStack.Pop();
+    }
+
+    public void Dispose()
+    {
+        Current?.Dispose();
+        while (_sceneStack.TryPop(out var scene))
+            scene.Dispose();
     }
 }

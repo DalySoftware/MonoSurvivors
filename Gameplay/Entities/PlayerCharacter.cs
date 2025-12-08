@@ -17,8 +17,13 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
 
     public float Experience { get; private set; }
+    public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { }; 
 
-    public void GainExperience(float amount) => Experience += amount;
+    public void GainExperience(float amount)
+    {
+        Experience += amount;
+        OnExperienceGain(this, this);
+    }
 
     public int MaxHealth => 6;
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;

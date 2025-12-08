@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using ContentLibrary;
 using GameLoop.UI;
 using Gameplay.Audio;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
+using Gameplay.Levelling;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework;
@@ -24,17 +25,16 @@ internal class MainGameScene : IScene
     private readonly HealthBar _healthBar;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
-    private readonly Action _onPlayerDeath;
 
     public MainGameScene(
         GraphicsDevice graphicsDevice,
-        GameWindow window,
         ContentManager coreContent,
         Action exitGame,
-        Action onPlayerDeath,
         EntityManager entityManager,
         IAudioPlayer audioPlayer,
-        EffectManager effectManager)
+        EffectManager effectManager,
+        Action openSphereGrid,
+        PlayerCharacter player)
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
@@ -43,10 +43,8 @@ internal class MainGameScene : IScene
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
         _entityManager = entityManager;
-        _onPlayerDeath = onPlayerDeath;
         _effectManager = effectManager;
 
-        var player = new PlayerCharacter(window.Centre, _effectManager, audioPlayer, _onPlayerDeath);
         _entityManager.Spawn(player);
         _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
 
@@ -66,7 +64,8 @@ internal class MainGameScene : IScene
 
         _input = new GameplayInputManager(player)
         {
-            OnExit = exitGame
+            OnExit = exitGame,
+            OnOpenSphereGrid = openSphereGrid
         };
 
         _healthBar = new HealthBar(_content, player)

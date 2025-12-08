@@ -1,4 +1,5 @@
-﻿using GameLoop.Input;
+using System;
+using GameLoop.Input;
 using Gameplay.Entities;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Input;
@@ -7,12 +8,22 @@ namespace GameLoop.Scenes.Gameplay;
 
 internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
 {
+    internal Action OnOpenSphereGrid { get; init; } = () => { };
+    private KeyboardState _previousKeyboardState;
+
     internal override void Update()
     {
         base.Update();
 
         var keyboardState = Keyboard.GetState();
         var gamePadState = GamePad.GetState(0);
+
+        if (keyboardState.IsKeyDown(Keys.Tab) && !_previousKeyboardState.IsKeyDown(Keys.Tab))
+        {
+            OnOpenSphereGrid();
+            _previousKeyboardState = keyboardState;
+            return;
+        }
 
         var x = 0f;
         var y = 0f;
@@ -35,5 +46,7 @@ internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
             player.DirectionInput(new UnitVector2(x, y));
         else
             player.DirectionInput(new UnitVector2(0f, 0f));
+
+        _previousKeyboardState = keyboardState;
     }
 }
