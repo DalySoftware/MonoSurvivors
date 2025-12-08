@@ -7,6 +7,7 @@ using GameLoop.Scenes.Title;
 using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Levelling;
+using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,7 @@ public class CoreGame : Game
 {
     private readonly SceneManager _sceneManager = new(null);
     private readonly IServiceProvider _services;
-    private readonly SphereGrid _sphereGrid = SphereGrid.Create();
+    private SphereGrid _sphereGrid = null!;
     private LevelManager _levelSystem = null!;
     private PrimitiveRenderer _primitiveRenderer = null!;
 
@@ -56,6 +57,7 @@ public class CoreGame : Game
         
         var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, ShowGameOver);
         _levelSystem = new LevelManager(player, OnLevelUp);
+        _sphereGrid = SphereGrid.Create(player);
 
         _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager, ShowSphereGrid, player));
     }

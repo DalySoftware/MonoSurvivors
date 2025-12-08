@@ -1,6 +1,7 @@
 using System;
 using GameLoop.UI;
 using Gameplay.Levelling;
+using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;

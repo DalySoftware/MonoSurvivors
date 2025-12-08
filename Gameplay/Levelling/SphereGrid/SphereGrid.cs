@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gameplay.Entities;
+using Gameplay.Levelling.PowerUps.Player;
 
-namespace Gameplay.Levelling;
+namespace Gameplay.Levelling.SphereGrid;
 
-public class Node
+public class Node(IPlayerPowerUp? powerUp, int cost)
 {
-    public int Cost { get; init; } = 1;
+    public int Cost { get; } = cost;
+    public IPlayerPowerUp? PowerUp { get; } = powerUp;
     
     private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
 
@@ -25,6 +28,7 @@ public class SphereGrid
     
     public IReadOnlySet<Node> Nodes => _nodes;
     public Node Root { get; private init; }
+    public Action<IPlayerPowerUp> OnUnlock { get; init; } = _ => { };
 
     private SphereGrid(Node root)
     {
@@ -48,6 +52,8 @@ public class SphereGrid
         
         _unlockedNodes.Add(node);
         _availablePoints -= node.Cost;
+        if (node.PowerUp is not null)
+            OnUnlock(node.PowerUp);
     }
 
     /// <summary>
@@ -76,31 +82,37 @@ public class SphereGrid
         }
     }
 
-    public static SphereGrid Create()
+    public static SphereGrid Create(PlayerCharacter player)
     {
         // Strength path (right)
-        var strKey = new Node();
-        var str2 = new Node();
+        var strengthUp = new StrengthUp();
+        var strKey = new Node(strengthUp, 1);
+        var str2 = new Node(strengthUp, 1);
         str2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
-        var str1 = new Node();
+        var str1 = new Node(strengthUp, 1);
         str1.SetNeighbour(EdgeDirection.MiddleRight, str2);
 
         // Agility path (up-right)
-        var agi2 = new Node();
-        var agi1 = new Node();
+        var speedUp = new SpeedUp(0.2f);
+        var agi2 = new Node(speedUp, 1);
+        var agi1 = new Node(speedUp, 1);
         agi1.SetNeighbour(EdgeDirection.TopRight, agi2);
 
         // Defence path (down-right)
-        var def2 = new Node();
-        var def1 = new Node();
+        var maxHealthUp = new MaxHealthUp(2);
+        var def2 = new Node(maxHealthUp, 1);
+        var def1 = new Node(maxHealthUp, 1);
         def1.SetNeighbour(EdgeDirection.BottomRight, def2);
 
-        var root = new Node { Cost = 0};
+        var root = new Node(null, 0);
         root.SetNeighbour(EdgeDirection.TopRight, agi1);
         root.SetNeighbour(EdgeDirection.MiddleRight, str1);
         root.SetNeighbour(EdgeDirection.BottomRight, def1);
 
-        return new SphereGrid(root);
+        return new SphereGrid(root)
+        {
+            OnUnlock = player.Add
+        };
     }
 }
 

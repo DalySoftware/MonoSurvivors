@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
-using Gameplay.Levelling;
+using Gameplay.Levelling.PowerUps.Player;
+using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
@@ -16,8 +18,6 @@ namespace GameLoop.UI;
 /// </summary>
 public class SphereGridUi : UiElement
 {
-    private const string PlaceholderName = "NAME";
-    private const string PlaceholderDescription = "DESCRIPTION";
     private const float NodeSpacing = 40f;
     private float NodeRadius => _gridNodeSprite.Width / 2f;
 
@@ -162,18 +162,45 @@ public class SphereGridUi : UiElement
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node)
     {
-        var unlockText =
-            _grid.IsUnlocked(node) ? "[Unlocked]" :
-            _grid.CanUnlock(node) ? "[Click to unlock]" : "[Cannot unlock]";
 
+        if (node.PowerUp is not {} powerUp) return;
+
+        var title = TitleFor(powerUp);
+        
         ToolTipBodyLine[] body =
         [
-            new(PlaceholderDescription),
+            new(DescriptionFor(powerUp)),
             new($"Cost: {node.Cost} SP"),
-            new(unlockText, Color.Gray),
+            new(UnlockTextFor(node), Color.Gray),
         ];
         
-        var tooltip = new ToolTip(PlaceholderName, body);
+        var tooltip = new ToolTip(title, body);
         _toolTipRenderer.DrawTooltip(spriteBatch, tooltip, Layers.ToolTip);
     }
+
+    private static string TitleFor(IPlayerPowerUp powerUp) => powerUp switch
+        {
+            MaxHealthUp => "Increase Max Health",
+            SpeedUp => "Increase Speed",
+            StrengthUp => "Increase Strength",
+            _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
+        };
+
+    private static string DescriptionFor(IPlayerPowerUp powerUp) => powerUp switch
+        {
+            MaxHealthUp maxHealthUp => $"Increase Max Health by {(maxHealthUp.Value / 2).HeartLabel()}",
+            SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P1}",
+            StrengthUp => "PLACEHOLDER", // todo
+            _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
+        };
+    
+    private string UnlockTextFor(Node node) => 
+        _grid.IsUnlocked(node) ? "[Unlocked]" :
+        _grid.CanUnlock(node) ? "[Click to unlock]" : "[Cannot unlock]";
 }
+
+public static class Pluralization
+{
+    public static string HeartLabel(this int value) => $"{value} {(value == 1 ? "heart" : "hearts")}";
+}
+

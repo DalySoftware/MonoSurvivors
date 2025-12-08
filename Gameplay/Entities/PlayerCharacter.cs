@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ContentLibrary;
 using Gameplay.Audio;
 using Gameplay.Combat;
+using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Gameplay.Utilities;
@@ -11,13 +14,15 @@ namespace Gameplay.Entities;
 public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAudioPlayer audio, Action? onDeath = null)
     : MovableEntity(position), IDamageablePlayer, IVisual
 {
-    private const float Speed = 0.5f;
+    private const float BaseSpeed = 0.3f;
+    private float Speed => BaseSpeed * (1f + _powerUps.OfType<SpeedUp>().Sum(p => p.Value));
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
-
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
+    
+    private readonly List<IPlayerPowerUp> _powerUps = [];
 
     public float Experience { get; private set; }
-    public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { }; 
+    public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
 
     public void GainExperience(float amount)
     {
@@ -25,10 +30,11 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
         OnExperienceGain(this, this);
     }
 
-    public int MaxHealth => 6;
+    private const int BaseHealth = 6;
+    public int MaxHealth => BaseHealth + _powerUps.OfType<MaxHealthUp>().Sum(p => p.Value);
+    public int Health { get; private set; } = BaseHealth;
+    
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
-
-    public int Health { get; private set; } = 6;
 
     public float CollisionRadius => 16f;
 
@@ -56,5 +62,14 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     {
         _invincibilityDuration -= gameTime.ElapsedGameTime;
         base.Update(gameTime);
+    }
+    
+    internal void Add(IPlayerPowerUp playerPowerUp)
+    {
+        _powerUps.Add(playerPowerUp);
+        
+        // Extra effects
+        if (playerPowerUp is MaxHealthUp maxHealthUp)
+            Health += maxHealthUp.Value;
     }
 }
