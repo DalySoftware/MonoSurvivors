@@ -24,15 +24,20 @@ public class SphereGrid
     private int _availablePoints = 0;
     
     public IReadOnlySet<Node> Nodes => _nodes;
-    
-    private void AddNode(Node node) => _nodes.Add(node);
-    
+    public Node Root { get; private init; }
+
+    private SphereGrid(Node root)
+    {
+        DiscoverAndAddNodes(root);
+        Root = root;
+        _unlockedNodes.Add(root);
+    }
+
     public void AddSkillPoints(int points) => _availablePoints += points;
 
     public bool CanUnlock(Node node) =>
         _availablePoints >= node.Cost &&
         _unlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
-    
     
     public bool IsUnlocked(Node node) => _unlockedNodes.Contains(node);
 
@@ -44,10 +49,7 @@ public class SphereGrid
         _unlockedNodes.Add(node);
         _availablePoints -= node.Cost;
     }
-    
-    
-    private void UnlockRoot(Node rootNode) => _unlockedNodes.Add(rootNode);
-    
+
     /// <summary>
     /// Discovers all nodes in the graph. Adds them to <see cref="_nodes"/>. Maps reverse paths.
     /// </summary>
@@ -62,7 +64,7 @@ public class SphereGrid
             if (!visited.Add(node))
                 continue;
 
-            AddNode(node);
+            _nodes.Add(node);
 
             foreach (var (dir, neighbour) in node.Neighbours)
             {
@@ -76,7 +78,6 @@ public class SphereGrid
 
     public static SphereGrid CreateDemo()
     {
-        var grid = new SphereGrid();
 
         // Strength path (right)
         var strKey = new Node();
@@ -100,10 +101,7 @@ public class SphereGrid
         root.SetNeighbour(EdgeDirection.MiddleRight, str1);
         root.SetNeighbour(EdgeDirection.BottomRight, def1);
 
-        grid.DiscoverAndAddNodes(root);
-        grid.UnlockRoot(root);
-        
-        return grid;
+        return new SphereGrid(root);
     }
 }
 

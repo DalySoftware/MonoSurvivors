@@ -17,19 +17,18 @@ public class SphereGridUi : UiElement
 {
     private const string PlaceholderName = "NAME";
     private const string PlaceholderDescription = "DESCRIPTION";
-    private const float HexRadius = 40f;
-    private const float NodeRadius = 8f;
+    private const float NodeSpacing = 40f;
+    private float NodeRadius => _gridNodeSprite.Width / 2f;
 
     private readonly SphereGrid _grid;
     private readonly SpriteFont _font;
     private readonly Texture2D _gridNodeSprite;
     private readonly GraphicsDevice _graphicsDevice;
 
-    private Texture2D? _pixelTexture;
     private readonly Vector2 _offset;
     private Node? _hoveredNode;
     private MouseState _previousMouseState;
-    private readonly Dictionary<Node, Vector2> _nodePositions = new();
+    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
 
     public SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid)
     {
@@ -42,75 +41,19 @@ public class SphereGridUi : UiElement
         var viewport = _graphicsDevice.Viewport;
         _offset = new Vector2(viewport.Width, viewport.Height) / 2;
 
-        // Calculate hexagonal positions for all nodes
-        CalculateNodePositions();
-    }
-
-    private void CalculateNodePositions()
-    {
-        _nodePositions.Clear();
-
-        // Find a starting node (pick any node from the grid)
-        var startNode = _grid.Nodes.FirstOrDefault();
-        if (startNode == null) return;
-
-        // Place start node at origin
-        _nodePositions[startNode] = Vector2.Zero;
-
-        // BFS to position all connected nodes
-        var visited = new HashSet<Node>();
-        var queue = new Queue<Node>();
-        queue.Enqueue(startNode);
-        visited.Add(startNode);
-
-        while (queue.Count > 0)
-        {
-            var current = queue.Dequeue();
-            var currentPos = _nodePositions[current];
-
-            foreach (var (direction, neighbor) in current.Neighbours)
-            {
-                if (visited.Contains(neighbor)) continue;
-
-                // Calculate hex offset based on direction
-                var offset = GetHexOffset(direction);
-                _nodePositions[neighbor] = currentPos + offset;
-
-                visited.Add(neighbor);
-                queue.Enqueue(neighbor);
-            }
-        }
-    }
-
-    private static Vector2 GetHexOffset(EdgeDirection direction)
-    {
-        // Flat-top hexagon positioning
-        // Using hex coordinate math where each direction has a specific offset
-        var xStep = HexRadius * 1.5f;
-        var yStep = HexRadius * (float)Math.Sqrt(3) / 2;
-
-        return direction switch
-        {
-            EdgeDirection.TopLeft => new Vector2(-xStep, -yStep),
-            EdgeDirection.TopRight => new Vector2(xStep, -yStep),
-            EdgeDirection.MiddleLeft => new Vector2(-xStep * 2, 0),
-            EdgeDirection.MiddleRight => new Vector2(xStep * 2, 0),
-            EdgeDirection.BottomLeft => new Vector2(-xStep, yStep),
-            EdgeDirection.BottomRight => new Vector2(xStep, yStep),
-            _ => Vector2.Zero
-        };
+        _nodePositions = new SphereGridPositioner(_grid, NodeSpacing).NodePositions();
     }
 
     private Texture2D PixelTexture
     {
         get
         {
-            if (_pixelTexture == null)
+            if (field == null)
             {
-                _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
-                _pixelTexture.SetData([Color.White]);
+                field = new Texture2D(_graphicsDevice, 1, 1);
+                field.SetData([Color.White]);
             }
-            return _pixelTexture;
+            return field;
         }
     }
 
