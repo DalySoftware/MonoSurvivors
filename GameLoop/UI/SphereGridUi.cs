@@ -21,14 +21,15 @@ namespace GameLoop.UI;
 public class SphereGridUi : UiElement
 {
     private const float NodeSpacing = 160f;
-    private float NodeRadius => _gridNodeSprite.Width / 2f;
+    
 
     private readonly SphereGrid _grid;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
     private readonly SpriteFont _fontSmall;
     private readonly SpriteFont _fontLarge;
-    private readonly Texture2D _gridNodeSprite;
+    private readonly Texture2D _gridNodeSmall;
+    private readonly Texture2D _gridNodeLarge;
     private readonly GraphicsDevice _graphicsDevice;
 
     private readonly Vector2 _offset;
@@ -52,7 +53,8 @@ public class SphereGridUi : UiElement
         _graphicsDevice = graphicsDevice;
         _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
         _fontLarge =  content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
-        _gridNodeSprite = content.Load<Texture2D>(Paths.Images.GridNode);
+        _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode);
+        _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNodeLarge);
 
         // Center the grid on screen
         var viewport = _graphicsDevice.Viewport;
@@ -75,7 +77,8 @@ public class SphereGridUi : UiElement
             var screenPos = Position + _offset + nodePos;
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
-            return Vector2.Distance(mousePos, screenPos) <= NodeRadius;
+            var radius = NodeTexture(node).Width / 2f;
+            return Vector2.Distance(mousePos, screenPos) <= radius;
         });
 
         // Click to unlock
@@ -148,18 +151,25 @@ public class SphereGridUi : UiElement
             Color.DarkGray;
 
         var screenNodePos = Position + _offset + nodePos;
-        DrawNode(spriteBatch, screenNodePos, color);
+        var texture = NodeTexture(node);
+        DrawNode(spriteBatch, texture, screenNodePos, color);
 
         if (node == _hoveredNode)
         {
             // Draw a highlight on top
-            DrawNode(spriteBatch, screenNodePos, Color.White * 0.4f);
+            DrawNode(spriteBatch, texture, screenNodePos, Color.White * 0.4f);
             DrawTooltip(spriteBatch, _hoveredNode);
         }
     }
 
-    private void DrawNode(SpriteBatch spriteBatch, Vector2 center, Color color) => 
-        spriteBatch.Draw(_gridNodeSprite, center, origin: _gridNodeSprite.Centre, color: color, layerDepth: Layers.Nodes);
+    private Texture2D NodeTexture(Node node) => node.Cost switch
+    {
+        >= 3 => _gridNodeLarge,
+        _ => _gridNodeSmall
+    };
+
+    private void DrawNode(SpriteBatch spriteBatch, Texture2D sprite, Vector2 center, Color color) => 
+        spriteBatch.Draw(sprite, center, origin: sprite.Centre, color: color, layerDepth: Layers.Nodes);
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node)
     {

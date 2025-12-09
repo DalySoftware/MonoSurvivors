@@ -108,7 +108,7 @@ public class SphereGrid
         
         // Attack Speed (left)
         var extraShot = new ShotCountUp(2);
-        var extraShotNode = new Node(extraShot, 2);
+        var extraShotNode = new Node(extraShot, 3);
         var attackSpeedUp = new AttackSpeedUp(0.2f);
         var atkSpd2 = new Node(attackSpeedUp, 1);
         atkSpd2.SetNeighbour(EdgeDirection.MiddleLeft, extraShotNode);

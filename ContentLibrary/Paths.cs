@@ -10,6 +10,7 @@ public static class Paths
         public const string Bullet = @"Images\Placeholder-Bullet";
         public const string Experience = @"Images\Experience";
         public const string GridNode = @"Images\GridNode";
+        public const string GridNodeLarge = @"Images\GridNode-Large";
 
         public static class Heart
         {
