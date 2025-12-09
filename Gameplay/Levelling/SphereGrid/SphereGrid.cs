@@ -87,11 +87,11 @@ public class SphereGrid
     public static SphereGrid Create(PlayerCharacter player)
     {
         // Strength path (right)
-        var strengthUp = new DamageUp(1f);
-        var strKey = new Node(strengthUp, 1);
-        var str2 = new Node(strengthUp, 1);
+        DamageUp DamageUp(int multiplier) => new(multiplier * 0.25f);
+        var strKey = new Node(DamageUp(2), 2);
+        var str2 = new Node(DamageUp(1), 1);
         str2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
-        var str1 = new Node(strengthUp, 1);
+        var str1 = new Node(DamageUp(1), 1);
         str1.SetNeighbour(EdgeDirection.MiddleRight, str2);
 
         // Agility path (up-right)
