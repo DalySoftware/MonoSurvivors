@@ -20,7 +20,7 @@ namespace GameLoop.UI;
 /// </summary>
 public class SphereGridUi : UiElement
 {
-    private const float NodeSpacing = 80f;
+    private const float NodeSpacing = 160f;
     private float NodeRadius => _gridNodeSprite.Width / 2f;
 
     private readonly SphereGrid _grid;
@@ -125,7 +125,7 @@ public class SphereGridUi : UiElement
                 var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
 
                 var color = isUnlocked ? Color.Gold : Color.Gray * 0.5f;
-                _primitiveRenderer.DrawLine(spriteBatch, screenNodePos, screenNeighborPos, color,2f, layerDepth: Layers.Edges);
+                _primitiveRenderer.DrawLine(spriteBatch, screenNodePos, screenNeighborPos, color,8f, layerDepth: Layers.Edges);
             }
         }
 
