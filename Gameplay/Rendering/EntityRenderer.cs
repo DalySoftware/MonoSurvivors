@@ -16,8 +16,10 @@ public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, Cha
 
     public void Draw(IEnumerable<IEntity> entities)
     {
+        var visibleBounds = camera.VisibleWorldBounds;
         var effectsLookup = entities
             .OfType<IVisual>()
+            .Where(e => IsVisible(e, visibleBounds))
             .ToDictionary(
                 e => e,
                 e => effectManager.GetEffects(e).ToList());
@@ -61,5 +63,17 @@ public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, Cha
         var texture = content.Load<Texture2D>(path);
         _textureCache[path] = texture;
         return texture;
+    }
+
+    private static bool IsVisible(IVisual visual, Rectangle visibleBounds)
+    {
+        const int margin = 300; // Include entities a bit off-screen
+        var expandedBounds = new Rectangle(
+            visibleBounds.X - margin,
+            visibleBounds.Y - margin,
+            visibleBounds.Width + margin * 2,
+            visibleBounds.Height + margin * 2);
+
+        return expandedBounds.Contains(visual.Position);
     }
 }
