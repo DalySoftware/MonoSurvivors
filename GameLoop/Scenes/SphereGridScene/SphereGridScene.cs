@@ -11,9 +11,9 @@ namespace GameLoop.Scenes.SphereGridScene;
 internal class SphereGridScene : IScene
 {
     private readonly ContentManager _content;
-    private readonly SpriteBatch _spriteBatch;
-    private readonly SphereGridUi _sphereGridUi;
     private readonly SphereGridInputManager _input;
+    private readonly SphereGridUi _sphereGridUi;
+    private readonly SpriteBatch _spriteBatch;
 
     public SphereGridScene(
         GraphicsDevice graphicsDevice,
@@ -30,12 +30,12 @@ internal class SphereGridScene : IScene
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
 
-        
+
         _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid, primitiveRenderer);
         _input = new SphereGridInputManager
         {
             OnClose = onClose,
-            OnExit = onExit,
+            OnExit = onExit
         };
     }
 
@@ -46,12 +46,10 @@ internal class SphereGridScene : IScene
         _sphereGridUi.Update();
     }
 
-    public void Draw(GameTime gameTime)
-    {
+    public void Draw(GameTime gameTime) =>
         // Just draw the sphere grid UI
         // (The dark overlay is drawn by the UI itself)
         _sphereGridUi.Draw(_spriteBatch);
-    }
 
     public void Dispose()
     {

@@ -9,6 +9,13 @@ internal class SceneManager(IScene? initial) : IDisposable
 
     internal IScene? Current { get; private set; } = initial;
 
+    public void Dispose()
+    {
+        Current?.Dispose();
+        while (_sceneStack.TryPop(out var scene))
+            scene.Dispose();
+    }
+
     internal void Push(IScene scene)
     {
         if (Current != null)
@@ -21,12 +28,5 @@ internal class SceneManager(IScene? initial) : IDisposable
         Current?.Dispose();
         if (_sceneStack.Count > 0)
             Current = _sceneStack.Pop();
-    }
-
-    public void Dispose()
-    {
-        Current?.Dispose();
-        while (_sceneStack.TryPop(out var scene))
-            scene.Dispose();
     }
 }

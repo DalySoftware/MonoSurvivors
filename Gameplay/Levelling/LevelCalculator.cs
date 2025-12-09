@@ -9,13 +9,13 @@ namespace Gameplay.Levelling;
 /// </param>
 internal class LevelCalculator(float baseRequirement, float growthFactor)
 {
-    internal int GetLevel(float totalExperience) 
+    internal int GetLevel(float totalExperience)
         // would need updating if we ever need negative exp
-        => (int)Math.Pow(totalExperience / baseRequirement, 1f / growthFactor) + 1; 
+        => (int)Math.Pow(totalExperience / baseRequirement, 1f / growthFactor) + 1;
 
-    internal double TotalExperienceToReach(int level) 
+    internal double TotalExperienceToReach(int level)
         => baseRequirement * Math.Pow(level - 1, growthFactor);
 
-    internal double ExtraExperienceToLevelUpFrom(int level) 
+    internal double ExtraExperienceToLevelUpFrom(int level)
         => TotalExperienceToReach(level + 1) - TotalExperienceToReach(level);
 }

@@ -25,9 +25,7 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
 
             var collisionDistance = owner.CollisionRadius * 2.4f; // Aim for a small gap
             if (distSq < collisionDistance * collisionDistance)
-            {
                 separationForce += offset / distSq; // Stronger push when closer
-            }
         }
 
         const float scaleFactor = 40f;

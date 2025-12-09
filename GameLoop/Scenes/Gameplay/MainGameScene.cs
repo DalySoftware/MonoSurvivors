@@ -18,9 +18,9 @@ internal class MainGameScene : IScene
     private readonly Texture2D _backgroundTile;
     private readonly ChaseCamera _camera;
     private readonly ContentManager _content;
+    private readonly EffectManager _effectManager;
     private readonly EntityManager _entityManager;
     private readonly EntityRenderer _entityRenderer;
-    private readonly EffectManager _effectManager;
     private readonly HealthBar _healthBar;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;

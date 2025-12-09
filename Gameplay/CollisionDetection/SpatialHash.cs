@@ -10,11 +10,13 @@ internal class SpatialHash<T>(float cellSize)
     public void Insert(T item)
     {
         var cell = GetCell(item.Position);
+
         if (!_grid.TryGetValue(cell, out var list))
         {
             list = [];
             _grid[cell] = list;
         }
+
         list.Add(item);
     }
 
@@ -23,21 +25,16 @@ internal class SpatialHash<T>(float cellSize)
         var centerCell = GetCell(position);
 
         for (var x = -cellRadius; x <= cellRadius; x++)
+        for (var y = -cellRadius; y <= cellRadius; y++)
         {
-            for (var y = -cellRadius; y <= cellRadius; y++)
-            {
-                var cell = (centerCell.x + x, centerCell.y + y);
-                if (!_grid.TryGetValue(cell, out var items))
-                    continue;
-                
-                foreach (var item in items)
-                    yield return item;
-            }
+            var cell = (centerCell.x + x, centerCell.y + y);
+            if (!_grid.TryGetValue(cell, out var items))
+                continue;
+
+            foreach (var item in items)
+                yield return item;
         }
     }
 
-    private (int x, int y) GetCell(Vector2 position)
-    {
-        return ((int)(position.X / cellSize), (int)(position.Y / cellSize));
-    }
+    private (int x, int y) GetCell(Vector2 position) => ((int)(position.X / cellSize), (int)(position.Y / cellSize));
 }

@@ -16,28 +16,21 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     : MovableEntity(position), IDamageablePlayer, IVisual
 {
     private const float BaseSpeed = 0.25f;
-    private float _speedMultiplier = 1f;
-    private float Speed => BaseSpeed * _speedMultiplier;
-    
+
+    private const int BaseHealth = 6;
+
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
-    
+    private float _speedMultiplier = 1f;
+    private float Speed => BaseSpeed * _speedMultiplier;
+
     public float PickupRadiusMultiplier { get; private set; } = 1f;
     public WeaponBelt WeaponBelt { get; } = new();
 
     public float Experience { get; private set; }
-    public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
-
-    public void GainExperience(float amount)
-    {
-        Experience += amount;
-        OnExperienceGain(this, this);
-    }
-
-    private const int BaseHealth = 6;
     public int MaxHealth { get; private set; } = BaseHealth;
     public int Health { get; private set; } = BaseHealth;
-    
+
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
 
     public float CollisionRadius => 32f;
@@ -59,6 +52,13 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     }
 
     public string TexturePath => Paths.Images.Player;
+    public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
+
+    public void GainExperience(float amount)
+    {
+        Experience += amount;
+        OnExperienceGain(this, this);
+    }
 
     public void DirectionInput(UnitVector2 input) => Velocity = (Vector2)input * Speed;
 
@@ -68,7 +68,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
         WeaponBelt.Update(gameTime);
         base.Update(gameTime);
     }
-    
+
     internal void AddPowerUp(IPowerUp powerUp)
     {
         switch (powerUp)

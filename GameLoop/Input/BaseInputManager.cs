@@ -10,7 +10,7 @@ internal abstract class BaseInputManager
 {
     protected static KeyboardState KeyboardState { get; private set; } = Keyboard.GetState();
     protected static KeyboardState PreviousKeyboardState { get; private set; } = Keyboard.GetState();
-    protected static GamePadState GamePadState { get; private set; }= GamePad.GetState(0);
+    protected static GamePadState GamePadState { get; private set; } = GamePad.GetState(0);
 
     internal required Action OnExit { get; init; }
 

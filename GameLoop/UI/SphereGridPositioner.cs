@@ -8,10 +8,10 @@ namespace GameLoop.UI;
 /// <param name="hexRadius">How large to make the hexagons, ie how far between nodes</param>
 internal class SphereGridPositioner(SphereGrid grid, float hexRadius)
 {
-    private readonly Dictionary<Node, Vector2>?  _cached = null;
-    
+    private readonly Dictionary<Node, Vector2>? _cached = null;
+
     internal IReadOnlyDictionary<Node, Vector2> NodePositions() => _cached ?? CalculateNodePositions();
-    
+
     private Dictionary<Node, Vector2> CalculateNodePositions()
     {
         var positions = new Dictionary<Node, Vector2>();
@@ -43,10 +43,10 @@ internal class SphereGridPositioner(SphereGrid grid, float hexRadius)
                 queue.Enqueue(neighbor);
             }
         }
-        
+
         return positions;
     }
-    
+
     private Vector2 GetHexOffset(EdgeDirection direction)
     {
         // Hexagon positioning with equal 60° angles
@@ -63,7 +63,7 @@ internal class SphereGridPositioner(SphereGrid grid, float hexRadius)
 
         return new Vector2(
             hexRadius * MathF.Cos(angle),
-            -hexRadius * MathF.Sin(angle)  // Negate Y for screen coordinates
+            -hexRadius * MathF.Sin(angle) // Negate Y for screen coordinates
         );
     }
 }

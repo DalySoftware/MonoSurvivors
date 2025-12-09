@@ -6,7 +6,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies;
 
-public class EnemySpawner(EntityManager entityManager, PlayerCharacter target, IAudioPlayer audio, GraphicsDevice graphics) : IEntity
+public class EnemySpawner(
+    EntityManager entityManager,
+    PlayerCharacter target,
+    IAudioPlayer audio,
+    GraphicsDevice graphics) : IEntity
 {
     private readonly Random _random = new();
     private TimeSpan _remainingCooldown = TimeSpan.Zero;

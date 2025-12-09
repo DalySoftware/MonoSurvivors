@@ -9,8 +9,8 @@ namespace Gameplay.Rendering.Tooltips;
 public class ToolTipRenderer(PrimitiveRenderer primitiveRenderer, ContentManager content)
 {
     private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
- 
-    /// <param name="layerDepth">Layer depth for background. Text will use <paramref name="layerDepth"/> + 0.01f    </param>
+
+    /// <param name="layerDepth">Layer depth for background. Text will use <paramref name="layerDepth" /> + 0.01f</param>
     public void DrawTooltip(SpriteBatch spriteBatch, ToolTip tooltip, float layerDepth = 0f)
     {
         var mouseState = Mouse.GetState();
@@ -19,13 +19,13 @@ public class ToolTipRenderer(PrimitiveRenderer primitiveRenderer, ContentManager
         var lineHeight = _font.MeasureString("A").Y;
         const int padding = 8;
         var tooltipWidth = tooltip.MaxWidth(_font) + padding * 2;
-        
+
         // Draw background
         var tooltipHeight = lineHeight * tooltip.TotalLines + padding * 2;
         var tooltipRect = new Rectangle((int)tooltipPos.X, (int)tooltipPos.Y,
             (int)tooltipWidth, (int)tooltipHeight);
-        primitiveRenderer.DrawRectangle(spriteBatch, tooltipRect, Color.Black * 0.9f, layerDepth: layerDepth);
-        
+        primitiveRenderer.DrawRectangle(spriteBatch, tooltipRect, Color.Black * 0.9f, layerDepth);
+
         // Title
         var textPos = tooltipPos + new Vector2(padding, padding);
         spriteBatch.DrawString(_font, tooltip.Title, textPos, Color.White, layerDepth: layerDepth + 0.01f);
@@ -34,7 +34,8 @@ public class ToolTipRenderer(PrimitiveRenderer primitiveRenderer, ContentManager
         foreach (var (line, index) in tooltip.Body.Select((line, i) => (line, i)))
         {
             textPos = tooltipPos + new Vector2(padding, padding + (index + 1) * lineHeight);
-            spriteBatch.DrawString(_font, line.Text, textPos, line.Color ?? Color.LightGray, layerDepth: layerDepth + 0.01f);
+            spriteBatch.DrawString(_font, line.Text, textPos, line.Color ?? Color.LightGray,
+                layerDepth: layerDepth + 0.01f);
         }
     }
 }

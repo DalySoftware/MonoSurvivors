@@ -8,11 +8,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, ChaseCamera camera, EffectManager effectManager)
+public class EntityRenderer(
+    ContentManager content,
+    SpriteBatch spriteBatch,
+    ChaseCamera camera,
+    EffectManager effectManager)
 {
-    private readonly Dictionary<string, Texture2D> _textureCache = [];
-
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
+    private readonly Dictionary<string, Texture2D> _textureCache = [];
 
     public void Draw(IEnumerable<IEntity> entities)
     {
@@ -32,8 +35,8 @@ public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, Cha
 
         // Todo - This is quite inefficient. We're individually flushing entities with effects
         foreach (var (entity, effects) in effectsLookup)
-            foreach (var effect in effects)
-                DrawWithEffect(entity, effect);
+        foreach (var effect in effects)
+            DrawWithEffect(entity, effect);
     }
 
     private void Draw(IVisual visual)
@@ -45,6 +48,7 @@ public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, Cha
     private void DrawWithEffect(IVisual visual, VisualEffect effect)
     {
         var texture = GetTexture(visual.TexturePath);
+
         switch (effect)
         {
             case GreyscaleEffect:

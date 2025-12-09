@@ -16,9 +16,7 @@ internal class PickupProcessor
         var alreadyUsed = new HashSet<IPickup>();
 
         foreach (var (player, pickup) in _collisionChecker.FindOverlaps(players, pickups))
-        {
             if (alreadyUsed.Add(pickup))
                 pickup.OnPickupBy(player);
-        }
     }
 }

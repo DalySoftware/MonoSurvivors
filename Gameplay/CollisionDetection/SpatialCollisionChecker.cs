@@ -3,12 +3,12 @@ using System.Collections.Generic;
 namespace Gameplay.CollisionDetection;
 
 /// <summary>
-/// Performs efficient collision checking using spatial hashing to avoid O(n×m) full scans.
+///     Performs efficient collision checking using spatial hashing to avoid O(n×m) full scans.
 /// </summary>
 internal class SpatialCollisionChecker(float cellSize = 50f)
 {
     /// <summary>
-    /// Finds all overlapping pairs between two collections using spatial hashing.
+    ///     Finds all overlapping pairs between two collections using spatial hashing.
     /// </summary>
     public IEnumerable<(TTarget target, TSource source)> FindOverlaps<TTarget, TSource>(
         IEnumerable<TTarget> targets,
@@ -22,12 +22,8 @@ internal class SpatialCollisionChecker(float cellSize = 50f)
             spatialHash.Insert(source);
 
         foreach (var target in targets)
-        {
-            foreach (var source in spatialHash.QueryNearby(target.Position))
-            {
-                if (CircleChecker.HasOverlap(target, source))
-                    yield return (target, source);
-            }
-        }
+        foreach (var source in spatialHash.QueryNearby(target.Position))
+            if (CircleChecker.HasOverlap(target, source))
+                yield return (target, source);
     }
 }

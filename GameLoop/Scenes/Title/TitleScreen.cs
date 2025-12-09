@@ -45,17 +45,19 @@ internal class TitleScreen : IScene
 
         var windowCentre = _window.Centre;
         var shadowOffset = new Vector2(5f, 5f);
-        
+
         const string line1 = "Mono";
         var line1Centre = _titleFont.MeasureString(line1) / 2;
-        var line1Position = windowCentre + new Vector2(0f, -75f); 
-        _spriteBatch.DrawString(_titleFont, line1, line1Position + shadowOffset, Color.DarkSlateGray, origin: line1Centre);
+        var line1Position = windowCentre + new Vector2(0f, -75f);
+        _spriteBatch.DrawString(_titleFont, line1, line1Position + shadowOffset, Color.DarkSlateGray,
+            origin: line1Centre);
         _spriteBatch.DrawString(_titleFont, line1, line1Position, Color.DarkOrange, origin: line1Centre);
 
         const string line2 = "Survivors";
         var line2Centre = _titleFont.MeasureString(line2) / 2;
         var line2Position = windowCentre + new Vector2(0f, 75f);
-        _spriteBatch.DrawString(_titleFont, line2, line2Position + shadowOffset, Color.DarkSlateGray, origin: line2Centre);
+        _spriteBatch.DrawString(_titleFont, line2, line2Position + shadowOffset, Color.DarkSlateGray,
+            origin: line2Centre);
         _spriteBatch.DrawString(_titleFont, line2, line2Position, Color.DarkOrange, origin: line2Centre);
 
         _spriteBatch.End();

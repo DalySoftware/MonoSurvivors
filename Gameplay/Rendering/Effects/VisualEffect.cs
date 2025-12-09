@@ -7,8 +7,8 @@ namespace Gameplay.Rendering.Effects;
 /// </summary>
 public abstract class VisualEffect(TimeSpan duration)
 {
-    private TimeSpan _remainingDuration = duration;
     private readonly TimeSpan _totalDuration = duration;
+    private TimeSpan _remainingDuration = duration;
 
     public bool IsActive => _remainingDuration > TimeSpan.Zero;
 

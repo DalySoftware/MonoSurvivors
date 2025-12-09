@@ -10,10 +10,10 @@ namespace GameLoop.Scenes.GameOver;
 internal class GameOverScene : IScene
 {
     private readonly ContentManager _content;
-    private readonly SpriteBatch _spriteBatch;
     private readonly GameOverInputManager _input;
-    private readonly SpriteFont _titleFont;
     private readonly SpriteFont _messageFont;
+    private readonly SpriteBatch _spriteBatch;
+    private readonly SpriteFont _titleFont;
     private readonly GameWindow _window;
 
     public GameOverScene(

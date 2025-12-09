@@ -19,9 +19,9 @@ public class CoreGame : Game
 {
     private readonly SceneManager _sceneManager = new(null);
     private readonly IServiceProvider _services;
-    private SphereGrid _sphereGrid = null!;
     private LevelManager _levelSystem = null!;
     private PrimitiveRenderer _primitiveRenderer = null!;
+    private SphereGrid _sphereGrid = null!;
 
     public CoreGame()
     {
@@ -50,16 +50,17 @@ public class CoreGame : Game
     private void StartGame()
     {
         _primitiveRenderer = new PrimitiveRenderer(GraphicsDevice);
-        
+
         var entityManager = _services.GetRequiredService<EntityManager>();
         var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
         var effectManager = _services.GetRequiredService<EffectManager>();
-        
+
         var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, ShowGameOver);
         _levelSystem = new LevelManager(player, OnLevelUp);
         _sphereGrid = SphereGrid.Create(player);
 
-        _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager, ShowSphereGrid, player));
+        _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager,
+            ShowSphereGrid, player));
     }
 
     private void ShowGameOver()

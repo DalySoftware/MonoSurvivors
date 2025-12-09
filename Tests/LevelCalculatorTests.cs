@@ -6,7 +6,7 @@ namespace Tests;
 public class LevelCalculatorTests
 {
     private readonly LevelCalculator _levelCalculator = new(10f, 1.5f);
-    
+
     [Test]
     [Arguments(0f)]
     [Arguments(10f)]
@@ -32,7 +32,7 @@ public class LevelCalculatorTests
 
         for (var i = levelOne; i < levelTwo; i++)
             summedExperience += _levelCalculator.ExtraExperienceToLevelUpFrom(i);
-        
+
         await Assert.That(summedExperience).IsEqualTo(levelTwoExperience - levelOneExperience);
     }
 }

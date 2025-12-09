@@ -6,8 +6,8 @@ namespace Gameplay.Combat.Weapons;
 
 public class WeaponBelt : IEntity
 {
-    private readonly List<IWeapon> _weapons = [];
     private readonly List<IWeaponPowerUp> _powerUps = [];
+    private readonly List<IWeapon> _weapons = [];
 
     public void Update(GameTime gameTime) => _weapons.ForEach(w => w.Update(gameTime, _powerUps));
 

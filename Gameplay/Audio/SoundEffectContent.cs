@@ -36,6 +36,6 @@ internal class SoundEffectContent(ContentManager content)
     [
         content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt1),
         content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt2),
-        content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt3),
+        content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt3)
     ];
 }

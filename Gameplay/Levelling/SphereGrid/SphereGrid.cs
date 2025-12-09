@@ -10,16 +10,15 @@ namespace Gameplay.Levelling.SphereGrid;
 
 public class Node(IPowerUp? powerUp, int cost)
 {
+    private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
     public int Cost { get; } = cost;
     public IPowerUp? PowerUp { get; } = powerUp;
-    
-    private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
+
+    public IReadOnlyDictionary<EdgeDirection, Node> Neighbours => _neighbours;
 
     public Node? GetNeighbour(EdgeDirection direction) => _neighbours.GetValueOrDefault(direction);
 
     public void SetNeighbour(EdgeDirection direction, Node node) => _neighbours[direction] = node;
-
-    public IReadOnlyDictionary<EdgeDirection, Node> Neighbours => _neighbours;
 }
 
 public class SphereGrid
@@ -27,10 +26,6 @@ public class SphereGrid
     private readonly HashSet<Node> _nodes = [];
     private readonly HashSet<Node> _unlockedNodes = [];
     private int _availablePoints = 0;
-    
-    public IReadOnlySet<Node> Nodes => _nodes;
-    public Node Root { get; private init; }
-    public Action<IPowerUp> OnUnlock { get; init; } = _ => { };
 
     private SphereGrid(Node root)
     {
@@ -39,19 +34,23 @@ public class SphereGrid
         _unlockedNodes.Add(root);
     }
 
+    public IReadOnlySet<Node> Nodes => _nodes;
+    public Node Root { get; private init; }
+    public Action<IPowerUp> OnUnlock { get; init; } = _ => { };
+
     public void AddSkillPoints(int points) => _availablePoints += points;
 
     public bool CanUnlock(Node node) =>
         _availablePoints >= node.Cost &&
         _unlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
-    
+
     public bool IsUnlocked(Node node) => _unlockedNodes.Contains(node);
 
     public void Unlock(Node node)
     {
         if (!CanUnlock(node))
             return;
-        
+
         _unlockedNodes.Add(node);
         _availablePoints -= node.Cost;
         if (node.PowerUp is not null)
@@ -59,7 +58,7 @@ public class SphereGrid
     }
 
     /// <summary>
-    /// Discovers all nodes in the graph. Adds them to <see cref="_nodes"/>. Maps reverse paths.
+    ///     Discovers all nodes in the graph. Adds them to <see cref="_nodes" />. Maps reverse paths.
     /// </summary>
     private void DiscoverAndAddNodes(Node root)
     {
@@ -87,7 +86,11 @@ public class SphereGrid
     public static SphereGrid Create(PlayerCharacter player)
     {
         // Damage (right)
-        DamageUp DamageUp(int multiplier) => new(multiplier * 0.25f);
+        DamageUp DamageUp(int multiplier)
+        {
+            return new DamageUp(multiplier * 0.25f);
+        }
+
         var strKey = new Node(DamageUp(2), 2);
         var dmg2 = new Node(DamageUp(1), 1);
         dmg2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
@@ -105,7 +108,7 @@ public class SphereGrid
         var hp2 = new Node(maxHealthUp, 1);
         var hp1 = new Node(maxHealthUp, 1);
         hp1.SetNeighbour(EdgeDirection.BottomRight, hp2);
-        
+
         // Attack Speed (left)
         var extraShot = new ShotCountUp(2);
         var extraShotNode = new Node(extraShot, 3);
@@ -114,19 +117,19 @@ public class SphereGrid
         atkSpd2.SetNeighbour(EdgeDirection.MiddleLeft, extraShotNode);
         var atkSpd1 = new Node(attackSpeedUp, 1);
         atkSpd1.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd2);
-        
+
         // Pickup Radius (up-left)
         var pickupRadiusUp = new PickupRadiusUp(0.3f);
         var pickupRadius2 = new Node(pickupRadiusUp, 1);
         var pickupRadius1 = new Node(pickupRadiusUp, 1);
         pickupRadius1.SetNeighbour(EdgeDirection.TopLeft, pickupRadius2);
-        
+
         // Range (down-left)
         var rangeUp = new RangeUp(0.5f);
         var rng2 = new Node(rangeUp, 1);
         var rng1 = new Node(rangeUp, 1);
         rng1.SetNeighbour(EdgeDirection.BottomLeft, rng2);
-        
+
         var root = new Node(null, 0);
         root.SetNeighbour(EdgeDirection.TopRight, spd1);
         root.SetNeighbour(EdgeDirection.MiddleRight, dmg1);
@@ -149,20 +152,19 @@ public enum EdgeDirection
     MiddleLeft,
     MiddleRight,
     BottomLeft,
-    BottomRight,
+    BottomRight
 }
 
 internal static class EdgeDirectionExtensions
 {
     internal static EdgeDirection Opposite(this EdgeDirection direction) => direction switch
     {
-        EdgeDirection.TopLeft      => EdgeDirection.BottomRight,
-        EdgeDirection.TopRight     => EdgeDirection.BottomLeft,
-        EdgeDirection.MiddleLeft   => EdgeDirection.MiddleRight,
-        EdgeDirection.MiddleRight  => EdgeDirection.MiddleLeft,
-        EdgeDirection.BottomLeft   => EdgeDirection.TopRight,
-        EdgeDirection.BottomRight  => EdgeDirection.TopLeft,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+        EdgeDirection.TopLeft => EdgeDirection.BottomRight,
+        EdgeDirection.TopRight => EdgeDirection.BottomLeft,
+        EdgeDirection.MiddleLeft => EdgeDirection.MiddleRight,
+        EdgeDirection.MiddleRight => EdgeDirection.MiddleLeft,
+        EdgeDirection.BottomLeft => EdgeDirection.TopRight,
+        EdgeDirection.BottomRight => EdgeDirection.TopLeft,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction))
     };
 }
-

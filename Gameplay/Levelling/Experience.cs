@@ -10,8 +10,8 @@ public class Experience : MovableEntity, IPickup, IVisual
 {
     private readonly IAudioPlayer _audio;
     private readonly GravitateToEntity _followEntity;
-    private readonly float _value;
     private readonly PlayerCharacter _player;
+    private readonly float _value;
 
     public Experience(Vector2 position, float value, PlayerCharacter player, IAudioPlayer audio) : base(position)
     {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Behaviour;
-using Gameplay.Combat;
 using Gameplay.CollisionDetection;
+using Gameplay.Combat;
 using Gameplay.Entities.Enemies;
 using Gameplay.Levelling;
 
@@ -11,8 +11,8 @@ namespace Gameplay.Entities;
 public class EntityManager : ISpawnEntity, IEntityFinder
 {
     private readonly DamageProcessor _damageProcessor = new();
-    private readonly PickupProcessor _pickupProcessor = new();
     private readonly List<IEntity> _entitiesToAdd = [];
+    private readonly PickupProcessor _pickupProcessor = new();
     public List<IEntity> Entities { get; } = [];
 
     private IEnumerable<EnemyBase> Enemies => Entities.OfType<EnemyBase>();

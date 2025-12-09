@@ -11,9 +11,9 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
     : IWeapon
 {
     private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
-    private TimeSpan _remainingCooldown = TimeSpan.Zero;
-    
+
     private readonly TimeSpan _extraShotCooldown = TimeSpan.FromSeconds(0.2);
+    private TimeSpan _remainingCooldown = TimeSpan.Zero;
     private TimeSpan _remainingExtraShotCooldown = TimeSpan.Zero;
     private int _remainingExtraShots = 0;
 
@@ -22,13 +22,13 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var attackSpeedMultiplier = AttackSpeedMultiplier(powerUps);
         var damageMultiplier = powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
         var rangeMultiplier = powerUps.OfType<RangeUp>().Sum(p => p.Value) + 1f;
-        
+
         // Handle extra shots first
         if (_remainingExtraShots > 0)
         {
             _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
             if (_remainingExtraShotCooldown > TimeSpan.Zero) return;
-            
+
             Shoot(damageMultiplier, rangeMultiplier);
             _remainingExtraShots--;
             _remainingExtraShotCooldown = _extraShotCooldown / attackSpeedMultiplier;
@@ -39,7 +39,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;
 
-        Shoot(damageMultiplier,  rangeMultiplier);
+        Shoot(damageMultiplier, rangeMultiplier);
         _remainingCooldown = _cooldown / attackSpeedMultiplier;
 
         // Queue extra shots
@@ -47,7 +47,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         _remainingExtraShotCooldown = _extraShotCooldown;
     }
 
-    private void Shoot(float damageMultiplier = 1f, float  rangeMultiplier = 1f)
+    private void Shoot(float damageMultiplier = 1f, float rangeMultiplier = 1f)
     {
         var target = entityFinder.NearestEnemyTo(owner);
         if (target == null) return;
@@ -58,10 +58,10 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
     }
-    
+
     private float AttackSpeedMultiplier(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
         powerUps.OfType<AttackSpeedUp>().Sum(p => p.Value) + 1f;
-    
+
     private int ExtraShots(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
         powerUps.OfType<ShotCountUp>().Sum(p => p.ExtraShots);
 }

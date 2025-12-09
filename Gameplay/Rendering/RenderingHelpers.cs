@@ -24,7 +24,7 @@ public static class RenderingHelpers
                 scale ?? Vector2.One,
                 effects ?? SpriteEffects.None,
                 layerDepth);
-        
+
         public void Draw(Texture2D texture,
             Rectangle destinationRectangle,
             Color? color = null,
@@ -41,7 +41,7 @@ public static class RenderingHelpers
                 origin ?? Vector2.Zero,
                 effects ?? SpriteEffects.None,
                 layerDepth);
-        
+
         // Texture2D texture,
         //     Rectangle destinationRectangle,
         // Rectangle? sourceRectangle,

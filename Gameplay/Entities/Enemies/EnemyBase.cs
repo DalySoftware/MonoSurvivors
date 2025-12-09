@@ -13,6 +13,8 @@ public abstract class EnemyBase(Vector2 position, float collisionRadius, int dam
     /// </summary>
     internal Action<EnemyBase> OnDeath { get; init; } = _ => { };
 
+    internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
+
     public abstract float Experience { get; }
 
     public float Health
@@ -32,6 +34,4 @@ public abstract class EnemyBase(Vector2 position, float collisionRadius, int dam
 
     public float CollisionRadius { get; } = collisionRadius;
     public int Damage { get; } = damage;
-
-    internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
 }
