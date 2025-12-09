@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
 using Microsoft.Xna.Framework;
 
@@ -50,20 +49,21 @@ internal class SphereGridPositioner(SphereGrid grid, float hexRadius)
     
     private Vector2 GetHexOffset(EdgeDirection direction)
     {
-        // Flat-top hexagon positioning
-        // Using hex coordinate math where each direction has a specific offset
-        var xStep = hexRadius * 1.5f;
-        var yStep = hexRadius * (float)Math.Sqrt(3) / 2;
-
-        return direction switch
+        // Hexagon positioning with equal 60° angles
+        var angle = direction switch
         {
-            EdgeDirection.TopLeft => new Vector2(-xStep, -yStep),
-            EdgeDirection.TopRight => new Vector2(xStep, -yStep),
-            EdgeDirection.MiddleLeft => new Vector2(-xStep * 2, 0),
-            EdgeDirection.MiddleRight => new Vector2(xStep * 2, 0),
-            EdgeDirection.BottomLeft => new Vector2(-xStep, yStep),
-            EdgeDirection.BottomRight => new Vector2(xStep, yStep),
-            _ => Vector2.Zero
+            EdgeDirection.MiddleRight => 0f,
+            EdgeDirection.TopRight => MathF.PI / 3f,
+            EdgeDirection.TopLeft => 2f * MathF.PI / 3f,
+            EdgeDirection.MiddleLeft => MathF.PI,
+            EdgeDirection.BottomLeft => 4f * MathF.PI / 3f,
+            EdgeDirection.BottomRight => 5f * MathF.PI / 3f,
+            _ => 0f
         };
+
+        return new Vector2(
+            hexRadius * MathF.Cos(angle),
+            -hexRadius * MathF.Sin(angle)  // Negate Y for screen coordinates
+        );
     }
 }

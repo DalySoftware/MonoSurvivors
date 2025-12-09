@@ -20,7 +20,7 @@ namespace GameLoop.UI;
 /// </summary>
 public class SphereGridUi : UiElement
 {
-    private const float NodeSpacing = 40f;
+    private const float NodeSpacing = 80f;
     private float NodeRadius => _gridNodeSprite.Width / 2f;
 
     private readonly SphereGrid _grid;
