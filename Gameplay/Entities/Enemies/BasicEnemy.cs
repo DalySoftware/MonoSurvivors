@@ -1,5 +1,4 @@
-﻿using System;
-using ContentLibrary;
+﻿using ContentLibrary;
 using Gameplay.Behaviour;
 using Gameplay.Rendering;
 
@@ -9,13 +8,10 @@ public class BasicEnemy : EnemyBase, IVisual
 {
     private readonly FollowEntity _followEntity;
 
-    public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition)
+    public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition, 32f, 1)
     {
-        var speedJitter = Random.Shared.NextSingle() * 0.01f; // This reduces enemies stacking a bit
-        _followEntity = new FollowEntity(this, target, 0.1f + speedJitter);
+        _followEntity = new FollowEntity(this, target, 0.1f);
         Health = 20f;
-        CollisionRadius = 32f;
-        Damage = 1;
     }
 
     public override float Experience => 3f;
@@ -23,7 +19,7 @@ public class BasicEnemy : EnemyBase, IVisual
 
     public override void Update(GameTime gameTime)
     {
-        Velocity = _followEntity.CalculateVelocity();
         base.Update(gameTime);
+        Velocity = _followEntity.CalculateVelocity(NearbyEnemies);
     }
 }

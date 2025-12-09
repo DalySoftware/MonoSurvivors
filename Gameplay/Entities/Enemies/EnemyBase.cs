@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gameplay.Combat;
 using Gameplay.Levelling;
 
 namespace Gameplay.Entities.Enemies;
 
-public abstract class EnemyBase(Vector2 position)
+public abstract class EnemyBase(Vector2 position, float collisionRadius, int damage)
     : MovableEntity(position), IDamageableEnemy, IDamagesPlayer, ICreatesExperienceOnDeath
 {
     /// <summary>
@@ -29,6 +30,8 @@ public abstract class EnemyBase(Vector2 position)
         }
     }
 
-    public float CollisionRadius { get; init; }
-    public int Damage { get; init; }
+    public float CollisionRadius { get; } = collisionRadius;
+    public int Damage { get; } = damage;
+
+    internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
 }

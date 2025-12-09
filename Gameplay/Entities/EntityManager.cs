@@ -2,6 +2,7 @@
 using System.Linq;
 using Gameplay.Behaviour;
 using Gameplay.Combat;
+using Gameplay.CollisionDetection;
 using Gameplay.Entities.Enemies;
 using Gameplay.Levelling;
 
@@ -24,8 +25,18 @@ public class EntityManager : ISpawnEntity, IEntityFinder
 
     public void Update(GameTime gameTime)
     {
-        foreach (var entity in Entities.ToList())
+        var enemies = Enemies.ToList();
+
+        var spatialHash = new SpatialHash<EnemyBase>(64f);
+        foreach (var enemy in enemies)
+            spatialHash.Insert(enemy);
+
+        foreach (var enemy in enemies)
+            enemy.NearbyEnemies = spatialHash.QueryNearby(enemy.Position);
+
+        foreach (var entity in Entities)
             entity.Update(gameTime);
+
         _damageProcessor.ApplyDamage(Entities);
         _pickupProcessor.ProcessPickups(Entities);
         RemoveEntities();
