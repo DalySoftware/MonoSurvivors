@@ -5,20 +5,31 @@ using Gameplay.Entities;
 
 namespace Gameplay.Levelling;
 
-public static class PickupProcessor
+public class PickupProcessor()
 {
-    public static void ProcessPickups(IReadOnlyCollection<IEntity> entities)
+    private readonly SpatialHash<IPickup> _spatialHash = new(50f);
+
+    public void ProcessPickups(IReadOnlyCollection<IEntity> entities)
     {
         var pickups = entities.OfType<IPickup>();
         var players = entities.OfType<PlayerCharacter>();
         var alreadyUsed = new HashSet<IPickup>();
 
-        var playerPairs = pickups
-            .SelectMany(pickup => players.Select(player => (pickup, player)))
-            .Where(pair => CircleChecker.HasOverlap(pair.pickup, pair.player));
+        _spatialHash.Clear();
+        foreach (var pickup in pickups)
+            _spatialHash.Insert(pickup);
 
+        var playerPairs = players
+            .SelectMany(player => _spatialHash.QueryNearby(player.Position).Select(pickup => (pickup, player)));
+        
         foreach (var (pickup, player) in playerPairs)
-            if (alreadyUsed.Add(pickup))
-                pickup.OnPickupBy(player);
+        {
+            if (alreadyUsed.Contains(pickup) || 
+                !CircleChecker.HasOverlap(pickup, player))
+                continue;
+
+            alreadyUsed.Add(pickup);
+            pickup.OnPickupBy(player);
+        }
     }
 }

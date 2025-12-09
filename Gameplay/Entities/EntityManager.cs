@@ -9,6 +9,7 @@ namespace Gameplay.Entities;
 
 public class EntityManager : ISpawnEntity, IEntityFinder
 {
+    private readonly PickupProcessor _pickupProcessor = new();
     private readonly List<IEntity> _entitiesToAdd = [];
     public List<IEntity> Entities { get; } = [];
 
@@ -25,7 +26,7 @@ public class EntityManager : ISpawnEntity, IEntityFinder
         foreach (var entity in Entities.ToList())
             entity.Update(gameTime);
         DamageProcessor.ApplyDamage(Entities);
-        PickupProcessor.ProcessPickups(Entities);
+        _pickupProcessor.ProcessPickups(Entities);
         RemoveEntities();
         AddPendingEntities();
     }
