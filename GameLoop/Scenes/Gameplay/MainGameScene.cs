@@ -56,8 +56,8 @@ internal class MainGameScene : IScene
 
         var enemySpawner = new EnemySpawner(_entityManager, player, audioPlayer, graphicsDevice)
         {
-            SpawnDelay = TimeSpan.FromSeconds(1),
-            BatchSize = 1
+            SpawnDelay = TimeSpan.FromSeconds(0.8),
+            BatchSize = 2
         };
         _entityManager.Spawn(enemySpawner);
 
