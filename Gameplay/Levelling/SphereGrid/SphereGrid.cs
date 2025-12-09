@@ -86,30 +86,37 @@ public class SphereGrid
 
     public static SphereGrid Create(PlayerCharacter player)
     {
-        // Strength path (right)
+        // Damage (right)
         DamageUp DamageUp(int multiplier) => new(multiplier * 0.25f);
         var strKey = new Node(DamageUp(2), 2);
-        var str2 = new Node(DamageUp(1), 1);
-        str2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
-        var str1 = new Node(DamageUp(1), 1);
-        str1.SetNeighbour(EdgeDirection.MiddleRight, str2);
+        var dmg2 = new Node(DamageUp(1), 1);
+        dmg2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
+        var dmg1 = new Node(DamageUp(1), 1);
+        dmg1.SetNeighbour(EdgeDirection.MiddleRight, dmg2);
 
-        // Agility path (up-right)
+        // Speed (up-right)
         var speedUp = new SpeedUp(0.2f);
-        var agi2 = new Node(speedUp, 1);
-        var agi1 = new Node(speedUp, 1);
-        agi1.SetNeighbour(EdgeDirection.TopRight, agi2);
+        var spd2 = new Node(speedUp, 1);
+        var spd1 = new Node(speedUp, 1);
+        spd1.SetNeighbour(EdgeDirection.TopRight, spd2);
 
-        // Defence path (down-right)
+        // Max HP (down-right)
         var maxHealthUp = new MaxHealthUp(2);
-        var def2 = new Node(maxHealthUp, 1);
-        var def1 = new Node(maxHealthUp, 1);
-        def1.SetNeighbour(EdgeDirection.BottomRight, def2);
+        var hp2 = new Node(maxHealthUp, 1);
+        var hp1 = new Node(maxHealthUp, 1);
+        hp1.SetNeighbour(EdgeDirection.BottomRight, hp2);
+        
+        // Attack Speed (left)
+        var attackSpeedUp = new AttackSpeedUp(0.2f);
+        var atkSpd2 = new Node(attackSpeedUp, 1);
+        var atkSpd1 = new Node(attackSpeedUp, 1);
+        atkSpd1.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd2);
 
         var root = new Node(null, 0);
-        root.SetNeighbour(EdgeDirection.TopRight, agi1);
-        root.SetNeighbour(EdgeDirection.MiddleRight, str1);
-        root.SetNeighbour(EdgeDirection.BottomRight, def1);
+        root.SetNeighbour(EdgeDirection.TopRight, spd1);
+        root.SetNeighbour(EdgeDirection.MiddleRight, dmg1);
+        root.SetNeighbour(EdgeDirection.BottomRight, hp1);
+        root.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd1);
 
         return new SphereGrid(root)
         {

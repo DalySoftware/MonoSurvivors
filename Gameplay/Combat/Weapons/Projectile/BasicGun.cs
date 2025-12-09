@@ -20,7 +20,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;
 
-        _remainingCooldown = _cooldown;
+        _remainingCooldown = _cooldown / AttackSpeedMultiplier(powerUps);
         var damageMultiplier = powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
         Shoot(damageMultiplier);
     }
@@ -35,4 +35,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
     }
+    
+    private float AttackSpeedMultiplier(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
+        powerUps.OfType<AttackSpeedUp>().Sum(p => p.Value) + 1f;
 }
