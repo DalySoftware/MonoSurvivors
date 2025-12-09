@@ -15,8 +15,6 @@ public class HealthBar(ContentManager content, PlayerCharacter player) : UiEleme
     private readonly Texture2D _heartFull = content.Load<Texture2D>(Paths.Images.Heart.Full);
     private readonly Texture2D _heartHalf = content.Load<Texture2D>(Paths.Images.Heart.Half);
 
-    public int Spacing { get; set; } = 4;
-
     public override void Draw(SpriteBatch spriteBatch)
     {
         if (!IsVisible) return;
@@ -45,7 +43,8 @@ public class HealthBar(ContentManager content, PlayerCharacter player) : UiEleme
 
     private void DrawHeart(SpriteBatch spriteBatch, Texture2D texture, int index)
     {
-        var x = index * (_heartFull.Width + Spacing);
+        var padding = texture.Width / 4;
+        var x = index * (_heartFull.Width + padding);
         spriteBatch.Draw(texture, Position + new Vector2(x, 0), Color.White);
     }
 }
