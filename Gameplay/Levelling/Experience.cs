@@ -11,12 +11,14 @@ public class Experience : MovableEntity, IPickup, IVisual
     private readonly IAudioPlayer _audio;
     private readonly GravitateToEntity _followEntity;
     private readonly float _value;
+    private readonly PlayerCharacter _player;
 
     public Experience(Vector2 position, float value, PlayerCharacter player, IAudioPlayer audio) : base(position)
     {
         _audio = audio;
         _followEntity = new GravitateToEntity(this, player);
         _value = value;
+        _player = player;
     }
 
     public float CollisionRadius => 8f;
@@ -32,7 +34,7 @@ public class Experience : MovableEntity, IPickup, IVisual
 
     public override void Update(GameTime gameTime)
     {
-        Velocity = _followEntity.CalculateVelocity();
+        Velocity = _followEntity.CalculateVelocity() * _player.PickupRadiusMultiplier;
         base.Update(gameTime);
     }
 }

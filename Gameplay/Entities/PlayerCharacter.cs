@@ -24,6 +24,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     
     private readonly List<IPlayerPowerUp> _powerUps = [];
 
+    public float PickupRadiusMultiplier => _powerUps.OfType<PickupRadiusUp>().Sum(p => p.Value) + 1f;
     public WeaponBelt WeaponBelt { get; } = new();
 
     public float Experience { get; private set; }

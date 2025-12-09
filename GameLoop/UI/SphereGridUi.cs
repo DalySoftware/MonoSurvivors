@@ -184,6 +184,7 @@ public class SphereGridUi : UiElement
         {
             MaxHealthUp => "Increase Max Health",
             SpeedUp => "Increase Speed",
+            PickupRadiusUp => "Increase Pickup Radius",
             DamageUp => "Increase Damage",
             AttackSpeedUp => "Increase Attack Speed",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
@@ -193,6 +194,7 @@ public class SphereGridUi : UiElement
         {
             MaxHealthUp maxHealthUp => $"Increase Max Health by {(maxHealthUp.Value / 2).HeartLabel()}",
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P1}",
+            PickupRadiusUp pickupRadiusUp => $"Increase Pickup Radius by {pickupRadiusUp.Value:P1}",
             DamageUp damageUp => $"Increase Damage by {damageUp.Value:P1}",
             AttackSpeedUp attackSpeedUp => $"Increase Attack Speed by {attackSpeedUp.Value:P1}",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
