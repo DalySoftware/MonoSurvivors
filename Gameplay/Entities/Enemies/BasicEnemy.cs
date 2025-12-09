@@ -14,7 +14,7 @@ public class BasicEnemy : EnemyBase, IVisual
         var speedJitter = Random.Shared.NextSingle() * 0.01f; // This reduces enemies stacking a bit
         _followEntity = new FollowEntity(this, target, 0.1f + speedJitter);
         Health = 20f;
-        CollisionRadius = 16f;
+        CollisionRadius = 32f;
         Damage = 1;
     }
 

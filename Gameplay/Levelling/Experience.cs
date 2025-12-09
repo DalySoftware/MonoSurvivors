@@ -21,7 +21,7 @@ public class Experience : MovableEntity, IPickup, IVisual
         _player = player;
     }
 
-    public float CollisionRadius => 8f;
+    public float CollisionRadius => 16f;
 
     public void OnPickupBy(PlayerCharacter player)
     {

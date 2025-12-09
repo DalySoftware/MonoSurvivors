@@ -8,7 +8,7 @@ namespace Gameplay.Combat.Weapons.Projectile;
 public class Bullet : MovableEntity, IDamagesEnemies, IVisual
 {
     public float Damage { get; }
-    public float CollisionRadius => 8f;
+    public float CollisionRadius => 16f;
     public string TexturePath => Paths.Images.Bullet;
     public void OnHit() => MarkedForDeletion = true;
     

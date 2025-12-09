@@ -52,8 +52,8 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var target = entityFinder.NearestEnemyTo(owner);
         if (target == null) return;
 
-        var damage = 10f * damageMultiplier;
-        var range = 200f * rangeMultiplier;
+        var damage = 8f * damageMultiplier;
+        var range = 300f * rangeMultiplier;
         var bullet = new Bullet(owner.Position, target.Position, damage, range);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
