@@ -17,7 +17,7 @@ namespace Gameplay.Entities;
 public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAudioPlayer audio, Action? onDeath = null)
     : MovableEntity(position), IDamageablePlayer, IVisual
 {
-    private const float BaseSpeed = 0.3f;
+    private const float BaseSpeed = 0.2f;
     private float Speed => BaseSpeed * (1f + _powerUps.OfType<SpeedUp>().Sum(p => p.Value));
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
