@@ -111,7 +111,6 @@ public class SphereGridUi : UiElement
             new Vector2(viewport.Width / 2 - helpSize.X / 2, viewport.Height - 40),
             Color.Gray, layerDepth: Layers.Title);
 
-        // Draw connections first (so they're behind nodes)
         foreach (var node in _grid.Nodes)
         {
             if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
