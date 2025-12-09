@@ -87,7 +87,8 @@ public class CoreGame : Game
             Content,
             _sphereGrid,
             _primitiveRenderer,
-            _sceneManager.Pop);
+            _sceneManager.Pop,
+            Exit);
         _sceneManager.Push(scene);
     }
 

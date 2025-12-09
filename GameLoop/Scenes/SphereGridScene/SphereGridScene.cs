@@ -20,7 +20,8 @@ internal class SphereGridScene : IScene
         ContentManager coreContent,
         SphereGrid sphereGrid,
         PrimitiveRenderer primitiveRenderer,
-        Action onClose)
+        Action onClose,
+        Action onExit)
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
@@ -33,7 +34,8 @@ internal class SphereGridScene : IScene
         _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid, primitiveRenderer);
         _input = new SphereGridInputManager
         {
-            OnClose = onClose
+            OnClose = onClose,
+            OnExit = onExit,
         };
     }
 
