@@ -18,6 +18,8 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
     private int _remainingExtraShots = 0;
     private float _currentDamageMultiplier = 1f;
 
+    private float _maxRange = 400f;
+
     public void Update(GameTime gameTime, IReadOnlyCollection<IWeaponPowerUp> powerUps)
     {
         var attackSpeedMultiplier = AttackSpeedMultiplier(powerUps);
@@ -53,7 +55,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         if (target == null) return;
 
         var damage = 10f * damageMultiplier;
-        var bullet = new Bullet(owner.Position, target.Position, damage);
+        var bullet = new Bullet(owner.Position, target.Position, damage, _maxRange);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
     }
