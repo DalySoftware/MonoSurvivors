@@ -120,13 +120,20 @@ public class SphereGrid
         var pickupRadius2 = new Node(pickupRadiusUp, 1);
         var pickupRadius1 = new Node(pickupRadiusUp, 1);
         pickupRadius1.SetNeighbour(EdgeDirection.TopLeft, pickupRadius2);
-
+        
+        // Range (down-left)
+        var rangeUp = new RangeUp(0.5f);
+        var rng2 = new Node(rangeUp, 1);
+        var rng1 = new Node(rangeUp, 1);
+        rng1.SetNeighbour(EdgeDirection.BottomLeft, rng2);
+        
         var root = new Node(null, 0);
         root.SetNeighbour(EdgeDirection.TopRight, spd1);
         root.SetNeighbour(EdgeDirection.MiddleRight, dmg1);
         root.SetNeighbour(EdgeDirection.BottomRight, hp1);
         root.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd1);
         root.SetNeighbour(EdgeDirection.TopLeft, pickupRadius1);
+        root.SetNeighbour(EdgeDirection.BottomLeft, rng1);
 
         return new SphereGrid(root)
         {

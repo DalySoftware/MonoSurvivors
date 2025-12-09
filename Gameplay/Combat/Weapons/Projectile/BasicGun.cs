@@ -16,20 +16,20 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
     private readonly TimeSpan _extraShotCooldown = TimeSpan.FromSeconds(0.2);
     private TimeSpan _remainingExtraShotCooldown = TimeSpan.Zero;
     private int _remainingExtraShots = 0;
-    private float _currentDamageMultiplier = 1f;
-
-    private float _maxRange = 400f;
 
     public void Update(GameTime gameTime, IReadOnlyCollection<IWeaponPowerUp> powerUps)
     {
         var attackSpeedMultiplier = AttackSpeedMultiplier(powerUps);
+        var damageMultiplier = powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
+        var rangeMultiplier = powerUps.OfType<RangeUp>().Sum(p => p.Value) + 1f;
+        
         // Handle extra shots first
         if (_remainingExtraShots > 0)
         {
             _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
             if (_remainingExtraShotCooldown > TimeSpan.Zero) return;
             
-            Shoot(_currentDamageMultiplier);
+            Shoot(damageMultiplier, rangeMultiplier);
             _remainingExtraShots--;
             _remainingExtraShotCooldown = _extraShotCooldown / attackSpeedMultiplier;
             return;
@@ -39,23 +39,22 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;
 
-        _currentDamageMultiplier = powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
-        Shoot(_currentDamageMultiplier);
+        Shoot(damageMultiplier,  rangeMultiplier);
         _remainingCooldown = _cooldown / attackSpeedMultiplier;
-
 
         // Queue extra shots
         _remainingExtraShots = ExtraShots(powerUps);
         _remainingExtraShotCooldown = _extraShotCooldown;
     }
 
-    private void Shoot(float damageMultiplier = 1f)
+    private void Shoot(float damageMultiplier = 1f, float  rangeMultiplier = 1f)
     {
         var target = entityFinder.NearestEnemyTo(owner);
         if (target == null) return;
 
         var damage = 10f * damageMultiplier;
-        var bullet = new Bullet(owner.Position, target.Position, damage, _maxRange);
+        var range = 200f * rangeMultiplier;
+        var bullet = new Bullet(owner.Position, target.Position, damage, range);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
     }
