@@ -8,10 +8,10 @@ namespace GameLoop.Input;
 /// </summary>
 internal abstract class BaseInputManager
 {
-    protected KeyboardState KeyboardState { get; private set; } = Keyboard.GetState();
-    protected KeyboardState PreviousKeyboardState { get; private set; } = Keyboard.GetState();
-    protected GamePadState GamePadState { get; private set; } = GamePad.GetState(0);
-    
+    protected static KeyboardState KeyboardState { get; private set; } = Keyboard.GetState();
+    protected static KeyboardState PreviousKeyboardState { get; private set; } = Keyboard.GetState();
+    protected static GamePadState GamePadState { get; private set; }= GamePad.GetState(0);
+
     internal Action OnExit { get; init; } = () => { };
 
     internal virtual void Update()
@@ -22,7 +22,7 @@ internal abstract class BaseInputManager
 
         if (KeyboardState.IsKeyDown(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) OnExit();
     }
-    
-    protected bool WasPressedThisFrame(Keys key) => 
+
+    protected static bool WasPressedThisFrame(Keys key) =>
         KeyboardState.IsKeyDown(key) && PreviousKeyboardState.IsKeyUp(key);
 }
