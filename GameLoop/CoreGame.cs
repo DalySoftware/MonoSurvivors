@@ -26,8 +26,8 @@ public class CoreGame : Game
     public CoreGame()
     {
         var graphicsManager = new GraphicsDeviceManager(this);
-        graphicsManager.PreferredBackBufferWidth = 1280;
-        graphicsManager.PreferredBackBufferHeight = 720;
+        graphicsManager.PreferredBackBufferWidth = 1920;
+        graphicsManager.PreferredBackBufferHeight = 1080;
         IsMouseVisible = true;
 
         Window.Title = "Mono Survivors";
