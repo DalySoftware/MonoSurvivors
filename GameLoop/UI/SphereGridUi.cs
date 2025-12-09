@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
+using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
+using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Tooltips;
@@ -178,19 +180,19 @@ public class SphereGridUi : UiElement
         _toolTipRenderer.DrawTooltip(spriteBatch, tooltip, Layers.ToolTip);
     }
 
-    private static string TitleFor(IPlayerPowerUp powerUp) => powerUp switch
+    private static string TitleFor(IPowerUp powerUp) => powerUp switch
         {
             MaxHealthUp => "Increase Max Health",
             SpeedUp => "Increase Speed",
-            StrengthUp => "Increase Strength",
+            DamageUp => "Increase Damage",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
 
-    private static string DescriptionFor(IPlayerPowerUp powerUp) => powerUp switch
+    private static string DescriptionFor(IPowerUp powerUp) => powerUp switch
         {
             MaxHealthUp maxHealthUp => $"Increase Max Health by {(maxHealthUp.Value / 2).HeartLabel()}",
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P1}",
-            StrengthUp => "PLACEHOLDER", // todo
+            DamageUp damageUp => $"Increase Damage by {damageUp.Value:P1}",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
     

@@ -1,3 +1,3 @@
 ﻿namespace Gameplay.Levelling.PowerUps.Player;
 
-public interface IPlayerPowerUp;
+public interface IPlayerPowerUp : IPowerUp;

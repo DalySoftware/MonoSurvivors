@@ -56,7 +56,7 @@ public sealed class CollisionRadiusTests : IDisposable
         public static IEnumerable<Func<ICircleCollider>> Entities() =>
         [
             Player,
-            () => new Bullet(Zero, Zero),
+            () => new Bullet(Zero, Zero, 0f),
             () => new BasicEnemy(Zero, Player()),
             () => new Experience(Zero, 0f, Player(), null!)
         ];

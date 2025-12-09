@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Entities;
+using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
+using Gameplay.Levelling.PowerUps.Weapon;
 
 namespace Gameplay.Levelling.SphereGrid;
 
-public class Node(IPlayerPowerUp? powerUp, int cost)
+public class Node(IPowerUp? powerUp, int cost)
 {
     public int Cost { get; } = cost;
-    public IPlayerPowerUp? PowerUp { get; } = powerUp;
+    public IPowerUp? PowerUp { get; } = powerUp;
     
     private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
 
@@ -28,7 +30,7 @@ public class SphereGrid
     
     public IReadOnlySet<Node> Nodes => _nodes;
     public Node Root { get; private init; }
-    public Action<IPlayerPowerUp> OnUnlock { get; init; } = _ => { };
+    public Action<IPowerUp> OnUnlock { get; init; } = _ => { };
 
     private SphereGrid(Node root)
     {
@@ -85,7 +87,7 @@ public class SphereGrid
     public static SphereGrid Create(PlayerCharacter player)
     {
         // Strength path (right)
-        var strengthUp = new StrengthUp();
+        var strengthUp = new DamageUp(1f);
         var strKey = new Node(strengthUp, 1);
         var str2 = new Node(strengthUp, 1);
         str2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
@@ -111,7 +113,7 @@ public class SphereGrid
 
         return new SphereGrid(root)
         {
-            OnUnlock = player.Add
+            OnUnlock = player.AddPowerUp
         };
     }
 }

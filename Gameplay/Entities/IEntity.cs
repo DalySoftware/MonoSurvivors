@@ -2,6 +2,6 @@
 
 public interface IEntity
 {
-    public bool MarkedForDeletion { get; }
+    public bool MarkedForDeletion => false;
     public void Update(GameTime gameTime);
 }

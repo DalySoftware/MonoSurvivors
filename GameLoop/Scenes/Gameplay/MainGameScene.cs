@@ -46,7 +46,7 @@ internal class MainGameScene : IScene
         _effectManager = effectManager;
 
         _entityManager.Spawn(player);
-        _entityManager.Spawn(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
+        player.WeaponBelt.AddWeapon(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
 
         Vector2 viewportSize = new(graphicsDevice.PresentationParameters.BackBufferWidth,
             graphicsDevice.PresentationParameters.BackBufferHeight);

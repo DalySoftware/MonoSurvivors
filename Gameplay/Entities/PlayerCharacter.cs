@@ -4,7 +4,10 @@ using System.Linq;
 using ContentLibrary;
 using Gameplay.Audio;
 using Gameplay.Combat;
+using Gameplay.Combat.Weapons;
+using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
+using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Gameplay.Utilities;
@@ -20,6 +23,8 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
     
     private readonly List<IPlayerPowerUp> _powerUps = [];
+
+    public WeaponBelt WeaponBelt { get; } = new();
 
     public float Experience { get; private set; }
     public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
@@ -61,15 +66,26 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     public override void Update(GameTime gameTime)
     {
         _invincibilityDuration -= gameTime.ElapsedGameTime;
+        WeaponBelt.Update(gameTime);
         base.Update(gameTime);
     }
     
-    internal void Add(IPlayerPowerUp playerPowerUp)
+    internal void AddPowerUp(IPowerUp powerUp)
     {
-        _powerUps.Add(playerPowerUp);
-        
-        // Extra effects
-        if (playerPowerUp is MaxHealthUp maxHealthUp)
-            Health += maxHealthUp.Value;
+        switch (powerUp)
+        {
+            case IWeaponPowerUp weaponPowerUp:
+                WeaponBelt.AddPowerUp(weaponPowerUp);
+                return;
+            case IPlayerPowerUp playerPowerUp:
+            {
+                _powerUps.Add(playerPowerUp);
+            
+                // Extra effects
+                if (playerPowerUp is MaxHealthUp maxHealthUp)
+                    Health += maxHealthUp.Value;
+                break;
+            }
+        }
     }
 }
