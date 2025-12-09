@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using Gameplay.Audio;
 using Gameplay.Levelling;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies;
 
-public class EnemySpawner(EntityManager entityManager, PlayerCharacter target, IAudioPlayer audio) : IEntity
+public class EnemySpawner(EntityManager entityManager, PlayerCharacter target, IAudioPlayer audio, GraphicsDevice graphics) : IEntity
 {
     private readonly Random _random = new();
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
@@ -26,11 +27,21 @@ public class EnemySpawner(EntityManager entityManager, PlayerCharacter target, I
 
     private BasicEnemy GetEnemyWithRandomPosition()
     {
-        const float distanceFromPlayer = 500f;
-        var angle = _random.NextDouble() * 2 * Math.PI;
+        // Random angle
+        var angle = (float)_random.NextDouble() * 2f * MathF.PI;
 
-        var x = target.Position.X + (float)Math.Cos(angle) * distanceFromPlayer;
-        var y = target.Position.Y + (float)Math.Sin(angle) * distanceFromPlayer;
+        // Calculate distance based on angle to account for rectangular viewport
+        var halfWidth = graphics.Viewport.Width * 0.5f;
+        var halfHeight = graphics.Viewport.Height * 0.5f;
+        var cos = MathF.Abs(MathF.Cos(angle));
+        var sin = MathF.Abs(MathF.Sin(angle));
+
+        // Distance to edge of rectangle at this angle, plus a small buffer
+        // The buffer makes sure it's slightly offscreen, unless the player outruns camera by a crazy speed
+        var distanceFromPlayer = MathF.Min(halfWidth / cos, halfHeight / sin) * 1.3f;
+
+        var x = target.Position.X + MathF.Cos(angle) * distanceFromPlayer;
+        var y = target.Position.Y + MathF.Sin(angle) * distanceFromPlayer;
 
         var position = new Vector2(x, y);
 
