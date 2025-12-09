@@ -186,6 +186,7 @@ public class SphereGridUi : UiElement
             PickupRadiusUp => "Increase Pickup Radius",
             DamageUp => "Increase Damage",
             AttackSpeedUp => "Increase Attack Speed",
+            ShotCountUp => "Increase Shot Count",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
 
@@ -196,6 +197,7 @@ public class SphereGridUi : UiElement
             PickupRadiusUp pickupRadiusUp => $"Increase Pickup Radius by {pickupRadiusUp.Value:P0}",
             DamageUp damageUp => $"Increase Damage by {damageUp.Value:P0}",
             AttackSpeedUp attackSpeedUp => $"Increase Attack Speed by {attackSpeedUp.Value:P0}",
+            ShotCountUp shotCountUp => $"Fire {shotCountUp.ExtraShots} extra shots",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
     

@@ -12,17 +12,39 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
 {
     private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
-
-    public bool MarkedForDeletion => false;
+    
+    private readonly TimeSpan _extraShotCooldown = TimeSpan.FromSeconds(0.2);
+    private TimeSpan _remainingExtraShotCooldown = TimeSpan.Zero;
+    private int _remainingExtraShots = 0;
+    private float _currentDamageMultiplier = 1f;
 
     public void Update(GameTime gameTime, IReadOnlyCollection<IWeaponPowerUp> powerUps)
     {
+        var attackSpeedMultiplier = AttackSpeedMultiplier(powerUps);
+        // Handle extra shots first
+        if (_remainingExtraShots > 0)
+        {
+            _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
+            if (_remainingExtraShotCooldown > TimeSpan.Zero) return;
+            
+            Shoot(_currentDamageMultiplier);
+            _remainingExtraShots--;
+            _remainingExtraShotCooldown = _extraShotCooldown / attackSpeedMultiplier;
+            return;
+        }
+
+        // Normal shooting
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;
 
-        _remainingCooldown = _cooldown / AttackSpeedMultiplier(powerUps);
-        var damageMultiplier = powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
-        Shoot(damageMultiplier);
+        _currentDamageMultiplier = powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
+        Shoot(_currentDamageMultiplier);
+        _remainingCooldown = _cooldown / attackSpeedMultiplier;
+
+
+        // Queue extra shots
+        _remainingExtraShots = ExtraShots(powerUps);
+        _remainingExtraShotCooldown = _extraShotCooldown;
     }
 
     private void Shoot(float damageMultiplier = 1f)
@@ -38,4 +60,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
     
     private float AttackSpeedMultiplier(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
         powerUps.OfType<AttackSpeedUp>().Sum(p => p.Value) + 1f;
+    
+    private int ExtraShots(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
+        powerUps.OfType<ShotCountUp>().Sum(p => p.ExtraShots);
 }

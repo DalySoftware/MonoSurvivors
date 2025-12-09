@@ -107,8 +107,11 @@ public class SphereGrid
         hp1.SetNeighbour(EdgeDirection.BottomRight, hp2);
         
         // Attack Speed (left)
+        var extraShot = new ShotCountUp(2);
+        var extraShotNode = new Node(extraShot, 2);
         var attackSpeedUp = new AttackSpeedUp(0.2f);
         var atkSpd2 = new Node(attackSpeedUp, 1);
+        atkSpd2.SetNeighbour(EdgeDirection.MiddleLeft, extraShotNode);
         var atkSpd1 = new Node(attackSpeedUp, 1);
         atkSpd1.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd2);
         
