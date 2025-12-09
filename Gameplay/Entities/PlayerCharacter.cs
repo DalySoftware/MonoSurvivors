@@ -17,7 +17,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
 {
     private const float BaseSpeed = 0.25f;
     private float _speedMultiplier = 1f;
-    private float Speed => BaseSpeed + _speedMultiplier;
+    private float Speed => BaseSpeed * _speedMultiplier;
     
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;

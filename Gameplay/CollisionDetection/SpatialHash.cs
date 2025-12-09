@@ -7,12 +7,6 @@ internal class SpatialHash<T>(float cellSize)
 {
     private readonly Dictionary<(int, int), List<T>> _grid = [];
 
-    public void Clear()
-    {
-        foreach (var list in _grid.Values)
-            list.Clear();
-    }
-
     public void Insert(T item)
     {
         var cell = GetCell(item.Position);
