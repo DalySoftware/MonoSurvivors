@@ -173,7 +173,7 @@ public class SphereGridUi : UiElement
         [
             new(DescriptionFor(powerUp)),
             new($"Cost: {node.Cost} SP"),
-            new(UnlockTextFor(node), Color.Gray),
+            UnlockTextFor(node),
         ];
         
         var tooltip = new ToolTip(title, body);
@@ -200,9 +200,10 @@ public class SphereGridUi : UiElement
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
     
-    private string UnlockTextFor(Node node) => 
-        _grid.IsUnlocked(node) ? "[Unlocked]" :
-        _grid.CanUnlock(node) ? "[Click to unlock]" : "[Cannot unlock]";
+    private ToolTipBodyLine UnlockTextFor(Node node) => 
+        _grid.IsUnlocked(node) ? new("[Unlocked]", Color.LawnGreen) :
+        _grid.CanUnlock(node) ? new("[Click to unlock]", Color.Turquoise) : 
+        new ("[Cannot unlock]", Color.DimGray);
 }
 
 public static class Pluralization
