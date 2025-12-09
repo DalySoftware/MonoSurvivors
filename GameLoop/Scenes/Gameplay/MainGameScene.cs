@@ -5,7 +5,6 @@ using Gameplay.Audio;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
-using Gameplay.Levelling;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework;

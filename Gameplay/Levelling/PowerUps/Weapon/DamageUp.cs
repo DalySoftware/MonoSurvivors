@@ -1,6 +1,4 @@
-﻿using Gameplay.Levelling.PowerUps.Player;
-
-namespace Gameplay.Levelling.PowerUps.Weapon;
+﻿namespace Gameplay.Levelling.PowerUps.Weapon;
 
 /// <param name="Value">Proportional increase. Accumulated additively.</param>
 /// <example>0.5f makes player deal 150% of base damage. </example>

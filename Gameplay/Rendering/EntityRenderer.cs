@@ -31,7 +31,7 @@ public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, Cha
         // Todo - This is quite inefficient. We're individually flushing entities with effects
         foreach (var (entity, effects) in effectsLookup)
             foreach (var effect in effects)
-                DrawWithEffect(entity, effect, spriteBatch);
+                DrawWithEffect(entity, effect);
     }
 
     private void Draw(IVisual visual)
@@ -40,7 +40,7 @@ public class EntityRenderer(ContentManager content, SpriteBatch spriteBatch, Cha
         spriteBatch.Draw(texture, visual.Position, origin: texture.Centre);
     }
 
-    private void DrawWithEffect(IVisual visual, VisualEffect effect, SpriteBatch spriteBatch)
+    private void DrawWithEffect(IVisual visual, VisualEffect effect)
     {
         var texture = GetTexture(visual.TexturePath);
         switch (effect)

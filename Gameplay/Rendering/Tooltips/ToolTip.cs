@@ -7,13 +7,12 @@ namespace Gameplay.Rendering.Tooltips;
 
 public record ToolTip(string Title, IReadOnlyCollection<ToolTipBodyLine> Body)
 {
-    // 1 for title
-    internal int TotalLines => Body.Count + 1;
+    internal int TotalLines => Body.Count + 1; // Add 1 for title
     
     internal float MaxWidth(SpriteFont font)
     {
         var titleWidth =  font.MeasureString(Title).X;
-        var bodyWidth = Body.Max(line => font.MeasureString((string)line.Text).X);
+        var bodyWidth = Body.Max(line => font.MeasureString(line.Text).X);
         return Math.Max(titleWidth, bodyWidth);
     }
 };
