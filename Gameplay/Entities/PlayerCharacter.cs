@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using ContentLibrary;
 using Gameplay.Audio;
 using Gameplay.Combat;
@@ -18,13 +16,13 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     : MovableEntity(position), IDamageablePlayer, IVisual
 {
     private const float BaseSpeed = 0.25f;
-    private float Speed => BaseSpeed * (1f + _powerUps.OfType<SpeedUp>().Sum(p => p.Value));
+    private float _speedMultiplier = 1f;
+    private float Speed => BaseSpeed + _speedMultiplier;
+    
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
     
-    private readonly List<IPlayerPowerUp> _powerUps = [];
-
-    public float PickupRadiusMultiplier => _powerUps.OfType<PickupRadiusUp>().Sum(p => p.Value) + 1f;
+    public float PickupRadiusMultiplier { get; private set; } = 1f;
     public WeaponBelt WeaponBelt { get; } = new();
 
     public float Experience { get; private set; }
@@ -37,7 +35,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     }
 
     private const int BaseHealth = 6;
-    public int MaxHealth => BaseHealth + _powerUps.OfType<MaxHealthUp>().Sum(p => p.Value);
+    public int MaxHealth { get; private set; } = BaseHealth;
     public int Health { get; private set; } = BaseHealth;
     
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
@@ -75,18 +73,19 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     {
         switch (powerUp)
         {
+            case PickupRadiusUp radiusUp:
+                PickupRadiusMultiplier += radiusUp.Value;
+                break;
+            case SpeedUp speedUp:
+                _speedMultiplier += speedUp.Value;
+                break;
+            case MaxHealthUp maxHealthUp:
+                MaxHealth += maxHealthUp.Value;
+                Health += maxHealthUp.Value;
+                break;
             case IWeaponPowerUp weaponPowerUp:
                 WeaponBelt.AddPowerUp(weaponPowerUp);
                 return;
-            case IPlayerPowerUp playerPowerUp:
-            {
-                _powerUps.Add(playerPowerUp);
-            
-                // Extra effects
-                if (playerPowerUp is MaxHealthUp maxHealthUp)
-                    Health += maxHealthUp.Value;
-                break;
-            }
         }
     }
 }
