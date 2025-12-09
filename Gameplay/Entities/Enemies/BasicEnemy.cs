@@ -1,4 +1,5 @@
-﻿using ContentLibrary;
+﻿using System;
+using ContentLibrary;
 using Gameplay.Behaviour;
 using Gameplay.Rendering;
 
@@ -10,7 +11,8 @@ public class BasicEnemy : EnemyBase, IVisual
 
     public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition)
     {
-        _followEntity = new FollowEntity(this, target, 0.1f);
+        var speedJitter = Random.Shared.NextSingle() * 0.01f; // This reduces enemies stacking a bit
+        _followEntity = new FollowEntity(this, target, 0.1f + speedJitter);
         Health = 20f;
         CollisionRadius = 16f;
         Damage = 1;
