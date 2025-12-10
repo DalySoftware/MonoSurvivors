@@ -86,49 +86,52 @@ public class SphereGrid
 
     public static SphereGrid Create(PlayerCharacter player)
     {
-        // Damage (right)
-        DamageUp DamageUp(int multiplier)
-        {
-            return new DamageUp(multiplier * 0.25f);
-        }
+        Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel);
+        Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel);
+        Node MaxHealthUp(int nodeLevel) => new(new MaxHealthUp(nodeLevel * 2), nodeLevel);
+        Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel);
+        Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel);
+        Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel);
 
-        var strKey = new Node(DamageUp(2), 2);
-        var dmg2 = new Node(DamageUp(1), 1);
+        Node ShotCountUp(int nodeLevel) => nodeLevel switch
+        {
+            2 => new Node(new ShotCountUp(2), 5),
+            1 => new Node(new ShotCountUp(1), 3),
+            _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
+        };
+
+        // Damage (right)
+        var strKey = DamageUp(2);
+        var dmg2 = DamageUp(1);
         dmg2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
-        var dmg1 = new Node(DamageUp(1), 1);
+        var dmg1 = DamageUp(1);
         dmg1.SetNeighbour(EdgeDirection.MiddleRight, dmg2);
 
         // Speed (up-right)
-        var speedUp = new SpeedUp(0.2f);
-        var spd2 = new Node(speedUp, 1);
-        var spd1 = new Node(speedUp, 1);
+        var spd2 = SpeedUp(1);
+        var spd1 = SpeedUp(1);
         spd1.SetNeighbour(EdgeDirection.TopRight, spd2);
 
         // Max HP (down-right)
-        var maxHealthUp = new MaxHealthUp(2);
-        var hp2 = new Node(maxHealthUp, 1);
-        var hp1 = new Node(maxHealthUp, 1);
+        var hp2 = MaxHealthUp(1);
+        var hp1 = MaxHealthUp(1);
         hp1.SetNeighbour(EdgeDirection.BottomRight, hp2);
 
         // Attack Speed (left)
-        var extraShot = new ShotCountUp(2);
-        var extraShotNode = new Node(extraShot, 3);
-        var attackSpeedUp = new AttackSpeedUp(0.2f);
-        var atkSpd2 = new Node(attackSpeedUp, 1);
+        var extraShotNode = ShotCountUp(1);
+        var atkSpd2 = AttackSpeedUp(1);
         atkSpd2.SetNeighbour(EdgeDirection.MiddleLeft, extraShotNode);
-        var atkSpd1 = new Node(attackSpeedUp, 1);
+        var atkSpd1 = AttackSpeedUp(1);
         atkSpd1.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd2);
 
         // Pickup Radius (up-left)
-        var pickupRadiusUp = new PickupRadiusUp(0.3f);
-        var pickupRadius2 = new Node(pickupRadiusUp, 1);
-        var pickupRadius1 = new Node(pickupRadiusUp, 1);
+        var pickupRadius2 = PickupRadiusUp(1);
+        var pickupRadius1 = PickupRadiusUp(1);
         pickupRadius1.SetNeighbour(EdgeDirection.TopLeft, pickupRadius2);
 
         // Range (down-left)
-        var rangeUp = new RangeUp(0.5f);
-        var rng2 = new Node(rangeUp, 1);
-        var rng1 = new Node(rangeUp, 1);
+        var rng2 = RangeUp(1);
+        var rng1 = RangeUp(1);
         rng1.SetNeighbour(EdgeDirection.BottomLeft, rng2);
 
         var root = new Node(null, 0);
