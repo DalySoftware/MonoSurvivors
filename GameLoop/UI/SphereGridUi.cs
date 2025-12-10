@@ -7,6 +7,7 @@ using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -136,10 +137,11 @@ public class SphereGridUi : UiElement
         var isUnlocked = _grid.IsUnlocked(node);
         var canUnlock = _grid.CanUnlock(node);
 
+        var baseColor = NodeColor(node);
         var color =
-            isUnlocked ? Color.Gold :
-            canUnlock ? Color.Green :
-            Color.DarkGray;
+            isUnlocked ? baseColor.ShiftLightness(-0.25f) :
+            canUnlock ? baseColor.ShiftChroma(-0f).ShiftLightness(0.3f) :
+            baseColor.ShiftChroma(-0.12f);
 
         var screenNodePos = Position + _offset + nodePos;
         var texture = NodeTexture(node);
@@ -157,6 +159,19 @@ public class SphereGridUi : UiElement
     {
         >= 3 => _gridNodeLarge,
         _ => _gridNodeSmall
+    };
+
+    private static Color NodeColor(Node node) => node.PowerUp switch
+    {
+        MaxHealthUp => new OklchColor(0.7f, 0.16f, 23).ToColor(),
+        SpeedUp => new OklchColor(0.7f, 0.16f, 80).ToColor(),
+        AttackSpeedUp => new OklchColor(0.8f, 0.20f, 115).ToColor(),
+        ShotCountUp => new OklchColor(0.8f, 0.20f, 125).ToColor(),
+        PickupRadiusUp => new OklchColor(0.7f, 0.16f, 160).ToColor(),
+        RangeUp => new OklchColor(0.7f, 0.16f, 215).ToColor(),
+        DamageUp => new OklchColor(0.7f, 0.16f, 295).ToColor(),
+        null => Color.Gold,
+        _ => throw new ArgumentOutOfRangeException(nameof(node))
     };
 
     private void DrawNode(SpriteBatch spriteBatch, Texture2D sprite, Vector2 center, Color color) =>
