@@ -344,7 +344,7 @@ public class Editor : Game
 
             var tooltipLines = new List<ToolTipBodyLine>
             {
-                new($"Cost: {_hoveredNode.Cost}"),
+                new($"Level: {_hoveredNode.Level}"),
                 new($"PowerUp: {_hoveredNode.PowerUp?.GetType().Name ?? "None"}"),
                 new($"Connections: {_hoveredNode.Neighbours.Count}")
             };
@@ -359,7 +359,7 @@ public class Editor : Game
         // Draw selected node info in top-left corner
         if (_selectedNode != null)
             DrawInfoPanel(new Vector2(10, 10), "SELECTED NODE", [
-                $"Cost: {_selectedNode.Cost}",
+                $"Level: {_selectedNode.Level}",
                 $"PowerUp: {_selectedNode.PowerUp?.GetType().Name ?? "None"}",
                 $"Connections: {_selectedNode.Neighbours.Count}"
             ], Color.Yellow);
