@@ -12,7 +12,7 @@ dotnet run --project .\SphereGridEditor\
 
 - **Left-click** - Select node (shows cost, powerup, connections)
 - **Middle-click drag** - Pan camera
-- **ESC** - Exit
+- **Ctrl + P** - Exit
 
 ## Visual Guide
 

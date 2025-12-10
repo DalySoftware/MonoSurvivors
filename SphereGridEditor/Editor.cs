@@ -117,7 +117,7 @@ public class Editor : Game
         var kbState = Keyboard.GetState();
         var mouseState = Mouse.GetState();
 
-        if (kbState.IsKeyDown(Keys.Escape))
+        if (kbState.IsKeyDown(Keys.LeftControl) && kbState.IsKeyDown(Keys.P))
             Exit();
 
         // Copy code to clipboard on C key press
