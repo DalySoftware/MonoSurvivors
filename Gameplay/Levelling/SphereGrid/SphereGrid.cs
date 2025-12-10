@@ -18,7 +18,16 @@ public class Node(IPowerUp? powerUp, int level, int cost)
 
     public Node? GetNeighbour(EdgeDirection direction) => _neighbours.GetValueOrDefault(direction);
 
-    public void SetNeighbour(EdgeDirection direction, Node node) => _neighbours[direction] = node;
+    public void SetNeighbour(EdgeDirection direction, Node? node)
+    {
+        if (node == null)
+        {
+            _neighbours.Remove(direction);
+            return;
+        }
+
+        _neighbours[direction] = node;
+    }
 }
 
 public class SphereGrid

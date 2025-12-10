@@ -25,6 +25,7 @@ public class Editor : Game
     private readonly Dictionary<Node, Vector2> _nodePositions = new();
     private Vector2 _cameraOffset = new(400, 300);
     private Node? _connectingFromNode;
+    private SpriteFont _font = null!;
 
     private SphereGrid _grid = null!;
     private Node? _hoveredNode;
@@ -78,6 +79,8 @@ public class Editor : Game
         // Create a 1x1 white pixel for drawing shapes
         _pixel = new Texture2D(GraphicsDevice, 1, 1);
         _pixel.SetData([Color.White]);
+
+        _font = Content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
 
         _primitiveRenderer = new PrimitiveRenderer(GraphicsDevice);
         _tooltipRenderer = new ToolTipRenderer(_primitiveRenderer, Content);
@@ -306,6 +309,9 @@ public class Editor : Game
                 StartConnectionOrDelete(EdgeDirection.BottomRight);
         }
 
+        if (!_showNodeCreationMenu && kbState.IsKeyDown(Keys.T) && _previousKeyboardState.IsKeyUp(Keys.T))
+            LayoutNodes();
+
         _previousMouseState = mouseState;
         _previousKeyboardState = kbState;
         base.Update(gameTime);
@@ -323,14 +329,15 @@ public class Editor : Game
             if (_nodePositions.TryGetValue(neighbor, out var neighborPos))
                 // Only draw each edge once
                 if (_nodePositions[node].GetHashCode() < neighborPos.GetHashCode())
-                    DrawLine(pos + _cameraOffset, neighborPos + _cameraOffset, Color.Gray * 0.5f, 2);
+                    _primitiveRenderer.DrawLine(_spriteBatch, pos + _cameraOffset, neighborPos + _cameraOffset,
+                        Color.Gray * 0.5f, 2);
 
         // Draw pending connection line
         if (_connectingFromNode != null && _nodePositions.ContainsKey(_connectingFromNode))
         {
             var startPos = _nodePositions[_connectingFromNode] + _cameraOffset;
             var mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-            DrawLine(startPos, mousePos, Color.Yellow * 0.7f, 3);
+            _primitiveRenderer.DrawLine(_spriteBatch, startPos, mousePos, Color.Yellow * 0.7f, 3);
         }
 
         // Draw nodes
@@ -388,7 +395,7 @@ public class Editor : Game
         var helpLines = new[]
         {
             "N: New node | Del: Delete node | Middle-drag: Pan",
-            "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | C: Copy"
+            "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | C: Copy | T: Recalculate layout"
         };
 
         var y = 720f;
@@ -489,7 +496,7 @@ public class Editor : Game
 
             for (var i = 0; i < buttons.Length; i++)
             {
-                var (id, label) = buttons[i];
+                var (_, label) = buttons[i];
                 var buttonY = buttonStartY + i * (buttonHeight + 5);
                 var buttonRect = new Rectangle((int)menuPos.X + padding, (int)buttonY, buttonWidth, buttonHeight);
 
@@ -560,33 +567,18 @@ public class Editor : Game
             var p1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * radius;
             var p2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * radius;
 
-            DrawLine(p1, p2, color, 2);
+            _primitiveRenderer.DrawLine(_spriteBatch, p1, p2, color, 2);
         }
-    }
-
-    private void DrawLine(Vector2 start, Vector2 end, Color color, float thickness = 1)
-    {
-        var distance = Vector2.Distance(start, end);
-        var angle = MathF.Atan2(end.Y - start.Y, end.X - start.X);
-
-        _spriteBatch.Draw(_pixel, start, null, color, angle, Vector2.Zero,
-            new Vector2(distance, thickness), SpriteEffects.None, 0);
     }
 
     private void DrawInfoPanel(Vector2 position, string title, string[] lines, Color textColor)
     {
-        var font = _tooltipRenderer.GetType().GetField("_font",
-                BindingFlags.NonPublic | BindingFlags.Instance)
-            ?.GetValue(_tooltipRenderer) as SpriteFont;
-
-        if (font == null) return;
-
-        var lineHeight = font.MeasureString("A").Y;
+        var lineHeight = _font.MeasureString("A").Y;
         const int padding = 8;
 
         // Calculate panel size
-        var titleWidth = font.MeasureString(title).X;
-        var maxWidth = lines.Select(line => font.MeasureString(line).X).Append(titleWidth).Max();
+        var titleWidth = _font.MeasureString(title).X;
+        var maxWidth = lines.Select(line => _font.MeasureString(line).X).Append(titleWidth).Max();
 
         var panelWidth = maxWidth + padding * 2;
         var panelHeight = lineHeight * (lines.Length + 1) + padding * 2;
@@ -597,13 +589,13 @@ public class Editor : Game
 
         // Draw title
         var textPos = position + new Vector2(padding, padding);
-        _spriteBatch.DrawString(font, title, textPos, Color.White, layerDepth: 0.01f);
+        _spriteBatch.DrawString(_font, title, textPos, Color.White, layerDepth: 0.01f);
 
         // Draw lines
         for (var i = 0; i < lines.Length; i++)
         {
             textPos = position + new Vector2(padding, padding + (i + 1) * lineHeight);
-            _spriteBatch.DrawString(font, lines[i], textPos, textColor, layerDepth: 0.01f);
+            _spriteBatch.DrawString(_font, lines[i], textPos, textColor, layerDepth: 0.01f);
         }
     }
 
@@ -695,14 +687,7 @@ public class Editor : Game
                 .Select(kvp => kvp.Key)
                 .ToList();
 
-            foreach (var direction in connectionsToRemove)
-            {
-                // Use reflection to remove from the private dictionary
-                var neighboursField =
-                    typeof(Node).GetField("_neighbours", BindingFlags.NonPublic | BindingFlags.Instance);
-                var neighbours = neighboursField?.GetValue(otherNode) as IDictionary<EdgeDirection, Node>;
-                neighbours?.Remove(direction);
-            }
+            foreach (var direction in connectionsToRemove) node.SetNeighbour(direction, null);
         }
 
         // Remove from grid nodes collection using reflection
@@ -755,16 +740,11 @@ public class Editor : Game
 
     private string? GetClickedMenuButton(Vector2 mousePos)
     {
-        var font = _tooltipRenderer.GetType().GetField("_font",
-                BindingFlags.NonPublic | BindingFlags.Instance)
-            ?.GetValue(_tooltipRenderer) as SpriteFont;
-        if (font == null) return null;
-
         var menuPos = new Vector2(640 - 200, 200);
         var buttonWidth = 180;
         var buttonHeight = 30;
         var padding = 10;
-        var lineHeight = font.MeasureString("A").Y;
+        var lineHeight = _font.MeasureString("A").Y;
 
         var buttons = new[]
         {
@@ -832,15 +812,8 @@ public class Editor : Game
             return;
         }
 
-        // Remove the forward edge
-        var neighboursField = typeof(Node).GetField("_neighbours", BindingFlags.NonPublic | BindingFlags.Instance);
-        var neighbours = neighboursField?.GetValue(fromNode) as IDictionary<EdgeDirection, Node>;
-        neighbours?.Remove(direction);
-
-        // Remove the reverse edge
-        var reverseDirection = direction.Opposite();
-        var reverseNeighbours = neighboursField?.GetValue(targetNode) as IDictionary<EdgeDirection, Node>;
-        reverseNeighbours?.Remove(reverseDirection);
+        fromNode.SetNeighbour(direction, null);
+        targetNode.SetNeighbour(direction.Opposite(), null);
 
         Console.WriteLine(
             $"Deleted edge from {fromNode.PowerUp?.GetType().Name ?? "Node"} to {targetNode.PowerUp?.GetType().Name ?? "Node"} (direction: {direction})");
