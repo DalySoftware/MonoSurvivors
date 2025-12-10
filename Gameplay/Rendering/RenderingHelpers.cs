@@ -42,15 +42,6 @@ public static class RenderingHelpers
                 effects ?? SpriteEffects.None,
                 layerDepth);
 
-        // Texture2D texture,
-        //     Rectangle destinationRectangle,
-        // Rectangle? sourceRectangle,
-        //     Color color,
-        // float rotation,
-        //     Vector2 origin,
-        // SpriteEffects effects,
-        // float layerDepth)
-
         public void DrawString(SpriteFont font,
             string text,
             Vector2 position,
