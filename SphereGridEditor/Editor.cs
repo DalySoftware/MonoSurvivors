@@ -32,7 +32,7 @@ public class Editor : Game
     private Node? _hoveredNode;
     private int _nodeLevelInput = 1;
     private EdgeDirection? _pendingConnectionDirection;
-    private string? _pendingNodeType;
+    private Type? _pendingNodeType;
     private Texture2D _pixel = null!;
     private KeyboardState _previousKeyboardState;
     private MouseState _previousMouseState;
@@ -215,7 +215,7 @@ public class Editor : Game
             {
                 var buttonClicked = GetClickedMenuButton(mouseScreenPos);
 
-                if (buttonClicked != null && buttonClicked != "NodeLevelInput")
+                if (buttonClicked != null)
                 {
                     // Set pending node type for placement
                     _pendingNodeType = buttonClicked;
@@ -596,20 +596,7 @@ public class Editor : Game
 
                                """;
 
-        string FactoryFor(IPowerUp powerUp) => powerUp switch
-        {
-            DamageUp => "DamageUp",
-            SpeedUp => "SpeedUp",
-            MaxHealthUp => "MaxHealthUp",
-            AttackSpeedUp => "AttackSpeedUp",
-            PickupRadiusUp => "PickupRadiusUp",
-            RangeUp => "RangeUp",
-            ShotCountUp => "ShotCountUp",
-            LifeStealUp => "LifeStealUp",
-            ExperienceUp => "ExperienceUp",
-            _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
-        };
-
+        string FactoryFor(IPowerUp powerUp) => powerUp.GetType().Name;
 
         var sb = new StringBuilder(factoryFunctions);
 
@@ -658,16 +645,8 @@ public class Editor : Game
         // Remove from position tracking
         _nodePositions.Remove(node);
 
-        // Remove all connections to this node from other nodes
-        foreach (var otherNode in _grid.Nodes)
-        {
-            var connectionsToRemove = otherNode.Neighbours
-                .Where(kvp => kvp.Value == node)
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            foreach (var direction in connectionsToRemove) node.SetNeighbour(direction, null);
-        }
+        foreach (var (direction, neighbour) in node.Neighbours)
+            neighbour.SetNeighbour(direction.Opposite(), null);
 
         // Remove from grid nodes collection using reflection
         var nodesField = typeof(SphereGrid).GetField("_nodes", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -677,7 +656,7 @@ public class Editor : Game
         Console.WriteLine($"Deleted node with powerup: {node.PowerUp?.GetType().Name ?? "None"}");
     }
 
-    private void CreateNodeWithPowerup(string powerupType, Vector2 worldPosition, int level)
+    private void CreateNodeWithPowerup(Type powerupType, Vector2 worldPosition, int level)
     {
         Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel, nodeLevel);
         Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
@@ -696,17 +675,17 @@ public class Editor : Game
             _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
         };
 
-        var newNode = powerupType switch
+        var newNode = powerupType.Name switch
         {
-            "DamageUp" => DamageUp(level),
-            "SpeedUp" => SpeedUp(level),
-            "MaxHealthUp" => MaxHealthUp(level),
-            "AttackSpeedUp" => AttackSpeedUp(level),
-            "PickupRadiusUp" => PickupRadiusUp(level),
-            "RangeUp" => RangeUp(level),
-            "ShotCountUp" => ShotCountUp(level),
-            "LifeStealUp" => LifeStealUp(level),
-            "ExperienceUp" => ExperienceUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Player.SpeedUp) => SpeedUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Player.MaxHealthUp) => MaxHealthUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Player.PickupRadiusUp) => PickupRadiusUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Player.LifeStealUp) => LifeStealUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Player.ExperienceUp) => ExperienceUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Weapon.DamageUp) => DamageUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Weapon.AttackSpeedUp) => AttackSpeedUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Weapon.RangeUp) => RangeUp(level),
+            nameof(Gameplay.Levelling.PowerUps.Weapon.ShotCountUp) => ShotCountUp(level),
             _ => throw new ArgumentOutOfRangeException(nameof(powerupType))
         };
 
@@ -721,7 +700,7 @@ public class Editor : Game
         Console.WriteLine($"Created {powerupType} (level {level}) node. Press 1-6 to connect to other nodes.");
     }
 
-    private string? GetClickedMenuButton(Vector2 mousePos)
+    private Type? GetClickedMenuButton(Vector2 mousePos)
     {
         var menuPos = new Vector2(640 - 200, 200);
         var buttonWidth = 180;
@@ -731,20 +710,17 @@ public class Editor : Game
 
         var buttons = new[]
         {
-            ("DamageUp", "Damage Up"),
-            ("SpeedUp", "Speed Up"),
-            ("MaxHealthUp", "Max Health Up"),
-            ("AttackSpeedUp", "Attack Speed Up"),
-            ("PickupRadiusUp", "Pickup Radius Up"),
-            ("RangeUp", "Range Up"),
-            ("ShotCountUp", "Shot Count Up")
+            (typeof(DamageUp), "Damage Up"),
+            (typeof(SpeedUp), "Speed Up"),
+            (typeof(MaxHealthUp), "Max Health Up"),
+            (typeof(AttackSpeedUp), "Attack Speed Up"),
+            (typeof(PickupRadiusUp), "Pickup Radius Up"),
+            (typeof(RangeUp), "Range Up"),
+            (typeof(ShotCountUp), "Shot Count Up")
         };
 
         // Check input field
         var inputY = menuPos.Y + padding * 2 + lineHeight;
-        var inputRect = new Rectangle((int)menuPos.X + 100, (int)inputY - 2, 80, (int)lineHeight + 4);
-        if (inputRect.Contains(mousePos))
-            return "NodeLevelInput";
 
         // Check buttons
         var buttonStartY = inputY + lineHeight + padding * 2;
