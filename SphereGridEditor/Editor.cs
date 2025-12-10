@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
+using ToolTip = Gameplay.Rendering.Tooltips.ToolTip;
 
 namespace SphereGridEditor;
 
@@ -19,6 +23,7 @@ public class Editor : Game
     private SphereGrid _grid = null!;
     private Node? _hoveredNode;
     private Texture2D _pixel = null!;
+    private KeyboardState _previousKeyboardState;
     private MouseState _previousMouseState;
     private PrimitiveRenderer _primitiveRenderer = null!;
     private Node? _selectedNode;
@@ -112,6 +117,9 @@ public class Editor : Game
         if (kbState.IsKeyDown(Keys.Escape))
             Exit();
 
+        // Copy code to clipboard on C key press
+        if (kbState.IsKeyDown(Keys.C) && _previousKeyboardState.IsKeyUp(Keys.C)) CopyCodeToClipboard();
+
         var mouseScreenPos = new Vector2(mouseState.X, mouseState.Y);
 
         // Camera panning with right mouse button
@@ -140,6 +148,7 @@ public class Editor : Game
             _selectedNode = _hoveredNode;
 
         _previousMouseState = mouseState;
+        _previousKeyboardState = kbState;
         base.Update(gameTime);
     }
 
@@ -199,6 +208,19 @@ public class Editor : Game
                 $"PowerUp: {_selectedNode.PowerUp?.GetType().Name ?? "None"}",
                 $"Connections: {_selectedNode.Neighbours.Count}"
             ], Color.Yellow);
+
+        // Draw help text at bottom
+        var font = _tooltipRenderer.GetType().GetField("_font",
+                BindingFlags.NonPublic | BindingFlags.Instance)
+            ?.GetValue(_tooltipRenderer) as SpriteFont;
+
+        if (font != null)
+        {
+            var helpText = "Right-click drag: Pan | Left-click: Select | C: Copy code | ESC: Exit";
+            var textSize = font.MeasureString(helpText);
+            _spriteBatch.DrawString(font, helpText,
+                new Vector2(10, 720 - textSize.Y - 10), Color.Gray, layerDepth: 0.01f);
+        }
 
         _spriteBatch.End();
         base.Draw(gameTime);
@@ -261,5 +283,73 @@ public class Editor : Game
             textPos = position + new Vector2(padding, padding + (i + 1) * lineHeight);
             _spriteBatch.DrawString(font, lines[i], textPos, textColor, layerDepth: 0.01f);
         }
+    }
+
+    private void CopyCodeToClipboard()
+    {
+        var sb = new StringBuilder();
+
+        // Add the hardcoded helper functions
+        sb.AppendLine("Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel);");
+        sb.AppendLine("Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel);");
+        sb.AppendLine("Node MaxHealthUp(int nodeLevel) => new(new MaxHealthUp(nodeLevel * 2), nodeLevel);");
+        sb.AppendLine("Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel);");
+        sb.AppendLine("Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel);");
+        sb.AppendLine("Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel);");
+        sb.AppendLine();
+        sb.AppendLine("Node ShotCountUp(int nodeLevel) => nodeLevel switch");
+        sb.AppendLine("{");
+        sb.AppendLine("    2 => new Node(new ShotCountUp(2), 5),");
+        sb.AppendLine("    1 => new Node(new ShotCountUp(1), 3),");
+        sb.AppendLine("    _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))");
+        sb.AppendLine("};");
+        sb.AppendLine();
+
+        // Generate node graph code
+        var nodeNames = new Dictionary<Node, string>();
+        var nodeIndex = 0;
+
+        // Assign names to all nodes
+        foreach (var node in _grid.Nodes)
+            if (node == _grid.Root)
+            {
+                nodeNames[node] = "root";
+            }
+            else
+            {
+                var powerUpName = node.PowerUp?.GetType().Name ?? "Node";
+                nodeNames[node] = $"{powerUpName.ToLower()}{nodeIndex++}";
+            }
+
+        // Generate node creation code
+        foreach (var node in _grid.Nodes)
+            if (node == _grid.Root)
+            {
+                sb.AppendLine("var root = new Node(null, 0);");
+            }
+            else
+            {
+                var powerUpType = node.PowerUp?.GetType().Name;
+                if (powerUpType != null) sb.AppendLine($"var {nodeNames[node]} = {powerUpType}(1);");
+            }
+
+        sb.AppendLine();
+
+        // Generate connections
+        var processedEdges = new HashSet<(Node, Node)>();
+
+        foreach (var node in _grid.Nodes)
+        foreach (var (direction, neighbor) in node.Neighbours)
+            // Only output each edge once
+            if (!processedEdges.Contains((neighbor, node)))
+            {
+                sb.AppendLine($"{nodeNames[node]}.SetNeighbour(EdgeDirection.{direction}, {nodeNames[neighbor]});");
+                processedEdges.Add((node, neighbor));
+            }
+
+        var code = sb.ToString();
+        ClipboardHelper.Copy(code);
+        Console.WriteLine("Code copied to clipboard!");
+        Console.WriteLine(code);
     }
 }
