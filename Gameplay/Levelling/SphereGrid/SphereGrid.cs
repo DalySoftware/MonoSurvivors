@@ -158,9 +158,9 @@ public enum EdgeDirection
     BottomRight
 }
 
-internal static class EdgeDirectionExtensions
+public static class EdgeDirectionExtensions
 {
-    internal static EdgeDirection Opposite(this EdgeDirection direction) => direction switch
+    public static EdgeDirection Opposite(this EdgeDirection direction) => direction switch
     {
         EdgeDirection.TopLeft => EdgeDirection.BottomRight,
         EdgeDirection.TopRight => EdgeDirection.BottomLeft,

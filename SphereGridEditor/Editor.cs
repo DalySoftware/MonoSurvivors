@@ -19,9 +19,11 @@ public class Editor : Game
 {
     private readonly Dictionary<Node, Vector2> _nodePositions = new();
     private Vector2 _cameraOffset = new(400, 300);
+    private Node? _connectingFromNode;
 
     private SphereGrid _grid = null!;
     private Node? _hoveredNode;
+    private EdgeDirection? _pendingConnectionDirection;
     private Texture2D _pixel = null!;
     private KeyboardState _previousKeyboardState;
     private MouseState _previousMouseState;
@@ -120,10 +122,23 @@ public class Editor : Game
         // Copy code to clipboard on C key press
         if (kbState.IsKeyDown(Keys.C) && _previousKeyboardState.IsKeyUp(Keys.C)) CopyCodeToClipboard();
 
+        // Delete selected node on Delete key
+        if (kbState.IsKeyDown(Keys.Delete) && _previousKeyboardState.IsKeyUp(Keys.Delete) && _selectedNode != null)
+        {
+            DeleteNode(_selectedNode);
+            _selectedNode = null;
+        }
+
+        // Create new node on N key
+        if (kbState.IsKeyDown(Keys.N) && _previousKeyboardState.IsKeyUp(Keys.N))
+            CreateNewNode(new Vector2(mouseState.X, mouseState.Y) - _cameraOffset);
+
         var mouseScreenPos = new Vector2(mouseState.X, mouseState.Y);
 
-        // Camera panning with right mouse button
-        if (mouseState.RightButton == ButtonState.Pressed && _previousMouseState.RightButton == ButtonState.Pressed)
+        // Camera panning with right mouse button (only if not in connection mode)
+        if (_connectingFromNode == null &&
+            mouseState.MiddleButton == ButtonState.Pressed &&
+            _previousMouseState.MiddleButton == ButtonState.Pressed)
         {
             var delta = mouseState.Position - _previousMouseState.Position;
             _cameraOffset += delta.ToVector2();
@@ -143,9 +158,59 @@ public class Editor : Game
             }
         }
 
-        // Selection
+        // Selection with left click
         if (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Released)
-            _selectedNode = _hoveredNode;
+        {
+            if (_connectingFromNode != null && _hoveredNode != null && _pendingConnectionDirection.HasValue)
+            {
+                // Complete connection
+                if (_hoveredNode != _connectingFromNode)
+                {
+                    var direction = _pendingConnectionDirection.Value;
+                    _connectingFromNode.SetNeighbour(direction, _hoveredNode);
+
+                    // Also set the reverse connection (bidirectional edge)
+                    var reverseDirection = direction.Opposite();
+                    _hoveredNode.SetNeighbour(reverseDirection, _connectingFromNode);
+
+                    Console.WriteLine(
+                        $"Connected {_connectingFromNode.PowerUp?.GetType().Name ?? "Node"} to {_hoveredNode.PowerUp?.GetType().Name ?? "Node"} via {direction} (reverse: {reverseDirection})");
+                }
+
+                _connectingFromNode = null;
+                _pendingConnectionDirection = null;
+            }
+            else
+            {
+                _selectedNode = _hoveredNode;
+            }
+        }
+
+        // Cancel connection mode on right click
+        if (mouseState.RightButton == ButtonState.Pressed && _previousMouseState.RightButton == ButtonState.Released)
+            if (_connectingFromNode != null)
+            {
+                Console.WriteLine("Connection cancelled");
+                _connectingFromNode = null;
+                _pendingConnectionDirection = null;
+            }
+
+        // Start connection on key press 1-6 while node is selected
+        if (_selectedNode != null)
+        {
+            if (kbState.IsKeyDown(Keys.D1) && _previousKeyboardState.IsKeyUp(Keys.D1))
+                StartConnection(EdgeDirection.TopLeft);
+            else if (kbState.IsKeyDown(Keys.D2) && _previousKeyboardState.IsKeyUp(Keys.D2))
+                StartConnection(EdgeDirection.TopRight);
+            else if (kbState.IsKeyDown(Keys.D3) && _previousKeyboardState.IsKeyUp(Keys.D3))
+                StartConnection(EdgeDirection.MiddleLeft);
+            else if (kbState.IsKeyDown(Keys.D4) && _previousKeyboardState.IsKeyUp(Keys.D4))
+                StartConnection(EdgeDirection.MiddleRight);
+            else if (kbState.IsKeyDown(Keys.D5) && _previousKeyboardState.IsKeyUp(Keys.D5))
+                StartConnection(EdgeDirection.BottomLeft);
+            else if (kbState.IsKeyDown(Keys.D6) && _previousKeyboardState.IsKeyUp(Keys.D6))
+                StartConnection(EdgeDirection.BottomRight);
+        }
 
         _previousMouseState = mouseState;
         _previousKeyboardState = kbState;
@@ -165,6 +230,14 @@ public class Editor : Game
                 // Only draw each edge once
                 if (_nodePositions[node].GetHashCode() < neighborPos.GetHashCode())
                     DrawLine(pos + _cameraOffset, neighborPos + _cameraOffset, Color.Gray * 0.5f, 2);
+
+        // Draw pending connection line
+        if (_connectingFromNode != null && _nodePositions.ContainsKey(_connectingFromNode))
+        {
+            var startPos = _nodePositions[_connectingFromNode] + _cameraOffset;
+            var mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+            DrawLine(startPos, mousePos, Color.Yellow * 0.7f, 3);
+        }
 
         // Draw nodes
         foreach (var (node, pos) in _nodePositions)
@@ -189,15 +262,21 @@ public class Editor : Game
         // Draw tooltip for hovered node (follows mouse)
         if (_hoveredNode != null)
         {
-            var tooltip = new ToolTip(
-                "Node Info",
-                [
-                    new ToolTipBodyLine($"Cost: {_hoveredNode.Cost}"),
-                    new ToolTipBodyLine($"PowerUp: {_hoveredNode.PowerUp?.GetType().Name ?? "None"}"),
-                    new ToolTipBodyLine($"Connections: {_hoveredNode.Neighbours.Count}")
-                ]
-            );
+            var connectionDetails = _hoveredNode.Neighbours
+                .Select(kvp => $"{kvp.Key}")
+                .ToList();
 
+            var tooltipLines = new List<ToolTipBodyLine>
+            {
+                new($"Cost: {_hoveredNode.Cost}"),
+                new($"PowerUp: {_hoveredNode.PowerUp?.GetType().Name ?? "None"}"),
+                new($"Connections: {_hoveredNode.Neighbours.Count}")
+            };
+
+            foreach (var conn in connectionDetails)
+                tooltipLines.Add(new ToolTipBodyLine($"  - {conn}", Color.DarkGray));
+
+            var tooltip = new ToolTip("Node Info", tooltipLines);
             _tooltipRenderer.DrawTooltip(_spriteBatch, tooltip);
         }
 
@@ -216,10 +295,36 @@ public class Editor : Game
 
         if (font != null)
         {
-            var helpText = "Right-click drag: Pan | Left-click: Select | C: Copy code | ESC: Exit";
-            var textSize = font.MeasureString(helpText);
-            _spriteBatch.DrawString(font, helpText,
-                new Vector2(10, 720 - textSize.Y - 10), Color.Gray, layerDepth: 0.01f);
+            var helpLines = new[]
+            {
+                "N: New node | Del: Delete | Middle-click-drag: Pan",
+                "Select node, press 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | C: Copy code"
+            };
+
+            var y = 720f;
+
+            for (var i = helpLines.Length - 1; i >= 0; i--)
+            {
+                var textSize = font.MeasureString(helpLines[i]);
+                y -= textSize.Y + 2;
+                _spriteBatch.DrawString(font, helpLines[i],
+                    new Vector2(10, y), Color.Gray, layerDepth: 0.01f);
+            }
+        }
+
+        // Draw connection mode indicator
+        if (_connectingFromNode != null && font != null)
+        {
+            var msg = $"Connecting with {_pendingConnectionDirection} - Click target node";
+            var msgSize = font.MeasureString(msg);
+            var msgPos = new Vector2(640 - msgSize.X / 2, 10);
+
+            // Draw background
+            var bgRect = new Rectangle((int)msgPos.X - 10, (int)msgPos.Y - 5,
+                (int)msgSize.X + 20, (int)msgSize.Y + 10);
+            _primitiveRenderer.DrawRectangle(_spriteBatch, bgRect, Color.Black * 0.9f);
+
+            _spriteBatch.DrawString(font, msg, msgPos, Color.Yellow, layerDepth: 0.01f);
         }
 
         _spriteBatch.End();
@@ -351,5 +456,75 @@ public class Editor : Game
         ClipboardHelper.Copy(code);
         Console.WriteLine("Code copied to clipboard!");
         Console.WriteLine(code);
+    }
+
+    private void DeleteNode(Node node)
+    {
+        if (node == _grid.Root)
+        {
+            Console.WriteLine("Cannot delete root node!");
+            return;
+        }
+
+        // Remove from position tracking
+        _nodePositions.Remove(node);
+
+        // Remove all connections to this node from other nodes
+        foreach (var otherNode in _grid.Nodes)
+        {
+            var connectionsToRemove = otherNode.Neighbours
+                .Where(kvp => kvp.Value == node)
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            foreach (var direction in connectionsToRemove)
+            {
+                // Use reflection to remove from the private dictionary
+                var neighboursField =
+                    typeof(Node).GetField("_neighbours", BindingFlags.NonPublic | BindingFlags.Instance);
+                var neighbours = neighboursField?.GetValue(otherNode) as IDictionary<EdgeDirection, Node>;
+                neighbours?.Remove(direction);
+            }
+        }
+
+        // Remove from grid nodes collection using reflection
+        var nodesField = typeof(SphereGrid).GetField("_nodes", BindingFlags.NonPublic | BindingFlags.Instance);
+        var nodes = nodesField?.GetValue(_grid) as ISet<Node>;
+        nodes?.Remove(node);
+
+        Console.WriteLine($"Deleted node with powerup: {node.PowerUp?.GetType().Name ?? "None"}");
+    }
+
+    private void CreateNewNode(Vector2 worldPosition)
+    {
+        // Create a new empty node
+        var newNode = new Node(null, 1);
+        _nodePositions[newNode] = worldPosition;
+
+        // Add to grid using reflection
+        var nodesField = typeof(SphereGrid).GetField("_nodes", BindingFlags.NonPublic | BindingFlags.Instance);
+        var nodes = nodesField?.GetValue(_grid) as ISet<Node>;
+        nodes?.Add(newNode);
+
+        _selectedNode = newNode;
+        Console.WriteLine("Created new node. Press 1-6 to connect to other nodes.");
+    }
+
+    private void StartConnection(EdgeDirection direction)
+    {
+        if (_selectedNode == null) return;
+
+        // Check if this direction already has a connection
+        if (_selectedNode.GetNeighbour(direction) != null)
+        {
+            Console.WriteLine(
+                $"Node already has a connection in direction {direction}. Delete it first or choose another direction.");
+            return;
+        }
+
+        _connectingFromNode = _selectedNode;
+        _pendingConnectionDirection = direction;
+        Console.WriteLine(
+            $"Starting connection from node with direction {direction}. Click on target node (or right-click to cancel).");
     }
 }
