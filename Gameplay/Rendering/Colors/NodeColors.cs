@@ -10,6 +10,7 @@ public static class NodeColors
     public static Color BaseColor(this Node node) => node.PowerUp switch
     {
         MaxHealthUp => new OklchColor(0.7f, 0.16f, 23).ToColor(),
+        LifeStealUp => new OklchColor(0.35f, 0.16f, 26).ToColor(),
         SpeedUp => new OklchColor(0.7f, 0.16f, 80).ToColor(),
         AttackSpeedUp => new OklchColor(0.8f, 0.20f, 115).ToColor(),
         ShotCountUp => new OklchColor(0.8f, 0.20f, 125).ToColor(),

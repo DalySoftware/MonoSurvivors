@@ -583,6 +583,7 @@ public class Editor : Game
                                Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
                                Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
                                Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
+                               Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
                                Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
 
                                int ShotCountCost(int nodeLevel) => nodeLevel switch
@@ -603,6 +604,7 @@ public class Editor : Game
             PickupRadiusUp => "PickupRadiusUp",
             RangeUp => "RangeUp",
             ShotCountUp => "ShotCountUp",
+            LifeStealUp => "LifeStealUp",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
         };
 
@@ -681,6 +683,7 @@ public class Editor : Game
         Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
         Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
         Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
+        Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
         Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
 
         int ShotCountCost(int nodeLevel) => nodeLevel switch
@@ -699,6 +702,7 @@ public class Editor : Game
             "PickupRadiusUp" => PickupRadiusUp(level),
             "RangeUp" => RangeUp(level),
             "ShotCountUp" => ShotCountUp(level),
+            "LifeStealUp" => LifeStealUp(level),
             _ => throw new ArgumentOutOfRangeException(nameof(powerupType))
         };
 

@@ -21,6 +21,9 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
 
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
+
+    private int _killsSinceLastLifeSteal = 0;
+    private int _lifeSteal = 10;
     private float _speedMultiplier = 1f;
     private float Speed => BaseSpeed * _speedMultiplier;
 
@@ -29,7 +32,14 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
 
     public float Experience { get; private set; }
     public int MaxHealth { get; private set; } = BaseHealth;
-    public int Health { get; private set; } = BaseHealth;
+
+    private int KillsPerHeal => _lifeSteal == 0 ? int.MaxValue : 100 / _lifeSteal;
+
+    public int Health
+    {
+        get;
+        private set => field = Math.Clamp(value, 0, MaxHealth);
+    } = BaseHealth;
 
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
 
@@ -66,7 +76,18 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     {
         _invincibilityDuration -= gameTime.ElapsedGameTime;
         WeaponBelt.Update(gameTime);
+        ApplyLifeSteal();
         base.Update(gameTime);
+    }
+
+    public void TrackKills(int numberOfKills) => _killsSinceLastLifeSteal += numberOfKills;
+
+    private void ApplyLifeSteal()
+    {
+        if (_killsSinceLastLifeSteal < KillsPerHeal) return;
+
+        Health += 1;
+        _killsSinceLastLifeSteal -= KillsPerHeal;
     }
 
     public void AddPowerUp(IPowerUp powerUp)
@@ -82,6 +103,9 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
             case MaxHealthUp maxHealthUp:
                 MaxHealth += maxHealthUp.Value;
                 Health += maxHealthUp.Value;
+                break;
+            case LifeStealUp lifeStealUp:
+                _lifeSteal += lifeStealUp.Value;
                 break;
             case IWeaponPowerUp weaponPowerUp:
                 WeaponBelt.AddPowerUp(weaponPowerUp);

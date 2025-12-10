@@ -190,6 +190,7 @@ public class SphereGridUi : UiElement
         AttackSpeedUp => "Increase Attack Speed",
         ShotCountUp => "Increase Shot Count",
         RangeUp => "Increase Range",
+        LifeStealUp => "Increase Life Steal",
         _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
     };
 
@@ -202,6 +203,7 @@ public class SphereGridUi : UiElement
         AttackSpeedUp attackSpeedUp => $"Increase Attack Speed by {attackSpeedUp.Value:P0}",
         ShotCountUp shotCountUp => $"Fire {shotCountUp.ExtraShots} extra shots",
         RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
+        LifeStealUp => "Increase LifeSteal",
         _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
     };
 

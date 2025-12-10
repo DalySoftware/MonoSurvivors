@@ -8,7 +8,7 @@ namespace Gameplay.Entities.Enemies;
 
 public class EnemySpawner(
     EntityManager entityManager,
-    PlayerCharacter target,
+    PlayerCharacter player,
     IAudioPlayer audio,
     GraphicsDevice graphics) : IEntity
 {
@@ -44,12 +44,12 @@ public class EnemySpawner(
         // The buffer makes sure it's slightly offscreen, unless the player outruns camera by a crazy speed
         var distanceFromPlayer = MathF.Min(halfWidth / cos, halfHeight / sin) * 1.3f;
 
-        var x = target.Position.X + MathF.Cos(angle) * distanceFromPlayer;
-        var y = target.Position.Y + MathF.Sin(angle) * distanceFromPlayer;
+        var x = player.Position.X + MathF.Cos(angle) * distanceFromPlayer;
+        var y = player.Position.Y + MathF.Sin(angle) * distanceFromPlayer;
 
         var position = new Vector2(x, y);
 
-        return new BasicEnemy(position, target)
+        return new BasicEnemy(position, player)
         {
             OnDeath = OnDeath
         };
@@ -60,6 +60,7 @@ public class EnemySpawner(
         foreach (var experience in GetExperiences(deadEnemy))
             entityManager.Spawn(experience);
         audio.Play(SoundEffectTypes.EnemyDeath);
+        player.TrackKills(1);
     }
 
     private IEnumerable<Experience> GetExperiences(EnemyBase deadEnemy)
@@ -67,7 +68,7 @@ public class EnemySpawner(
         for (var i = 0; i < deadEnemy.Experience; i++)
         {
             var position = deadEnemy.Position + new Vector2(_random.Next(-10, 10), _random.Next(-10, 10));
-            yield return new Experience(position, 1f, target, audio);
+            yield return new Experience(position, 1f, player, audio);
         }
     }
 }
