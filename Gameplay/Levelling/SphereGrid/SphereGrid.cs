@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gameplay.Entities;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
@@ -84,7 +83,7 @@ public class SphereGrid
         }
     }
 
-    public static SphereGrid Create(PlayerCharacter player)
+    public static SphereGrid Create(Action<IPowerUp> onUnlock)
     {
         Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel);
         Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel);
@@ -144,7 +143,7 @@ public class SphereGrid
 
         return new SphereGrid(root)
         {
-            OnUnlock = player.AddPowerUp
+            OnUnlock = onUnlock
         };
     }
 }

@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.github\instructions.md = .github\instructions.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SphereGridEditor", "SphereGridEditor\SphereGridEditor.csproj", "{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

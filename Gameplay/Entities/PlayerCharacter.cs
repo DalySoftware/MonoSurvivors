@@ -69,7 +69,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
         base.Update(gameTime);
     }
 
-    internal void AddPowerUp(IPowerUp powerUp)
+    public void AddPowerUp(IPowerUp powerUp)
     {
         switch (powerUp)
         {
