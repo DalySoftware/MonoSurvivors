@@ -584,6 +584,7 @@ public class Editor : Game
                                Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
                                Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
                                Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
+                               Node ExperienceUp(int nodeLevel) => new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
                                Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
 
                                int ShotCountCost(int nodeLevel) => nodeLevel switch
@@ -605,6 +606,7 @@ public class Editor : Game
             RangeUp => "RangeUp",
             ShotCountUp => "ShotCountUp",
             LifeStealUp => "LifeStealUp",
+            ExperienceUp => "ExperienceUp",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
         };
 
@@ -684,6 +686,7 @@ public class Editor : Game
         Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
         Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
         Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
+        Node ExperienceUp(int nodeLevel) => new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
         Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
 
         int ShotCountCost(int nodeLevel) => nodeLevel switch
@@ -703,6 +706,7 @@ public class Editor : Game
             "RangeUp" => RangeUp(level),
             "ShotCountUp" => ShotCountUp(level),
             "LifeStealUp" => LifeStealUp(level),
+            "ExperienceUp" => ExperienceUp(level),
             _ => throw new ArgumentOutOfRangeException(nameof(powerupType))
         };
 

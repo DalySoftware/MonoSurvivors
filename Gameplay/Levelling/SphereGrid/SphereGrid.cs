@@ -102,6 +102,7 @@ public class SphereGrid
         Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
         Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
         Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
+        Node ExperienceUp(int nodeLevel) => new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
         Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
 
         int ShotCountCost(int nodeLevel) => nodeLevel switch
@@ -153,7 +154,8 @@ public class SphereGrid
         root.SetNeighbour(EdgeDirection.TopLeft, pickupRadius1);
         root.SetNeighbour(EdgeDirection.BottomLeft, rng1);
         
-        var _ = LifeStealUp(1);
+        _ = LifeStealUp(1);
+        _ = ExperienceUp(1);
 
         return new SphereGrid(root)
         {

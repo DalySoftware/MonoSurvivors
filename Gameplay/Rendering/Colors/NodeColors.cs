@@ -17,6 +17,7 @@ public static class NodeColors
         PickupRadiusUp => new OklchColor(0.7f, 0.16f, 160).ToColor(),
         RangeUp => new OklchColor(0.7f, 0.16f, 215).ToColor(),
         DamageUp => new OklchColor(0.7f, 0.16f, 295).ToColor(),
+        ExperienceUp => new OklchColor(0.7f, 0.16f, 340).ToColor(),
         null => Color.Gold,
         _ => throw new ArgumentOutOfRangeException(nameof(node))
     };

@@ -20,11 +20,13 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     private const int BaseHealth = 6;
 
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
+    private float _experienceMultiplier = 1f;
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
 
     private int _killsSinceLastLifeSteal = 0;
     private int _lifeSteal = 10;
     private float _speedMultiplier = 1f;
+
     private float Speed => BaseSpeed * _speedMultiplier;
 
     public float PickupRadiusMultiplier { get; private set; } = 1f;
@@ -66,7 +68,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
 
     public void GainExperience(float amount)
     {
-        Experience += amount;
+        Experience += amount * _experienceMultiplier;
         OnExperienceGain(this, this);
     }
 
@@ -106,6 +108,9 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
                 break;
             case LifeStealUp lifeStealUp:
                 _lifeSteal += lifeStealUp.Value;
+                break;
+            case ExperienceUp experienceUp:
+                _experienceMultiplier += experienceUp.Value;
                 break;
             case IWeaponPowerUp weaponPowerUp:
                 WeaponBelt.AddPowerUp(weaponPowerUp);
