@@ -179,14 +179,22 @@ public class Editor : Game
                 if (_hoveredNode != _connectingFromNode)
                 {
                     var direction = _pendingConnectionDirection.Value;
-                    _connectingFromNode.SetNeighbour(direction, _hoveredNode);
-
-                    // Also set the reverse connection (bidirectional edge)
                     var reverseDirection = direction.Opposite();
-                    _hoveredNode.SetNeighbour(reverseDirection, _connectingFromNode);
 
-                    Console.WriteLine(
-                        $"Connected {_connectingFromNode.PowerUp?.GetType().Name ?? "Node"} to {_hoveredNode.PowerUp?.GetType().Name ?? "Node"} via {direction} (reverse: {reverseDirection})");
+                    // Check if target node's reverse direction is already occupied
+                    if (_hoveredNode.GetNeighbour(reverseDirection) != null)
+                    {
+                        Console.WriteLine(
+                            $"Cannot connect: Target node already has a connection in direction {reverseDirection}");
+                    }
+                    else
+                    {
+                        _connectingFromNode.SetNeighbour(direction, _hoveredNode);
+                        _hoveredNode.SetNeighbour(reverseDirection, _connectingFromNode);
+
+                        Console.WriteLine(
+                            $"Connected {_connectingFromNode.PowerUp?.GetType().Name ?? "Node"} to {_hoveredNode.PowerUp?.GetType().Name ?? "Node"} via {direction} (reverse: {reverseDirection})");
+                    }
                 }
 
                 _connectingFromNode = null;
@@ -453,22 +461,14 @@ public class Editor : Game
 
         sb.AppendLine();
 
-        // Generate connections
-        var processedEdges = new HashSet<(Node, Node)>();
-
+        // Generate connections - output all directions explicitly
         foreach (var node in _grid.Nodes)
         foreach (var (direction, neighbor) in node.Neighbours)
-            // Only output each edge once
-            if (!processedEdges.Contains((neighbor, node)))
-            {
-                sb.AppendLine($"{nodeNames[node]}.SetNeighbour(EdgeDirection.{direction}, {nodeNames[neighbor]});");
-                processedEdges.Add((node, neighbor));
-            }
+            sb.AppendLine($"{nodeNames[node]}.SetNeighbour(EdgeDirection.{direction}, {nodeNames[neighbor]});");
 
         var code = sb.ToString();
         ClipboardHelper.Copy(code);
         Console.WriteLine("Code copied to clipboard!");
-        Console.WriteLine(code);
     }
 
     private void DeleteNode(Node node)
