@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ContentLibrary;
+using GameLoop.UI;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
@@ -91,35 +92,9 @@ public class Editor : Game
         var root = _grid.Root;
         _nodePositions[root] = Vector2.Zero;
 
-        // Simple radial layout
-        var directionVectors = new Dictionary<EdgeDirection, Vector2>
-        {
-            [EdgeDirection.MiddleRight] = new(150, 0),
-            [EdgeDirection.TopRight] = new(120, -100),
-            [EdgeDirection.BottomRight] = new(120, 100),
-            [EdgeDirection.MiddleLeft] = new(-150, 0),
-            [EdgeDirection.TopLeft] = new(-120, -100),
-            [EdgeDirection.BottomLeft] = new(-120, 100)
-        };
-
-        var visited = new HashSet<Node>();
-        var queue = new Queue<(Node node, Vector2 position)>();
-        queue.Enqueue((root, Vector2.Zero));
-
-        while (queue.Count > 0)
-        {
-            var (node, pos) = queue.Dequeue();
-            if (!visited.Add(node)) continue;
-
-            _nodePositions[node] = pos;
-
-            foreach (var (dir, neighbor) in node.Neighbours)
-                if (!visited.Contains(neighbor))
-                {
-                    var offset = directionVectors.GetValueOrDefault(dir, Vector2.Zero);
-                    queue.Enqueue((neighbor, pos + offset));
-                }
-        }
+        var positioner = new SphereGridPositioner(_grid, 100f);
+        foreach (var (node, position) in positioner.NodePositions())
+            _nodePositions[node] = position;
     }
 
     protected override void Update(GameTime gameTime)

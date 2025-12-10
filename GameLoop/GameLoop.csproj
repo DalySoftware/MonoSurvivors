@@ -35,4 +35,10 @@
     <ItemGroup>
         <MonoGameContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>SphereGridEditor</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@
         <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*"/>
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\GameLoop\GameLoop.csproj"/>
         <ProjectReference Include="..\Gameplay\Gameplay.csproj"/>
     </ItemGroup>
     <ItemGroup>
