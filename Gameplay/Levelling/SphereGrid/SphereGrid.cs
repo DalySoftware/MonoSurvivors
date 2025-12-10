@@ -7,10 +7,11 @@ using Gameplay.Levelling.PowerUps.Weapon;
 
 namespace Gameplay.Levelling.SphereGrid;
 
-public class Node(IPowerUp? powerUp, int cost)
+public class Node(IPowerUp? powerUp, int level, int cost)
 {
     private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
     public int Cost { get; } = cost;
+    public int Level { get; } = level;
     public IPowerUp? PowerUp { get; } = powerUp;
 
     public IReadOnlyDictionary<EdgeDirection, Node> Neighbours => _neighbours;
@@ -85,17 +86,18 @@ public class SphereGrid
 
     public static SphereGrid Create(Action<IPowerUp> onUnlock)
     {
-        Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel);
-        Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel);
-        Node MaxHealthUp(int nodeLevel) => new(new MaxHealthUp(nodeLevel * 2), nodeLevel);
-        Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel);
-        Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel);
-        Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel);
+        Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel, nodeLevel);
+        Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
+        Node MaxHealthUp(int nodeLevel) => new(new MaxHealthUp(nodeLevel * 2), nodeLevel, nodeLevel);
+        Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
+        Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
+        Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
+        Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
 
-        Node ShotCountUp(int nodeLevel) => nodeLevel switch
+        int ShotCountCost(int nodeLevel) => nodeLevel switch
         {
-            2 => new Node(new ShotCountUp(2), 5),
-            1 => new Node(new ShotCountUp(1), 3),
+            2 => 5,
+            1 => 3,
             _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
         };
 
@@ -133,7 +135,7 @@ public class SphereGrid
         var rng1 = RangeUp(1);
         rng1.SetNeighbour(EdgeDirection.BottomLeft, rng2);
 
-        var root = new Node(null, 0);
+        var root = new Node(null, 0, 0);
         root.SetNeighbour(EdgeDirection.TopRight, spd1);
         root.SetNeighbour(EdgeDirection.MiddleRight, dmg1);
         root.SetNeighbour(EdgeDirection.BottomRight, hp1);

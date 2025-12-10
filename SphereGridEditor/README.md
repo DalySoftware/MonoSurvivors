@@ -19,7 +19,11 @@ dotnet run --project .\SphereGridEditor\
 
 ### Editing
 
-- **N** - Create new empty node at mouse position
+- **N** - Open node creation menu (with clickable buttons)
+  - Click on **Node Level** input field to edit the level
+  - Type a number and press **Enter** to confirm
+  - Click a button to create the node type with the specified level
+  - **ESC** - Cancel menu
 - **Delete** - Delete selected node (cannot delete root)
 - **1-6** - Start connection from selected node or prepare edge for deletion
     - 1 = TopLeft
@@ -38,7 +42,7 @@ dotnet run --project .\SphereGridEditor\
 
 ## Workflow
 
-1. **Create nodes**: Press **N** to create empty nodes
+1. **Create nodes**: Press **N** → (optional) click Node Level input and type a number → click a node type button
 2. **Connect nodes**: Select a node → press **1-6** for direction → click target node
 3. **Delete edges**: Select a node → press **1-6** on existing connection → press **X**
 4. **Delete nodes**: Select a node → press **Delete**
@@ -48,4 +52,6 @@ dotnet run --project .\SphereGridEditor\
 
 - All edges are bidirectional - creating an edge in one direction automatically creates the reverse
 - Tooltips show existing connection directions to help avoid conflicts
+- The generated code includes factory functions and uses the nodeLevel (cost) from each created node
+- Node Level defaults to 1, but can be set to any positive integer
 - The generated code includes all edge directions explicitly for clarity
