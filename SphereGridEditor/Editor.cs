@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -133,6 +134,17 @@ public class Editor : Game
         if (kbState.IsKeyDown(Keys.N) && _previousKeyboardState.IsKeyUp(Keys.N))
             CreateNewNode(new Vector2(mouseState.X, mouseState.Y) - _cameraOffset);
 
+        // Delete edge on X key (after selecting direction with 1-6)
+        if (kbState.IsKeyDown(Keys.X) &&
+            _previousKeyboardState.IsKeyUp(Keys.X) &&
+            _selectedNode != null &&
+            _pendingConnectionDirection.HasValue &&
+            _connectingFromNode == null)
+        {
+            DeleteEdge(_selectedNode, _pendingConnectionDirection.Value);
+            _pendingConnectionDirection = null;
+        }
+
         var mouseScreenPos = new Vector2(mouseState.X, mouseState.Y);
 
         // Camera panning with right mouse button (only if not in connection mode)
@@ -196,20 +208,21 @@ public class Editor : Game
             }
 
         // Start connection on key press 1-6 while node is selected
+        // Or delete edge with X key after pressing direction
         if (_selectedNode != null)
         {
             if (kbState.IsKeyDown(Keys.D1) && _previousKeyboardState.IsKeyUp(Keys.D1))
-                StartConnection(EdgeDirection.TopLeft);
+                StartConnectionOrDelete(EdgeDirection.TopLeft);
             else if (kbState.IsKeyDown(Keys.D2) && _previousKeyboardState.IsKeyUp(Keys.D2))
-                StartConnection(EdgeDirection.TopRight);
+                StartConnectionOrDelete(EdgeDirection.TopRight);
             else if (kbState.IsKeyDown(Keys.D3) && _previousKeyboardState.IsKeyUp(Keys.D3))
-                StartConnection(EdgeDirection.MiddleLeft);
+                StartConnectionOrDelete(EdgeDirection.MiddleLeft);
             else if (kbState.IsKeyDown(Keys.D4) && _previousKeyboardState.IsKeyUp(Keys.D4))
-                StartConnection(EdgeDirection.MiddleRight);
+                StartConnectionOrDelete(EdgeDirection.MiddleRight);
             else if (kbState.IsKeyDown(Keys.D5) && _previousKeyboardState.IsKeyUp(Keys.D5))
-                StartConnection(EdgeDirection.BottomLeft);
+                StartConnectionOrDelete(EdgeDirection.BottomLeft);
             else if (kbState.IsKeyDown(Keys.D6) && _previousKeyboardState.IsKeyUp(Keys.D6))
-                StartConnection(EdgeDirection.BottomRight);
+                StartConnectionOrDelete(EdgeDirection.BottomRight);
         }
 
         _previousMouseState = mouseState;
@@ -248,11 +261,11 @@ public class Editor : Game
             var isHovered = node == _hoveredNode;
 
             var radius = isRoot ? 25f : 20f;
-            var color = isRoot ? Color.Gold :
-                node.PowerUp != null ? Color.LightBlue : Color.Gray;
+            var baseColor = node.BaseColor();
+            var color = baseColor;
 
             if (isSelected) color = Color.White;
-            else if (isHovered) color = Color.Lerp(color, Color.White, 0.5f);
+            else if (isHovered) color = Color.Lerp(baseColor, Color.White, 0.5f);
 
             DrawCircle(screenPos, radius, color);
             DrawCircle(screenPos, radius - 2, new Color(20, 20, 30));
@@ -297,8 +310,8 @@ public class Editor : Game
         {
             var helpLines = new[]
             {
-                "N: New node | Del: Delete | Middle-click-drag: Pan",
-                "Select node, press 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | C: Copy code"
+                "N: New node | Del: Delete node | Middle-drag: Pan",
+                "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | C: Copy"
             };
 
             var y = 720f;
@@ -510,15 +523,20 @@ public class Editor : Game
         Console.WriteLine("Created new node. Press 1-6 to connect to other nodes.");
     }
 
-    private void StartConnection(EdgeDirection direction)
+    private void StartConnectionOrDelete(EdgeDirection direction)
     {
         if (_selectedNode == null) return;
 
         // Check if this direction already has a connection
-        if (_selectedNode.GetNeighbour(direction) != null)
+        var existingNeighbour = _selectedNode.GetNeighbour(direction);
+
+        if (existingNeighbour != null)
         {
             Console.WriteLine(
-                $"Node already has a connection in direction {direction}. Delete it first or choose another direction.");
+                $"Node already has a connection in direction {direction} to {existingNeighbour.PowerUp?.GetType().Name ?? "Node"}. Press X to delete it.");
+
+            // Store the direction for deletion
+            _pendingConnectionDirection = direction;
             return;
         }
 
@@ -526,5 +544,29 @@ public class Editor : Game
         _pendingConnectionDirection = direction;
         Console.WriteLine(
             $"Starting connection from node with direction {direction}. Click on target node (or right-click to cancel).");
+    }
+
+    private void DeleteEdge(Node fromNode, EdgeDirection direction)
+    {
+        var targetNode = fromNode.GetNeighbour(direction);
+
+        if (targetNode == null)
+        {
+            Console.WriteLine("No edge to delete in that direction.");
+            return;
+        }
+
+        // Remove the forward edge
+        var neighboursField = typeof(Node).GetField("_neighbours", BindingFlags.NonPublic | BindingFlags.Instance);
+        var neighbours = neighboursField?.GetValue(fromNode) as IDictionary<EdgeDirection, Node>;
+        neighbours?.Remove(direction);
+
+        // Remove the reverse edge
+        var reverseDirection = direction.Opposite();
+        var reverseNeighbours = neighboursField?.GetValue(targetNode) as IDictionary<EdgeDirection, Node>;
+        reverseNeighbours?.Remove(reverseDirection);
+
+        Console.WriteLine(
+            $"Deleted edge from {fromNode.PowerUp?.GetType().Name ?? "Node"} to {targetNode.PowerUp?.GetType().Name ?? "Node"} (direction: {direction})");
     }
 }
