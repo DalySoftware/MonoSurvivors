@@ -97,7 +97,7 @@ internal class SphereGridUi
         var viewport = _graphicsDevice.Viewport;
 
         // Draw title
-        const string title = "Level Up";
+        var title = $"You have {_grid.AvailablePoints} Skill Points to spend";
         var titleSize = _fontLarge.MeasureString(title);
         spriteBatch.DrawString(_fontLarge, title, new Vector2(viewport.Width / 2 - titleSize.X / 2, 20),
             Color.White, layerDepth: Layers.Title);

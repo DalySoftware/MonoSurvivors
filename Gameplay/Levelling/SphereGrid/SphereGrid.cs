@@ -9,7 +9,6 @@ public class SphereGrid
 {
     private readonly HashSet<Node> _nodes = [];
     private readonly HashSet<Node> _unlockedNodes = [];
-    private int _availablePoints = 0;
 
     internal SphereGrid(Node root)
     {
@@ -21,12 +20,13 @@ public class SphereGrid
     public IReadOnlySet<Node> Nodes => _nodes;
     public Node Root { get; private init; }
     public Action<IPowerUp> OnUnlock { get; init; } = _ => { };
-    public bool CanUnlockAnything => _nodes.Except(_unlockedNodes).Any(n => n.Cost <= _availablePoints);
+    public bool CanUnlockAnything => _nodes.Except(_unlockedNodes).Any(n => n.Cost <= AvailablePoints);
+    public int AvailablePoints { get; private set; } = 0;
 
-    public void AddSkillPoints(int points) => _availablePoints += points;
+    public void AddSkillPoints(int points) => AvailablePoints += points;
 
     public bool CanUnlock(Node node) =>
-        _availablePoints >= node.Cost &&
+        AvailablePoints >= node.Cost &&
         _unlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
 
     public bool IsUnlocked(Node node) => _unlockedNodes.Contains(node);
@@ -37,7 +37,7 @@ public class SphereGrid
             return;
 
         _unlockedNodes.Add(node);
-        _availablePoints -= node.Cost;
+        AvailablePoints -= node.Cost;
         if (node.PowerUp is not null)
             OnUnlock(node.PowerUp);
     }
