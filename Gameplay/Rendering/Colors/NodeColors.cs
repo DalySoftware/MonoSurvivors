@@ -16,16 +16,15 @@ public static class NodeColors
         var weaponUtilityColor = new OklchColor(0.7f, 0.16f, 215).ToColor();
         var damageColor = new OklchColor(0.7f, 0.16f, 295).ToColor();
         var critColor = new OklchColor(0.7f, 0.16f, 340).ToColor();
-
-        // Unused green-ish
-        // new OklchColor(0.8f, 0.20f, 125).ToColor()
+        var damageEffectsColor = new OklchColor(0.8f, 0.20f, 125).ToColor();
 
         return node.PowerUp switch
         {
-            DamageUp => damageColor,
+            DamageUp or AttackSpeedUp => damageColor,
+            ShotCountUp or PierceUp => damageEffectsColor,
             MaxHealthUp or LifeStealUp => healthColor,
-            SpeedUp or AttackSpeedUp => speedColor,
-            RangeUp or ShotCountUp or ProjectileSpeedUp or PierceUp => weaponUtilityColor,
+            SpeedUp => speedColor,
+            RangeUp or ProjectileSpeedUp => weaponUtilityColor,
             PickupRadiusUp or ExperienceUp => utilityColor,
             CritChanceUp or CritDamageUp => critColor,
             null => Color.Gold,
