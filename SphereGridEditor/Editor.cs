@@ -301,17 +301,26 @@ public class Editor : Game
 
         // Draw edges
         foreach (var (node, pos) in _nodePositions)
-        foreach (var (_, neighbor) in node.Neighbours)
+        foreach (var (direction, neighbor) in node.Neighbours)
             if (_nodePositions.TryGetValue(neighbor, out var neighborPos))
                 // Only draw each edge once
                 if (_nodePositions[node].GetHashCode() < neighborPos.GetHashCode())
-                    _primitiveRenderer.DrawLine(_spriteBatch, pos + _cameraOffset, neighborPos + _cameraOffset,
+                {
+                    var fromOffset = GetDirectionOffset(direction, node == _grid.Root ? 25f : 20f);
+                    var toOffset = GetDirectionOffset(direction.Opposite(), neighbor == _grid.Root ? 25f : 20f);
+                    _primitiveRenderer.DrawLine(_spriteBatch, pos + fromOffset + _cameraOffset,
+                        neighborPos + toOffset + _cameraOffset,
                         Color.Gray * 0.5f, 2);
+                }
 
         // Draw pending connection line
-        if (_connectingFromNode != null && _nodePositions.ContainsKey(_connectingFromNode))
+        if (_connectingFromNode != null &&
+            _nodePositions.ContainsKey(_connectingFromNode) &&
+            _pendingConnectionDirection.HasValue)
         {
-            var startPos = _nodePositions[_connectingFromNode] + _cameraOffset;
+            var radius = _connectingFromNode == _grid.Root ? 25f : 20f;
+            var offset = GetDirectionOffset(_pendingConnectionDirection.Value, radius);
+            var startPos = _nodePositions[_connectingFromNode] + offset + _cameraOffset;
             var mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
             _primitiveRenderer.DrawLine(_spriteBatch, startPos, mousePos, Color.Yellow * 0.7f, 3);
         }
@@ -530,6 +539,17 @@ public class Editor : Game
         _spriteBatch.End();
         base.Draw(gameTime);
     }
+
+    private static Vector2 GetDirectionOffset(EdgeDirection direction, float radius) => direction switch
+    {
+        EdgeDirection.TopLeft => new Vector2(-radius * 0.5f, -radius * 0.866f),
+        EdgeDirection.TopRight => new Vector2(radius * 0.5f, -radius * 0.866f),
+        EdgeDirection.MiddleLeft => new Vector2(-radius, 0),
+        EdgeDirection.MiddleRight => new Vector2(radius, 0),
+        EdgeDirection.BottomLeft => new Vector2(-radius * 0.5f, radius * 0.866f),
+        EdgeDirection.BottomRight => new Vector2(radius * 0.5f, radius * 0.866f),
+        _ => Vector2.Zero
+    };
 
     private void DrawCircle(Vector2 center, float radius, Color color)
     {
