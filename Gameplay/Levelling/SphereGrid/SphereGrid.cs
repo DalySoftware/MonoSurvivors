@@ -2,33 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Levelling.PowerUps;
-using Gameplay.Levelling.PowerUps.Player;
-using Gameplay.Levelling.PowerUps.Weapon;
+using static Gameplay.Levelling.SphereGrid.NodeFactory;
 
 namespace Gameplay.Levelling.SphereGrid;
-
-public class Node(IPowerUp? powerUp, int level, int cost)
-{
-    private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
-    public int Cost { get; } = cost;
-    public int Level { get; } = level;
-    public IPowerUp? PowerUp { get; } = powerUp;
-
-    public IReadOnlyDictionary<EdgeDirection, Node> Neighbours => _neighbours;
-
-    public Node? GetNeighbour(EdgeDirection direction) => _neighbours.GetValueOrDefault(direction);
-
-    public void SetNeighbour(EdgeDirection direction, Node? node)
-    {
-        if (node == null)
-        {
-            _neighbours.Remove(direction);
-            return;
-        }
-
-        _neighbours[direction] = node;
-    }
-}
 
 public class SphereGrid
 {
@@ -95,23 +71,6 @@ public class SphereGrid
 
     public static SphereGrid Create(Action<IPowerUp> onUnlock)
     {
-        Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel, nodeLevel);
-        Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
-        Node MaxHealthUp(int nodeLevel) => new(new MaxHealthUp(nodeLevel * 2), nodeLevel, nodeLevel);
-        Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
-        Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
-        Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
-        Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
-        Node ExperienceUp(int nodeLevel) => new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
-        Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
-
-        int ShotCountCost(int nodeLevel) => nodeLevel switch
-        {
-            2 => 5,
-            1 => 3,
-            _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
-        };
-
         // Damage (right)
         var strKey = DamageUp(2);
         var dmg2 = DamageUp(1);
@@ -153,7 +112,7 @@ public class SphereGrid
         root.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd1);
         root.SetNeighbour(EdgeDirection.TopLeft, pickupRadius1);
         root.SetNeighbour(EdgeDirection.BottomLeft, rng1);
-        
+
         _ = LifeStealUp(1);
         _ = ExperienceUp(1);
 

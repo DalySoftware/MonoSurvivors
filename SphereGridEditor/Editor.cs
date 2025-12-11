@@ -15,6 +15,7 @@ using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using static Gameplay.Levelling.SphereGrid.NodeFactory;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using ToolTip = Gameplay.Rendering.Tooltips.ToolTip;
@@ -576,30 +577,6 @@ public class Editor : Game
 
     private void CopyCodeToClipboard()
     {
-        var factoryFunctions = """
-                               Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel, nodeLevel);
-                               Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
-                               Node MaxHealthUp(int nodeLevel) => new(new MaxHealthUp(nodeLevel * 2), nodeLevel, nodeLevel);
-                               Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
-                               Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
-                               Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
-                               Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
-                               Node ExperienceUp(int nodeLevel) => new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
-                               Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
-
-                               int ShotCountCost(int nodeLevel) => nodeLevel switch
-                               {
-                                   2 => 5,
-                                   1 => 3,
-                                   _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
-                               };
-
-                               """;
-
-        string FactoryFor(IPowerUp powerUp) => powerUp.GetType().Name;
-
-        var sb = new StringBuilder(factoryFunctions);
-
         // Generate node graph code
         var nodeNames = new Dictionary<Node, string>();
         var nodeIndex = 0;
@@ -617,7 +594,11 @@ public class Editor : Game
             }
 
         // Generate node creation code
-        sb.AppendLine("var root = new Node(null, 0, 0);");
+        var indent = string.Join(" ", 8);
+        var sb = new StringBuilder();
+        sb.AppendLine($"{indent}var root = new Node(null, 0, 0);");
+
+        string FactoryFor(IPowerUp powerUp) => powerUp.GetType().Name;
         foreach (var node in _grid.Nodes.Where(node => node != _grid.Root))
             if (node.PowerUp is { } powerUp)
                 sb.AppendLine($"var {nodeNames[node]} = {FactoryFor(powerUp)}({node.Level});");
@@ -627,7 +608,7 @@ public class Editor : Game
         // Generate connections - output all directions explicitly
         foreach (var node in _grid.Nodes)
         foreach (var (direction, neighbor) in node.Neighbours)
-            sb.AppendLine($"{nodeNames[node]}.SetNeighbour(EdgeDirection.{direction}, {nodeNames[neighbor]});");
+            sb.AppendLine($"{indent}{nodeNames[node]}.SetNeighbour(EdgeDirection.{direction}, {nodeNames[neighbor]});");
 
         var code = sb.ToString();
         ClipboardHelper.Copy(code);
@@ -658,34 +639,17 @@ public class Editor : Game
 
     private void CreateNodeWithPowerup(Type powerupType, Vector2 worldPosition, int level)
     {
-        Node DamageUp(int nodeLevel) => new(new DamageUp(nodeLevel * 0.25f), nodeLevel, nodeLevel);
-        Node SpeedUp(int nodeLevel) => new(new SpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
-        Node MaxHealthUp(int nodeLevel) => new(new MaxHealthUp(nodeLevel * 2), nodeLevel, nodeLevel);
-        Node AttackSpeedUp(int nodeLevel) => new(new AttackSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
-        Node PickupRadiusUp(int nodeLevel) => new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
-        Node RangeUp(int nodeLevel) => new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
-        Node LifeStealUp(int nodeLevel) => new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
-        Node ExperienceUp(int nodeLevel) => new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
-        Node ShotCountUp(int nodeLevel) => new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
-
-        int ShotCountCost(int nodeLevel) => nodeLevel switch
-        {
-            2 => 5,
-            1 => 3,
-            _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
-        };
-
         var newNode = powerupType.Name switch
         {
-            nameof(Gameplay.Levelling.PowerUps.Player.SpeedUp) => SpeedUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Player.MaxHealthUp) => MaxHealthUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Player.PickupRadiusUp) => PickupRadiusUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Player.LifeStealUp) => LifeStealUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Player.ExperienceUp) => ExperienceUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Weapon.DamageUp) => DamageUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Weapon.AttackSpeedUp) => AttackSpeedUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Weapon.RangeUp) => RangeUp(level),
-            nameof(Gameplay.Levelling.PowerUps.Weapon.ShotCountUp) => ShotCountUp(level),
+            nameof(SpeedUp) => SpeedUp(level),
+            nameof(MaxHealthUp) => MaxHealthUp(level),
+            nameof(PickupRadiusUp) => PickupRadiusUp(level),
+            nameof(LifeStealUp) => LifeStealUp(level),
+            nameof(ExperienceUp) => ExperienceUp(level),
+            nameof(DamageUp) => DamageUp(level),
+            nameof(AttackSpeedUp) => AttackSpeedUp(level),
+            nameof(RangeUp) => RangeUp(level),
+            nameof(ShotCountUp) => ShotCountUp(level),
             _ => throw new ArgumentOutOfRangeException(nameof(powerupType))
         };
 
