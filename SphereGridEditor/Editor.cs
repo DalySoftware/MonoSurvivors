@@ -614,14 +614,14 @@ public class Editor : Game
             }
 
         // Generate node creation code
-        var indent = string.Join(" ", 8);
+        var indent = new string(' ', 8);
         var sb = new StringBuilder();
         sb.AppendLine($"{indent}var root = new Node(null, 0, 0);");
 
         string FactoryFor(IPowerUp powerUp) => powerUp.GetType().Name;
         foreach (var node in _grid.Nodes.Where(node => node != _grid.Root))
             if (node.PowerUp is { } powerUp)
-                sb.AppendLine($"var {nodeNames[node]} = {FactoryFor(powerUp)}({node.Level});");
+                sb.AppendLine($"{indent}var {nodeNames[node]} = {FactoryFor(powerUp)}({node.Level});");
 
         sb.AppendLine();
 
