@@ -30,13 +30,13 @@ internal class SphereGridScene : IScene
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
 
-
-        _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid, primitiveRenderer);
         _input = new SphereGridInputManager
         {
             OnClose = onClose,
             OnExit = onExit
         };
+
+        _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid, primitiveRenderer, _input);
     }
 
     public void Update(GameTime gameTime)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
+using GameLoop.Scenes.SphereGridScene;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
@@ -19,9 +20,8 @@ namespace GameLoop.UI;
 /// <summary>
 ///     UI overlay for the sphere grid levelling system
 /// </summary>
-public class SphereGridUi : UiElement
+internal class SphereGridUi
 {
-    private const float NodeSpacing = 160f;
     private readonly SpriteFont _fontLarge;
     private readonly SpriteFont _fontSmall;
     private readonly GraphicsDevice _graphicsDevice;
@@ -30,45 +30,46 @@ public class SphereGridUi : UiElement
     private readonly SphereGrid _grid;
     private readonly Texture2D _gridNodeLarge;
     private readonly Texture2D _gridNodeSmall;
+    private readonly SphereGridInputManager _inputManager;
     private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
 
-    private readonly Vector2 _offset;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
+
     private Node? _hoveredNode;
     private MouseState _previousMouseState;
 
-    public SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid,
-        PrimitiveRenderer primitiveRenderer)
+    internal SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid,
+        PrimitiveRenderer primitiveRenderer, SphereGridInputManager inputManager)
     {
         _grid = grid;
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
+        _inputManager = inputManager;
         _graphicsDevice = graphicsDevice;
         _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
         _fontLarge = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
         _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode);
         _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNodeLarge);
 
-        // Center the grid on screen
-        var viewport = _graphicsDevice.Viewport;
-        _offset = new Vector2(viewport.Width, viewport.Height) / 2;
+        ScreenSpaceOrigin = _graphicsDevice.Viewport.Bounds.Center.ToVector2();
 
-        _nodePositions = new SphereGridPositioner(_grid, NodeSpacing).NodePositions();
+        const float nodeSpacing = 160f;
+        _nodePositions = new SphereGridPositioner(_grid, nodeSpacing).NodePositions();
     }
 
-    public void Update()
-    {
-        if (!IsVisible) return;
+    private Vector2 ScreenSpaceOrigin => field + _inputManager.CameraOffset;
 
+
+    internal void Update()
+    {
         var mouseState = Mouse.GetState();
-        _hoveredNode = null;
 
         _hoveredNode = _grid.Nodes.FirstOrDefault(node =>
         {
             if (!_nodePositions.TryGetValue(node, out var nodePos)) return false;
 
-            var screenPos = Position + _offset + nodePos;
+            var screenPos = ScreenSpaceOrigin + nodePos;
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
             var radius = NodeTexture(node).Width / 2f;
@@ -76,7 +77,8 @@ public class SphereGridUi : UiElement
         });
 
         // Click to unlock
-        if (_hoveredNode != null &&
+        if (!_inputManager.IsPanning &&
+            _hoveredNode != null &&
             mouseState.LeftButton == ButtonState.Pressed &&
             _previousMouseState.LeftButton == ButtonState.Released)
             _grid.Unlock(_hoveredNode);
@@ -84,10 +86,8 @@ public class SphereGridUi : UiElement
         _previousMouseState = mouseState;
     }
 
-    public override void Draw(SpriteBatch spriteBatch)
+    internal void Draw(SpriteBatch spriteBatch)
     {
-        if (!IsVisible) return;
-
         _graphicsDevice.Clear(Color.DarkSlateGray);
 
         spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
@@ -110,13 +110,13 @@ public class SphereGridUi : UiElement
         {
             if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
 
-            var screenNodePos = Position + _offset + nodePos;
+            var screenNodePos = ScreenSpaceOrigin + nodePos;
 
             foreach (var (_, neighbor) in node.Neighbours)
             {
                 if (!_nodePositions.TryGetValue(neighbor, out var neighborPos)) continue;
 
-                var screenNeighborPos = Position + _offset + neighborPos;
+                var screenNeighborPos = ScreenSpaceOrigin + neighborPos;
                 var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
 
                 var color = isUnlocked ? Color.Gold : Color.Gray * 0.5f;
@@ -143,7 +143,7 @@ public class SphereGridUi : UiElement
             canUnlock ? baseColor.ShiftChroma(-0f).ShiftLightness(0.3f) :
             baseColor.ShiftChroma(-0.12f);
 
-        var screenNodePos = Position + _offset + nodePos;
+        var screenNodePos = ScreenSpaceOrigin + nodePos;
         var texture = NodeTexture(node);
         DrawNode(spriteBatch, texture, screenNodePos, color);
 
