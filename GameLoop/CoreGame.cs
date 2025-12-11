@@ -79,7 +79,7 @@ public class CoreGame : Game
     private void OnLevelUp(int levelsGained)
     {
         _sphereGrid.AddSkillPoints(levelsGained);
-        if (!_sphereGrid.IsComplete)
+        if (_sphereGrid.CanUnlockAnything)
             ShowSphereGrid();
     }
 
