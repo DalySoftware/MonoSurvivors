@@ -8,6 +8,24 @@ namespace GameLoop.Input;
 /// </summary>
 internal abstract class BaseInputManager
 {
+    internal static bool GameHasFocus
+    {
+        get;
+        set
+        {
+            var gainedFocus = value && !field;
+            if (gainedFocus)
+            {
+                // reset mouse state
+                MouseState = Mouse.GetState();
+                PreviousMouseState = MouseState;
+            }
+
+            field = value;
+        }
+    }
+
+
     protected static KeyboardState KeyboardState { get; private set; } = Keyboard.GetState();
     protected static KeyboardState PreviousKeyboardState { get; private set; } = Keyboard.GetState();
     protected static GamePadState GamePadState { get; private set; } = GamePad.GetState(0);
@@ -21,8 +39,12 @@ internal abstract class BaseInputManager
         PreviousKeyboardState = KeyboardState;
         KeyboardState = Keyboard.GetState();
         GamePadState = GamePad.GetState(0);
-        PreviousMouseState = MouseState;
-        MouseState = Mouse.GetState();
+
+        if (GameHasFocus)
+        {
+            PreviousMouseState = MouseState;
+            MouseState = Mouse.GetState();
+        }
 
         if (KeyboardState.IsKeyDown(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) OnExit();
     }

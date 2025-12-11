@@ -1,4 +1,5 @@
 ﻿using System;
+using GameLoop.Input;
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
@@ -97,6 +98,7 @@ public class CoreGame : Game
     protected override void Update(GameTime gameTime)
     {
         Scene.Update(gameTime);
+        BaseInputManager.GameHasFocus = IsActive;
 
         base.Update(gameTime);
     }
