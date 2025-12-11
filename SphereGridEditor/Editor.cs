@@ -444,7 +444,13 @@ public class Editor : Game
                 ("AttackSpeedUp", "Attack Speed Up"),
                 ("PickupRadiusUp", "Pickup Radius Up"),
                 ("RangeUp", "Range Up"),
-                ("ShotCountUp", "Shot Count Up")
+                ("ShotCountUp", "Shot Count Up"),
+                ("LifeStealUp", "Life Steal Up"),
+                ("ExperienceUp", "Experience Up"),
+                ("CritChanceUp", "Crit Chance Up"),
+                ("CritDamageUp", "Crit Damage Up"),
+                ("PierceUp", "Pierce Up"),
+                ("ProjectileSpeedUp", "Projectile Speed Up")
             };
 
             var menuWidth = buttonWidth + padding * 2 + 200;
@@ -689,6 +695,10 @@ public class Editor : Game
             nameof(AttackSpeedUp) => AttackSpeedUp(level),
             nameof(RangeUp) => RangeUp(level),
             nameof(ShotCountUp) => ShotCountUp(level),
+            nameof(CritChanceUp) => CritChanceUp(level),
+            nameof(CritDamageUp) => CritDamageUp(level),
+            nameof(PierceUp) => PierceUp(level),
+            nameof(ProjectileSpeedUp) => ProjectileSpeedUp(level),
             _ => throw new ArgumentOutOfRangeException(nameof(powerupType))
         };
 
@@ -719,7 +729,13 @@ public class Editor : Game
             (typeof(AttackSpeedUp), "Attack Speed Up"),
             (typeof(PickupRadiusUp), "Pickup Radius Up"),
             (typeof(RangeUp), "Range Up"),
-            (typeof(ShotCountUp), "Shot Count Up")
+            (typeof(ShotCountUp), "Shot Count Up"),
+            (typeof(LifeStealUp), "Life Steal Up"),
+            (typeof(ExperienceUp), "Experience Up"),
+            (typeof(CritChanceUp), "Crit Chance Up"),
+            (typeof(CritDamageUp), "Crit Damage Up"),
+            (typeof(PierceUp), "Pierce Up"),
+            (typeof(ProjectileSpeedUp), "Projectile Speed Up")
         };
 
         // Check input field
