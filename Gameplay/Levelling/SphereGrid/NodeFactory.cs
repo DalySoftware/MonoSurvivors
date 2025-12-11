@@ -30,6 +30,18 @@ internal static class NodeFactory
     internal static Node ExperienceUp(int nodeLevel) =>
         new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
 
+    internal static Node CritChanceUp(int nodeLevel) =>
+        new(new CritChanceUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
+
+    internal static Node CritDamageUp(int nodeLevel) =>
+        new(new CritDamageUp(nodeLevel * 0.1f), nodeLevel, nodeLevel);
+
+    internal static Node PierceUp(int nodeLevel) =>
+        new(new PierceUp(nodeLevel), nodeLevel, nodeLevel);
+
+    internal static Node ProjectileSpeedUp(int nodeLevel) =>
+        new(new ProjectileSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
+
     internal static Node ShotCountUp(int nodeLevel) =>
         new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
 

@@ -192,6 +192,10 @@ public class SphereGridUi : UiElement
         RangeUp => "Increase Range",
         LifeStealUp => "Increase Life Steal",
         ExperienceUp => "Increase Experience Multiplier",
+        CritChanceUp => "Increase Critical Hit Chance",
+        CritDamageUp => "Increase Critical Hit Damage",
+        PierceUp => "Pierce more enemies",
+        ProjectileSpeedUp => "Increase Projectile Speed",
         _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
     };
 
@@ -206,6 +210,10 @@ public class SphereGridUi : UiElement
         RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
         LifeStealUp => "Increase LifeSteal",
         ExperienceUp experienceUp => $"Increase Experience Multiplier by {experienceUp.Value:P0}",
+        CritChanceUp critChanceUp => $"Increase Critical Hit Chance by {critChanceUp.Value:P0}",
+        CritDamageUp critDamageUp => $"Increase Critical Hit Damage by {critDamageUp.Value:P0}",
+        PierceUp pierceUp => $"Projectiles pierce {pierceUp.Value} more {pierceUp.Value.EnemiesLabel()}",
+        ProjectileSpeedUp projectileSpeedUp => $"Increase Projectile Speed by {projectileSpeedUp.Value:P0}",
         _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
     };
 
@@ -223,7 +231,11 @@ public class SphereGridUi : UiElement
     }
 }
 
-public static class Pluralization
+internal static class Pluralization
 {
-    public static string HeartLabel(this int value) => $"{value} {(value == 1 ? "heart" : "hearts")}";
+    extension(int value)
+    {
+        internal string HeartLabel() => $"{value} {(value == 1 ? "heart" : "hearts")}";
+        internal string EnemiesLabel() => value == 1 ? "enemy" : "enemies";
+    }
 }

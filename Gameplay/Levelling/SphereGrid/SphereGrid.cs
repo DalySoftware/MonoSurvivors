@@ -116,6 +116,10 @@ public class SphereGrid
 
         _ = LifeStealUp(1);
         _ = ExperienceUp(1);
+        _ = CritChanceUp(1);
+        _ = CritDamageUp(1);
+        _ = PierceUp(1);
+        _ = ProjectileSpeedUp(1);
 
         return new SphereGrid(root)
         {
