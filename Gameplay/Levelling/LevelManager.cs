@@ -16,8 +16,8 @@ public class LevelManager
         _player = player;
         _onLevelUp = onLevelUp;
 
-        var baseRequirement = 10f;
-        var growthFactor = 1.5f;
+        const float baseRequirement = 10f;
+        const float growthFactor = 1.3f;
         _levelCalculator = new LevelCalculator(baseRequirement, growthFactor);
 
         _player.OnExperienceGain -= OnExperienceGain;
