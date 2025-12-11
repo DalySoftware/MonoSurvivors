@@ -25,7 +25,7 @@ namespace SphereGridEditor;
 public class Editor : Game
 {
     private readonly Dictionary<Node, Vector2> _nodePositions = new();
-    private Vector2 _cameraOffset = new(400, 300);
+    private Vector2 _cameraOffset;
     private Node? _connectingFromNode;
     private SpriteFont _font = null!;
 
@@ -46,8 +46,8 @@ public class Editor : Game
     public Editor()
     {
         var graphics = new GraphicsDeviceManager(this);
-        graphics.PreferredBackBufferWidth = 1280;
-        graphics.PreferredBackBufferHeight = 720;
+        graphics.PreferredBackBufferWidth = 1920;
+        graphics.PreferredBackBufferHeight = 1080;
         Content.RootDirectory = "ContentLibrary";
         IsMouseVisible = true;
     }
@@ -55,6 +55,9 @@ public class Editor : Game
     protected override void Initialize()
     {
         Console.WriteLine("Initialize called");
+
+        // Initialize camera offset to center of screen
+        _cameraOffset = new Vector2(GraphicsDevice.Viewport.Width / 2f, GraphicsDevice.Viewport.Height / 2f);
 
         try
         {
@@ -93,7 +96,7 @@ public class Editor : Game
         var root = _grid.Root;
         _nodePositions[root] = Vector2.Zero;
 
-        var positioner = new SphereGridPositioner(_grid, 100f);
+        var positioner = new SphereGridPositioner(_grid, 150f);
         foreach (var (node, position) in positioner.NodePositions())
             _nodePositions[node] = position;
     }
@@ -200,8 +203,9 @@ public class Editor : Game
         foreach (var (node, pos) in _nodePositions)
         {
             var screenPos = pos + _cameraOffset;
+            var nodeRadius = node == _grid.Root ? 50f : 40f;
 
-            if (Vector2.Distance(mouseScreenPos, screenPos) < 20)
+            if (Vector2.Distance(mouseScreenPos, screenPos) < nodeRadius)
             {
                 _hoveredNode = node;
                 break;
@@ -306,8 +310,8 @@ public class Editor : Game
                 // Only draw each edge once
                 if (_nodePositions[node].GetHashCode() < neighborPos.GetHashCode())
                 {
-                    var fromOffset = GetDirectionOffset(direction, node == _grid.Root ? 25f : 20f);
-                    var toOffset = GetDirectionOffset(direction.Opposite(), neighbor == _grid.Root ? 25f : 20f);
+                    var fromOffset = GetDirectionOffset(direction, node == _grid.Root ? 50f : 40f);
+                    var toOffset = GetDirectionOffset(direction.Opposite(), neighbor == _grid.Root ? 50f : 40f);
                     _primitiveRenderer.DrawLine(_spriteBatch, pos + fromOffset + _cameraOffset,
                         neighborPos + toOffset + _cameraOffset,
                         Color.Gray * 0.5f, 2);
@@ -318,7 +322,7 @@ public class Editor : Game
             _nodePositions.ContainsKey(_connectingFromNode) &&
             _pendingConnectionDirection.HasValue)
         {
-            var radius = _connectingFromNode == _grid.Root ? 25f : 20f;
+            var radius = _connectingFromNode == _grid.Root ? 50f : 40f;
             var offset = GetDirectionOffset(_pendingConnectionDirection.Value, radius);
             var startPos = _nodePositions[_connectingFromNode] + offset + _cameraOffset;
             var mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
@@ -333,7 +337,7 @@ public class Editor : Game
             var isSelected = node == _selectedNode;
             var isHovered = node == _hoveredNode;
 
-            var radius = isRoot ? 25f : 20f;
+            var radius = isRoot ? 50f : 40f;
             var baseColor = node.BaseColor();
             var color = baseColor;
 
@@ -343,6 +347,21 @@ public class Editor : Game
             DrawCircle(screenPos, radius, color);
             DrawCircle(screenPos, radius - 2, new Color(20, 20, 30));
             DrawCircle(screenPos, radius - 4, color * 0.3f);
+
+            // Draw abbreviation and level
+            var abbrev = Abbreviation(node);
+            var level = node.Level.ToString();
+
+            var abbrevSize = _font.MeasureString(abbrev);
+            var levelSize = _font.MeasureString(level);
+
+            // Draw abbreviation on top
+            var abbrevPos = screenPos - new Vector2(abbrevSize.X / 2, abbrevSize.Y + 2);
+            _spriteBatch.DrawString(_font, abbrev, abbrevPos, Color.White, layerDepth: 0.01f);
+
+            // Draw level below abbreviation
+            var levelPos = screenPos - new Vector2(levelSize.X / 2, -2);
+            _spriteBatch.DrawString(_font, level, levelPos, Color.LightGray, layerDepth: 0.01f);
         }
 
         // Draw tooltip for hovered node (follows mouse)
@@ -383,7 +402,7 @@ public class Editor : Game
             "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | C: Copy | T: Recalculate layout"
         };
 
-        var y = 720f;
+        var y = (float)GraphicsDevice.Viewport.Height;
 
         for (var i = helpLines.Length - 1; i >= 0; i--)
         {
@@ -398,7 +417,7 @@ public class Editor : Game
         {
             var msg = $"Connecting with {_pendingConnectionDirection} - Click target node";
             var msgSize = font.MeasureString(msg);
-            var msgPos = new Vector2(640 - msgSize.X / 2, 10);
+            var msgPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - msgSize.X / 2, 10);
 
             // Draw background
             var bgRect = new Rectangle((int)msgPos.X - 10, (int)msgPos.Y - 5,
@@ -411,7 +430,7 @@ public class Editor : Game
         // Draw node creation menu with buttons
         if (_showNodeCreationMenu && font != null)
         {
-            var menuPos = new Vector2(640 - 200, 200);
+            var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 200, GraphicsDevice.Viewport.Height / 2f - 250);
             var buttonWidth = 180;
             var buttonHeight = 30;
             var padding = 10;
@@ -526,7 +545,7 @@ public class Editor : Game
             var msg =
                 $"Placing {_pendingNodeType} (level {_nodeLevelInput}) - Left-click to place, Right-click to cancel";
             var msgSize = font.MeasureString(msg);
-            var msgPos = new Vector2(640 - msgSize.X / 2, 10);
+            var msgPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - msgSize.X / 2, 10);
 
             // Draw background
             var bgRect = new Rectangle((int)msgPos.X - 10, (int)msgPos.Y - 5,
@@ -686,7 +705,7 @@ public class Editor : Game
 
     private Type? GetClickedMenuButton(Vector2 mousePos)
     {
-        var menuPos = new Vector2(640 - 200, 200);
+        var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 200, GraphicsDevice.Viewport.Height / 2f - 250);
         var buttonWidth = 180;
         var buttonHeight = 30;
         var padding = 10;
@@ -761,4 +780,23 @@ public class Editor : Game
         Console.WriteLine(
             $"Deleted edge from {fromNode.PowerUp?.GetType().Name ?? "Node"} to {targetNode.PowerUp?.GetType().Name ?? "Node"} (direction: {direction})");
     }
+
+    private static string Abbreviation(Node node) => node.PowerUp switch
+    {
+        null => "Root",
+        ExperienceUp _ => "XP",
+        LifeStealUp _ => "LS",
+        MaxHealthUp _ => "MHP",
+        PickupRadiusUp _ => "PR",
+        SpeedUp _ => "SPD",
+        AttackSpeedUp _ => "ASPD",
+        CritChanceUp _ => "CC",
+        CritDamageUp _ => "CD",
+        DamageUp _ => "DMG",
+        PierceUp _ => "PRC",
+        ProjectileSpeedUp _ => "PSPD",
+        RangeUp _ => "RNG",
+        ShotCountUp _ => "SC",
+        _ => throw new ArgumentOutOfRangeException(nameof(node))
+    };
 }
