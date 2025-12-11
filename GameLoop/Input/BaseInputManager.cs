@@ -11,6 +11,8 @@ internal abstract class BaseInputManager
     protected static KeyboardState KeyboardState { get; private set; } = Keyboard.GetState();
     protected static KeyboardState PreviousKeyboardState { get; private set; } = Keyboard.GetState();
     protected static GamePadState GamePadState { get; private set; } = GamePad.GetState(0);
+    protected static MouseState MouseState { get; private set; } = Mouse.GetState();
+    protected static MouseState PreviousMouseState { get; private set; } = Mouse.GetState();
 
     internal required Action OnExit { get; init; }
 
@@ -19,6 +21,8 @@ internal abstract class BaseInputManager
         PreviousKeyboardState = KeyboardState;
         KeyboardState = Keyboard.GetState();
         GamePadState = GamePad.GetState(0);
+        PreviousMouseState = MouseState;
+        MouseState = Mouse.GetState();
 
         if (KeyboardState.IsKeyDown(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) OnExit();
     }

@@ -7,7 +7,6 @@ namespace GameLoop.Scenes.SphereGridScene;
 
 internal class SphereGridInputManager : BaseInputManager
 {
-    private MouseState _previousMouseState;
     internal Action OnClose { get; init; } = () => { };
     internal Vector2 CameraOffset { get; private set; }
     internal bool IsPanning { get; private set; }
@@ -18,24 +17,19 @@ internal class SphereGridInputManager : BaseInputManager
 
         if (WasPressedThisFrame(Keys.Tab)) OnClose();
 
-        var mouseState = Mouse.GetState();
-        var gamepadState = GamePad.GetState(0);
-
-        IsPanning = mouseState.MiddleButton == ButtonState.Pressed;
+        IsPanning = MouseState.MiddleButton == ButtonState.Pressed;
         if (IsPanning)
         {
             var mouseDelta = new Vector2(
-                mouseState.X - _previousMouseState.X,
-                mouseState.Y - _previousMouseState.Y
+                MouseState.X - PreviousMouseState.X,
+                MouseState.Y - PreviousMouseState.Y
             );
             CameraOffset += mouseDelta;
         }
 
         // Handle panning with gamepad right thumbstick
-        var thumbstickInput = gamepadState.ThumbSticks.Right;
+        var thumbstickInput = GamePadState.ThumbSticks.Right;
         if (thumbstickInput.LengthSquared() > 0.02f)
             CameraOffset += new Vector2(-thumbstickInput.X, thumbstickInput.Y) * 8f;
-
-        _previousMouseState = mouseState;
     }
 }
