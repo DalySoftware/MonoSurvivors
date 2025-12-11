@@ -22,6 +22,10 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var attackSpeedMultiplier = AttackSpeedMultiplier(powerUps);
         var damageMultiplier = powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
         var rangeMultiplier = powerUps.OfType<RangeUp>().Sum(p => p.Value) + 1f;
+        var pierce = powerUps.OfType<PierceUp>().Sum(p => p.Value);
+        var speedMultiplier = powerUps.OfType<ProjectileSpeedUp>().Sum(p => p.Value) + 1f;
+        var critChance = powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
+        var critDamage = powerUps.OfType<CritDamageUp>().Sum(p => p.Value) + CritCalculator.BaseCritDamageMultiplier;
 
         // Handle extra shots first
         if (_remainingExtraShots > 0)
@@ -29,7 +33,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
             _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
             if (_remainingExtraShotCooldown > TimeSpan.Zero) return;
 
-            Shoot(damageMultiplier, rangeMultiplier);
+            Shoot(damageMultiplier, rangeMultiplier, pierce, speedMultiplier, critChance, critDamage);
             _remainingExtraShots--;
             _remainingExtraShotCooldown = _extraShotCooldown / attackSpeedMultiplier;
             return;
@@ -39,7 +43,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;
 
-        Shoot(damageMultiplier, rangeMultiplier);
+        Shoot(damageMultiplier, rangeMultiplier, pierce, speedMultiplier, critChance, critDamage);
         _remainingCooldown = _cooldown / attackSpeedMultiplier;
 
         // Queue extra shots
@@ -47,21 +51,23 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         _remainingExtraShotCooldown = _extraShotCooldown;
     }
 
-    private void Shoot(float damageMultiplier = 1f, float rangeMultiplier = 1f)
+    private void Shoot(float damageMultiplier, float rangeMultiplier, int pierce, float speedMultiplier,
+        float critChance, float critDamageMultiplier)
     {
         var target = entityFinder.NearestEnemyTo(owner);
         if (target == null) return;
 
-        var damage = 8f * damageMultiplier;
+        var baseDamage = 8f * damageMultiplier;
+        var damage = CritCalculator.CalculateDamage(baseDamage, critChance, critDamageMultiplier);
         var range = 300f * rangeMultiplier;
-        var bullet = new Bullet(owner.Position, target.Position, damage, range);
+        var bullet = new Bullet(owner.Position, target.Position, damage, range, pierce, 1f * speedMultiplier);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
     }
 
-    private float AttackSpeedMultiplier(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
+    private static float AttackSpeedMultiplier(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
         powerUps.OfType<AttackSpeedUp>().Sum(p => p.Value) + 1f;
 
-    private int ExtraShots(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
+    private static int ExtraShots(IReadOnlyCollection<IWeaponPowerUp> powerUps) =>
         powerUps.OfType<ShotCountUp>().Sum(p => p.ExtraShots);
 }
