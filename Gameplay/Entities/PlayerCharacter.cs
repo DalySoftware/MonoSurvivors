@@ -24,7 +24,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
 
     private int _killsSinceLastLifeSteal = 0;
-    private int _lifeSteal = 10;
+    private int _lifeSteal = 0;
     private float _speedMultiplier = 1f;
 
     private float Speed => BaseSpeed * _speedMultiplier;
