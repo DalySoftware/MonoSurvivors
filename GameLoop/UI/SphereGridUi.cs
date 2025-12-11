@@ -33,6 +33,7 @@ internal class SphereGridUi
     private readonly Texture2D _gridNodeSmall;
     private readonly SphereGridInputManager _inputManager;
     private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
+    private readonly PanelRenderer _panelRenderer;
 
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
@@ -46,6 +47,7 @@ internal class SphereGridUi
         _grid = grid;
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
+        _panelRenderer = new PanelRenderer(content);
         _inputManager = inputManager;
         _graphicsDevice = graphicsDevice;
         _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
@@ -99,8 +101,12 @@ internal class SphereGridUi
         // Draw title
         var title = $"You have {_grid.AvailablePoints} Skill Points to spend";
         var titleSize = _fontLarge.MeasureString(title);
-        spriteBatch.DrawString(_fontLarge, title, new Vector2(viewport.Width / 2 - titleSize.X / 2, 20),
-            Color.White, layerDepth: Layers.Title);
+        var titlePosition = new Vector2(viewport.Width / 2 - titleSize.X / 2, 20);
+
+        _panelRenderer.Draw(spriteBatch, titlePosition, titleSize, Color.White, Layers.Title - 0.01f);
+        var titleCenter = PanelRenderer.GetCenter(titlePosition, titleSize);
+        spriteBatch.DrawString(_fontLarge, title, titleCenter, Color.White,
+            origin: titleSize / 2, layerDepth: Layers.Title);
 
         const string helpText = "Click nodes to unlock | Tab to close";
         var helpSize = _fontSmall.MeasureString(helpText);

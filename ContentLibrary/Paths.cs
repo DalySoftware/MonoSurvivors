@@ -9,6 +9,7 @@ public static class Paths
         public const string Enemy = @"Images\Placeholder-Enemy";
         public const string Bullet = @"Images\Placeholder-Bullet";
         public const string Experience = @"Images\Experience";
+        public const string PanelNineSlice = @"Images\PanelNineSlice";
 
         public static class GridNode
         {
