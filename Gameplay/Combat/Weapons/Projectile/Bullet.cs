@@ -10,7 +10,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, IVisual
     private readonly float _maxRange;
 
     private float _distanceTraveled = 0f;
-    private int _enemyPiercesLeft = 0;
+    private int _enemyPiercesLeft;
 
     /// <param name="initialPosition">Spawn the bullet here</param>
     /// <param name="target">Aim at this</param>
@@ -32,10 +32,10 @@ public class Bullet : MovableEntity, IDamagesEnemies, IVisual
 
     public void OnHit()
     {
-        _enemyPiercesLeft--;
-
         if (_enemyPiercesLeft <= 0)
             MarkedForDeletion = true;
+
+        _enemyPiercesLeft--;
     }
 
     public string TexturePath => Paths.Images.Bullet;
