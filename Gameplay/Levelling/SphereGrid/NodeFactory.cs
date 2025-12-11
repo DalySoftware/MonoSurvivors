@@ -22,16 +22,16 @@ internal static class NodeFactory
         new(new PickupRadiusUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
 
     internal static Node RangeUp(int nodeLevel) =>
-        new(new RangeUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
+        new(new RangeUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
 
     internal static Node LifeStealUp(int nodeLevel) =>
         new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
 
     internal static Node ExperienceUp(int nodeLevel) =>
-        new(new ExperienceUp(nodeLevel), nodeLevel, nodeLevel);
+        new(new ExperienceUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
 
     internal static Node CritChanceUp(int nodeLevel) =>
-        new(new CritChanceUp(nodeLevel * 0.5f), nodeLevel, nodeLevel);
+        new(new CritChanceUp(nodeLevel * 0.05f), nodeLevel, nodeLevel);
 
     internal static Node CritDamageUp(int nodeLevel) =>
         new(new CritDamageUp(nodeLevel * 0.1f), nodeLevel, nodeLevel);
