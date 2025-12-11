@@ -6,12 +6,12 @@ namespace Gameplay.Levelling;
 public class LevelManager
 {
     private readonly LevelCalculator _levelCalculator;
-    private readonly Action _onLevelUp;
+    private readonly Action<int> _onLevelUp;
     private readonly PlayerCharacter _player;
 
     private int _lastSeenPlayerLevel = 1;
 
-    public LevelManager(PlayerCharacter player, Action onLevelUp)
+    public LevelManager(PlayerCharacter player, Action<int> onLevelUp)
     {
         _player = player;
         _onLevelUp = onLevelUp;
@@ -32,7 +32,7 @@ public class LevelManager
     {
         if (_lastSeenPlayerLevel == Level) return;
 
-        _onLevelUp();
+        _onLevelUp(Level - _lastSeenPlayerLevel);
         _lastSeenPlayerLevel = Level;
     }
 }

@@ -75,9 +75,9 @@ public class CoreGame : Game
         _sceneManager.Push(title);
     }
 
-    private void OnLevelUp()
+    private void OnLevelUp(int levelsGained)
     {
-        _sphereGrid.AddSkillPoints(1);
+        _sphereGrid.AddSkillPoints(levelsGained);
         if (!_sphereGrid.IsComplete)
             ShowSphereGrid();
     }
