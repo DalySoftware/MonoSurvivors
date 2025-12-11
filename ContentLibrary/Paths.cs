@@ -9,8 +9,13 @@ public static class Paths
         public const string Enemy = @"Images\Placeholder-Enemy";
         public const string Bullet = @"Images\Placeholder-Bullet";
         public const string Experience = @"Images\Experience";
-        public const string GridNode = @"Images\GridNode";
-        public const string GridNodeLarge = @"Images\GridNode-Large";
+
+        public static class GridNode
+        {
+            public const string Small = @"Images\GridNode";
+            public const string Medium = @"Images\GridNode-Medium";
+            public const string Large = @"Images\GridNode-Large";
+        }
 
         public static class Heart
         {

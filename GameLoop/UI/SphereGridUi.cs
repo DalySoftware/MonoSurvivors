@@ -29,6 +29,7 @@ internal class SphereGridUi
 
     private readonly SphereGrid _grid;
     private readonly Texture2D _gridNodeLarge;
+    private readonly Texture2D _gridNodeMedium;
     private readonly Texture2D _gridNodeSmall;
     private readonly SphereGridInputManager _inputManager;
     private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
@@ -49,8 +50,9 @@ internal class SphereGridUi
         _graphicsDevice = graphicsDevice;
         _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
         _fontLarge = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
-        _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode);
-        _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNodeLarge);
+        _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode.Small);
+        _gridNodeMedium = content.Load<Texture2D>(Paths.Images.GridNode.Medium);
+        _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNode.Large);
 
         ScreenSpaceOrigin = _graphicsDevice.Viewport.Bounds.Center.ToVector2();
 
@@ -158,6 +160,7 @@ internal class SphereGridUi
     private Texture2D NodeTexture(Node node) => node.Cost switch
     {
         >= 3 => _gridNodeLarge,
+        2 => _gridNodeMedium,
         _ => _gridNodeSmall
     };
 

@@ -37,7 +37,14 @@ internal static class NodeFactory
         new(new CritDamageUp(nodeLevel * 0.1f), nodeLevel, nodeLevel);
 
     internal static Node PierceUp(int nodeLevel) =>
-        new(new PierceUp(nodeLevel), nodeLevel, nodeLevel);
+        new(new PierceUp(nodeLevel), nodeLevel, PierceCost(nodeLevel));
+
+    private static int PierceCost(int nodeLevel) => nodeLevel switch
+    {
+        2 => 3,
+        1 => 2,
+        _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
+    };
 
     internal static Node ProjectileSpeedUp(int nodeLevel) =>
         new(new ProjectileSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
