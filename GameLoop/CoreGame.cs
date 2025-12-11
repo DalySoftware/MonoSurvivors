@@ -58,7 +58,7 @@ public class CoreGame : Game
 
         var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, ShowGameOver);
         _levelSystem = new LevelManager(player, OnLevelUp);
-        _sphereGrid = SphereGrid.Create(player.AddPowerUp);
+        _sphereGrid = GridFactory.Create(player.AddPowerUp);
 
         _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager,
             ShowSphereGrid, player));

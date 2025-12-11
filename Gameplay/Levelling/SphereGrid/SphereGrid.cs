@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Levelling.PowerUps;
-using static Gameplay.Levelling.SphereGrid.NodeFactory;
 
 namespace Gameplay.Levelling.SphereGrid;
 
@@ -12,7 +11,7 @@ public class SphereGrid
     private readonly HashSet<Node> _unlockedNodes = [];
     private int _availablePoints = 0;
 
-    private SphereGrid(Node root)
+    internal SphereGrid(Node root)
     {
         DiscoverAndAddNodes(root);
         Root = root;
@@ -44,7 +43,7 @@ public class SphereGrid
     }
 
     /// <summary>
-    ///     Discovers all nodes in the graph. Adds them to <see cref="_nodes" />. Maps reverse paths.
+    ///     Discovers all nodes in the graph. Adds them to <see cref="_nodes" />. Maps reverse edges.
     /// </summary>
     private void DiscoverAndAddNodes(Node root)
     {
@@ -68,63 +67,4 @@ public class SphereGrid
             }
         }
     }
-
-    // ReSharper disable IdentifierTypo
-    public static SphereGrid Create(Action<IPowerUp> onUnlock)
-    {
-        // Damage (right)
-        var strKey = DamageUp(2);
-        var dmg2 = DamageUp(1);
-        dmg2.SetNeighbour(EdgeDirection.MiddleRight, strKey);
-        var dmg1 = DamageUp(1);
-        dmg1.SetNeighbour(EdgeDirection.MiddleRight, dmg2);
-
-        // Speed (up-right)
-        var spd2 = SpeedUp(1);
-        var spd1 = SpeedUp(1);
-        spd1.SetNeighbour(EdgeDirection.TopRight, spd2);
-
-        // Max HP (down-right)
-        var hp2 = MaxHealthUp(1);
-        var hp1 = MaxHealthUp(1);
-        hp1.SetNeighbour(EdgeDirection.BottomRight, hp2);
-
-        // Attack Speed (left)
-        var extraShotNode = ShotCountUp(1);
-        var atkSpd2 = AttackSpeedUp(1);
-        atkSpd2.SetNeighbour(EdgeDirection.MiddleLeft, extraShotNode);
-        var atkSpd1 = AttackSpeedUp(1);
-        atkSpd1.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd2);
-
-        // Pickup Radius (up-left)
-        var pickupRadius2 = PickupRadiusUp(1);
-        var pickupRadius1 = PickupRadiusUp(1);
-        pickupRadius1.SetNeighbour(EdgeDirection.TopLeft, pickupRadius2);
-
-        // Range (down-left)
-        var rng2 = RangeUp(1);
-        var rng1 = RangeUp(1);
-        rng1.SetNeighbour(EdgeDirection.BottomLeft, rng2);
-
-        var root = new Node(null, 0, 0);
-        root.SetNeighbour(EdgeDirection.TopRight, spd1);
-        root.SetNeighbour(EdgeDirection.MiddleRight, dmg1);
-        root.SetNeighbour(EdgeDirection.BottomRight, hp1);
-        root.SetNeighbour(EdgeDirection.MiddleLeft, atkSpd1);
-        root.SetNeighbour(EdgeDirection.TopLeft, pickupRadius1);
-        root.SetNeighbour(EdgeDirection.BottomLeft, rng1);
-
-        _ = LifeStealUp(1);
-        _ = ExperienceUp(1);
-        _ = CritChanceUp(1);
-        _ = CritDamageUp(1);
-        _ = PierceUp(1);
-        _ = ProjectileSpeedUp(1);
-
-        return new SphereGrid(root)
-        {
-            OnUnlock = onUnlock
-        };
-    }
-    // ReSharper enable IdentifierTypo
 }

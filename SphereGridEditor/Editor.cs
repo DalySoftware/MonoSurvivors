@@ -61,7 +61,7 @@ public class Editor : Game
 
         try
         {
-            _grid = SphereGrid.Create(_ => { });
+            _grid = GridFactory.Create(_ => { });
             Console.WriteLine($"Grid created with {_grid.Nodes.Count} nodes");
             LayoutNodes();
             Console.WriteLine("Layout complete");
@@ -430,7 +430,8 @@ public class Editor : Game
         // Draw node creation menu with buttons
         if (_showNodeCreationMenu && font != null)
         {
-            var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 200, GraphicsDevice.Viewport.Height / 2f - 250);
+            var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 200,
+                GraphicsDevice.Viewport.Height / 2f - 250);
             var buttonWidth = 180;
             var buttonHeight = 30;
             var padding = 10;
