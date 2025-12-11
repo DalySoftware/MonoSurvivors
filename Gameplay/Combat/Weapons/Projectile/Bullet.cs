@@ -1,5 +1,7 @@
-﻿using ContentLibrary;
+﻿using System.Collections.Generic;
+using ContentLibrary;
 using Gameplay.Entities;
+using Gameplay.Entities.Enemies;
 using Gameplay.Rendering;
 using Gameplay.Utilities;
 
@@ -7,10 +9,11 @@ namespace Gameplay.Combat.Weapons.Projectile;
 
 public class Bullet : MovableEntity, IDamagesEnemies, IVisual
 {
+    private readonly HashSet<EnemyBase> _hitEnemies = [];
     private readonly float _maxRange;
+    private readonly int _pierce;
 
     private float _distanceTraveled = 0f;
-    private int _enemyPiercesLeft;
 
     /// <param name="initialPosition">Spawn the bullet here</param>
     /// <param name="target">Aim at this</param>
@@ -24,18 +27,17 @@ public class Bullet : MovableEntity, IDamagesEnemies, IVisual
         Velocity = (Vector2)new UnitVector2(target - initialPosition) * speed;
         Damage = damage;
         _maxRange = maxRange;
-        _enemyPiercesLeft = pierceEnemies;
+        _pierce = pierceEnemies;
     }
 
     public float Damage { get; }
     public float CollisionRadius => 16f;
 
-    public void OnHit()
+    public void OnHit(EnemyBase enemy)
     {
-        if (_enemyPiercesLeft <= 0)
+        _hitEnemies.Add(enemy);
+        if (_hitEnemies.Count > _pierce)
             MarkedForDeletion = true;
-
-        _enemyPiercesLeft--;
     }
 
     public string TexturePath => Paths.Images.Bullet;

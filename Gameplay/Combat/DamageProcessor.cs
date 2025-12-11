@@ -2,6 +2,7 @@
 using System.Linq;
 using Gameplay.CollisionDetection;
 using Gameplay.Entities;
+using Gameplay.Entities.Enemies;
 
 namespace Gameplay.Combat;
 
@@ -23,12 +24,12 @@ internal class DamageProcessor
             player.TakeDamage(damager.Damage);
 
         var enemyDamagers = entities.OfType<IDamagesEnemies>();
-        var enemies = entities.OfType<IDamageableEnemy>();
+        var enemies = entities.OfType<EnemyBase>();
 
         foreach (var (enemy, damager) in _collisionChecker.FindOverlaps(enemies, enemyDamagers))
         {
             enemy.Health -= damager.Damage;
-            damager.OnHit();
+            damager.OnHit(enemy);
         }
     }
 }
