@@ -25,7 +25,7 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
             var offset = owner.Position - other.Position;
             var distSq = offset.LengthSquared();
 
-            var collisionDistance = ApproximateSize(owner) * 1.2f; // Aim for a small gap
+            var collisionDistance = (ApproximateRadius(owner) + ApproximateRadius(other)) * 1.2f; // Aim for a small gap
             if (distSq < collisionDistance * collisionDistance)
                 separationForce += offset / distSq; // Stronger push when closer
         }
@@ -34,10 +34,10 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
         return velocity + separationForce * scaleFactor * speed;
     }
 
-    private static float ApproximateSize(EnemyBase enemyBase) => enemyBase.Collider switch
+    private static float ApproximateRadius(EnemyBase enemyBase) => enemyBase.Collider switch
     {
-        CircleCollider circle => circle.CollisionRadius * 2,
-        RectangleCollider rect => MathF.Max(rect.Width, rect.Height),
+        CircleCollider circle => circle.CollisionRadius,
+        RectangleCollider rect => MathF.Max(rect.Width, rect.Height) / 2,
         _ => throw new ArgumentOutOfRangeException(nameof(enemyBase))
     };
 }
