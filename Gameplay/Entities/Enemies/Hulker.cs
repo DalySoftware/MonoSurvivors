@@ -6,7 +6,7 @@ using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
 
-public class Hulker : EnemyBase, IVisual
+public class Hulker : EnemyBase, ISimpleVisual
 {
     private readonly FollowEntity _followEntity;
 

@@ -8,7 +8,7 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
-public class Bullet : MovableEntity, IDamagesEnemies, IVisual
+public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
 {
     private readonly HashSet<EnemyBase> _hitEnemies = [];
     private readonly float _maxRange;

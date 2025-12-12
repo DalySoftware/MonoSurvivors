@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using ContentLibrary;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
 
-public class BasicEnemy : EnemyBase, IVisual
+public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 {
     private readonly FollowEntity _followEntity;
 
@@ -19,7 +18,8 @@ public class BasicEnemy : EnemyBase, IVisual
     }
 
     public override float Experience => 3f;
-    public string TexturePath => Paths.Images.Enemy;
+    public ISpriteSheet SpriteSheet { get; } = new BasicEnemySpriteSheet();
+    public IFrame CurrentFrame => new BasicEnemySpriteSheet.LookDirectionFrame(Velocity);
 
     public override void Update(GameTime gameTime)
     {

@@ -14,7 +14,7 @@ using Gameplay.Utilities;
 namespace Gameplay.Entities;
 
 public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAudioPlayer audio, Action? onDeath = null)
-    : MovableEntity(position), IDamageablePlayer, IVisual
+    : MovableEntity(position), IDamageablePlayer, ISimpleVisual
 {
     private const float BaseSpeed = 0.25f;
 

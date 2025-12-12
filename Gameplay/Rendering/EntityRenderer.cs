@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
 using Gameplay.Entities;
@@ -27,13 +27,11 @@ public class EntityRenderer(
                 e => e,
                 e => effectManager.GetEffects(e).ToList());
 
-
         spriteBatch.Begin(transformMatrix: camera.Transform);
         foreach (var (entity, _) in effectsLookup.Where(pair => pair.Value.Count == 0))
             Draw(entity);
         spriteBatch.End();
 
-        // Todo - This is quite inefficient. We're individually flushing entities with effects
         foreach (var (entity, effects) in effectsLookup)
         foreach (var effect in effects)
             DrawWithEffect(entity, effect);
@@ -41,19 +39,38 @@ public class EntityRenderer(
 
     private void Draw(IVisual visual)
     {
+        switch (visual)
+        {
+            case ISpriteSheetVisual spriteSheetVisual:
+                DrawFromSpriteSheet(spriteSheetVisual);
+                break;
+            case ISimpleVisual simpleVisual:
+                DrawSimpleSprite(simpleVisual);
+                break;
+        }
+    }
+
+    private void DrawFromSpriteSheet(ISpriteSheetVisual visual)
+    {
+        var texture = visual.SpriteSheet.Texture(content);
+        var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
+        spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect,
+            origin: sourceRect.Center.ToVector2());
+    }
+
+    private void DrawSimpleSprite(ISimpleVisual visual)
+    {
         var texture = GetTexture(visual.TexturePath);
         spriteBatch.Draw(texture, visual.Position, origin: texture.Centre);
     }
 
     private void DrawWithEffect(IVisual visual, VisualEffect effect)
     {
-        var texture = GetTexture(visual.TexturePath);
-
         switch (effect)
         {
             case GreyscaleEffect:
                 spriteBatch.Begin(transformMatrix: camera.Transform, effect: _grayscaleEffect);
-                spriteBatch.Draw(texture, visual.Position, origin: texture.Centre);
+                Draw(visual);
                 spriteBatch.End();
                 break;
         }
