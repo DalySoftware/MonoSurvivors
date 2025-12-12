@@ -1,37 +1,9 @@
-using System;
+﻿using System;
 using ContentLibrary;
-using Gameplay.Behaviour;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
-
-public interface IVisual : IHasPosition;
-
-/// <summary>
-///     Declares the visual representation (texture path) for an entity
-/// </summary>
-public interface ISimpleVisual : IVisual
-{
-    /// <summary>
-    ///     The content path to the texture asset for this entity
-    /// </summary>
-    string TexturePath { get; }
-}
-
-public interface IFrame;
-
-public interface ISpriteSheet
-{
-    public Texture2D Texture(ContentManager content);
-    public Rectangle GetFrameRectangle(IFrame frame);
-}
-
-public interface ISpriteSheetVisual : IVisual
-{
-    ISpriteSheet SpriteSheet { get; }
-    IFrame CurrentFrame { get; }
-}
 
 public class BasicEnemySpriteSheet : ISpriteSheet
 {
