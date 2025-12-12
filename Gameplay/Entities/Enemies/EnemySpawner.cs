@@ -26,10 +26,22 @@ public class EnemySpawner(
 
         _remainingCooldown = SpawnDelay;
         for (var i = 0; i < BatchSize; i++)
-            entityManager.Spawn(GetEnemyWithRandomPosition());
+            entityManager.Spawn(GetEnemyWithRandomPosition(BasicEnemy));
+
+        entityManager.Spawn(GetEnemyWithRandomPosition(Hulker));
     }
 
-    private BasicEnemy GetEnemyWithRandomPosition()
+    private BasicEnemy BasicEnemy(Vector2 position) => new(position, player)
+    {
+        OnDeath = OnDeath
+    };
+
+    private Hulker Hulker(Vector2 position) => new(position, player)
+    {
+        OnDeath = OnDeath
+    };
+
+    private Vector2 GetRandomPosition()
     {
         // Random angle
         var angle = (float)_random.NextDouble() * 2f * MathF.PI;
@@ -47,13 +59,10 @@ public class EnemySpawner(
         var x = player.Position.X + MathF.Cos(angle) * distanceFromPlayer;
         var y = player.Position.Y + MathF.Sin(angle) * distanceFromPlayer;
 
-        var position = new Vector2(x, y);
-
-        return new BasicEnemy(position, player)
-        {
-            OnDeath = OnDeath
-        };
+        return new Vector2(x, y);
     }
+
+    private EnemyBase GetEnemyWithRandomPosition(Func<Vector2, EnemyBase> factory) => factory(GetRandomPosition());
 
     private void OnDeath(EnemyBase deadEnemy)
     {
