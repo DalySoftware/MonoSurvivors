@@ -386,6 +386,42 @@
 /processorParam:TextureFormat=Color
 /build:Images/PowerUpIcons/Speed.png
 
+#begin Images/Sheets/BasicEnemy.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Sheets/BasicEnemy.png;Images/Sheets/BasicEnemy
+
+#begin Images/Sheets/BasicEnemy.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Sheets/BasicEnemy.png;Images/Sheets/BasicEnemy
+
+#begin Images/Sheets/BasicEnemy.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Sheets/BasicEnemy.png;Images/Sheets/BasicEnemy
+
 #begin Shaders/greyscale.fx
 /importer:EffectImporter
 /processor:EffectProcessor

@@ -15,7 +15,7 @@ public static class Paths
 
         public static class Sheets
         {
-            public const string BasicEnemy = @"Images\Placeholder-Enemy";
+            public const string BasicEnemy = @"Images\Sheets\BasicEnemy";
         }
 
         public static class GridNode

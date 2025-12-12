@@ -54,14 +54,13 @@ public class EntityRenderer(
     {
         var texture = visual.SpriteSheet.Texture(content);
         var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
-        spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect,
-            origin: sourceRect.Center.ToVector2());
+        spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect);
     }
 
     private void DrawSimpleSprite(ISimpleVisual visual)
     {
         var texture = GetTexture(visual.TexturePath);
-        spriteBatch.Draw(texture, visual.Position, origin: texture.Centre);
+        spriteBatch.Draw(texture, visual.Position);
     }
 
     private void DrawWithEffect(IVisual visual, VisualEffect effect)
