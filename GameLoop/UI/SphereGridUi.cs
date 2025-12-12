@@ -34,7 +34,7 @@ internal class SphereGridUi
     private readonly SphereGridInputManager _inputManager;
     private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
     private readonly PanelRenderer _panelRenderer;
-
+    private readonly PowerUpIcons _powerUpIcons;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
 
@@ -48,6 +48,8 @@ internal class SphereGridUi
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
         _panelRenderer = new PanelRenderer(content);
+        _powerUpIcons = new PowerUpIcons(content);
+
         _inputManager = inputManager;
         _graphicsDevice = graphicsDevice;
         _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
@@ -62,8 +64,7 @@ internal class SphereGridUi
         _nodePositions = new SphereGridPositioner(_grid, nodeSpacing).NodePositions();
     }
 
-    private Vector2 ScreenSpaceOrigin => field + _inputManager.CameraOffset;
-
+    private Vector2 ScreenSpaceOrigin => field + SphereGridInputManager.CameraOffset;
 
     internal void Update()
     {
@@ -154,6 +155,11 @@ internal class SphereGridUi
         var screenNodePos = ScreenSpaceOrigin + nodePos;
         var texture = NodeTexture(node);
         DrawNode(spriteBatch, texture, screenNodePos, color);
+
+        var iconTexture = _powerUpIcons.IconFor(node);
+        if (iconTexture != null)
+            spriteBatch.Draw(iconTexture, screenNodePos, origin: iconTexture.Centre, color: color,
+                layerDepth: Layers.Nodes + 0.01f);
 
         if (node == _hoveredNode)
         {

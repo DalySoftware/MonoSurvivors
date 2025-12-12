@@ -8,7 +8,7 @@ namespace GameLoop.Scenes.SphereGridScene;
 internal class SphereGridInputManager : BaseInputManager
 {
     internal Action OnClose { get; init; } = () => { };
-    internal Vector2 CameraOffset { get; private set; }
+    internal static Vector2 CameraOffset { get; private set; }
     internal bool IsPanning { get; private set; }
 
     internal override void Update()
