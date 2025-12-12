@@ -13,8 +13,8 @@ internal class SpatialCollisionChecker(float cellSize = 50f)
     public IEnumerable<(TTarget target, TSource source)> FindOverlaps<TTarget, TSource>(
         IEnumerable<TTarget> targets,
         IEnumerable<TSource> sources)
-        where TTarget : ICircleCollider
-        where TSource : ICircleCollider
+        where TTarget : IHasCollider
+        where TSource : IHasCollider
     {
         var spatialHash = new SpatialHash<TSource>(cellSize);
 
@@ -22,8 +22,8 @@ internal class SpatialCollisionChecker(float cellSize = 50f)
             spatialHash.Insert(source);
 
         foreach (var target in targets)
-        foreach (var source in spatialHash.QueryNearby(target.Position))
-            if (CircleChecker.HasOverlap(target, source))
+        foreach (var source in spatialHash.QueryNearby(target.Collider.Position))
+            if (CollisionChecker.HasOverlap(target.Collider, source.Collider))
                 yield return (target, source);
     }
 }

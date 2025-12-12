@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ContentLibrary;
+using Gameplay.CollisionDetection;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
 using Gameplay.Rendering;
@@ -31,7 +32,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, IVisual
     }
 
     public float Damage { get; }
-    public float CollisionRadius => 16f;
+    public ICollider Collider => new CircleCollider(this, 16f);
 
     public void OnHit(EnemyBase enemy)
     {

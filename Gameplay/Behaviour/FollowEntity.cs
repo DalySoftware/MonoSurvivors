@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gameplay.CollisionDetection;
 using Gameplay.Entities.Enemies;
 using Gameplay.Utilities;
 
@@ -23,7 +25,7 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
             var offset = owner.Position - other.Position;
             var distSq = offset.LengthSquared();
 
-            var collisionDistance = owner.CollisionRadius * 2.4f; // Aim for a small gap
+            var collisionDistance = ApproximateSize(owner) * 1.2f; // Aim for a small gap
             if (distSq < collisionDistance * collisionDistance)
                 separationForce += offset / distSq; // Stronger push when closer
         }
@@ -31,4 +33,11 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
         const float scaleFactor = 40f;
         return velocity + separationForce * scaleFactor * speed;
     }
+
+    private static float ApproximateSize(EnemyBase enemyBase) => enemyBase.Collider switch
+    {
+        CircleCollider circle => circle.CollisionRadius * 2,
+        RectangleCollider rect => MathF.Max(rect.Width, rect.Height),
+        _ => throw new ArgumentOutOfRangeException(nameof(enemyBase))
+    };
 }

@@ -6,8 +6,8 @@ using Gameplay.Levelling;
 
 namespace Gameplay.Entities.Enemies;
 
-public abstract class EnemyBase(Vector2 position, float collisionRadius, int damage)
-    : MovableEntity(position), ICircleCollider, IDamagesPlayer, ICreatesExperienceOnDeath
+public abstract class EnemyBase(Vector2 position, int damage)
+    : MovableEntity(position), IDamagesPlayer, ICreatesExperienceOnDeath
 {
     /// <summary>
     ///     Will be executed with the current instance as the argument
@@ -31,8 +31,8 @@ public abstract class EnemyBase(Vector2 position, float collisionRadius, int dam
         }
     }
 
-    public float CollisionRadius { get; } = collisionRadius;
-
     public abstract float Experience { get; }
+
     public int Damage { get; } = damage;
+    public required ICollider Collider { get; init; }
 }

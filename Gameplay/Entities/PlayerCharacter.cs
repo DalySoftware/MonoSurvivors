@@ -1,6 +1,7 @@
 ﻿using System;
 using ContentLibrary;
 using Gameplay.Audio;
+using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
 using Gameplay.Levelling.PowerUps;
@@ -37,6 +38,8 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
 
     private int KillsPerHeal => _lifeSteal == 0 ? int.MaxValue : 100 / _lifeSteal;
 
+    public ICollider Collider => new CircleCollider(this, 32f);
+
     public int Health
     {
         get;
@@ -44,8 +47,6 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     } = BaseHealth;
 
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
-
-    public float CollisionRadius => 32f;
 
     public void TakeDamage(int damage)
     {

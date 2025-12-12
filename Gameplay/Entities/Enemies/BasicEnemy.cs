@@ -1,5 +1,7 @@
-﻿using ContentLibrary;
+﻿using System.Diagnostics.CodeAnalysis;
+using ContentLibrary;
 using Gameplay.Behaviour;
+using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
@@ -8,9 +10,11 @@ public class BasicEnemy : EnemyBase, IVisual
 {
     private readonly FollowEntity _followEntity;
 
-    public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition, 32f, 1)
+    [SetsRequiredMembers]
+    public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition, 1)
     {
         _followEntity = new FollowEntity(this, target, 0.1f);
+        Collider = new CircleCollider(this, 32f);
         Health = 20f;
     }
 

@@ -1,6 +1,7 @@
 ﻿using ContentLibrary;
 using Gameplay.Audio;
 using Gameplay.Behaviour;
+using Gameplay.CollisionDetection;
 using Gameplay.Entities;
 using Gameplay.Rendering;
 
@@ -19,9 +20,10 @@ public class Experience : MovableEntity, IPickup, IVisual
         _followEntity = new GravitateToEntity(this, player);
         _value = value;
         _player = player;
+        Collider = new CircleCollider(this, 16f);
     }
 
-    public float CollisionRadius => 16f;
+    public ICollider Collider { get; }
 
     public void OnPickupBy(PlayerCharacter player)
     {
