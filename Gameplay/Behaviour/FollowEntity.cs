@@ -9,6 +9,9 @@ namespace Gameplay.Behaviour;
 
 internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
 {
+    // Currently no enemies change size so we don't have to invalidate the cache
+    private readonly Dictionary<EnemyBase, float> _radiusCache = new();
+
     internal Vector2 CalculateVelocity(IEnumerable<EnemyBase>? nearbyEnemies = null)
     {
         var direction = target.Position - owner.Position;
@@ -34,7 +37,12 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
         return velocity + separationForce * scaleFactor * speed;
     }
 
-    private static float ApproximateRadius(EnemyBase enemyBase) => enemyBase.Collider switch
+    private float ApproximateRadius(EnemyBase enemy) =>
+        _radiusCache.TryGetValue(enemy, out var radius)
+            ? radius
+            : _radiusCache[enemy] = UncachedApproximateRadius(enemy);
+
+    private static float UncachedApproximateRadius(EnemyBase enemyBase) => enemyBase.Collider switch
     {
         CircleCollider circle => circle.CollisionRadius,
         RectangleCollider rect => MathF.Max(rect.Width, rect.Height) / 2,
