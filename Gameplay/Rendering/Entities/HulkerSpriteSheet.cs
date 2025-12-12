@@ -5,11 +5,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class BasicEnemySpriteSheet : ISpriteSheet
+public class HulkerSpriteSheet : ISpriteSheet
 {
-    private readonly Vector2 _cellSize = new(64, 64);
+    private readonly Vector2 _frameSize = new(128, 128);
 
-    public Texture2D Texture(ContentManager content) => content.Load<Texture2D>(Paths.Images.Sheets.BasicEnemy);
+    public Texture2D Texture(ContentManager content) => content.Load<Texture2D>(Paths.Images.Sheets.Hulker);
 
     public Rectangle GetFrameRectangle(Rendering.IFrame frame)
     {
@@ -19,10 +19,10 @@ public class BasicEnemySpriteSheet : ISpriteSheet
         return FromCellCoords(x, y);
     }
 
-    private Rectangle FromCellCoords(int x, int y) =>
-        new(x * (int)_cellSize.X, y * (int)_cellSize.Y, (int)_cellSize.X, (int)_cellSize.Y);
+    private Rectangle FromCellCoords(int x, int y)
+        => new(x * (int)_frameSize.X, y * (int)_frameSize.Y, (int)_frameSize.X, (int)_frameSize.Y);
 
-    private interface IFrame : Rendering.IFrame;
+    public interface IFrame : Rendering.IFrame;
 
     public readonly record struct LookDirectionFrame(Vector2 Direction) : IFrame;
 }

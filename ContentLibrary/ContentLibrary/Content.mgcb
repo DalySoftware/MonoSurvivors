@@ -146,18 +146,6 @@
 /processorParam:TextureFormat=Color
 /build:Images/Heart-Half.png
 
-#begin Images/Hulker.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Hulker.png
-
 #begin Images/logo.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -398,7 +386,7 @@
 /processorParam:TextureFormat=Color
 /build:Images/Sheets/BasicEnemy.png;Images/Sheets/BasicEnemy
 
-#begin Images/Sheets/BasicEnemy.png
+#begin Images/Sheets/Hulker.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -408,19 +396,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/Sheets/BasicEnemy.png;Images/Sheets/BasicEnemy
-
-#begin Images/Sheets/BasicEnemy.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Sheets/BasicEnemy.png;Images/Sheets/BasicEnemy
+/build:Images/Sheets/Hulker.png;Images/Sheets/Hulker
 
 #begin Shaders/greyscale.fx
 /importer:EffectImporter
