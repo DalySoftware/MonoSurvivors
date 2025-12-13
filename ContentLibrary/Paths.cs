@@ -99,4 +99,10 @@ public static class Paths
     {
         public const string Greyscale = @"Shaders\greyscale";
     }
+
+	public static class Music 
+	{
+	public const string AppleStrudel = @"Music\AppleStrudel";
+	}
+
 }

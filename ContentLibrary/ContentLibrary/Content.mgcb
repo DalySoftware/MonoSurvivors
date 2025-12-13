@@ -398,6 +398,12 @@
 /processorParam:TextureFormat=Color
 /build:Images/Sheets/Hulker.png;Images/Sheets/Hulker
 
+#begin Music/AppleStrudel.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/AppleStrudel.wav
+
 #begin Shaders/greyscale.fx
 /importer:EffectImporter
 /processor:EffectProcessor

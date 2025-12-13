@@ -1,5 +1,6 @@
 ﻿using System;
 using GameLoop.Input;
+using GameLoop.Music;
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
@@ -21,6 +22,7 @@ public class CoreGame : Game
     private readonly SceneManager _sceneManager = new(null);
     private readonly IServiceProvider _services;
     private LevelManager _levelSystem = null!;
+    private MusicPlayer _music = null!;
     private PrimitiveRenderer _primitiveRenderer = null!;
     private SphereGrid _sphereGrid = null!;
 
@@ -55,6 +57,8 @@ public class CoreGame : Game
         var entityManager = _services.GetRequiredService<EntityManager>();
         var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
         var effectManager = _services.GetRequiredService<EffectManager>();
+        _music = _services.GetRequiredService<MusicPlayer>();
+        _music.PlayBackgroundMusic();
 
         var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, ShowGameOver);
         _levelSystem = new LevelManager(player, OnLevelUp);
@@ -85,14 +89,21 @@ public class CoreGame : Game
 
     private void ShowSphereGrid()
     {
+        void OnClose()
+        {
+            _sceneManager.Pop();
+            _music.RestoreBackgroundMusic();
+        }
+
         var scene = new SphereGridScene(
             GraphicsDevice,
             Content,
             _sphereGrid,
             _primitiveRenderer,
-            _sceneManager.Pop,
+            OnClose,
             Exit);
         _sceneManager.Push(scene);
+        _music.DuckBackgroundMusic();
     }
 
     protected override void Update(GameTime gameTime)

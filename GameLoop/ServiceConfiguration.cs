@@ -1,4 +1,5 @@
 using System;
+using GameLoop.Music;
 using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Rendering.Effects;
@@ -13,7 +14,9 @@ internal static class ServiceConfiguration
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton(contentManager);
+        services
+            .AddSingleton(contentManager)
+            .AddSingleton<MusicPlayer>();
 
         // Register gameplay services as transient (new instance per scene)
         services.AddTransient<EntityManager>();
