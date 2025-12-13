@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Utilities;
 
-internal class ScreenPositioner(GraphicsDevice graphics)
+internal class ScreenPositioner(GraphicsDevice graphics, float buffer)
 {
     /// <summary>
     ///     Get a random position off-screen from the player.
@@ -14,7 +14,7 @@ internal class ScreenPositioner(GraphicsDevice graphics)
     ///     <example>0.2f would spawn around 20% off-screen</example>
     /// </param>
     /// <returns>World-space <see cref="Vector2" /> position</returns>
-    internal Vector2 GetRandomOffScreenPosition(Vector2 centre, float buffer = 0f)
+    internal Vector2 GetRandomOffScreenPosition(Vector2 centre)
     {
         // Random angle
         var angle = (float)Random.Shared.NextDouble() * 2f * MathF.PI;

@@ -1,54 +1,117 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Gameplay.Audio;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies;
 
-public class EnemySpawner(
-    EntityManager entityManager,
-    PlayerCharacter player,
-    IAudioPlayer audio,
-    GraphicsDevice graphics) : IEntity
+public class EnemySpawner : IEntity
 {
-    private readonly ExperienceSpawner _experienceSpawner = new(entityManager, player, audio);
-    private readonly ScreenPositioner _screenPositioner = new(graphics);
-    private TimeSpan _remainingCooldown = TimeSpan.Zero;
-    public required TimeSpan SpawnDelay { get; set; }
-    public int BatchSize { get; set; } = 1;
+    private readonly IAudioPlayer _audio;
+    private readonly EntityManager _entityManager;
+    private readonly ExperienceSpawner _experienceSpawner;
+    private readonly PlayerCharacter _player;
+    private readonly ScreenPositioner _screenPositioner;
+    private readonly List<SpawnPhase> _waves;
+    private TimeSpan _cooldown;
+
+    private TimeSpan _elapsedTime;
+
+    public EnemySpawner(
+        EntityManager entityManager,
+        PlayerCharacter player,
+        IAudioPlayer audio,
+        GraphicsDevice graphics)
+    {
+        _entityManager = entityManager;
+        _player = player;
+        _audio = audio;
+
+        var enemyFactory = new EnemyFactory(player, OnDeath);
+        _experienceSpawner = new ExperienceSpawner(entityManager, player, audio);
+        _screenPositioner = new ScreenPositioner(graphics, 0.3f);
+
+        _waves =
+        [
+            new SpawnPhase
+            {
+                StartTime = TimeSpan.Zero,
+                WaveCooldown = TimeSpan.FromSeconds(5),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.BasicEnemy, 4 }
+                }
+            },
+            new SpawnPhase
+            {
+                StartTime = TimeSpan.FromMinutes(2),
+                WaveCooldown = TimeSpan.FromSeconds(5),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.BasicEnemy, 10 },
+                    { enemyFactory.Hulker, 1 }
+                }
+            },
+            new SpawnPhase
+            {
+                StartTime = TimeSpan.FromMinutes(4),
+                WaveCooldown = TimeSpan.FromSeconds(3),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.BasicEnemy, 10 },
+                    { enemyFactory.Hulker, 2 }
+                }
+            },
+            new SpawnPhase
+            {
+                StartTime = TimeSpan.FromMinutes(6),
+                WaveCooldown = TimeSpan.FromSeconds(2),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.BasicEnemy, 5 },
+                    { enemyFactory.Hulker, 5 }
+                }
+            },
+            new SpawnPhase
+            {
+                StartTime = TimeSpan.FromMinutes(8),
+                WaveCooldown = TimeSpan.FromSeconds(2),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.BasicEnemy, 5 },
+                    { enemyFactory.Hulker, 10 }
+                }
+            }
+        ];
+    }
+
+    private SpawnPhase CurrentPhase => _waves.Last(w => _elapsedTime >= w.StartTime);
 
     public bool MarkedForDeletion => false;
 
     public void Update(GameTime gameTime)
     {
-        _remainingCooldown -= gameTime.ElapsedGameTime;
-        if (_remainingCooldown > TimeSpan.Zero) return;
+        _elapsedTime += gameTime.ElapsedGameTime;
+        _cooldown -= gameTime.ElapsedGameTime;
 
-        _remainingCooldown = SpawnDelay;
-        for (var i = 0; i < BatchSize; i++)
-            entityManager.Spawn(GetEnemyWithRandomPosition(BasicEnemy));
+        if (_cooldown > TimeSpan.Zero)
+            return;
 
-        entityManager.Spawn(GetEnemyWithRandomPosition(Hulker));
+        var wave = CurrentPhase;
+        _cooldown = wave.WaveCooldown;
+
+        foreach (var enemyFactory in wave.GetEnemies().Shuffle())
+            _entityManager.Spawn(
+                enemyFactory(_screenPositioner.GetRandomOffScreenPosition(_player.Position))
+            );
     }
 
-    private BasicEnemy BasicEnemy(Vector2 position) => new(position, player)
+    private void OnDeath(EnemyBase enemy)
     {
-        OnDeath = OnDeath
-    };
-
-    private Hulker Hulker(Vector2 position) => new(position, player)
-    {
-        OnDeath = OnDeath
-    };
-
-
-    private EnemyBase GetEnemyWithRandomPosition(Func<Vector2, EnemyBase> factory) =>
-        factory(_screenPositioner.GetRandomOffScreenPosition(player.Position));
-
-    private void OnDeath(EnemyBase deadEnemy)
-    {
-        _experienceSpawner.SpawnExperienceFor(deadEnemy);
-        audio.Play(SoundEffectTypes.EnemyDeath);
-        player.TrackKills(1);
+        _experienceSpawner.SpawnExperienceFor(enemy);
+        _audio.Play(SoundEffectTypes.EnemyDeath);
+        _player.TrackKills(1);
     }
 }
