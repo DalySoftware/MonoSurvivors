@@ -1,5 +1,6 @@
 ﻿using System;
 using Gameplay.Audio;
+using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies;
@@ -11,7 +12,7 @@ public class EnemySpawner(
     GraphicsDevice graphics) : IEntity
 {
     private readonly ExperienceSpawner _experienceSpawner = new(entityManager, player, audio);
-    private readonly Random _random = new();
+    private readonly ScreenPositioner _screenPositioner = new(graphics);
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
     public required TimeSpan SpawnDelay { get; set; }
     public int BatchSize { get; set; } = 1;
@@ -40,28 +41,9 @@ public class EnemySpawner(
         OnDeath = OnDeath
     };
 
-    private Vector2 GetRandomPosition()
-    {
-        // Random angle
-        var angle = (float)_random.NextDouble() * 2f * MathF.PI;
 
-        // Calculate distance based on angle to account for rectangular viewport
-        var halfWidth = graphics.Viewport.Width * 0.5f;
-        var halfHeight = graphics.Viewport.Height * 0.5f;
-        var cos = MathF.Abs(MathF.Cos(angle));
-        var sin = MathF.Abs(MathF.Sin(angle));
-
-        // Distance to edge of rectangle at this angle, plus a small buffer
-        // The buffer makes sure it's slightly offscreen, unless the player outruns camera by a crazy speed
-        var distanceFromPlayer = MathF.Min(halfWidth / cos, halfHeight / sin) * 1.3f;
-
-        var x = player.Position.X + MathF.Cos(angle) * distanceFromPlayer;
-        var y = player.Position.Y + MathF.Sin(angle) * distanceFromPlayer;
-
-        return new Vector2(x, y);
-    }
-
-    private EnemyBase GetEnemyWithRandomPosition(Func<Vector2, EnemyBase> factory) => factory(GetRandomPosition());
+    private EnemyBase GetEnemyWithRandomPosition(Func<Vector2, EnemyBase> factory) =>
+        factory(_screenPositioner.GetRandomOffScreenPosition(player.Position));
 
     private void OnDeath(EnemyBase deadEnemy)
     {
