@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using Gameplay.Audio;
-using Gameplay.Levelling;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies;
@@ -12,6 +10,7 @@ public class EnemySpawner(
     IAudioPlayer audio,
     GraphicsDevice graphics) : IEntity
 {
+    private readonly ExperienceSpawner _experienceSpawner = new(entityManager, player, audio);
     private readonly Random _random = new();
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
     public required TimeSpan SpawnDelay { get; set; }
@@ -66,18 +65,8 @@ public class EnemySpawner(
 
     private void OnDeath(EnemyBase deadEnemy)
     {
-        foreach (var experience in GetExperiences(deadEnemy))
-            entityManager.Spawn(experience);
+        _experienceSpawner.SpawnExperienceFor(deadEnemy);
         audio.Play(SoundEffectTypes.EnemyDeath);
         player.TrackKills(1);
-    }
-
-    private IEnumerable<Experience> GetExperiences(EnemyBase deadEnemy)
-    {
-        for (var i = 0; i < deadEnemy.Experience; i++)
-        {
-            var position = deadEnemy.Position + new Vector2(_random.Next(-10, 10), _random.Next(-10, 10));
-            yield return new Experience(position, 1f, player, audio);
-        }
     }
 }
