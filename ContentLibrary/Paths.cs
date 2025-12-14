@@ -102,7 +102,6 @@ public static class Paths
 
 	public static class Music 
 	{
-	public const string AppleStrudel = @"Music\AppleStrudel";
+	    public const string AppleStrudel = @"Music\AppleStrudel";
 	}
-
 }

@@ -1,5 +1,6 @@
 using System;
 using ContentLibrary;
+using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,37 +8,43 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.UI;
 
-public class VolumeControl : UiElement
+public class VolumeControl
 {
-    private readonly string _label;
-    private readonly Func<float> _getValue;
-    private readonly Action<float> _setValue;
-    private readonly SpriteFont _font;
-    private readonly Button _decreaseButton;
-    private readonly Button _increaseButton;
-    private readonly PanelRenderer _panelRenderer;
+    private const float VolumeStep = 0.05f;
 
-    private const float VolumeStep = 0.1f;
+    private readonly Vector2 _centre;
+    private readonly Button _decreaseButton;
+    private readonly SpriteFont _font;
+    private readonly Func<float> _getValue;
+    private readonly Button _increaseButton;
+    private readonly string _label;
+    private readonly Vector2 _maxValueSize;
+    private readonly Action<float> _setValue;
 
     public VolumeControl(
         ContentManager content,
-        Vector2 position,
+        Vector2 centre,
         string label,
         Func<float> getValue,
         Action<float> setValue)
     {
-        Position = position;
+        _centre = centre;
         _label = label;
         _getValue = getValue;
         _setValue = setValue;
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
-        _panelRenderer = new PanelRenderer(content);
 
         // Create buttons
-        _decreaseButton = new Button(content, new Vector2(position.X + 400, position.Y), new Vector2(60, 60), "-",
-            DecreaseVolume);
-        _increaseButton = new Button(content, new Vector2(position.X + 540, position.Y), new Vector2(60, 60), "+",
-            IncreaseVolume);
+        const int buttonRelativeX = 200;
+        _decreaseButton = new Button(content, new Vector2(centre.X + buttonRelativeX, centre.Y), "-", DecreaseVolume,
+            true);
+        const float valuePadding = 20f;
+        _maxValueSize = _font.MeasureString("100%");
+        _increaseButton = new Button(content,
+            new Vector2(_decreaseButton.Centre.X + _decreaseButton.Size.X + _maxValueSize.X + valuePadding * 2,
+                centre.Y),
+            "+",
+            IncreaseVolume, true);
     }
 
     private void DecreaseVolume()
@@ -52,31 +59,39 @@ public class VolumeControl : UiElement
         _setValue(newValue);
     }
 
-    public void Update(MouseState mouseState, MouseState previousMouseState)
+    public void Update(MouseState mouseState)
     {
-        if (!IsVisible) return;
-
-        _decreaseButton.Update(mouseState, previousMouseState);
-        _increaseButton.Update(mouseState, previousMouseState);
+        _decreaseButton.Update(mouseState);
+        _increaseButton.Update(mouseState);
     }
 
-    public override void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch)
     {
-        if (!IsVisible) return;
+        // Center of the block between buttons
+        var blockCentre = (_decreaseButton.Centre + _increaseButton.Centre) * 0.5f;
 
-        // Draw label
-        spriteBatch.DrawString(_font, _label, Position, Color.White, 0f, Vector2.Zero, 1f,
-            SpriteEffects.None, 0.05f);
+        // Reserve max width for value
+        var valueText = $"{(int)(_getValue() * 100)}%";
 
-        // Draw volume percentage
-        var volumeText = $"{(int)(_getValue() * 100)}%";
-        var volumeSize = _font.MeasureString(volumeText);
-        var volumePosition = new Vector2(Position.X + 470, Position.Y + 20);
-        spriteBatch.DrawString(_font, volumeText, volumePosition, Color.White, 0f, Vector2.Zero, 1f,
-            SpriteEffects.None, 0.05f);
+        // Compute positions
+        var blockLeftX = blockCentre.X - 400f;
 
-        // Draw buttons
+        // --- Label (left-aligned, vertically centered)
+        var labelSize = _font.MeasureString(_label);
+        var labelOrigin = new Vector2(0f, labelSize.Y * 0.5f); // left align
+        var labelPosition = new Vector2(blockLeftX, _centre.Y);
+        spriteBatch.DrawString(_font, _label, labelPosition, origin: labelOrigin, layerDepth: .4f);
+
+        // --- Decrease button
         _decreaseButton.Draw(spriteBatch);
+
+        // --- Volume (right-aligned, vertically centered)
+        var volumeSize = _font.MeasureString(valueText);
+        var volumeOrigin = new Vector2(volumeSize.X, volumeSize.Y * 0.5f); // right align
+        var volumePosition = blockCentre + volumeSize * new Vector2(0.5f, 0);
+        spriteBatch.DrawString(_font, valueText, volumePosition, origin: volumeOrigin, layerDepth: .5f);
+
+        // --- Increase button
         _increaseButton.Draw(spriteBatch);
     }
 }

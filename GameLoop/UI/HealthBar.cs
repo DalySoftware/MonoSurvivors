@@ -9,16 +9,15 @@ namespace GameLoop.UI;
 /// <summary>
 ///     Health bar that displays health using heart sprites
 /// </summary>
-public class HealthBar(ContentManager content, PlayerCharacter player) : UiElement
+internal class HealthBar(ContentManager content, PlayerCharacter player)
 {
     private readonly Texture2D _heartEmpty = content.Load<Texture2D>(Paths.Images.Heart.Empty);
     private readonly Texture2D _heartFull = content.Load<Texture2D>(Paths.Images.Heart.Full);
     private readonly Texture2D _heartHalf = content.Load<Texture2D>(Paths.Images.Heart.Half);
+    internal Vector2 Position { get; init; }
 
-    public override void Draw(SpriteBatch spriteBatch)
+    internal void Draw(SpriteBatch spriteBatch)
     {
-        if (!IsVisible) return;
-
         var currentHealth = player.Health;
         var maxHealth = player.MaxHealth;
 

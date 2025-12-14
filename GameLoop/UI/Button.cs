@@ -1,5 +1,6 @@
 using System;
 using ContentLibrary;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,65 +8,90 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.UI;
 
-public class Button : UiElement
+internal class Button
 {
     private readonly SpriteFont _font;
-    private readonly string _text;
     private readonly Action _onClick;
-    private readonly Vector2 _size;
     private readonly PanelRenderer _panelRenderer;
+    private readonly bool _rounded;
+    private readonly string _text;
 
     private bool _isHovered;
     private bool _wasPressed;
 
-    public Button(ContentManager content, Vector2 position, Vector2 size, string text, Action onClick)
+    internal Button(ContentManager content, Vector2 centre, string text, Action onClick, bool rounded = false)
     {
-        Position = position;
-        _size = size;
+        Centre = centre;
         _text = text;
         _onClick = onClick;
+        _rounded = rounded;
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
         _panelRenderer = new PanelRenderer(content);
     }
 
-    public void Update(MouseState mouseState, MouseState previousMouseState)
+    internal Vector2 Centre { get; set; }
+    internal Vector2 Size => PanelSize;
+    internal Vector2 TopLeft => Centre - PanelSize * 0.5f;
+    internal Vector2 BottomRight => Centre + PanelSize * 0.5f;
+
+    private Vector2 PanelSize =>
+        PanelRenderer.GetExteriorSize(PanelInteriorSize);
+
+    private Vector2 PanelInteriorSize
     {
-        if (!IsVisible) return;
+        get
+        {
+            var naiveSize = _font.MeasureString(_text);
+            if (!_rounded) return naiveSize;
 
-        var bounds = new Rectangle((int)Position.X, (int)Position.Y, (int)_size.X, (int)_size.Y);
-        _isHovered = bounds.Contains(mouseState.Position);
-
-        if (_isHovered && mouseState.LeftButton == ButtonState.Pressed)
-        {
-            _wasPressed = true;
-        }
-        else if (_wasPressed && mouseState.LeftButton == ButtonState.Released && _isHovered)
-        {
-            _onClick();
-            _wasPressed = false;
-        }
-        else if (mouseState.LeftButton == ButtonState.Released)
-        {
-            _wasPressed = false;
+            var negativePadding = new Vector2(0, 16); // The current font reserves way too much line height
+            var maxDimension = MathF.Max(naiveSize.X, naiveSize.Y);
+            return new Vector2(maxDimension, maxDimension);
         }
     }
 
-    public override void Draw(SpriteBatch spriteBatch)
-    {
-        if (!IsVisible) return;
 
-        var color = _wasPressed ? new Color(180, 180, 180) : (_isHovered ? new Color(220, 220, 220) : Color.White);
+    internal void Update(MouseState mouseState)
+    {
+        var bounds = new Rectangle(
+            (int)TopLeft.X,
+            (int)TopLeft.Y,
+            (int)PanelSize.X,
+            (int)PanelSize.Y);
+
+        _isHovered = bounds.Contains(mouseState.Position);
+
+        var mouseDown = mouseState.LeftButton == ButtonState.Pressed;
+        var mouseUp = mouseState.LeftButton == ButtonState.Released;
+        var click = mouseUp && _wasPressed && _isHovered;
+
+        if (mouseDown && _isHovered)
+            _wasPressed = true;
+
+        if (click)
+            _onClick();
+
+        if (mouseUp)
+            _wasPressed = false;
+    }
+
+
+    internal void Draw(SpriteBatch spriteBatch)
+    {
+        var baseTint = new OklchColor(0.77f, 0.074f, 235f).ToColor();
+        var color = _wasPressed ? baseTint.ShiftLightness(-0.1f) :
+            _isHovered ? baseTint.ShiftLightness(0.1f) :
+            baseTint;
 
         // Draw panel background
-        var interiorSize = new Vector2(_size.X - 56, _size.Y - 56); // Account for panel borders
-        _panelRenderer.Draw(spriteBatch, Position, interiorSize, color, layerDepth: 0.1f);
+        _panelRenderer.Draw(spriteBatch, TopLeft, PanelInteriorSize, color, 0.4f);
 
         // Draw text centered
         var textSize = _font.MeasureString(_text);
-        var panelCenter = PanelRenderer.GetCenter(Position, interiorSize);
+        var panelCenter = PanelRenderer.GetCenter(TopLeft, PanelInteriorSize);
         var textPosition = panelCenter - textSize / 2;
 
-        spriteBatch.DrawString(_font, _text, textPosition, Color.Black, 0f, Vector2.Zero, 1f,
-            SpriteEffects.None, 0.05f);
+        spriteBatch.DrawString(_font, _text, textPosition, Color.White, 0f, Vector2.Zero, 1f,
+            SpriteEffects.None, 0.5f);
     }
 }

@@ -33,8 +33,11 @@ public class PanelRenderer(ContentManager content)
     {
         var width = (int)interiorSize.X + CornerSize * 2;
         var height = (int)interiorSize.Y + CornerSize * 2;
-        return new Vector2(position.X + width / 2f, position.Y + height / 2f);
+        return new Vector2(position.X + width * 0.5f, position.Y + height * 0.5f);
     }
+
+    public static Vector2 GetExteriorSize(Vector2 interiorSize) =>
+        interiorSize + new Vector2(CornerSize, CornerSize) * 2f;
 
     public void Draw(SpriteBatch spriteBatch, Vector2 position, Vector2 interiorSize, Color? color = null,
         float layerDepth = 0f)

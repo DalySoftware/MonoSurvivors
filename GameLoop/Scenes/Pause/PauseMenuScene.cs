@@ -21,15 +21,13 @@ internal class PauseMenuScene : IScene
     private readonly IConfiguration _configuration;
     private readonly ContentManager _content;
     private readonly SpriteFont _font;
+    private readonly PauseInputManager _input;
     private readonly Action _onExit;
     private readonly Action _onResume;
-    private readonly PauseInputManager _input;
 
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly SpriteBatch _spriteBatch;
     private readonly List<VolumeControl> _volumeControls = [];
-
-    private MouseState _previousMouseState;
 
     public PauseMenuScene(
         GraphicsDevice graphicsDevice,
@@ -64,29 +62,27 @@ internal class PauseMenuScene : IScene
 
         var mouseState = Mouse.GetState();
 
-        foreach (var control in _volumeControls) control.Update(mouseState, _previousMouseState);
+        foreach (var control in _volumeControls) control.Update(mouseState);
 
-        foreach (var button in _buttons) button.Update(mouseState, _previousMouseState);
-
-        _previousMouseState = mouseState;
+        foreach (var button in _buttons) button.Update(mouseState);
     }
 
     public void Draw(GameTime gameTime)
     {
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
 
-        // Draw semi-transparent background
         var viewport = _spriteBatch.GraphicsDevice.Viewport;
+        // Draw semi-transparent background
         _primitiveRenderer.DrawRectangle(_spriteBatch,
             new Rectangle(0, 0, viewport.Width, viewport.Height),
-            new Color(0, 0, 0, 180), 0.9f);
+            new Color(0, 0, 0, 180), 0.3f);
 
         // Draw title
         const string title = "PAUSED";
         var titleSize = _font.MeasureString(title);
         var titlePosition = new Vector2(viewport.Width / 2f - titleSize.X / 2, 100);
         _spriteBatch.DrawString(_font, title, titlePosition, Color.White, 0f, Vector2.Zero, 1f,
-            SpriteEffects.None, 0.05f);
+            SpriteEffects.None, 0.5f);
 
         foreach (var control in _volumeControls) control.Draw(_spriteBatch);
 
@@ -95,7 +91,30 @@ internal class PauseMenuScene : IScene
         _spriteBatch.End();
     }
 
-    public void Dispose() => _spriteBatch?.Dispose();
+
+    public void Dispose() => _spriteBatch.Dispose();
+
+    private float GetMasterVolume() => _audioSettings.MasterVolume;
+    private float GetSoundEffectVolume() => _audioSettings.SoundEffectVolume;
+    private float GetMusicVolume() => _audioSettings.MusicVolume;
+
+    private void SetMasterVolume(float value)
+    {
+        _audioSettings.MasterVolume = value;
+        SaveSettings();
+    }
+
+    private void SetSoundEffectVolume(float value)
+    {
+        _audioSettings.SoundEffectVolume = value;
+        SaveSettings();
+    }
+
+    private void SetMusicVolume(float value)
+    {
+        _audioSettings.MusicVolume = value;
+        SaveSettings();
+    }
 
     private void CreateUi(GraphicsDevice graphicsDevice)
     {
@@ -105,22 +124,22 @@ internal class PauseMenuScene : IScene
         var centerY = screenHeight / 2f;
 
         // Volume controls
-        var startY = centerY - 150;
-        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 300, startY), "Master Volume",
-            () => _audioSettings.MasterVolume, v => _audioSettings.MasterVolume = v));
+        var startY = centerY - 200;
+        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 150, startY),
+            "Master Volume", GetMasterVolume, SetMasterVolume));
 
-        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 300, startY + 80), "Music Volume",
-            () => _audioSettings.MusicVolume, v => _audioSettings.MusicVolume = v));
+        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 150, startY + 120),
+            "Music Volume", GetMusicVolume, SetMusicVolume));
 
-        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 300, startY + 160), "Sound FX Volume",
-            () => _audioSettings.SoundEffectVolume, v => _audioSettings.SoundEffectVolume = v));
+        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 150, startY + 240),
+            "Sound FX Volume", GetSoundEffectVolume, SetSoundEffectVolume));
 
         // Buttons
-        var resumeButton = new Button(_content, new Vector2(centerX - 150, startY + 260), new Vector2(300, 80),
+        var resumeButton = new Button(_content, new Vector2(centerX, startY + 360),
             "Resume", OnResume);
         _buttons.Add(resumeButton);
 
-        var exitButton = new Button(_content, new Vector2(centerX - 150, startY + 360), new Vector2(300, 80),
+        var exitButton = new Button(_content, new Vector2(centerX, startY + 480),
             "Exit to Title", OnExitToTitle);
         _buttons.Add(exitButton);
     }
