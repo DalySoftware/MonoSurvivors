@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Threading.Tasks;
 using ContentLibrary;
 using GameLoop.UserSettings;
 using Microsoft.Extensions.Options;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
-namespace GameLoop.Music;
+namespace GameLoop.Audio;
 
 public sealed class MusicPlayer : IDisposable
 {
     private readonly IDisposable? _optionsChangeListener;
     private readonly SoundEffectInstance _soundEffect;
+
+    private float _baseVolume; // store original volume
 
     public MusicPlayer(ContentManager content, IOptionsMonitor<AudioSettings> settingsMonitor)
     {
@@ -33,12 +36,28 @@ public sealed class MusicPlayer : IDisposable
     private void UpdateVolume(AudioSettings? settings)
     {
         settings ??= new AudioSettings();
-        _soundEffect.Volume = settings.MasterVolume * settings.MusicVolume;
+        _baseVolume = settings.MasterVolume * settings.MusicVolume;
+        _soundEffect.Volume = _baseVolume;
     }
 
     public void PlayBackgroundMusic() => _soundEffect.Play();
 
-    public void DuckBackgroundMusic() => _soundEffect.Volume *= 0.5f;
+    /// <summary>Reduce music volume temporarily for a ducking effect.</summary>
+    public async Task DuckFor(TimeSpan? duration = null, float duckFactor = 0.7f)
+    {
+        if (!_soundEffect.State.Equals(SoundState.Playing))
+            return;
 
-    public void RestoreBackgroundMusic() => _soundEffect.Volume *= 2f;
+        _soundEffect.Volume = _baseVolume * duckFactor;
+
+        duration ??= TimeSpan.FromMilliseconds(100);
+        await Task.Delay(duration.Value);
+
+        // Restore volume
+        _soundEffect.Volume = _baseVolume;
+    }
+
+    public void DuckBackgroundMusic() => _soundEffect.Volume *= 0.7f;
+
+    public void RestoreBackgroundMusic() => _soundEffect.Volume *= 1.4286f; // reciprocal
 }

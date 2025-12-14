@@ -1,11 +1,11 @@
 ﻿using System;
+using GameLoop.Audio;
 using GameLoop.Input;
-using GameLoop.Music;
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
-using GameLoop.Scenes.SphereGridScene;
 using GameLoop.Scenes.Pause;
+using GameLoop.Scenes.SphereGridScene;
 using GameLoop.Scenes.Title;
 using GameLoop.UserSettings;
 using Gameplay.Audio;
@@ -112,10 +112,7 @@ public class CoreGame : Game
 
     private void ShowPauseMenu()
     {
-        void OnResume()
-        {
-            _sceneManager.Pop();
-        }
+        void OnResume() => _sceneManager.Pop();
 
         var audioSettings = _services.GetRequiredService<IOptions<AudioSettings>>();
         var configuration = _services.GetRequiredService<IConfiguration>();

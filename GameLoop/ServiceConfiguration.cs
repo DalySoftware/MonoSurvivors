@@ -1,7 +1,6 @@
 using System;
-using GameLoop.Music;
+using GameLoop.Audio;
 using GameLoop.Persistence;
-using GameLoop.SoundEffects;
 using GameLoop.UserSettings;
 using Gameplay.Audio;
 using Gameplay.Entities;
@@ -26,7 +25,7 @@ internal static class ServiceConfiguration
 
         // Register gameplay services as transient (new instance per scene)
         services.AddTransient<EntityManager>();
-        services.AddTransient<IAudioPlayer, AudioPlayer>();
+        services.AddTransient<IAudioPlayer, SoundEffectPlayer>();
         services.AddTransient<EffectManager>();
 
         return services.BuildServiceProvider();

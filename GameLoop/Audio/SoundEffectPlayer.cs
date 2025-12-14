@@ -5,16 +5,26 @@ using Microsoft.Extensions.Options;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
-namespace GameLoop.SoundEffects;
+namespace GameLoop.Audio;
 
-public class AudioPlayer(ContentManager content, IOptionsMonitor<AudioSettings> settingsMonitor)
+public class SoundEffectPlayer(
+    ContentManager content,
+    IOptionsMonitor<AudioSettings> settingsMonitor,
+    MusicPlayer musicPlayer)
     : IAudioPlayer
 {
     private readonly SoundEffectContent _effects = new(content);
+
     private readonly Random _random = new();
 
-    public void Play(SoundEffectTypes effectType) =>
+    public void Play(SoundEffectTypes effectType)
+    {
         EffectsFor(effectType).PickRandom(_random).Play(effectType, settingsMonitor.CurrentValue);
+
+        // Duck music briefly when firing
+        if (effectType is SoundEffectTypes.Shoot)
+            _ = musicPlayer.DuckFor(TimeSpan.FromMilliseconds(40), 0.5f); // fire-and-forget async
+    }
 
     private SoundEffect[] EffectsFor(SoundEffectTypes effectType) => effectType switch
     {
