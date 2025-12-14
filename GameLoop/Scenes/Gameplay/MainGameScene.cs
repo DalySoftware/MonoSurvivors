@@ -33,6 +33,7 @@ internal class MainGameScene : IScene
         IAudioPlayer audioPlayer,
         EffectManager effectManager,
         Action openSphereGrid,
+        Action openPauseMenu,
         PlayerCharacter player)
     {
         _content = new ContentManager(coreContent.ServiceProvider)
@@ -61,7 +62,8 @@ internal class MainGameScene : IScene
         _input = new GameplayInputManager(player)
         {
             OnExit = exitGame,
-            OnOpenSphereGrid = openSphereGrid
+            OnOpenSphereGrid = openSphereGrid,
+            OnPause = openPauseMenu
         };
 
         _healthBar = new HealthBar(_content, player)

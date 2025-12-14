@@ -1,6 +1,7 @@
 using System;
 using GameLoop.Music;
 using GameLoop.Persistence;
+using GameLoop.SoundEffects;
 using GameLoop.UserSettings;
 using Gameplay.Audio;
 using Gameplay.Entities;

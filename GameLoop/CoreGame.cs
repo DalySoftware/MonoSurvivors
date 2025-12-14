@@ -5,14 +5,18 @@ using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
 using GameLoop.Scenes.SphereGridScene;
+using GameLoop.Scenes.Pause;
 using GameLoop.Scenes.Title;
+using GameLoop.UserSettings;
 using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Xna.Framework;
 
 namespace GameLoop;
@@ -65,7 +69,7 @@ public class CoreGame : Game
         _sphereGrid = GridFactory.Create(player.AddPowerUp);
 
         _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager,
-            ShowSphereGrid, player));
+            ShowSphereGrid, ShowPauseMenu, player));
     }
 
     private void ShowGameOver()
@@ -104,6 +108,26 @@ public class CoreGame : Game
             Exit);
         _sceneManager.Push(scene);
         _music.DuckBackgroundMusic();
+    }
+
+    private void ShowPauseMenu()
+    {
+        void OnResume()
+        {
+            _sceneManager.Pop();
+        }
+
+        var audioSettings = _services.GetRequiredService<IOptions<AudioSettings>>();
+        var configuration = _services.GetRequiredService<IConfiguration>();
+
+        var scene = new PauseMenuScene(
+            GraphicsDevice,
+            Content,
+            OnResume,
+            ReturnToTitle,
+            audioSettings,
+            configuration);
+        _sceneManager.Push(scene);
     }
 
     protected override void Update(GameTime gameTime)

@@ -15,7 +15,7 @@ internal class SphereGridInputManager : BaseInputManager
     {
         base.Update();
 
-        if (WasPressedThisFrame(Keys.Tab)) OnClose();
+        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed || WasPressedThisFrame(Keys.Tab)) OnClose();
 
         IsPanning = MouseState.MiddleButton == ButtonState.Pressed;
         if (IsPanning)

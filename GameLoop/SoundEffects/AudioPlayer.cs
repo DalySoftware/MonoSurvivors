@@ -1,15 +1,20 @@
 ﻿using System;
+using GameLoop.UserSettings;
+using Gameplay.Audio;
+using Microsoft.Extensions.Options;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
-namespace Gameplay.Audio;
+namespace GameLoop.SoundEffects;
 
-public class AudioPlayer(ContentManager content) : IAudioPlayer
+public class AudioPlayer(ContentManager content, IOptionsMonitor<AudioSettings> settingsMonitor)
+    : IAudioPlayer
 {
     private readonly SoundEffectContent _effects = new(content);
     private readonly Random _random = new();
 
-    public void Play(SoundEffectTypes effectType) => EffectsFor(effectType).PickRandom(_random).Play(effectType);
+    public void Play(SoundEffectTypes effectType) =>
+        EffectsFor(effectType).PickRandom(_random).Play(effectType, settingsMonitor.CurrentValue);
 
     private SoundEffect[] EffectsFor(SoundEffectTypes effectType) => effectType switch
     {
@@ -25,16 +30,18 @@ internal static class Extensions
 {
     internal static T PickRandom<T>(this T[] array, Random random) => array[random.Next(0, array.Length)];
 
-    internal static void Play(this SoundEffect effect, SoundEffectTypes type)
+    internal static void Play(this SoundEffect effect, SoundEffectTypes type, AudioSettings settings)
     {
+        var volume = settings.MasterVolume * settings.SoundEffectVolume;
+
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (type)
         {
             case SoundEffectTypes.ExperiencePickup:
-                effect.Play(0.2f, 0f, 0f);
+                effect.Play(volume * 0.2f, 0f, 0f);
                 return;
             default:
-                effect.Play();
+                effect.Play(volume, 0f, 0f);
                 break;
         }
     }

@@ -9,10 +9,17 @@ namespace GameLoop.Scenes.Gameplay;
 internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
 {
     internal Action OnOpenSphereGrid { get; init; } = () => { };
+    internal Action OnPause { get; init; } = () => { };
 
     internal override void Update()
     {
         base.Update();
+
+        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Start == ButtonState.Pressed)
+        {
+            OnPause();
+            return;
+        }
 
         if (WasPressedThisFrame(Keys.Tab))
         {

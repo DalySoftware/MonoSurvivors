@@ -45,8 +45,6 @@ internal abstract class BaseInputManager
             PreviousMouseState = MouseState;
             MouseState = Mouse.GetState();
         }
-
-        if (KeyboardState.IsKeyDown(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) OnExit();
     }
 
     protected static bool WasPressedThisFrame(Keys key) =>

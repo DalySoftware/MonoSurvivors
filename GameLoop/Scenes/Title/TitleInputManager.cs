@@ -12,6 +12,7 @@ internal class TitleInputManager : BaseInputManager
     {
         base.Update();
 
+        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) OnExit();
         if (WasPressedThisFrame(Keys.Enter) || GamePadState.Buttons.Start == ButtonState.Pressed) OnStartGame();
     }
 }

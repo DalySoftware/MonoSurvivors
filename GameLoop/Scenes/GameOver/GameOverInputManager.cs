@@ -12,6 +12,7 @@ internal class GameOverInputManager : BaseInputManager
     {
         base.Update();
 
+        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) OnExit();
         if (KeyboardState.IsKeyDown(Keys.Space) || GamePadState.Buttons.Start == ButtonState.Pressed) OnRestart();
     }
 }

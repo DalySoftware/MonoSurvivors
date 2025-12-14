@@ -78,7 +78,19 @@ public sealed class PersistenceConfigurationProvider : ConfigurationProvider, ID
             current = (Dictionary<string, object?>)next!;
         }
 
-        current[parts[^1]] = value;
+        // Try to parse numeric values
+        object? finalValue = value;
+        if (value != null)
+        {
+            if (float.TryParse(value, out var floatVal))
+                finalValue = floatVal;
+            else if (int.TryParse(value, out var intVal))
+                finalValue = intVal;
+            else if (bool.TryParse(value, out var boolVal))
+                finalValue = boolVal;
+        }
+
+        current[parts[^1]] = finalValue;
     }
 
     private static Dictionary<string, string?> FlattenObject(GameSettings obj)
