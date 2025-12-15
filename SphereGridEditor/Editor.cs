@@ -454,8 +454,8 @@ public class Editor : Game
                 ("ProjectileSpeedUp", "Projectile Speed Up")
             };
 
-            var menuWidth = buttonWidth + padding * 2 + 200;
-            var menuHeight = (buttonHeight + 5) * (buttons.Length + 1) + padding * 3 + 40;
+            var menuWidth = buttonWidth + padding * 2 + 300;
+            var menuHeight = (buttonHeight + 5) * (buttons.Length + 1) + padding * 3 + 120;
 
             // Draw background
             var menuRect = new Rectangle((int)menuPos.X, (int)menuPos.Y, menuWidth, menuHeight);
