@@ -404,6 +404,12 @@
 /processorParam:Quality=Best
 /build:Music/AppleStrudel.wav
 
+#begin Music/Venezuela.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela.wav
+
 #begin Shaders/greyscale.fx
 /importer:EffectImporter
 /processor:EffectProcessor

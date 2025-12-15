@@ -17,7 +17,7 @@ public sealed class MusicPlayer : IDisposable
 
     public MusicPlayer(ContentManager content, IOptionsMonitor<AudioSettings> settingsMonitor)
     {
-        _soundEffect = content.Load<SoundEffect>(Paths.Music.AppleStrudel).CreateInstance();
+        _soundEffect = content.Load<SoundEffect>(Paths.Music.Venezuela).CreateInstance();
         _soundEffect.IsLooped = true;
 
         // Set initial volume
