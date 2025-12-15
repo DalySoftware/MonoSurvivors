@@ -13,6 +13,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
 {
     private readonly HashSet<EnemyBase> _hitEnemies = [];
     private readonly HashSet<EnemyBase> _immuneEnemies;
+    private readonly PlayerCharacter _owner;
     private readonly float _maxRange;
     private readonly Action<Bullet, EnemyBase>? _onHit;
     private readonly int _pierce;
@@ -25,16 +26,19 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
     /// <param name="maxRange">Expire after travelling this many pixels</param>
     /// <param name="pierceEnemies">Pierce this many enemies</param>
     /// <param name="onHit">Applied on hitting an enemy</param>
-    public Bullet(Vector2 initialPosition, Vector2 target, float damage, float maxRange, int pierceEnemies = 0,
+    public Bullet(PlayerCharacter owner, Vector2 initialPosition, Vector2 target, float damage, float maxRange,
+        int pierceEnemies = 0,
         float speed = 1f, Action<Bullet, EnemyBase>? onHit = null, HashSet<EnemyBase>? immuneEnemies = null) : base(
         initialPosition)
     {
-        Velocity = (Vector2)new UnitVector2(target - initialPosition) * speed;
-        Damage = damage;
+        _owner = owner;
         _maxRange = maxRange;
         _pierce = pierceEnemies;
         _onHit = onHit;
         _immuneEnemies = immuneEnemies ?? [];
+
+        Velocity = (Vector2)new UnitVector2(target - initialPosition) * speed;
+        Damage = damage;
     }
 
     public float Damage { get; }
@@ -44,7 +48,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
     {
         if (_immuneEnemies.Contains(enemy)) return;
 
-        enemy.Health -= Damage;
+        enemy.TakeDamage(_owner, Damage);
         _hitEnemies.Add(enemy);
         if (_hitEnemies.Count > _pierce)
             MarkedForDeletion = true;

@@ -67,7 +67,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var baseDamage = 8f * stats.DamageMultiplier;
         var damage = CritCalculator.CalculateDamage(baseDamage, stats.CritChance, stats.CritDamage);
         var range = 300f * stats.RangeMultiplier;
-        var bullet = new Bullet(owner.Position, target.Position, damage, range, stats.Pierce,
+        var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, stats.Pierce,
             BulletSpeed * stats.SpeedMultiplier, OnHit);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
@@ -88,6 +88,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
             var target = spawnPoint + direction;
 
             var splitBullet = new Bullet(
+                owner,
                 spawnPoint,
                 target,
                 bullet.Damage * BulletSplitDamageRatio,

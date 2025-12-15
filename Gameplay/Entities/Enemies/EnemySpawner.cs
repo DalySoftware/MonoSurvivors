@@ -30,7 +30,7 @@ public class EnemySpawner : IEntity
         _audio = audio;
 
         var enemyFactory = new EnemyFactory(player, OnDeath);
-        _experienceSpawner = new ExperienceSpawner(entityManager, player, audio);
+        _experienceSpawner = new ExperienceSpawner(entityManager, audio);
         _screenPositioner = new ScreenPositioner(graphics, 0.3f);
 
         _waves =
@@ -41,8 +41,8 @@ public class EnemySpawner : IEntity
                 WaveCooldown = TimeSpan.FromSeconds(5),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
-                    { enemyFactory.BasicEnemy, 4 }
-                }
+                    { enemyFactory.BasicEnemy, 4 },
+                },
             },
             new SpawnPhase
             {
@@ -51,8 +51,8 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 10 },
-                    { enemyFactory.Hulker, 1 }
-                }
+                    { enemyFactory.Hulker, 1 },
+                },
             },
             new SpawnPhase
             {
@@ -61,8 +61,8 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 10 },
-                    { enemyFactory.Hulker, 2 }
-                }
+                    { enemyFactory.Hulker, 2 },
+                },
             },
             new SpawnPhase
             {
@@ -71,8 +71,8 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 5 },
-                    { enemyFactory.Hulker, 5 }
-                }
+                    { enemyFactory.Hulker, 5 },
+                },
             },
             new SpawnPhase
             {
@@ -81,9 +81,9 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 5 },
-                    { enemyFactory.Hulker, 10 }
-                }
-            }
+                    { enemyFactory.Hulker, 10 },
+                },
+            },
         ];
     }
 
@@ -108,9 +108,9 @@ public class EnemySpawner : IEntity
             );
     }
 
-    private void OnDeath(EnemyBase enemy)
+    private void OnDeath(EnemyBase enemy, PlayerCharacter killer)
     {
-        _experienceSpawner.SpawnExperienceFor(enemy);
+        _experienceSpawner.SpawnExperienceFor(enemy, killer);
         _audio.Play(SoundEffectTypes.EnemyDeath);
         _player.TrackKills(1);
     }

@@ -12,27 +12,23 @@ public abstract class EnemyBase(Vector2 position, int damage)
     /// <summary>
     ///     Will be executed with the current instance as the argument
     /// </summary>
-    internal Action<EnemyBase> OnDeath { get; init; } = _ => { };
+    internal Action<EnemyBase, PlayerCharacter>? OnDeath { get; init; }
 
     internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
 
-    public float Health
-    {
-        get;
-        set
-        {
-            if (value <= 0)
-            {
-                MarkedForDeletion = true;
-                OnDeath(this);
-            }
-
-            field = value;
-        }
-    }
+    public float Health { get; protected set; }
 
     public abstract float Experience { get; }
 
     public int Damage { get; } = damage;
     public required ICollider Collider { get; init; }
+
+    public void TakeDamage(PlayerCharacter damager, float amount)
+    {
+        Health -= amount;
+        if (Health > 0) return;
+
+        MarkedForDeletion = true;
+        OnDeath?.Invoke(this, damager);
+    }
 }
