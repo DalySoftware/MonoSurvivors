@@ -10,7 +10,7 @@ internal static class NodeFactory
         new(new DamageUp(nodeLevel * 0.25f), nodeLevel, nodeLevel);
 
     internal static Node SpeedUp(int nodeLevel) =>
-        new(new SpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
+        new(new SpeedUp(nodeLevel * 0.05f), nodeLevel, nodeLevel);
 
     internal static Node MaxHealthUp(int nodeLevel) =>
         new(new MaxHealthUp(nodeLevel * 2), nodeLevel, nodeLevel);
