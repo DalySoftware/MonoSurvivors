@@ -211,6 +211,7 @@ internal class SphereGridUi
         CritDamageUp => "Increase Critical Hit Damage",
         PierceUp => "Pierce more enemies",
         ProjectileSpeedUp => "Increase Projectile Speed",
+        BulletSplitUp => "Increase Bullet Split",
         _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
     };
 
@@ -223,12 +224,13 @@ internal class SphereGridUi
         AttackSpeedUp attackSpeedUp => $"Increase Attack Speed by {attackSpeedUp.Value:P0}",
         ShotCountUp shotCountUp => $"Fire {shotCountUp.ExtraShots} extra shots",
         RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
-        LifeStealUp => "Increase LifeSteal",
+        LifeStealUp => "Increase Life Steal",
         ExperienceUp experienceUp => $"Increase Experience Multiplier by {experienceUp.Value:P0}",
         CritChanceUp critChanceUp => $"Increase Critical Hit Chance by {critChanceUp.Value:P0}",
         CritDamageUp critDamageUp => $"Increase Critical Hit Damage by {critDamageUp.Value:P0}",
         PierceUp pierceUp => $"Projectiles pierce {pierceUp.Value} more {pierceUp.Value.EnemiesLabel()}",
         ProjectileSpeedUp projectileSpeedUp => $"Increase Projectile Speed by {projectileSpeedUp.Value:P0}",
+        BulletSplitUp bulletSplitUp => "Increase Bullet Split",
         _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
     };
 

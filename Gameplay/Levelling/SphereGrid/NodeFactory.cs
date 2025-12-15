@@ -58,4 +58,7 @@ internal static class NodeFactory
         1 => 3,
         _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
     };
+
+    internal static Node BulletSplitUp(int nodeLevel) =>
+        new(new BulletSplitUp(nodeLevel), nodeLevel, nodeLevel * 2);
 }

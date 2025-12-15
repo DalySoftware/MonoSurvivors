@@ -33,6 +33,9 @@ public class WeaponBelt : IEntity
         _stats.CritChance = _powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
         _stats.CritDamage =
             _powerUps.OfType<CritDamageUp>().Sum(p => p.Value) + CritCalculator.BaseCritDamageMultiplier;
+
+        var bulletSplit = _powerUps.OfType<BulletSplitUp>().Sum(p => p.Bullets);
+        _stats.BulletSplit = bulletSplit <= 0 ? 0 : bulletSplit + 1; // never split into only 1 bullet
     }
 }
 
@@ -46,4 +49,5 @@ public class WeaponBeltStats
     public float SpeedMultiplier { get; set; } = 1f;
     public float CritChance { get; set; } = 0f;
     public float CritDamage { get; set; } = CritCalculator.BaseCritDamageMultiplier;
+    public int BulletSplit { get; set; } = 0;
 }

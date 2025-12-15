@@ -21,14 +21,14 @@ public static class NodeColors
         return node.PowerUp switch
         {
             DamageUp or AttackSpeedUp => damageColor,
-            ShotCountUp or PierceUp => damageEffectsColor,
+            ShotCountUp or PierceUp or BulletSplitUp => damageEffectsColor,
             MaxHealthUp or LifeStealUp => healthColor,
             SpeedUp => speedColor,
             RangeUp or ProjectileSpeedUp => weaponUtilityColor,
             PickupRadiusUp or ExperienceUp => utilityColor,
             CritChanceUp or CritDamageUp => critColor,
             null => Color.Gold,
-            _ => throw new ArgumentOutOfRangeException(nameof(node))
+            _ => throw new ArgumentOutOfRangeException(nameof(node)),
         };
     }
 }

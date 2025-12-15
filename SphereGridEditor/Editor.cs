@@ -375,7 +375,7 @@ public class Editor : Game
             {
                 new($"Level: {_hoveredNode.Level}"),
                 new($"PowerUp: {_hoveredNode.PowerUp?.GetType().Name ?? "None"}"),
-                new($"Connections: {_hoveredNode.Neighbours.Count}")
+                new($"Connections: {_hoveredNode.Neighbours.Count}"),
             };
 
             foreach (var conn in connectionDetails)
@@ -390,7 +390,7 @@ public class Editor : Game
             DrawInfoPanel(new Vector2(10, 10), "SELECTED NODE", [
                 $"Level: {_selectedNode.Level}",
                 $"PowerUp: {_selectedNode.PowerUp?.GetType().Name ?? "None"}",
-                $"Connections: {_selectedNode.Neighbours.Count}"
+                $"Connections: {_selectedNode.Neighbours.Count}",
             ], Color.Yellow);
 
         // Draw help text at bottom
@@ -399,7 +399,7 @@ public class Editor : Game
         var helpLines = new[]
         {
             "N: New node | Del: Delete node | Middle-drag: Pan",
-            "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | C: Copy | T: Recalculate layout"
+            "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | C: Copy | T: Recalculate layout",
         };
 
         var y = (float)GraphicsDevice.Viewport.Height;
@@ -451,7 +451,8 @@ public class Editor : Game
                 ("CritChanceUp", "Crit Chance Up"),
                 ("CritDamageUp", "Crit Damage Up"),
                 ("PierceUp", "Pierce Up"),
-                ("ProjectileSpeedUp", "Projectile Speed Up")
+                ("ProjectileSpeedUp", "Projectile Speed Up"),
+                ("BulletSplitUp", "Bullet Split Up"),
             };
 
             var menuWidth = buttonWidth + padding * 2 + 300;
@@ -574,7 +575,7 @@ public class Editor : Game
         EdgeDirection.MiddleRight => new Vector2(radius, 0),
         EdgeDirection.BottomLeft => new Vector2(-radius * 0.5f, radius * 0.866f),
         EdgeDirection.BottomRight => new Vector2(radius * 0.5f, radius * 0.866f),
-        _ => Vector2.Zero
+        _ => Vector2.Zero,
     };
 
     private void DrawCircle(Vector2 center, float radius, Color color)
@@ -700,7 +701,8 @@ public class Editor : Game
             nameof(CritDamageUp) => CritDamageUp(level),
             nameof(PierceUp) => PierceUp(level),
             nameof(ProjectileSpeedUp) => ProjectileSpeedUp(level),
-            _ => throw new ArgumentOutOfRangeException(nameof(powerupType))
+            nameof(BulletSplitUp) => BulletSplitUp(level),
+            _ => throw new ArgumentOutOfRangeException(nameof(powerupType)),
         };
 
         _nodePositions[newNode] = worldPosition;
@@ -736,7 +738,8 @@ public class Editor : Game
             (typeof(CritChanceUp), "Crit Chance Up"),
             (typeof(CritDamageUp), "Crit Damage Up"),
             (typeof(PierceUp), "Pierce Up"),
-            (typeof(ProjectileSpeedUp), "Projectile Speed Up")
+            (typeof(ProjectileSpeedUp), "Projectile Speed Up"),
+            (typeof(BulletSplitUp), "Bullet Split Up"),
         };
 
         // Check input field
@@ -814,6 +817,7 @@ public class Editor : Game
         ProjectileSpeedUp _ => "PSPD",
         RangeUp _ => "RNG",
         ShotCountUp _ => "SC",
-        _ => throw new ArgumentOutOfRangeException(nameof(node))
+        BulletSplitUp _ => "SPLT",
+        _ => throw new ArgumentOutOfRangeException(nameof(node)),
     };
 }

@@ -27,9 +27,6 @@ internal class DamageProcessor
         var enemies = entities.OfType<EnemyBase>();
 
         foreach (var (enemy, damager) in _collisionChecker.FindOverlaps(enemies, enemyDamagers))
-        {
-            enemy.Health -= damager.Damage;
             damager.OnHit(enemy);
-        }
     }
 }
