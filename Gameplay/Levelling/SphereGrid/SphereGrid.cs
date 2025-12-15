@@ -27,6 +27,7 @@ public class SphereGrid
 
     public bool CanUnlock(Node node) =>
         AvailablePoints >= node.Cost &&
+        !IsUnlocked(node) &&
         _unlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
 
     public bool IsUnlocked(Node node) => _unlockedNodes.Contains(node);
