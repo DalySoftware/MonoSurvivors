@@ -8,7 +8,7 @@ internal static class ArcSpreader
     /// <summary>
     ///     Arc mode: first and last bullets sit exactly at the edges of the arc.
     /// </summary>
-    internal static IEnumerable<Vector2> Arc(Vector2 baseDirection, int count, float totalAngle)
+    internal static IEnumerable<UnitVector2> Arc(Vector2 baseDirection, int count, float totalAngle)
     {
         if (count <= 0) yield break;
 
@@ -16,7 +16,7 @@ internal static class ArcSpreader
 
         if (count == 1)
         {
-            yield return dir;
+            yield return new UnitVector2(dir);
             yield break;
         }
 
@@ -26,7 +26,7 @@ internal static class ArcSpreader
         for (var i = 0; i < count; i++)
         {
             var angle = start + step * i;
-            yield return Rotate(dir, angle);
+            yield return new UnitVector2(Rotate(dir, angle));
         }
     }
 
@@ -34,7 +34,7 @@ internal static class ArcSpreader
     ///     Even-spacing mode: bullets are evenly spaced around the centre,
     ///     first/last are inset by half a step.
     /// </summary>
-    internal static IEnumerable<Vector2> EvenlySpace(Vector2 baseDirection, int count, float totalAngle)
+    internal static IEnumerable<UnitVector2> EvenlySpace(Vector2 baseDirection, int count, float totalAngle)
     {
         if (count <= 0) yield break;
 
@@ -42,7 +42,7 @@ internal static class ArcSpreader
 
         if (count == 1)
         {
-            yield return dir;
+            yield return new UnitVector2(dir);
             yield break;
         }
 
@@ -52,7 +52,7 @@ internal static class ArcSpreader
         for (var i = 0; i < count; i++)
         {
             var angle = start + step * i;
-            yield return Rotate(dir, angle);
+            yield return new UnitVector2(Rotate(dir, angle));
         }
     }
     internal static Vector2 RandomDirection()

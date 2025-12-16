@@ -14,11 +14,25 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
     private readonly HashSet<EnemyBase> _hitEnemies = [];
     private readonly HashSet<EnemyBase> _immuneEnemies;
     private readonly PlayerCharacter _owner;
-    private readonly float _maxRange;
     private readonly Action<Bullet, EnemyBase>? _onHit;
     private readonly int _pierce;
 
     private float _distanceTraveled = 0f;
+
+    public Bullet(PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage, float maxRange,
+        int pierceEnemies = 0, Action<Bullet, EnemyBase>? onHit = null,
+        HashSet<EnemyBase>? immuneEnemies = null) : base(
+        initialPosition)
+    {
+        _owner = owner;
+        MaxRange = maxRange;
+        _pierce = pierceEnemies;
+        _onHit = onHit;
+        _immuneEnemies = immuneEnemies ?? [];
+
+        Velocity = velocity;
+        Damage = damage;
+    }
 
     /// <param name="initialPosition">Spawn the bullet here</param>
     /// <param name="target">Aim at this</param>
@@ -28,18 +42,11 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
     /// <param name="onHit">Applied on hitting an enemy</param>
     public Bullet(PlayerCharacter owner, Vector2 initialPosition, Vector2 target, float damage, float maxRange,
         int pierceEnemies = 0,
-        float speed = 1f, Action<Bullet, EnemyBase>? onHit = null, HashSet<EnemyBase>? immuneEnemies = null) : base(
-        initialPosition)
-    {
-        _owner = owner;
-        _maxRange = maxRange;
-        _pierce = pierceEnemies;
-        _onHit = onHit;
-        _immuneEnemies = immuneEnemies ?? [];
+        float speed = 1f, Action<Bullet, EnemyBase>? onHit = null, HashSet<EnemyBase>? immuneEnemies = null) :
+        this(owner, initialPosition, CalculateVelocity(initialPosition, target, speed), damage, maxRange, pierceEnemies,
+            onHit, immuneEnemies) { }
 
-        Velocity = (Vector2)new UnitVector2(target - initialPosition) * speed;
-        Damage = damage;
-    }
+    internal float MaxRange { get; }
 
     public float Damage { get; }
     public ICollider Collider => new CircleCollider(this, 16f);
@@ -57,13 +64,16 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
 
     public string TexturePath => Paths.Images.Bullet;
 
+    private static Vector2 CalculateVelocity(Vector2 initialPosition, Vector2 target, float speed) =>
+        (Vector2)new UnitVector2(target - initialPosition) * speed;
+
     public override void Update(GameTime gameTime)
     {
         var previousPosition = Position;
         base.Update(gameTime);
 
         _distanceTraveled += Vector2.Distance(previousPosition, Position);
-        if (_distanceTraveled >= _maxRange)
+        if (_distanceTraveled >= MaxRange)
             MarkedForDeletion = true;
     }
 }

@@ -18,5 +18,7 @@ public readonly record struct UnitVector2
     public float X { get; }
     public float Y { get; }
 
-    public static explicit operator Vector2(UnitVector2 uv) => new(uv.X, uv.Y);
+    public static implicit operator Vector2(UnitVector2 uv) => new(uv.X, uv.Y);
+
+    public static Vector2 operator *(UnitVector2 v, float scalar) => (Vector2)v * scalar;
 }

@@ -15,7 +15,7 @@ public static class EnemyDeathBlast
 
         foreach (var direction in bulletDirections)
         {
-            var bullet = new Bullet(owner, position, position + direction * 100f, damage, 100f);
+            var bullet = new Bullet(owner, position, position + direction, damage, 100f, speed: 1f);
             entityManager.Spawn(bullet);
         }
     }

@@ -1,8 +1,6 @@
 ﻿using System;
 using Gameplay.Audio;
 using Gameplay.Entities;
-using Gameplay.Entities.Enemies;
-using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
@@ -10,12 +8,10 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
     : IWeapon
 {
     private const float BulletSpeed = 1f;
-    private const float BulletSplitAngle = MathF.PI / 6; // 30° total spread
-    private const float BulletSplitBaseRange = 200f;
-    private const float BulletSplitDamageRatio = 0.5f;
     private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
 
     private readonly TimeSpan _extraShotCooldown = TimeSpan.FromSeconds(0.2);
+    private readonly BulletSplitter _bulletSplitter = new(owner, MathF.PI / 6, 0.5f, spawnEntity);
 
     private WeaponBeltStats _stats = new();
 
@@ -64,36 +60,9 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var damage = CritCalculator.CalculateDamage(baseDamage, _stats.CritChance, _stats.CritDamage);
         var range = 300f * _stats.RangeMultiplier;
         var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, _stats.Pierce,
-            BulletSpeed * _stats.SpeedMultiplier, OnHit);
+            BulletSpeed * _stats.SpeedMultiplier, _bulletSplitter.SpawnAnyOnHitBulletSplits);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
-    }
-
-    private void OnHit(Bullet bullet, EnemyBase enemy)
-    {
-        if (_stats.BulletSplit <= 0)
-            return;
-
-        var spawnPoint = enemy.Position;
-        var range = BulletSplitBaseRange * _stats.RangeMultiplier;
-
-        var bulletDirections = ArcSpreader.Arc(bullet.Velocity, _stats.BulletSplit, BulletSplitAngle);
-
-        foreach (var direction in bulletDirections)
-        {
-            var target = spawnPoint + direction;
-
-            var splitBullet = new Bullet(
-                owner,
-                spawnPoint,
-                target,
-                bullet.Damage * BulletSplitDamageRatio,
-                range,
-                speed: BulletSpeed,
-                immuneEnemies: [enemy]);
-
-            spawnEntity.Spawn(splitBullet);
-        }
     }
 
     private enum ExtraShotsResult
