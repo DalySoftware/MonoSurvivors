@@ -1,4 +1,5 @@
 ﻿using System;
+using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
 
@@ -50,6 +51,9 @@ internal static class NodeFactory
 
     internal static Node ExplodeOnKillUp(int nodeLevel) =>
         new(new ExplodeOnKillUp(nodeLevel * 3), nodeLevel, HighCost(nodeLevel));
+
+    internal static Node ShotgunUnlock(int nodeLevel) =>
+        new(new WeaponUnlock<Shotgun>(), nodeLevel, 5);
 
 
     private static int MediumCost(int nodeLevel) => nodeLevel switch

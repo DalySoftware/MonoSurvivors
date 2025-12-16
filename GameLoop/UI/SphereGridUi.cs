@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
 using GameLoop.Scenes.SphereGridScene;
 using Gameplay.Levelling.PowerUps;
-using Gameplay.Levelling.PowerUps.Player;
-using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
@@ -146,7 +143,7 @@ internal class SphereGridUi
         var isUnlocked = _grid.IsUnlocked(node);
         var canUnlock = _grid.CanUnlock(node);
 
-        var baseColor = node.BaseColor();
+        var baseColor = node.PowerUp.BaseColor();
         var color =
             isUnlocked ? baseColor.ShiftLightness(-0.25f) :
             canUnlock ? baseColor.ShiftChroma(-0f).ShiftLightness(0.3f) :
@@ -183,11 +180,11 @@ internal class SphereGridUi
     {
         if (node.PowerUp is not { } powerUp) return;
 
-        var title = TitleFor(powerUp);
+        var title = powerUp.Title();
 
         ToolTipBodyLine[] body =
         [
-            new(DescriptionFor(powerUp)),
+            new(powerUp.Description()),
             new($"Cost: {node.Cost} SP"),
             UnlockTextFor(node),
         ];
@@ -196,45 +193,6 @@ internal class SphereGridUi
         _toolTipRenderer.DrawTooltip(spriteBatch, tooltip, Layers.ToolTip);
     }
 
-    private static string TitleFor(IPowerUp powerUp) => powerUp switch
-    {
-        MaxHealthUp => "Increase Max Health",
-        SpeedUp => "Increase Speed",
-        PickupRadiusUp => "Increase Pickup Radius",
-        DamageUp => "Increase Damage",
-        AttackSpeedUp => "Increase Attack Speed",
-        ShotCountUp => "Increase Shot Count",
-        RangeUp => "Increase Range",
-        LifeStealUp => "Increase Life Steal",
-        ExperienceUp => "Increase Experience Multiplier",
-        CritChanceUp => "Increase Critical Hit Chance",
-        CritDamageUp => "Increase Critical Hit Damage",
-        PierceUp => "Pierce more enemies",
-        ProjectileSpeedUp => "Increase Projectile Speed",
-        BulletSplitUp => "Increase Bullet Split",
-        ExplodeOnKillUp => "Increase on kill explosion",
-        _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
-    };
-
-    private static string DescriptionFor(IPowerUp powerUp) => powerUp switch
-    {
-        MaxHealthUp maxHealthUp => $"Increase Max Health by {(maxHealthUp.Value / 2).HeartLabel()}",
-        SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
-        PickupRadiusUp pickupRadiusUp => $"Increase Pickup Radius by {pickupRadiusUp.Value:P0}",
-        DamageUp damageUp => $"Increase Damage by {damageUp.Value:P0}",
-        AttackSpeedUp attackSpeedUp => $"Increase Attack Speed by {attackSpeedUp.Value:P0}",
-        ShotCountUp shotCountUp => $"Fire {shotCountUp.ExtraShots} extra shots",
-        RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
-        LifeStealUp => "Increase Life Steal",
-        ExperienceUp experienceUp => $"Increase Experience Multiplier by {experienceUp.Value:P0}",
-        CritChanceUp critChanceUp => $"Increase Critical Hit Chance by {critChanceUp.Value:P0}",
-        CritDamageUp critDamageUp => $"Increase Critical Hit Damage by {critDamageUp.Value:P0}",
-        PierceUp pierceUp => $"Projectiles pierce {pierceUp.Value} more {pierceUp.Value.EnemiesLabel()}",
-        ProjectileSpeedUp projectileSpeedUp => $"Increase Projectile Speed by {projectileSpeedUp.Value:P0}",
-        BulletSplitUp => "Increase Bullet Split",
-        ExplodeOnKillUp => "Increase explosion size on kill",
-        _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
-    };
 
     private ToolTipBodyLine UnlockTextFor(Node node) =>
         _grid.IsUnlocked(node) ? new ToolTipBodyLine("[Unlocked]", Color.LawnGreen) :
@@ -247,14 +205,5 @@ internal class SphereGridUi
         internal const float Nodes = 0.50f;
         internal const float Title = 0.80f;
         internal const float ToolTip = 0.90f;
-    }
-}
-
-internal static class Pluralization
-{
-    extension(int value)
-    {
-        internal string HeartLabel() => $"{value} {(value == 1 ? "heart" : "hearts")}";
-        internal string EnemiesLabel() => value == 1 ? "enemy" : "enemies";
     }
 }

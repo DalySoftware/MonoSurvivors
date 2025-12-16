@@ -4,6 +4,7 @@ using Gameplay.Audio;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
+using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities.Enemies;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
@@ -123,6 +124,10 @@ public class PlayerCharacter(
                 break;
             case ExplodeOnKillUp explodeOnKillUp:
                 _enemyDeathExplosionBullets += explodeOnKillUp.Bullets;
+                break;
+            case WeaponUnlock<Shotgun> shotgunUnlock:
+                var shotgun = new Shotgun(this, entityManager, entityManager, audio);
+                WeaponBelt.AddWeapon(shotgun);
                 break;
             case IWeaponPowerUp weaponPowerUp:
                 WeaponBelt.AddPowerUp(weaponPowerUp);

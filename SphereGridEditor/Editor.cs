@@ -5,12 +5,12 @@ using System.Reflection;
 using System.Text;
 using ContentLibrary;
 using GameLoop.UI;
+using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
-using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,6 +24,28 @@ namespace SphereGridEditor;
 
 public class Editor : Game
 {
+    private readonly static Dictionary<Type, Func<int, Node>> NodeFactories =
+        new()
+        {
+            { typeof(SpeedUp), SpeedUp },
+            { typeof(MaxHealthUp), MaxHealthUp },
+            { typeof(PickupRadiusUp), PickupRadiusUp },
+            { typeof(LifeStealUp), LifeStealUp },
+            { typeof(ExperienceUp), ExperienceUp },
+            { typeof(DamageUp), DamageUp },
+            { typeof(AttackSpeedUp), AttackSpeedUp },
+            { typeof(RangeUp), RangeUp },
+            { typeof(ShotCountUp), ShotCountUp },
+            { typeof(CritChanceUp), CritChanceUp },
+            { typeof(CritDamageUp), CritDamageUp },
+            { typeof(PierceUp), PierceUp },
+            { typeof(ProjectileSpeedUp), ProjectileSpeedUp },
+            { typeof(BulletSplitUp), BulletSplitUp },
+            { typeof(ExplodeOnKillUp), ExplodeOnKillUp },
+            { typeof(WeaponUnlock<Shotgun>), ShotgunUnlock },
+        };
+    private readonly Dictionary<Type, Rectangle> _nodeTypeButtons = [];
+
     private readonly Dictionary<Node, Vector2> _nodePositions = new();
     private Vector2 _cameraOffset;
     private Node? _connectingFromNode;
@@ -248,7 +270,7 @@ public class Editor : Game
                         _hoveredNode.SetNeighbour(reverseDirection, _connectingFromNode);
 
                         Console.WriteLine(
-                            $"Connected {_connectingFromNode.PowerUp?.GetType().Name ?? "Node"} to {_hoveredNode.PowerUp?.GetType().Name ?? "Node"} via {direction} (reverse: {reverseDirection})");
+                            $"Connected {_connectingFromNode.PowerUp?.GetType().DisplayName() ?? "Node"} to {_hoveredNode.PowerUp?.GetType().DisplayName() ?? "Node"} via {direction} (reverse: {reverseDirection})");
                     }
                 }
 
@@ -338,7 +360,7 @@ public class Editor : Game
             var isHovered = node == _hoveredNode;
 
             var radius = isRoot ? 50f : 40f;
-            var baseColor = node.BaseColor();
+            var baseColor = node.PowerUp.BaseColor();
             var color = baseColor;
 
             if (isSelected) color = Color.White;
@@ -374,7 +396,7 @@ public class Editor : Game
             var tooltipLines = new List<ToolTipBodyLine>
             {
                 new($"Level: {_hoveredNode.Level}"),
-                new($"PowerUp: {_hoveredNode.PowerUp?.GetType().Name ?? "None"}"),
+                new($"PowerUp: {_hoveredNode.PowerUp?.GetType().DisplayName() ?? "None"}"),
                 new($"Connections: {_hoveredNode.Neighbours.Count}"),
             };
 
@@ -389,7 +411,7 @@ public class Editor : Game
         if (_selectedNode != null)
             DrawInfoPanel(new Vector2(10, 10), "SELECTED NODE", [
                 $"Level: {_selectedNode.Level}",
-                $"PowerUp: {_selectedNode.PowerUp?.GetType().Name ?? "None"}",
+                $"PowerUp: {_selectedNode.PowerUp?.GetType().DisplayName() ?? "None"}",
                 $"Connections: {_selectedNode.Neighbours.Count}",
             ], Color.Yellow);
 
@@ -439,21 +461,22 @@ public class Editor : Game
 
             var buttons = new[]
             {
-                ("DamageUp", "Damage Up"),
-                ("SpeedUp", "Speed Up"),
-                ("MaxHealthUp", "Max Health Up"),
-                ("AttackSpeedUp", "Attack Speed Up"),
-                ("PickupRadiusUp", "Pickup Radius Up"),
-                ("RangeUp", "Range Up"),
-                ("ShotCountUp", "Shot Count Up"),
-                ("LifeStealUp", "Life Steal Up"),
-                ("ExperienceUp", "Experience Up"),
-                ("CritChanceUp", "Crit Chance Up"),
-                ("CritDamageUp", "Crit Damage Up"),
-                ("PierceUp", "Pierce Up"),
-                ("ProjectileSpeedUp", "Projectile Speed Up"),
-                ("BulletSplitUp", "Bullet Split Up"),
-                ("ExplodeOnKillUp", "Explode On Kill Up"),
+                (typeof(DamageUp), "Damage Up"),
+                (typeof(SpeedUp), "Speed Up"),
+                (typeof(MaxHealthUp), "Max Health Up"),
+                (typeof(AttackSpeedUp), "Attack Speed Up"),
+                (typeof(PickupRadiusUp), "Pickup Radius Up"),
+                (typeof(RangeUp), "Range Up"),
+                (typeof(ShotCountUp), "Shot Count Up"),
+                (typeof(LifeStealUp), "Life Steal Up"),
+                (typeof(ExperienceUp), "Experience Up"),
+                (typeof(CritChanceUp), "Crit Chance Up"),
+                (typeof(CritDamageUp), "Crit Damage Up"),
+                (typeof(PierceUp), "Pierce Up"),
+                (typeof(ProjectileSpeedUp), "Projectile Speed Up"),
+                (typeof(BulletSplitUp), "Bullet Split Up"),
+                (typeof(ExplodeOnKillUp), "Explode On Kill Up"),
+                (typeof(WeaponUnlock<Shotgun>), "Shotgun Unlock"),
             };
 
             var menuWidth = buttonWidth + padding * 2 + 300;
@@ -507,11 +530,13 @@ public class Editor : Game
             var mouseState = Mouse.GetState();
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
+            _nodeTypeButtons.Clear();
             for (var i = 0; i < buttons.Length; i++)
             {
-                var (_, label) = buttons[i];
+                var (type, label) = buttons[i];
                 var buttonY = buttonStartY + i * (buttonHeight + 5);
                 var buttonRect = new Rectangle((int)menuPos.X + padding, (int)buttonY, buttonWidth, buttonHeight);
+                _nodeTypeButtons[type] = buttonRect;
 
                 var isHovered = buttonRect.Contains(mousePos);
                 var buttonColor = isHovered ? Color.Yellow * 0.3f : Color.DarkGray * 0.5f;
@@ -637,7 +662,7 @@ public class Editor : Game
             }
             else
             {
-                var powerUpName = node.PowerUp?.GetType().Name ?? "Node";
+                var powerUpName = node.PowerUp?.GetType().DisplayName() ?? "Node";
                 nodeNames[node] = $"{powerUpName.ToLower()}{nodeIndex++}";
             }
 
@@ -646,7 +671,7 @@ public class Editor : Game
         var sb = new StringBuilder();
         sb.AppendLine($"{indent}var root = new Node(null, 0, 0);");
 
-        string FactoryFor(IPowerUp powerUp) => powerUp.GetType().Name;
+        string FactoryFor(IPowerUp powerUp) => NodeFactories[powerUp.GetType()].Method.Name;
         foreach (var node in _grid.Nodes.Where(node => node != _grid.Root))
             if (node.PowerUp is { } powerUp)
                 sb.AppendLine($"{indent}var {nodeNames[node]} = {FactoryFor(powerUp)}({node.Level});");
@@ -682,31 +707,16 @@ public class Editor : Game
         var nodes = nodesField?.GetValue(_grid) as ISet<Node>;
         nodes?.Remove(node);
 
-        Console.WriteLine($"Deleted node with powerup: {node.PowerUp?.GetType().Name ?? "None"}");
+        Console.WriteLine($"Deleted node with powerup: {node.PowerUp?.GetType().DisplayName() ?? "None"}");
     }
+
 
     private void CreateNodeWithPowerup(Type powerupType, Vector2 worldPosition, int level)
     {
-        var newNode = powerupType.Name switch
-        {
-            nameof(SpeedUp) => SpeedUp(level),
-            nameof(MaxHealthUp) => MaxHealthUp(level),
-            nameof(PickupRadiusUp) => PickupRadiusUp(level),
-            nameof(LifeStealUp) => LifeStealUp(level),
-            nameof(ExperienceUp) => ExperienceUp(level),
-            nameof(DamageUp) => DamageUp(level),
-            nameof(AttackSpeedUp) => AttackSpeedUp(level),
-            nameof(RangeUp) => RangeUp(level),
-            nameof(ShotCountUp) => ShotCountUp(level),
-            nameof(CritChanceUp) => CritChanceUp(level),
-            nameof(CritDamageUp) => CritDamageUp(level),
-            nameof(PierceUp) => PierceUp(level),
-            nameof(ProjectileSpeedUp) => ProjectileSpeedUp(level),
-            nameof(BulletSplitUp) => BulletSplitUp(level),
-            nameof(ExplodeOnKillUp) => ExplodeOnKillUp(level),
-            _ => throw new ArgumentOutOfRangeException(nameof(powerupType)),
-        };
+        if (!NodeFactories.TryGetValue(powerupType, out var createNode))
+            throw new ArgumentOutOfRangeException(nameof(powerupType));
 
+        var newNode = createNode(level);
         _nodePositions[newNode] = worldPosition;
 
         // Add to grid using reflection
@@ -718,51 +728,8 @@ public class Editor : Game
         Console.WriteLine($"Created {powerupType} (level {level}) node. Press 1-6 to connect to other nodes.");
     }
 
-    private Type? GetClickedMenuButton(Vector2 mousePos)
-    {
-        var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 200, GraphicsDevice.Viewport.Height / 2f - 250);
-        var buttonWidth = 180;
-        var buttonHeight = 30;
-        var padding = 10;
-        var lineHeight = _font.MeasureString("A").Y;
-
-        var buttons = new[]
-        {
-            (typeof(DamageUp), "Damage Up"),
-            (typeof(SpeedUp), "Speed Up"),
-            (typeof(MaxHealthUp), "Max Health Up"),
-            (typeof(AttackSpeedUp), "Attack Speed Up"),
-            (typeof(PickupRadiusUp), "Pickup Radius Up"),
-            (typeof(RangeUp), "Range Up"),
-            (typeof(ShotCountUp), "Shot Count Up"),
-            (typeof(LifeStealUp), "Life Steal Up"),
-            (typeof(ExperienceUp), "Experience Up"),
-            (typeof(CritChanceUp), "Crit Chance Up"),
-            (typeof(CritDamageUp), "Crit Damage Up"),
-            (typeof(PierceUp), "Pierce Up"),
-            (typeof(ProjectileSpeedUp), "Projectile Speed Up"),
-            (typeof(BulletSplitUp), "Bullet Split Up"),
-            (typeof(ExplodeOnKillUp), "Explode On Kill Up"),
-        };
-
-        // Check input field
-        var inputY = menuPos.Y + padding * 2 + lineHeight;
-
-        // Check buttons
-        var buttonStartY = inputY + lineHeight + padding * 2;
-
-        for (var i = 0; i < buttons.Length; i++)
-        {
-            var (id, _) = buttons[i];
-            var buttonY = buttonStartY + i * (buttonHeight + 5);
-            var buttonRect = new Rectangle((int)menuPos.X + padding, (int)buttonY, buttonWidth, buttonHeight);
-
-            if (buttonRect.Contains(mousePos))
-                return id;
-        }
-
-        return null;
-    }
+    private Type? GetClickedMenuButton(Vector2 mousePos) =>
+        _nodeTypeButtons.FirstOrDefault(kvp => kvp.Value.Contains(mousePos)).Key;
 
     private void StartConnectionOrDelete(EdgeDirection direction)
     {
@@ -774,7 +741,7 @@ public class Editor : Game
         if (existingNeighbour != null)
         {
             Console.WriteLine(
-                $"Node already has a connection in direction {direction} to {existingNeighbour.PowerUp?.GetType().Name ?? "Node"}. Press X to delete it.");
+                $"Node already has a connection in direction {direction} to {existingNeighbour.PowerUp?.GetType().DisplayName() ?? "Node"}. Press X to delete it.");
 
             // Store the direction for deletion
             _pendingConnectionDirection = direction;
@@ -801,7 +768,7 @@ public class Editor : Game
         targetNode.SetNeighbour(direction.Opposite(), null);
 
         Console.WriteLine(
-            $"Deleted edge from {fromNode.PowerUp?.GetType().Name ?? "Node"} to {targetNode.PowerUp?.GetType().Name ?? "Node"} (direction: {direction})");
+            $"Deleted edge from {fromNode.PowerUp?.GetType().DisplayName() ?? "Node"} to {targetNode.PowerUp?.GetType().DisplayName() ?? "Node"} (direction: {direction})");
     }
 
     private static string Abbreviation(Node node) => node.PowerUp switch
@@ -822,6 +789,18 @@ public class Editor : Game
         ShotCountUp _ => "SC",
         BulletSplitUp _ => "SPLT",
         ExplodeOnKillUp _ => "EOK",
+        WeaponUnlock<Shotgun> _ => "WPN",
         _ => throw new ArgumentOutOfRangeException(nameof(node)),
+    };
+}
+
+internal static class Extensions
+{
+    internal static string DisplayName(this Type? type) => type switch
+    {
+        { IsGenericType: true } when type.GetGenericTypeDefinition() == typeof(WeaponUnlock<>) =>
+            $"{type.GetGenericArguments()[0].Name}Unlock",
+        null => "NULL",
+        _ => type.Name,
     };
 }
