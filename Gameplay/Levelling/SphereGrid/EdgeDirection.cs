@@ -1,27 +1,23 @@
-﻿using System;
-
-namespace Gameplay.Levelling.SphereGrid;
+﻿namespace Gameplay.Levelling.SphereGrid;
 
 public enum EdgeDirection
 {
     TopLeft,
     TopRight,
-    MiddleLeft,
     MiddleRight,
+    BottomRight,
     BottomLeft,
-    BottomRight
+    MiddleLeft,
 }
 
 public static class EdgeDirectionExtensions
 {
-    public static EdgeDirection Opposite(this EdgeDirection direction) => direction switch
+    private const int Count = 6;
+
+    extension(EdgeDirection direction)
     {
-        EdgeDirection.TopLeft => EdgeDirection.BottomRight,
-        EdgeDirection.TopRight => EdgeDirection.BottomLeft,
-        EdgeDirection.MiddleLeft => EdgeDirection.MiddleRight,
-        EdgeDirection.MiddleRight => EdgeDirection.MiddleLeft,
-        EdgeDirection.BottomLeft => EdgeDirection.TopRight,
-        EdgeDirection.BottomRight => EdgeDirection.TopLeft,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction))
-    };
+        public EdgeDirection Opposite() => (EdgeDirection)(((int)direction + Count / 2) % Count);
+        public EdgeDirection RotateClockwiseOnce() => (EdgeDirection)(((int)direction + 1) % Count);
+        public EdgeDirection RotateAntiClockwiseOnce() => (EdgeDirection)(((int)direction + Count - 1) % Count);
+    }
 }
