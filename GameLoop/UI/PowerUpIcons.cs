@@ -40,6 +40,7 @@ internal class PowerUpIcons(ContentManager content)
         RangeUp => _range,
         ShotCountUp => _shotCount,
         BulletSplitUp => _shotCount, // todo
+        ExplodeOnKillUp => _shotCount, // todo
         null => null,
         _ => throw new ArgumentOutOfRangeException(nameof(node)),
     };

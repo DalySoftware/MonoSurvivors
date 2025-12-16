@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gameplay.Audio;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -9,9 +8,7 @@ namespace Gameplay.Entities.Enemies;
 
 public class EnemySpawner : IEntity
 {
-    private readonly IAudioPlayer _audio;
     private readonly EntityManager _entityManager;
-    private readonly ExperienceSpawner _experienceSpawner;
     private readonly PlayerCharacter _player;
     private readonly ScreenPositioner _screenPositioner;
     private readonly List<SpawnPhase> _waves;
@@ -22,15 +19,12 @@ public class EnemySpawner : IEntity
     public EnemySpawner(
         EntityManager entityManager,
         PlayerCharacter player,
-        IAudioPlayer audio,
         GraphicsDevice graphics)
     {
         _entityManager = entityManager;
         _player = player;
-        _audio = audio;
 
-        var enemyFactory = new EnemyFactory(player, OnDeath);
-        _experienceSpawner = new ExperienceSpawner(entityManager, audio);
+        var enemyFactory = new EnemyFactory(player);
         _screenPositioner = new ScreenPositioner(graphics, 0.3f);
 
         _waves =
@@ -106,12 +100,5 @@ public class EnemySpawner : IEntity
             _entityManager.Spawn(
                 enemyFactory(_screenPositioner.GetRandomOffScreenPosition(_player.Position))
             );
-    }
-
-    private void OnDeath(EnemyBase enemy, PlayerCharacter killer)
-    {
-        _experienceSpawner.SpawnExperienceFor(enemy, killer);
-        _audio.Play(SoundEffectTypes.EnemyDeath);
-        _player.TrackKills(1);
     }
 }

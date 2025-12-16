@@ -1,4 +1,3 @@
-﻿using System;
 using System.Collections.Generic;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
@@ -9,11 +8,6 @@ namespace Gameplay.Entities.Enemies;
 public abstract class EnemyBase(Vector2 position, int damage)
     : MovableEntity(position), IDamagesPlayer, ICreatesExperienceOnDeath
 {
-    /// <summary>
-    ///     Will be executed with the current instance as the argument
-    /// </summary>
-    internal Action<EnemyBase, PlayerCharacter>? OnDeath { get; init; }
-
     internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
 
     public float Health { get; protected set; }
@@ -29,6 +23,6 @@ public abstract class EnemyBase(Vector2 position, int damage)
         if (Health > 0) return;
 
         MarkedForDeletion = true;
-        OnDeath?.Invoke(this, damager);
+        damager.OnKill(this);
     }
 }

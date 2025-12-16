@@ -8,10 +8,11 @@ namespace Gameplay.Combat.Weapons;
 public class WeaponBelt : IEntity
 {
     private readonly List<IWeaponPowerUp> _powerUps = [];
-    private readonly WeaponBeltStats _stats = new();
     private readonly List<IWeapon> _weapons = [];
 
-    public void Update(GameTime gameTime) => _weapons.ForEach(w => w.Update(gameTime, _stats));
+    public WeaponBeltStats Stats { get; } = new();
+
+    public void Update(GameTime gameTime) => _weapons.ForEach(w => w.Update(gameTime, Stats));
 
     public void AddWeapon(IWeapon weapon) => _weapons.Add(weapon);
 
@@ -24,18 +25,18 @@ public class WeaponBelt : IEntity
 
     private void RefreshWeaponStats()
     {
-        _stats.AttackSpeedMultiplier = _powerUps.OfType<AttackSpeedUp>().Sum(p => p.Value) + 1f;
-        _stats.DamageMultiplier = _powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
-        _stats.RangeMultiplier = _powerUps.OfType<RangeUp>().Sum(p => p.Value) + 1f;
-        _stats.ExtraShots = _powerUps.OfType<ShotCountUp>().Sum(p => p.ExtraShots);
-        _stats.Pierce = _powerUps.OfType<PierceUp>().Sum(p => p.Value);
-        _stats.SpeedMultiplier = _powerUps.OfType<ProjectileSpeedUp>().Sum(p => p.Value) + 1f;
-        _stats.CritChance = _powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
-        _stats.CritDamage =
+        Stats.AttackSpeedMultiplier = _powerUps.OfType<AttackSpeedUp>().Sum(p => p.Value) + 1f;
+        Stats.DamageMultiplier = _powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
+        Stats.RangeMultiplier = _powerUps.OfType<RangeUp>().Sum(p => p.Value) + 1f;
+        Stats.ExtraShots = _powerUps.OfType<ShotCountUp>().Sum(p => p.ExtraShots);
+        Stats.Pierce = _powerUps.OfType<PierceUp>().Sum(p => p.Value);
+        Stats.SpeedMultiplier = _powerUps.OfType<ProjectileSpeedUp>().Sum(p => p.Value) + 1f;
+        Stats.CritChance = _powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
+        Stats.CritDamage =
             _powerUps.OfType<CritDamageUp>().Sum(p => p.Value) + CritCalculator.BaseCritDamageMultiplier;
 
         var bulletSplit = _powerUps.OfType<BulletSplitUp>().Sum(p => p.Bullets);
-        _stats.BulletSplit = bulletSplit <= 0 ? 0 : bulletSplit + 1; // never split into only 1 bullet
+        Stats.BulletSplit = bulletSplit <= 0 ? 0 : bulletSplit + 1; // never split into only 1 bullet
     }
 }
 

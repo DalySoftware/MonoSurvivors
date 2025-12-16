@@ -81,7 +81,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var spawnPoint = enemy.Position;
         var range = BulletSplitBaseRange * _rangeMultiplier;
 
-        var bulletDirections = VectorSpreader.EvenSpread(bullet.Velocity, _bulletSplit, BulletSplitAngle);
+        var bulletDirections = ArcSpreader.Arc(bullet.Velocity, _bulletSplit, BulletSplitAngle);
 
         foreach (var direction in bulletDirections)
         {

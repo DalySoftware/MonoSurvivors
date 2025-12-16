@@ -4,6 +4,7 @@ using Gameplay.Audio;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
+using Gameplay.Entities.Enemies;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
@@ -13,7 +14,13 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Entities;
 
-public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAudioPlayer audio, Action? onDeath = null)
+public class PlayerCharacter(
+    Vector2 position,
+    EffectManager effectManager,
+    IAudioPlayer audio,
+    EntityManager entityManager,
+    ExperienceSpawner experienceSpawner,
+    Action? onDeath = null)
     : MovableEntity(position), IDamageablePlayer, ISimpleVisual
 {
     private const float BaseSpeed = 0.25f;
@@ -27,6 +34,7 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
     private int _killsSinceLastLifeSteal = 0;
     private int _lifeSteal = 0;
     private float _speedMultiplier = 1f;
+    private int _enemyDeathExplosionBullets;
 
     private float Speed => BaseSpeed * _speedMultiplier;
 
@@ -113,9 +121,21 @@ public class PlayerCharacter(Vector2 position, EffectManager effectManager, IAud
             case ExperienceUp experienceUp:
                 _experienceMultiplier += experienceUp.Value;
                 break;
+            case ExplodeOnKillUp explodeOnKillUp:
+                _enemyDeathExplosionBullets += explodeOnKillUp.Bullets;
+                break;
             case IWeaponPowerUp weaponPowerUp:
                 WeaponBelt.AddPowerUp(weaponPowerUp);
-                return;
+                break;
         }
+    }
+
+    public void OnKill(EnemyBase enemy)
+    {
+        experienceSpawner.SpawnExperienceFor(enemy, this);
+        audio.Play(SoundEffectTypes.EnemyDeath);
+        TrackKills(1);
+        EnemyDeathBlast.Explode(entityManager, this, enemy.Position, _enemyDeathExplosionBullets,
+            WeaponBelt.Stats.DamageMultiplier);
     }
 }

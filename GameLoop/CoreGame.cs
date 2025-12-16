@@ -64,7 +64,9 @@ public class CoreGame : Game
         _music = _services.GetRequiredService<MusicPlayer>();
         _music.PlayBackgroundMusic();
 
-        var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, ShowGameOver);
+        var experienceSpawner = new ExperienceSpawner(entityManager, audioPlayer);
+        var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, entityManager, experienceSpawner,
+            ShowGameOver);
         _levelSystem = new LevelManager(player, OnLevelUp);
         _sphereGrid = GridFactory.Create(player.AddPowerUp);
 

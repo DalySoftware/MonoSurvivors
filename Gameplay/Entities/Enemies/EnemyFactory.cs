@@ -1,16 +1,8 @@
-﻿using System;
+﻿namespace Gameplay.Entities.Enemies;
 
-namespace Gameplay.Entities.Enemies;
-
-public class EnemyFactory(PlayerCharacter player, Action<EnemyBase, PlayerCharacter> onDeath)
+public class EnemyFactory(PlayerCharacter player)
 {
-    public BasicEnemy BasicEnemy(Vector2 position) => new(position, player)
-    {
-        OnDeath = onDeath,
-    };
+    public BasicEnemy BasicEnemy(Vector2 position) => new(position, player);
 
-    public Hulker Hulker(Vector2 position) => new(position, player)
-    {
-        OnDeath = onDeath,
-    };
+    public Hulker Hulker(Vector2 position) => new(position, player);
 }

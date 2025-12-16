@@ -453,6 +453,7 @@ public class Editor : Game
                 ("PierceUp", "Pierce Up"),
                 ("ProjectileSpeedUp", "Projectile Speed Up"),
                 ("BulletSplitUp", "Bullet Split Up"),
+                ("ExplodeOnKillUp", "Explode On Kill Up"),
             };
 
             var menuWidth = buttonWidth + padding * 2 + 300;
@@ -702,6 +703,7 @@ public class Editor : Game
             nameof(PierceUp) => PierceUp(level),
             nameof(ProjectileSpeedUp) => ProjectileSpeedUp(level),
             nameof(BulletSplitUp) => BulletSplitUp(level),
+            nameof(ExplodeOnKillUp) => ExplodeOnKillUp(level),
             _ => throw new ArgumentOutOfRangeException(nameof(powerupType)),
         };
 
@@ -740,6 +742,7 @@ public class Editor : Game
             (typeof(PierceUp), "Pierce Up"),
             (typeof(ProjectileSpeedUp), "Projectile Speed Up"),
             (typeof(BulletSplitUp), "Bullet Split Up"),
+            (typeof(ExplodeOnKillUp), "Explode On Kill Up"),
         };
 
         // Check input field
@@ -818,6 +821,7 @@ public class Editor : Game
         RangeUp _ => "RNG",
         ShotCountUp _ => "SC",
         BulletSplitUp _ => "SPLT",
+        ExplodeOnKillUp _ => "EOK",
         _ => throw new ArgumentOutOfRangeException(nameof(node)),
     };
 }

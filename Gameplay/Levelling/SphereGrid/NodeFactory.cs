@@ -25,7 +25,7 @@ internal static class NodeFactory
         new(new RangeUp(nodeLevel * 0.3f), nodeLevel, nodeLevel);
 
     internal static Node LifeStealUp(int nodeLevel) =>
-        new(new LifeStealUp(nodeLevel), nodeLevel, nodeLevel * 2);
+        new(new LifeStealUp(nodeLevel), nodeLevel, MediumCost(nodeLevel));
 
     internal static Node ExperienceUp(int nodeLevel) =>
         new(new ExperienceUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
@@ -37,28 +37,32 @@ internal static class NodeFactory
         new(new CritDamageUp(nodeLevel * 0.1f), nodeLevel, nodeLevel);
 
     internal static Node PierceUp(int nodeLevel) =>
-        new(new PierceUp(nodeLevel), nodeLevel, PierceCost(nodeLevel));
-
-    private static int PierceCost(int nodeLevel) => nodeLevel switch
-    {
-        2 => 3,
-        1 => 2,
-        _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
-    };
+        new(new PierceUp(nodeLevel), nodeLevel, MediumCost(nodeLevel));
 
     internal static Node ProjectileSpeedUp(int nodeLevel) =>
         new(new ProjectileSpeedUp(nodeLevel * 0.2f), nodeLevel, nodeLevel);
 
     internal static Node ShotCountUp(int nodeLevel) =>
-        new(new ShotCountUp(nodeLevel), nodeLevel, ShotCountCost(nodeLevel));
+        new(new ShotCountUp(nodeLevel), nodeLevel, HighCost(nodeLevel));
 
-    private static int ShotCountCost(int nodeLevel) => nodeLevel switch
+    internal static Node BulletSplitUp(int nodeLevel) =>
+        new(new BulletSplitUp(nodeLevel), nodeLevel, HighCost(nodeLevel));
+
+    internal static Node ExplodeOnKillUp(int nodeLevel) =>
+        new(new ExplodeOnKillUp(nodeLevel * 3), nodeLevel, HighCost(nodeLevel));
+
+
+    private static int MediumCost(int nodeLevel) => nodeLevel switch
+    {
+        2 => 3,
+        1 => 2,
+        _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel)),
+    };
+
+    private static int HighCost(int nodeLevel) => nodeLevel switch
     {
         2 => 5,
         1 => 3,
-        _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel))
+        _ => throw new ArgumentOutOfRangeException(nameof(nodeLevel)),
     };
-
-    internal static Node BulletSplitUp(int nodeLevel) =>
-        new(new BulletSplitUp(nodeLevel), nodeLevel, nodeLevel * 2);
 }

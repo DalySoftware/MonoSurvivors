@@ -173,7 +173,7 @@ internal class SphereGridUi
     {
         >= 3 => _gridNodeLarge,
         2 => _gridNodeMedium,
-        _ => _gridNodeSmall
+        _ => _gridNodeSmall,
     };
 
     private void DrawNode(SpriteBatch spriteBatch, Texture2D sprite, Vector2 center, Color color) =>
@@ -189,7 +189,7 @@ internal class SphereGridUi
         [
             new(DescriptionFor(powerUp)),
             new($"Cost: {node.Cost} SP"),
-            UnlockTextFor(node)
+            UnlockTextFor(node),
         ];
 
         var tooltip = new ToolTip(title, body);
@@ -212,7 +212,8 @@ internal class SphereGridUi
         PierceUp => "Pierce more enemies",
         ProjectileSpeedUp => "Increase Projectile Speed",
         BulletSplitUp => "Increase Bullet Split",
-        _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
+        ExplodeOnKillUp => "Increase on kill explosion",
+        _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
     };
 
     private static string DescriptionFor(IPowerUp powerUp) => powerUp switch
@@ -230,8 +231,9 @@ internal class SphereGridUi
         CritDamageUp critDamageUp => $"Increase Critical Hit Damage by {critDamageUp.Value:P0}",
         PierceUp pierceUp => $"Projectiles pierce {pierceUp.Value} more {pierceUp.Value.EnemiesLabel()}",
         ProjectileSpeedUp projectileSpeedUp => $"Increase Projectile Speed by {projectileSpeedUp.Value:P0}",
-        BulletSplitUp bulletSplitUp => "Increase Bullet Split",
-        _ => throw new ArgumentOutOfRangeException(nameof(powerUp))
+        BulletSplitUp => "Increase Bullet Split",
+        ExplodeOnKillUp => "Increase explosion size on kill",
+        _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
     };
 
     private ToolTipBodyLine UnlockTextFor(Node node) =>

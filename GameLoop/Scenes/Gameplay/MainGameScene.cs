@@ -55,7 +55,7 @@ internal class MainGameScene : IScene
         _entityRenderer = new EntityRenderer(_content, _spriteBatch, _camera, _effectManager);
         _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
-        var enemySpawner = new EnemySpawner(_entityManager, player, audioPlayer, graphicsDevice);
+        var enemySpawner = new EnemySpawner(_entityManager, player, graphicsDevice);
 
         _entityManager.Spawn(enemySpawner);
 

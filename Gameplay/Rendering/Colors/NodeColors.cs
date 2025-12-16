@@ -21,7 +21,7 @@ public static class NodeColors
         return node.PowerUp switch
         {
             DamageUp or AttackSpeedUp => damageColor,
-            ShotCountUp or PierceUp or BulletSplitUp => damageEffectsColor,
+            ShotCountUp or PierceUp or BulletSplitUp or ExplodeOnKillUp => damageEffectsColor,
             MaxHealthUp or LifeStealUp => healthColor,
             SpeedUp => speedColor,
             RangeUp or ProjectileSpeedUp => weaponUtilityColor,
