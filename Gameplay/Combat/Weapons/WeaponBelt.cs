@@ -30,7 +30,7 @@ public class WeaponBelt : IEntity
         Stats.RangeMultiplier = _powerUps.OfType<RangeUp>().Sum(p => p.Value) + 1f;
         Stats.ExtraShots = _powerUps.OfType<ShotCountUp>().Sum(p => p.ExtraShots);
         Stats.Pierce = _powerUps.OfType<PierceUp>().Sum(p => p.Value);
-        Stats.SpeedMultiplier = _powerUps.OfType<ProjectileSpeedUp>().Sum(p => p.Value) + 1f;
+        Stats.ProjectileSpeedMultiplier = _powerUps.OfType<ProjectileSpeedUp>().Sum(p => p.Value) + 1f;
         Stats.CritChance = _powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
         Stats.CritDamage =
             _powerUps.OfType<CritDamageUp>().Sum(p => p.Value) + CritCalculator.BaseCritDamageMultiplier;
@@ -43,6 +43,7 @@ public class WeaponBelt : IEntity
 public class WeaponBeltStats
 {
     public float AttackSpeedMultiplier { get; set; } = 1f;
+    public float ProjectileSpeedMultiplier { get; set; } = 1f;
     public float DamageMultiplier { get; set; } = 1f;
     public float RangeMultiplier { get; set; } = 1f;
     public int ExtraShots { get; set; } = 0;

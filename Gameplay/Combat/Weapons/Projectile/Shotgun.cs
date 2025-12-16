@@ -23,7 +23,7 @@ public class Shotgun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFin
         var targetDirection = target.Position - owner.Position;
         foreach (var direction in ArcSpreader.Arc(targetDirection, 5, MathF.PI / 6))
         {
-            var velocity = direction * bulletSpeed * owner.WeaponBelt.Stats.SpeedMultiplier;
+            var velocity = direction * bulletSpeed * owner.WeaponBelt.Stats.ProjectileSpeedMultiplier;
             var bullet = new Bullet(owner, owner.Position, velocity, damage, range, Stats.Pierce,
                 _bulletSplitter.SpawnAnyOnHitBulletSplits);
             spawnEntity.Spawn(bullet);
