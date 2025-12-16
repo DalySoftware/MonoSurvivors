@@ -17,8 +17,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
 
     private readonly TimeSpan _extraShotCooldown = TimeSpan.FromSeconds(0.2);
 
-    private int _bulletSplit = 0;
-    private float _rangeMultiplier;
+    private WeaponBeltStats _stats = new();
 
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
     private TimeSpan _remainingExtraShotCooldown = TimeSpan.Zero;
@@ -27,61 +26,61 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
 
     public void Update(GameTime gameTime, WeaponBeltStats stats)
     {
-        UpdateLocalStats(stats);
+        _stats = stats;
 
-        // Handle extra shots first
-        if (_remainingExtraShots > 0)
-        {
-            _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
-            if (_remainingExtraShotCooldown > TimeSpan.Zero) return;
-
-            Shoot(stats);
-            _remainingExtraShots--;
-            _remainingExtraShotCooldown = _extraShotCooldown / stats.AttackSpeedMultiplier;
-            return;
-        }
+        if (FireExtraShots(gameTime)) return;
 
         // Normal shooting
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;
 
-        Shoot(stats);
+        Shoot();
         _remainingCooldown = _cooldown / stats.AttackSpeedMultiplier;
 
         // Queue extra shots
         _remainingExtraShots = stats.ExtraShots;
         _remainingExtraShotCooldown = _extraShotCooldown;
     }
-    private void UpdateLocalStats(WeaponBeltStats stats)
+    private bool FireExtraShots(GameTime gameTime)
     {
-        _bulletSplit = stats.BulletSplit;
-        _rangeMultiplier = stats.RangeMultiplier;
+        // Handle extra shots first
+        if (_remainingExtraShots > 0)
+        {
+            _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
+            if (_remainingExtraShotCooldown > TimeSpan.Zero) return true;
+
+            Shoot();
+            _remainingExtraShots--;
+            _remainingExtraShotCooldown = _extraShotCooldown / _stats.AttackSpeedMultiplier;
+            return true;
+        }
+
+        return false;
     }
 
-
-    private void Shoot(WeaponBeltStats stats)
+    private void Shoot()
     {
         var target = entityFinder.NearestEnemyTo(owner);
         if (target == null) return;
 
-        var baseDamage = 8f * stats.DamageMultiplier;
-        var damage = CritCalculator.CalculateDamage(baseDamage, stats.CritChance, stats.CritDamage);
-        var range = 300f * stats.RangeMultiplier;
-        var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, stats.Pierce,
-            BulletSpeed * stats.SpeedMultiplier, OnHit);
+        var baseDamage = 8f * _stats.DamageMultiplier;
+        var damage = CritCalculator.CalculateDamage(baseDamage, _stats.CritChance, _stats.CritDamage);
+        var range = 300f * _stats.RangeMultiplier;
+        var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, _stats.Pierce,
+            BulletSpeed * _stats.SpeedMultiplier, OnHit);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
     }
 
     private void OnHit(Bullet bullet, EnemyBase enemy)
     {
-        if (_bulletSplit <= 0)
+        if (_stats.BulletSplit <= 0)
             return;
 
         var spawnPoint = enemy.Position;
-        var range = BulletSplitBaseRange * _rangeMultiplier;
+        var range = BulletSplitBaseRange * _stats.RangeMultiplier;
 
-        var bulletDirections = ArcSpreader.Arc(bullet.Velocity, _bulletSplit, BulletSplitAngle);
+        var bulletDirections = ArcSpreader.Arc(bullet.Velocity, _stats.BulletSplit, BulletSplitAngle);
 
         foreach (var direction in bulletDirections)
         {
