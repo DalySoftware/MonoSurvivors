@@ -23,12 +23,12 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
     private TimeSpan _remainingExtraShotCooldown = TimeSpan.Zero;
     private int _remainingExtraShots = 0;
 
-
     public void Update(GameTime gameTime, WeaponBeltStats stats)
     {
         _stats = stats;
 
-        if (FireExtraShots(gameTime)) return;
+        // Handle extra shots first
+        if (FireExtraShots(gameTime) is ExtraShotsResult.WaitingToFire or ExtraShotsResult.Fired) return;
 
         // Normal shooting
         _remainingCooldown -= gameTime.ElapsedGameTime;
@@ -41,21 +41,18 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         _remainingExtraShots = stats.ExtraShots;
         _remainingExtraShotCooldown = _extraShotCooldown;
     }
-    private bool FireExtraShots(GameTime gameTime)
+
+    private ExtraShotsResult FireExtraShots(GameTime gameTime)
     {
-        // Handle extra shots first
-        if (_remainingExtraShots > 0)
-        {
-            _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
-            if (_remainingExtraShotCooldown > TimeSpan.Zero) return true;
+        if (_remainingExtraShots <= 0) return ExtraShotsResult.NotFiring;
 
-            Shoot();
-            _remainingExtraShots--;
-            _remainingExtraShotCooldown = _extraShotCooldown / _stats.AttackSpeedMultiplier;
-            return true;
-        }
+        _remainingExtraShotCooldown -= gameTime.ElapsedGameTime;
+        if (_remainingExtraShotCooldown > TimeSpan.Zero) return ExtraShotsResult.WaitingToFire;
 
-        return false;
+        Shoot();
+        _remainingExtraShots--;
+        _remainingExtraShotCooldown = _extraShotCooldown / _stats.AttackSpeedMultiplier;
+        return ExtraShotsResult.Fired;
     }
 
     private void Shoot()
@@ -97,5 +94,12 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
 
             spawnEntity.Spawn(splitBullet);
         }
+    }
+
+    private enum ExtraShotsResult
+    {
+        NotFiring,
+        WaitingToFire,
+        Fired,
     }
 }
