@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using GameLoop.Audio;
 using GameLoop.Input;
 using GameLoop.Scenes;
@@ -25,6 +27,8 @@ public class CoreGame : Game
 {
     private readonly SceneManager _sceneManager = new(null);
     private readonly IServiceProvider _services;
+
+    private HashSet<Node> _lastSeenUnlockables = [];
     private LevelManager _levelSystem = null!;
     private MusicPlayer _music = null!;
     private PrimitiveRenderer _primitiveRenderer = null!;
@@ -89,8 +93,12 @@ public class CoreGame : Game
     private void OnLevelUp(int levelsGained)
     {
         _sphereGrid.AddSkillPoints(levelsGained);
-        if (_sphereGrid.CanUnlockAnything)
+        var unlockables = _sphereGrid.Unlockable.ToHashSet();
+        var anythingHasChanged = !unlockables.SetEquals(_lastSeenUnlockables);
+        if (unlockables.Count > 0 && anythingHasChanged)
             ShowSphereGrid();
+
+        _lastSeenUnlockables = unlockables;
     }
 
     private void ShowSphereGrid()

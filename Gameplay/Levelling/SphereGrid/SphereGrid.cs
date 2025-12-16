@@ -20,8 +20,9 @@ public class SphereGrid
     public IReadOnlySet<Node> Nodes => _nodes;
     public Node Root { get; private init; }
     public Action<IPowerUp> OnUnlock { get; init; } = _ => { };
-    public bool CanUnlockAnything => _nodes.Except(_unlockedNodes).Any(n => n.Cost <= AvailablePoints);
     public int AvailablePoints { get; private set; } = 0;
+
+    public IEnumerable<Node> Unlockable => _nodes.Where(CanUnlock);
 
     public void AddSkillPoints(int points) => AvailablePoints += points;
 
