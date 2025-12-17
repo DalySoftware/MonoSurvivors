@@ -32,7 +32,7 @@ public class EnemySpawner : IEntity
             new SpawnPhase
             {
                 StartTime = TimeSpan.Zero,
-                WaveCooldown = TimeSpan.FromSeconds(5),
+                WaveCooldown = TimeSpan.FromSeconds(4),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 4 },
@@ -41,7 +41,7 @@ public class EnemySpawner : IEntity
             new SpawnPhase
             {
                 StartTime = TimeSpan.FromMinutes(2),
-                WaveCooldown = TimeSpan.FromSeconds(5),
+                WaveCooldown = TimeSpan.FromSeconds(3),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 10 },
@@ -71,7 +71,7 @@ public class EnemySpawner : IEntity
             new SpawnPhase
             {
                 StartTime = TimeSpan.FromMinutes(8),
-                WaveCooldown = TimeSpan.FromSeconds(2),
+                WaveCooldown = TimeSpan.FromSeconds(1),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 5 },
