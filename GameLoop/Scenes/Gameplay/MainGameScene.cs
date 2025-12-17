@@ -5,6 +5,7 @@ using Gameplay.Audio;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
+using Gameplay.Levelling;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects;
@@ -25,6 +26,7 @@ internal class MainGameScene : IScene
     private readonly HealthBar _healthBar;
     private readonly GameplayInputManager _input;
     private readonly SpriteBatch _spriteBatch;
+    private readonly ExperienceBar _experienceBar;
 
     public MainGameScene(
         GraphicsDevice graphicsDevice,
@@ -35,7 +37,8 @@ internal class MainGameScene : IScene
         EffectManager effectManager,
         Action openSphereGrid,
         Action openPauseMenu,
-        PlayerCharacter player)
+        PlayerCharacter player,
+        LevelManager levelManager)
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
@@ -71,6 +74,14 @@ internal class MainGameScene : IScene
         {
             Position = new Vector2(10, 10),
         };
+        var primitiveRenderer = new PrimitiveRenderer(_content, graphicsDevice);
+        var panelRenderer = new PanelRenderer(_content, primitiveRenderer);
+        var experienceBarRenderer = new ExperienceBarRenderer(panelRenderer, primitiveRenderer, levelManager);
+        const float padding = 50f;
+        var expBarSize = new Vector2(graphicsDevice.Viewport.Width * 0.7f, 20);
+        var expBarCentre = new Vector2(graphicsDevice.Viewport.Bounds.Center.ToVector2().X,
+            graphicsDevice.Viewport.Bounds.Height - expBarSize.Y - padding);
+        _experienceBar = experienceBarRenderer.Define(expBarCentre, expBarSize, Layers.UI);
     }
 
     public void Dispose()
@@ -93,6 +104,7 @@ internal class MainGameScene : IScene
 
         _entityRenderer.Draw(_entityManager.Entities);
         _healthBar.Draw(_spriteBatch);
+        _experienceBar.Draw(_spriteBatch, Color.CadetBlue, Color.GreenYellow);
     }
 
     private void DrawBackground()

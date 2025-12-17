@@ -26,6 +26,7 @@ public class LevelManager
 
     public int Level => _levelCalculator.GetLevel(_player.Experience);
 
+    public float ExperienceSinceLastLevel => _player.Experience - (float)_levelCalculator.TotalExperienceToReach(Level);
     public float ExperienceToNextLevel => (float)_levelCalculator.ExtraExperienceToLevelUpFrom(Level);
 
     private void OnExperienceGain(object? _, PlayerCharacter __)

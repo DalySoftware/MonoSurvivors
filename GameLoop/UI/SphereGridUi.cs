@@ -30,7 +30,7 @@ internal class SphereGridUi
     private readonly Texture2D _gridNodeSmall;
     private readonly SphereGridInputManager _inputManager;
     private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
-    private readonly PanelRenderer _panelRenderer;
+    private readonly Panel _titlePanel;
     private readonly PowerUpIcons _powerUpIcons;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
@@ -46,7 +46,7 @@ internal class SphereGridUi
         _grid = grid;
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
-        _panelRenderer = new PanelRenderer(content, primitiveRenderer);
+        var panelRenderer = new PanelRenderer(content, primitiveRenderer);
         _powerUpIcons = new PowerUpIcons(content);
 
         _inputManager = inputManager;
@@ -64,9 +64,14 @@ internal class SphereGridUi
 
         const int baseVisionRadius = (int)(nodeSpacing * 1.5f);
         _fog = new FogOfWarMask(graphicsDevice, baseVisionRadius, Layers.Fog);
-    }
 
+        var titleSize = _fontLarge.MeasureString(TitleText(100));
+        var titleCentre = new Vector2(_graphicsDevice.Viewport.Width / 2f, 80);
+        _titlePanel = panelRenderer.Define(titleCentre, titleSize, Layers.Title - 0.01f);
+    }
     private Vector2 ScreenSpaceOrigin => field + SphereGridInputManager.CameraOffset;
+
+    private static string TitleText(int points) => $"You have {points} Skill Points to spend";
 
     internal void Update()
     {
@@ -104,21 +109,18 @@ internal class SphereGridUi
 
         var viewport = _graphicsDevice.Viewport;
 
-        // Draw title
-        var title = $"You have {_grid.AvailablePoints} Skill Points to spend";
-        var titleSize = _fontLarge.MeasureString(title);
-        var titlePosition = new Vector2(viewport.Width / 2 - titleSize.X / 2, 20);
+        _titlePanel.Draw(spriteBatch, Color.White, Color.SlateGray.ShiftLightness(-.1f));
 
-        _panelRenderer.Draw(spriteBatch, titlePosition, titleSize, Color.White, Color.SlateGray.ShiftLightness(-.1f),
-            Layers.Title - 0.01f);
-        var titleCenter = PanelRenderer.GetCenter(titlePosition, titleSize);
-        spriteBatch.DrawString(_fontLarge, title, titleCenter, Color.White,
-            origin: titleSize / 2, layerDepth: Layers.Title);
+        var titleCenter = _titlePanel.Centre;
+        var titleText = TitleText(_grid.AvailablePoints);
+        var titleSize = _fontLarge.MeasureString(titleText);
+        spriteBatch.DrawString(_fontLarge, titleText, titleCenter, Color.White, origin: titleSize / 2f,
+            layerDepth: Layers.Title);
 
         const string helpText = "Click nodes to unlock | Tab to close";
         var helpSize = _fontSmall.MeasureString(helpText);
         spriteBatch.DrawString(_fontSmall, helpText,
-            new Vector2(viewport.Width / 2 - helpSize.X / 2, viewport.Height - 40),
+            new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40),
             Color.Gray, layerDepth: Layers.Title);
 
         foreach (var node in _grid.Nodes)

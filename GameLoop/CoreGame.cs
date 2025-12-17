@@ -75,7 +75,7 @@ public class CoreGame : Game
         _sphereGrid = GridFactory.Create(player.AddPowerUp);
 
         _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager,
-            ShowSphereGrid, ShowPauseMenu, player));
+            ShowSphereGrid, ShowPauseMenu, player, _levelSystem));
     }
 
     private void ShowGameOver()

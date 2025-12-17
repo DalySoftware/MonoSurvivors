@@ -13,9 +13,9 @@ internal class Button
 {
     private readonly SpriteFont _font;
     private readonly Action _onClick;
-    private readonly PanelRenderer _panelRenderer;
     private readonly bool _rounded;
     private readonly string _text;
+    private readonly Panel _panel;
 
     private bool _isHovered;
     private bool _wasPressed;
@@ -28,16 +28,16 @@ internal class Button
         _onClick = onClick;
         _rounded = rounded;
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
-        _panelRenderer = new PanelRenderer(content, primitiveRenderer);
+        var panelRenderer = new PanelRenderer(content, primitiveRenderer);
+        _panel = panelRenderer.Define(centre, PanelInteriorSize);
     }
 
-    internal Vector2 Centre { get; set; }
+    internal Vector2 Centre { get; }
     internal Vector2 Size => PanelSize;
     internal Vector2 TopLeft => Centre - PanelSize * 0.5f;
     internal Vector2 BottomRight => Centre + PanelSize * 0.5f;
 
-    private Vector2 PanelSize =>
-        PanelRenderer.GetExteriorSize(PanelInteriorSize);
+    private Vector2 PanelSize => _panel.ExteriorSize;
 
     private Vector2 PanelInteriorSize
     {
@@ -46,7 +46,6 @@ internal class Button
             var naiveSize = _font.MeasureString(_text);
             if (!_rounded) return naiveSize;
 
-            var negativePadding = new Vector2(0, 16); // The current font reserves way too much line height
             var maxDimension = MathF.Max(naiveSize.X, naiveSize.Y);
             return new Vector2(maxDimension, maxDimension);
         }
@@ -86,13 +85,11 @@ internal class Button
             baseTint;
 
         // Draw panel background    
-        _panelRenderer.Draw(spriteBatch, TopLeft, PanelInteriorSize, color,
-            color.ShiftChroma(-0.04f).ShiftLightness(-.3f), 0.4f);
+        _panel.Draw(spriteBatch, color, color.ShiftChroma(-0.04f).ShiftLightness(-.3f));
 
         // Draw text centered
         var textSize = _font.MeasureString(_text);
-        var panelCenter = PanelRenderer.GetCenter(TopLeft, PanelInteriorSize);
-        var textPosition = panelCenter - textSize / 2;
+        var textPosition = _panel.Centre - textSize / 2;
 
         spriteBatch.DrawString(_font, _text, textPosition, Color.White, 0f, Vector2.Zero, 1f,
             SpriteEffects.None, 0.5f);
