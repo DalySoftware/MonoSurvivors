@@ -11,11 +11,15 @@ internal class SphereGridInputManager : BaseInputManager
     internal static Vector2 CameraOffset { get; private set; }
     internal bool IsPanning { get; private set; }
 
+    internal static void ResetCamera() => CameraOffset = Vector2.Zero;
+
     internal override void Update()
     {
         base.Update();
 
-        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed || WasPressedThisFrame(Keys.Tab)) OnClose();
+        if (WasPressedThisFrame(Keys.Escape) ||
+            GamePadState.Buttons.Back == ButtonState.Pressed ||
+            WasPressedThisFrame(Keys.Tab)) OnClose();
 
         IsPanning = MouseState.MiddleButton == ButtonState.Pressed;
         if (IsPanning)

@@ -25,7 +25,7 @@ internal class SphereGridScene : IScene
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
-            RootDirectory = coreContent.RootDirectory
+            RootDirectory = coreContent.RootDirectory,
         };
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
@@ -33,9 +33,8 @@ internal class SphereGridScene : IScene
         _input = new SphereGridInputManager
         {
             OnClose = onClose,
-            OnExit = onExit
+            OnExit = onExit,
         };
-
         _sphereGridUi = new SphereGridUi(_content, graphicsDevice, sphereGrid, primitiveRenderer, _input);
     }
 

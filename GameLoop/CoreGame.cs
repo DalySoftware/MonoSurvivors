@@ -82,6 +82,7 @@ public class CoreGame : Game
     {
         var gameOverScene = new GameOverScene(GraphicsDevice, Window, Content, StartGame, ReturnToTitle);
         _sceneManager.Push(gameOverScene);
+        SphereGridInputManager.ResetCamera();
     }
 
     private void ReturnToTitle()
