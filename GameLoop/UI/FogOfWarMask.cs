@@ -72,7 +72,8 @@ internal sealed class FogOfWarMask
         int radius)
     {
         const float softnessPx = 50f;
-        const float ditherStrength = 5f;
+        const float ditherStrength = 1.5f;
+        const int pixelStep = 4;
 
         var size = radius * 2;
         var tex = new Texture2D(gd, size, size);
@@ -85,7 +86,12 @@ internal sealed class FogOfWarMask
         for (var y = 0; y < size; y++)
         for (var x = 0; x < size; x++)
         {
-            var d = Vector2.Distance(new Vector2(x, y), center);
+            // ReSharper disable twice PossibleLossOfFraction
+            // Quantize sampling position
+            var qx = x / pixelStep * pixelStep + pixelStep * 0.5f;
+            var qy = y / pixelStep * pixelStep + pixelStep * 0.5f;
+
+            var d = Vector2.Distance(new Vector2(qx, qy), center);
             float alpha;
 
             if (d <= inner)
@@ -94,17 +100,15 @@ internal sealed class FogOfWarMask
             }
             else if (d >= outer)
             {
-                // IMPORTANT: absolutely zero, no dither
                 alpha = 0f;
             }
             else
             {
-                // Feather band only
                 var t = 1f - SmoothStep(inner, outer, d);
 
-                // Ordered dithering
-                var bx = x & 3;
-                var by = y & 3;
+                var bx = x / pixelStep & 3;
+                var by = y / pixelStep & 3;
+
                 var threshold =
                     (Bayer4[bx, by] / 16f - 0.5f) * ditherStrength;
 
