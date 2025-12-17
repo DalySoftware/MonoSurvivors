@@ -109,7 +109,7 @@ public class Editor : Game
 
         _font = Content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
 
-        _primitiveRenderer = new PrimitiveRenderer(GraphicsDevice);
+        _primitiveRenderer = new PrimitiveRenderer(Content, GraphicsDevice);
         _tooltipRenderer = new ToolTipRenderer(_primitiveRenderer, Content);
     }
 

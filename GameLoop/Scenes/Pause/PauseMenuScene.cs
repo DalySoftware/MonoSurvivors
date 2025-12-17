@@ -43,14 +43,14 @@ internal class PauseMenuScene : IScene
         _onExit = onExit;
         _audioSettings = audioSettings.Value;
         _configuration = configuration;
-        _primitiveRenderer = new PrimitiveRenderer(graphicsDevice);
+        _primitiveRenderer = new PrimitiveRenderer(content, graphicsDevice);
 
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
 
         _input = new PauseInputManager
         {
             OnExit = onExit,
-            OnResume = OnResume
+            OnResume = OnResume,
         };
 
         CreateUi(graphicsDevice);
@@ -125,21 +125,21 @@ internal class PauseMenuScene : IScene
 
         // Volume controls
         var startY = centerY - 200;
-        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 150, startY),
+        _volumeControls.Add(new VolumeControl(_content, _primitiveRenderer, new Vector2(centerX - 150, startY),
             "Master Volume", GetMasterVolume, SetMasterVolume));
 
-        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 150, startY + 120),
+        _volumeControls.Add(new VolumeControl(_content, _primitiveRenderer, new Vector2(centerX - 150, startY + 120),
             "Music Volume", GetMusicVolume, SetMusicVolume));
 
-        _volumeControls.Add(new VolumeControl(_content, new Vector2(centerX - 150, startY + 240),
+        _volumeControls.Add(new VolumeControl(_content, _primitiveRenderer, new Vector2(centerX - 150, startY + 240),
             "Sound FX Volume", GetSoundEffectVolume, SetSoundEffectVolume));
 
         // Buttons
-        var resumeButton = new Button(_content, new Vector2(centerX, startY + 360),
+        var resumeButton = new Button(_content, _primitiveRenderer, new Vector2(centerX, startY + 360),
             "Resume", OnResume);
         _buttons.Add(resumeButton);
 
-        var exitButton = new Button(_content, new Vector2(centerX, startY + 480),
+        var exitButton = new Button(_content, _primitiveRenderer, new Vector2(centerX, startY + 480),
             "Exit to Title", OnExitToTitle);
         _buttons.Add(exitButton);
     }

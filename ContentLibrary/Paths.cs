@@ -11,6 +11,7 @@ public static class Paths
         public const string Bullet = @"Images\Placeholder-Bullet";
         public const string Experience = @"Images\Experience";
         public const string PanelNineSlice = @"Images\PanelNineSlice";
+        public const string PanelTriangle = @"Images\PanelTriangle";
 
         public static class Sheets
         {

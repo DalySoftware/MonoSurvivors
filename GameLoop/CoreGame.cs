@@ -60,7 +60,7 @@ public class CoreGame : Game
 
     private void StartGame()
     {
-        _primitiveRenderer = new PrimitiveRenderer(GraphicsDevice);
+        _primitiveRenderer = new PrimitiveRenderer(Content, GraphicsDevice);
 
         var entityManager = _services.GetRequiredService<EntityManager>();
         var audioPlayer = _services.GetRequiredService<IAudioPlayer>();

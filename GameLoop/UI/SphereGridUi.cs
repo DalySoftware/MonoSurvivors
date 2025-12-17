@@ -46,7 +46,7 @@ internal class SphereGridUi
         _grid = grid;
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
-        _panelRenderer = new PanelRenderer(content);
+        _panelRenderer = new PanelRenderer(content, primitiveRenderer);
         _powerUpIcons = new PowerUpIcons(content);
 
         _inputManager = inputManager;
@@ -109,7 +109,8 @@ internal class SphereGridUi
         var titleSize = _fontLarge.MeasureString(title);
         var titlePosition = new Vector2(viewport.Width / 2 - titleSize.X / 2, 20);
 
-        _panelRenderer.Draw(spriteBatch, titlePosition, titleSize, Color.White, Layers.Title - 0.01f);
+        _panelRenderer.Draw(spriteBatch, titlePosition, titleSize, Color.White, Color.SlateGray.ShiftLightness(-.1f),
+            Layers.Title - 0.01f);
         var titleCenter = PanelRenderer.GetCenter(titlePosition, titleSize);
         spriteBatch.DrawString(_fontLarge, title, titleCenter, Color.White,
             origin: titleSize / 2, layerDepth: Layers.Title);

@@ -18,11 +18,11 @@ public class VolumeControl
     private readonly Func<float> _getValue;
     private readonly Button _increaseButton;
     private readonly string _label;
-    private readonly Vector2 _maxValueSize;
     private readonly Action<float> _setValue;
 
     public VolumeControl(
         ContentManager content,
+        PrimitiveRenderer primitiveRenderer,
         Vector2 centre,
         string label,
         Func<float> getValue,
@@ -36,12 +36,13 @@ public class VolumeControl
 
         // Create buttons
         const int buttonRelativeX = 200;
-        _decreaseButton = new Button(content, new Vector2(centre.X + buttonRelativeX, centre.Y), "-", DecreaseVolume,
+        _decreaseButton = new Button(content, primitiveRenderer, new Vector2(centre.X + buttonRelativeX, centre.Y), "-",
+            DecreaseVolume,
             true);
         const float valuePadding = 20f;
-        _maxValueSize = _font.MeasureString("100%");
-        _increaseButton = new Button(content,
-            new Vector2(_decreaseButton.Centre.X + _decreaseButton.Size.X + _maxValueSize.X + valuePadding * 2,
+        var maxValueSize = _font.MeasureString("100%");
+        _increaseButton = new Button(content, primitiveRenderer,
+            new Vector2(_decreaseButton.Centre.X + _decreaseButton.Size.X + maxValueSize.X + valuePadding * 2,
                 centre.Y),
             "+",
             IncreaseVolume, true);

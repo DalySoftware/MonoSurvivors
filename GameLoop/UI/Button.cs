@@ -1,5 +1,6 @@
 using System;
 using ContentLibrary;
+using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -19,14 +20,15 @@ internal class Button
     private bool _isHovered;
     private bool _wasPressed;
 
-    internal Button(ContentManager content, Vector2 centre, string text, Action onClick, bool rounded = false)
+    internal Button(ContentManager content, PrimitiveRenderer primitiveRenderer, Vector2 centre, string text,
+        Action onClick, bool rounded = false)
     {
         Centre = centre;
         _text = text;
         _onClick = onClick;
         _rounded = rounded;
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
-        _panelRenderer = new PanelRenderer(content);
+        _panelRenderer = new PanelRenderer(content, primitiveRenderer);
     }
 
     internal Vector2 Centre { get; set; }
@@ -83,8 +85,9 @@ internal class Button
             _isHovered ? baseTint.ShiftLightness(0.1f) :
             baseTint;
 
-        // Draw panel background
-        _panelRenderer.Draw(spriteBatch, TopLeft, PanelInteriorSize, color, 0.4f);
+        // Draw panel background    
+        _panelRenderer.Draw(spriteBatch, TopLeft, PanelInteriorSize, color,
+            color.ShiftChroma(-0.04f).ShiftLightness(-.3f), 0.4f);
 
         // Draw text centered
         var textSize = _font.MeasureString(_text);

@@ -1,4 +1,4 @@
-﻿using ContentLibrary;
+﻿using System;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -6,78 +6,90 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.UI;
 
-public class PanelRenderer(ContentManager content)
+public sealed class PanelRenderer(ContentManager content, PrimitiveRenderer primitiveRenderer)
 {
-    private const int CornerSize = 28;
-    private const int EdgeLength = 8;
-    private const int EdgeThickness = 28;
-    private readonly static int FarEdgeOrigin = TotalWidth - EdgeThickness;
-    private readonly static int FarCornerOrigin = TotalWidth - CornerSize;
+    private readonly NineSliceFrame _frame = new(content);
 
-    private readonly Rectangle _bottomEdge =
-        new(CornerSize, FarEdgeOrigin, EdgeLength, EdgeThickness);
-    private readonly Rectangle _bottomLeft = new(0, FarCornerOrigin, CornerSize, CornerSize);
-    private readonly Rectangle _bottomRight =
-        new(FarCornerOrigin, FarCornerOrigin, CornerSize, CornerSize);
-    private readonly Rectangle _centre = new(CornerSize, CornerSize, EdgeLength,
-        EdgeLength);
-    private readonly Rectangle _leftEdge = new(0, CornerSize, EdgeThickness, EdgeLength);
-    private readonly Rectangle _rightEdge = new(FarEdgeOrigin, CornerSize, EdgeThickness, EdgeLength);
-    private readonly Texture2D _texture = content.Load<Texture2D>(Paths.Images.PanelNineSlice);
-    private readonly Rectangle _topEdge = new(CornerSize, 0, EdgeLength, EdgeThickness);
-    private readonly Rectangle _topLeft = new(0, 0, CornerSize, CornerSize);
-    private readonly Rectangle _topRight = new(FarCornerOrigin, 0, CornerSize, CornerSize);
-    private static int TotalWidth => CornerSize * 2 + EdgeLength;
+    public static Vector2 GetExteriorSize(Vector2 interiorSize)
+    {
+        // Arbitrary position
+        var rect = NineSliceFrame.GetExteriorRect(new Vector2(0, 0), interiorSize);
+        return new Vector2(rect.Width, rect.Height);
+    }
 
     public static Vector2 GetCenter(Vector2 position, Vector2 interiorSize)
     {
-        var width = (int)interiorSize.X + CornerSize * 2;
-        var height = (int)interiorSize.Y + CornerSize * 2;
-        return new Vector2(position.X + width * 0.5f, position.Y + height * 0.5f);
+        var size = GetExteriorSize(interiorSize);
+        return position + size * 0.5f;
     }
 
-    public static Vector2 GetExteriorSize(Vector2 interiorSize) =>
-        interiorSize + new Vector2(CornerSize, CornerSize) * 2f;
-
-    public void Draw(SpriteBatch spriteBatch, Vector2 position, Vector2 interiorSize, Color? color = null,
+    public void Draw(
+        SpriteBatch spriteBatch,
+        Vector2 topLeft,
+        Vector2 interiorSize,
+        Color frameColor,
+        Color interiorColor,
         float layerDepth = 0f)
     {
-        var clr = color ?? Color.White; // Compile doing weird stuff if I use the nullable param directly 
+        DrawInterior(spriteBatch, topLeft, interiorSize, interiorColor, layerDepth);
 
-        var x = (int)position.X;
-        var y = (int)position.Y;
-        var width = (int)interiorSize.X + CornerSize * 2;
-        var height = (int)interiorSize.Y + CornerSize * 2;
+        DrawInnerCorners(spriteBatch, topLeft, interiorSize, interiorColor, layerDepth);
+        DrawEdgeInteriors(spriteBatch, topLeft, interiorSize, interiorColor, layerDepth);
 
-        // Corners
-        spriteBatch.Draw(_texture, new Rectangle(x, y, CornerSize, CornerSize), clr, _topLeft, layerDepth: layerDepth);
-        spriteBatch.Draw(_texture, new Rectangle(x + width - CornerSize, y, CornerSize, CornerSize),
-            clr, _topRight, layerDepth: layerDepth);
-        spriteBatch.Draw(_texture, new Rectangle(x, y + height - CornerSize, CornerSize, CornerSize),
-            clr, _bottomLeft, layerDepth: layerDepth);
-        spriteBatch.Draw(_texture,
-            new Rectangle(x + width - CornerSize, y + height - CornerSize, CornerSize, CornerSize),
-            clr, _bottomRight, layerDepth: layerDepth);
-
-        // Top and bottom edges
-        spriteBatch.Draw(_texture, new Rectangle(x + CornerSize, y, width - CornerSize * 2, EdgeThickness),
-            clr, _topEdge, layerDepth: layerDepth);
-        spriteBatch.Draw(_texture,
-            new Rectangle(x + CornerSize, y + height - EdgeThickness, width - CornerSize * 2, EdgeThickness),
-            clr, _bottomEdge, layerDepth: layerDepth);
-
-        // Left and right edges
-        spriteBatch.Draw(_texture, new Rectangle(x, y + CornerSize, EdgeThickness, height - CornerSize * 2),
-            clr, _leftEdge, layerDepth: layerDepth);
-        spriteBatch.Draw(_texture,
-            new Rectangle(x + width - EdgeThickness, y + CornerSize, EdgeThickness,
-                height - CornerSize * 2),
-            clr, _rightEdge, layerDepth: layerDepth);
-
-        // Centre panel
-        spriteBatch.Draw(_texture,
-            new Rectangle(x + CornerSize, y + CornerSize, width - CornerSize * 2,
-                height - CornerSize * 2),
-            clr, _centre, layerDepth: layerDepth);
+        DrawFrame(spriteBatch, topLeft, interiorSize, frameColor, layerDepth);
     }
+    private void DrawInterior(SpriteBatch spriteBatch, Vector2 topLeft, Vector2 interiorSize, Color interiorColor,
+        float layerDepth)
+    {
+        var interiorRect = NineSliceFrame.GetInteriorRect(topLeft, interiorSize);
+        primitiveRenderer.DrawRectangle(spriteBatch, interiorRect, interiorColor, layerDepth);
+    }
+
+    private void DrawInnerCorners(SpriteBatch spriteBatch, Vector2 topLeft, Vector2 interiorSize, Color interiorColor,
+        float layerDepth)
+    {
+        var farCornerOffset = interiorSize + Vector2.One * NineSliceFrame.CornerSize * 2f;
+        var corners = new[]
+        {
+            (pos: topLeft, rotation: 0f), // TopLeft, no rotation
+            (pos: topLeft + farCornerOffset.XProjection, rotation: MathF.PI / 2), // TopRight
+            (pos: topLeft + farCornerOffset.YProjection, rotation: -MathF.PI / 2), // BottomLeft
+            (pos: topLeft + farCornerOffset, rotation: MathF.PI), // BottomRight
+        };
+
+        foreach (var corner in corners)
+            primitiveRenderer.DrawTriangle(
+                spriteBatch,
+                corner.pos,
+                interiorColor,
+                corner.rotation,
+                layerDepth
+            );
+    }
+
+    private void DrawEdgeInteriors(SpriteBatch spriteBatch, Vector2 topLeft, Vector2 interiorSize, Color interiorColor,
+        float layerDepth)
+    {
+        const int corner = NineSliceFrame.CornerSize;
+        Rectangle[] edgeSections =
+        [
+            new((int)(topLeft.X + corner), (int)topLeft.Y, (int)interiorSize.X, corner), // top,
+            new((int)(topLeft.X + corner), (int)(topLeft.Y + corner + interiorSize.Y), (int)interiorSize.X,
+                corner), // bottom
+            new((int)topLeft.X, (int)(topLeft.Y + corner), corner, (int)interiorSize.Y), // left
+            new((int)(topLeft.X + corner + interiorSize.X), (int)(topLeft.Y + corner), corner,
+                (int)interiorSize.Y), // right
+        ];
+
+        foreach (var rectangle in edgeSections)
+            primitiveRenderer.DrawRectangle(
+                spriteBatch,
+                rectangle,
+                interiorColor,
+                layerDepth
+            );
+    }
+
+    private void DrawFrame(SpriteBatch spriteBatch, Vector2 topLeft, Vector2 interiorSize, Color frameColor,
+        float layerDepth) => _frame.Draw(spriteBatch, topLeft, interiorSize, frameColor, layerDepth + 0.001f);
 }
