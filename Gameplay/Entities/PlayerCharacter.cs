@@ -72,6 +72,7 @@ public class PlayerCharacter(
         MarkedForDeletion = true;
         onDeath?.Invoke();
     }
+    public float Layer => Layers.Player;
 
     public string TexturePath => Paths.Images.Player;
     public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };

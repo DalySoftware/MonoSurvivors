@@ -47,7 +47,6 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
             onHit, immuneEnemies) { }
 
     internal float MaxRange { get; }
-
     public float Damage { get; }
     public ICollider Collider => new CircleCollider(this, 16f);
 
@@ -61,6 +60,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
             MarkedForDeletion = true;
         _onHit?.Invoke(this, enemy);
     }
+    public float Layer => Layers.Projectiles;
 
     public string TexturePath => Paths.Images.Bullet;
 

@@ -2,4 +2,7 @@ using Gameplay.Behaviour;
 
 namespace Gameplay.Rendering;
 
-public interface IVisual : IHasPosition;
+public interface IVisual : IHasPosition
+{
+    public float Layer { get; }
+}

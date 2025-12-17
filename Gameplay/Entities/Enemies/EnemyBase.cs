@@ -3,6 +3,7 @@ using System.Threading;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Levelling;
+using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
 
@@ -10,8 +11,9 @@ public abstract class EnemyBase(Vector2 position, int damage)
     : MovableEntity(position), IDamagesPlayer, ICreatesExperienceOnDeath
 {
     private int _isDead; // Marker for concurrency
-    
+
     internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
+    public float Layer => Layers.Enemies;
 
     public float Health { get; protected set; }
 

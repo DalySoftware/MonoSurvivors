@@ -22,7 +22,6 @@ public class Experience : MovableEntity, IPickup, ISimpleVisual
         _player = player;
         Collider = new CircleCollider(this, 16f);
     }
-
     public ICollider Collider { get; }
 
     public void OnPickupBy(PlayerCharacter player)
@@ -31,6 +30,8 @@ public class Experience : MovableEntity, IPickup, ISimpleVisual
         _audio.Play(SoundEffectTypes.ExperiencePickup);
         MarkedForDeletion = true;
     }
+
+    public float Layer => Layers.Pickups;
 
     public string TexturePath => Paths.Images.Experience;
 
