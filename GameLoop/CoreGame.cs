@@ -149,7 +149,7 @@ public class CoreGame : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.DarkSlateGray);
 
         Scene.Draw(gameTime);
 

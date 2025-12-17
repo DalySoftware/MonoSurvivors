@@ -6,6 +6,7 @@ using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -38,7 +39,7 @@ internal class MainGameScene : IScene
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
-            RootDirectory = coreContent.RootDirectory
+            RootDirectory = coreContent.RootDirectory,
         };
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
@@ -63,12 +64,12 @@ internal class MainGameScene : IScene
         {
             OnExit = exitGame,
             OnOpenSphereGrid = openSphereGrid,
-            OnPause = openPauseMenu
+            OnPause = openPauseMenu,
         };
 
         _healthBar = new HealthBar(_content, player)
         {
-            Position = new Vector2(10, 10)
+            Position = new Vector2(10, 10),
         };
     }
 
@@ -97,7 +98,8 @@ internal class MainGameScene : IScene
     private void DrawBackground()
     {
         _spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: _camera.Transform);
-        _spriteBatch.Draw(_backgroundTile, _camera.VisibleWorldBounds, _camera.VisibleWorldBounds, Color.White);
+        _spriteBatch.Draw(_backgroundTile, _camera.VisibleWorldBounds, _camera.VisibleWorldBounds,
+            Color.DarkSlateGray.ShiftChroma(-0.02f).ShiftLightness(0.05f));
         _spriteBatch.End();
     }
 }
