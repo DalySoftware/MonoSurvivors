@@ -1,0 +1,128 @@
+﻿using System.Collections.Generic;
+using Gameplay.Rendering;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace GameLoop.UI;
+
+internal sealed class FogOfWarMask
+{
+    private readonly static BlendState EraseBlend = new()
+    {
+        ColorSourceBlend = Blend.Zero,
+        ColorDestinationBlend = Blend.InverseSourceAlpha,
+        AlphaSourceBlend = Blend.Zero,
+        AlphaDestinationBlend = Blend.InverseSourceAlpha,
+    };
+
+    private readonly static int[,] Bayer4 =
+    {
+        { 0, 8, 2, 10 },
+        { 12, 4, 14, 6 },
+        { 3, 11, 1, 9 },
+        { 15, 7, 13, 5 },
+    };
+    private readonly GraphicsDevice _gd;
+    private readonly RenderTarget2D _fogTarget;
+    private readonly Texture2D _circle;
+    private readonly SpriteBatch _sb;
+    private readonly int _baseVisionRadius;
+    private readonly float _layerDepth;
+
+    public FogOfWarMask(GraphicsDevice gd, int baseVisionRadius, float layerDepth)
+    {
+        _gd = gd;
+        _baseVisionRadius = baseVisionRadius;
+        _layerDepth = layerDepth;
+        _sb = new SpriteBatch(gd);
+
+        var vp = gd.Viewport;
+        _fogTarget = new RenderTarget2D(
+            gd, vp.Width, vp.Height,
+            false, SurfaceFormat.Color, DepthFormat.None);
+
+        _circle = CreateSoftCircle(gd, baseVisionRadius);
+    }
+
+    public void Rebuild(IEnumerable<Vector2> visibleCenters)
+    {
+        _gd.SetRenderTarget(_fogTarget);
+        _gd.Clear(Color.DarkSlateGray);
+
+        // Punch holes
+        _sb.Begin(blendState: EraseBlend);
+
+        foreach (var pos in visibleCenters)
+            _sb.Draw(
+                _circle,
+                pos,
+                origin: new Vector2(_baseVisionRadius),
+                color: Color.White,
+                layerDepth: _layerDepth + 0.01f);
+
+        _sb.End();
+
+        _gd.SetRenderTarget(null);
+    }
+
+    public void Draw(SpriteBatch sb) => sb.Draw(_fogTarget, Vector2.Zero, Color.DarkSlateGray, layerDepth: _layerDepth);
+
+    private static Texture2D CreateSoftCircle(
+        GraphicsDevice gd,
+        int radius)
+    {
+        const float softnessPx = 50f;
+        const float ditherStrength = 5f;
+
+        var size = radius * 2;
+        var tex = new Texture2D(gd, size, size);
+        var data = new Color[size * size];
+
+        var center = new Vector2(radius);
+        var inner = radius - softnessPx;
+        var outer = radius;
+
+        for (var y = 0; y < size; y++)
+        for (var x = 0; x < size; x++)
+        {
+            var d = Vector2.Distance(new Vector2(x, y), center);
+            float alpha;
+
+            if (d <= inner)
+            {
+                alpha = 1f;
+            }
+            else if (d >= outer)
+            {
+                // IMPORTANT: absolutely zero, no dither
+                alpha = 0f;
+            }
+            else
+            {
+                // Feather band only
+                var t = 1f - SmoothStep(inner, outer, d);
+
+                // Ordered dithering
+                var bx = x & 3;
+                var by = y & 3;
+                var threshold =
+                    (Bayer4[bx, by] / 16f - 0.5f) * ditherStrength;
+
+                alpha = MathHelper.Clamp(t + threshold, 0f, 1f);
+            }
+
+            data[y * size + x] =
+                new Color(255, 255, 255, alpha * 255);
+        }
+
+        tex.SetData(data);
+        return tex;
+    }
+
+
+    private static float SmoothStep(float a, float b, float t)
+    {
+        t = MathHelper.Clamp((t - a) / (b - a), 0f, 1f);
+        return t * t * (3f - 2f * t);
+    }
+}

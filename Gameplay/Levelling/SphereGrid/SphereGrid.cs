@@ -8,14 +8,14 @@ namespace Gameplay.Levelling.SphereGrid;
 public class SphereGrid
 {
     private readonly HashSet<Node> _nodes = [];
-    private readonly HashSet<Node> _unlockedNodes = [];
 
     internal SphereGrid(Node root)
     {
         DiscoverAndAddNodes(root);
         Root = root;
-        _unlockedNodes.Add(root);
+        UnlockedNodes.Add(root);
     }
+    public HashSet<Node> UnlockedNodes { get; } = [];
 
     public IReadOnlySet<Node> Nodes => _nodes;
     public Node Root { get; private init; }
@@ -29,16 +29,16 @@ public class SphereGrid
     public bool CanUnlock(Node node) =>
         AvailablePoints >= node.Cost &&
         !IsUnlocked(node) &&
-        _unlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
+        UnlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
 
-    public bool IsUnlocked(Node node) => _unlockedNodes.Contains(node);
+    public bool IsUnlocked(Node node) => UnlockedNodes.Contains(node);
 
     public void Unlock(Node node)
     {
         if (!CanUnlock(node))
             return;
 
-        _unlockedNodes.Add(node);
+        UnlockedNodes.Add(node);
         AvailablePoints -= node.Cost;
         if (node.PowerUp is not null)
             OnUnlock(node.PowerUp);

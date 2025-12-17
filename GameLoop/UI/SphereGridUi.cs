@@ -34,6 +34,8 @@ internal class SphereGridUi
     private readonly PowerUpIcons _powerUpIcons;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
+    private readonly FogOfWarMask _fog;
+
 
     private Node? _hoveredNode;
     private MouseState _previousMouseState;
@@ -59,6 +61,9 @@ internal class SphereGridUi
 
         const float nodeSpacing = 160f;
         _nodePositions = new SphereGridPositioner(_grid, nodeSpacing).NodePositions();
+
+        const int baseVisionRadius = (int)(nodeSpacing * 1.5f);
+        _fog = new FogOfWarMask(graphicsDevice, baseVisionRadius, Layers.Fog);
     }
 
     private Vector2 ScreenSpaceOrigin => field + SphereGridInputManager.CameraOffset;
@@ -86,6 +91,9 @@ internal class SphereGridUi
             _grid.Unlock(_hoveredNode);
 
         _previousMouseState = mouseState;
+
+        _fog.Rebuild(
+            _grid.UnlockedNodes.Select(n => ScreenSpaceOrigin + _nodePositions[n]));
     }
 
     internal void Draw(SpriteBatch spriteBatch)
@@ -133,6 +141,7 @@ internal class SphereGridUi
         foreach (var node in _grid.Nodes)
             DrawNode(spriteBatch, node);
 
+        _fog.Draw(spriteBatch);
         spriteBatch.End();
     }
 
@@ -203,6 +212,7 @@ internal class SphereGridUi
     {
         internal const float Edges = 0.40f;
         internal const float Nodes = 0.50f;
+        internal const float Fog = 0.70f;
         internal const float Title = 0.80f;
         internal const float ToolTip = 0.90f;
     }
