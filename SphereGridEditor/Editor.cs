@@ -323,7 +323,7 @@ public class Editor : Game
     {
         GraphicsDevice.Clear(new Color(20, 20, 30));
 
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
 
         // Draw edges
         foreach (var (node, pos) in _nodePositions)

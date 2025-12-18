@@ -84,7 +84,8 @@ internal class MainGameScene : IScene
 
     private void DrawBackground()
     {
-        _spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: _camera.Transform);
+        _spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: _camera.Transform,
+            sortMode: SpriteSortMode.FrontToBack);
         _spriteBatch.Draw(_backgroundTile, _camera.VisibleWorldBounds, _camera.VisibleWorldBounds,
             Color.DarkSlateGray.ShiftChroma(-0.02f).ShiftLightness(0.05f));
         _spriteBatch.End();

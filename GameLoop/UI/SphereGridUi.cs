@@ -39,7 +39,7 @@ internal class SphereGridUi(
     private Node? _hoveredNode;
     private MouseState _previousMouseState;
 
-    private Panel TitlePanel => panelRenderer.Define(TitleCentre, TitleSize, Layers.Title - 0.01f);
+    private Panel TitlePanel => panelRenderer.Define(TitleCentre, TitleSize);
     private Vector2 TitleSize => _fontLarge.MeasureString(TitleText(100));
     private Vector2 TitleCentre => new(graphicsDevice.Viewport.Width / 2f, 80);
 
@@ -193,7 +193,7 @@ internal class SphereGridUi(
         internal const float Edges = 0.40f;
         internal const float Nodes = 0.50f;
         internal const float Fog = 0.70f;
-        internal const float Title = 0.80f;
-        internal const float ToolTip = 0.90f;
+        internal const float Title = Gameplay.Rendering.Layers.Ui + 0.05f;
+        internal const float ToolTip = Gameplay.Rendering.Layers.Ui + 0.10f;
     }
 }

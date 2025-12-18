@@ -109,8 +109,7 @@ public class CoreGame : Game
             builder.RegisterType<ExperienceSpawner>().SingleInstance();
             builder.RegisterType<EnemySpawner>().SingleInstance();
 
-            builder.RegisterType<EntityRenderer>().InstancePerDependency();
-            builder.RegisterType<ExperienceBarRenderer>().InstancePerDependency();
+            builder.RegisterType<EntityRenderer>().SingleInstance();
 
             builder.Register<ChaseCamera>(ctx =>
             {
@@ -126,14 +125,15 @@ public class CoreGame : Game
                 return GridFactory.Create(player.AddPowerUp);
             }).SingleInstance();
 
+            builder.RegisterType<ExperienceBarRenderer>().SingleInstance();
             builder.Register<ExperienceBar>(ctx =>
             {
-                var graphicsDevice = ctx.Resolve<GraphicsDevice>();
+                var viewport = ctx.Resolve<Viewport>();
                 const float padding = 50f;
-                var expBarSize = new Vector2(graphicsDevice.Viewport.Width * 0.7f, 20);
-                var expBarCentre = new Vector2(graphicsDevice.Viewport.Bounds.Center.ToVector2().X,
-                    graphicsDevice.Viewport.Bounds.Height - expBarSize.Y - padding);
-                return ctx.Resolve<ExperienceBarRenderer>().Define(expBarCentre, expBarSize, padding);
+                var expBarSize = new Vector2(viewport.Width * 0.7f, 20);
+                var expBarCentre = new Vector2(viewport.Bounds.Center.ToVector2().X,
+                    viewport.Bounds.Height - expBarSize.Y - padding);
+                return ctx.Resolve<ExperienceBarRenderer>().Define(expBarCentre, expBarSize);
             });
 
             // Finally register the scene itself

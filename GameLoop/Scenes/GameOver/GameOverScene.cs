@@ -25,7 +25,7 @@ internal class GameOverScene : IScene
     {
         _content = new ContentManager(coreContent.ServiceProvider)
         {
-            RootDirectory = coreContent.RootDirectory
+            RootDirectory = coreContent.RootDirectory,
         };
 
         _spriteBatch = new SpriteBatch(graphicsDevice);
@@ -37,7 +37,7 @@ internal class GameOverScene : IScene
         _input = new GameOverInputManager
         {
             OnRestart = onRestart,
-            OnExit = onExit
+            OnExit = onExit,
         };
     }
 
@@ -45,7 +45,7 @@ internal class GameOverScene : IScene
 
     public void Draw(GameTime gameTime)
     {
-        _spriteBatch.Begin();
+        _spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
         // Draw "Game Over" title
         const string titleText = "Game Over";

@@ -27,7 +27,7 @@ public class EntityRenderer(
                 e => e,
                 e => effectManager.GetEffects(e).ToList());
 
-        spriteBatch.Begin(transformMatrix: camera.Transform);
+        spriteBatch.Begin(transformMatrix: camera.Transform, sortMode: SpriteSortMode.FrontToBack);
         foreach (var (entity, _) in effectsLookup.Where(pair => pair.Value.Count == 0))
             Draw(entity);
         spriteBatch.End();
@@ -71,7 +71,8 @@ public class EntityRenderer(
         switch (effect)
         {
             case GreyscaleEffect:
-                spriteBatch.Begin(transformMatrix: camera.Transform, effect: _grayscaleEffect);
+                spriteBatch.Begin(transformMatrix: camera.Transform, effect: _grayscaleEffect,
+                    sortMode: SpriteSortMode.FrontToBack);
                 Draw(visual);
                 spriteBatch.End();
                 break;

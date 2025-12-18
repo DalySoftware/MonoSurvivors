@@ -13,9 +13,9 @@ internal sealed class ExperienceBarRenderer(
     PrimitiveRenderer primitiveRenderer,
     LevelManager levelManager)
 {
-    internal ExperienceBar Define(Vector2 centre, Vector2 interiorSize, float layerDepth)
+    internal ExperienceBar Define(Vector2 centre, Vector2 interiorSize)
     {
-        var panel = panelRenderer.Define(centre, interiorSize, layerDepth + 0.001f);
+        var panel = panelRenderer.Define(centre, interiorSize);
         return new ExperienceBar(panel, primitiveRenderer, levelManager);
     }
 }
@@ -35,7 +35,7 @@ internal class ExperienceBar(Panel panel, PrimitiveRenderer primitiveRenderer, L
         Color fillColor,
         float layerDepth = 0f)
     {
-        spriteBatch.Begin();
+        spriteBatch.Begin(SpriteSortMode.FrontToBack);
         var frame = panel.Frame;
 
         // --- 1. Compute filled width ---

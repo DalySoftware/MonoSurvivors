@@ -11,7 +11,7 @@ public class ToolTipRenderer(PrimitiveRenderer primitiveRenderer, ContentManager
     private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
 
     /// <param name="layerDepth">Layer depth for background. Text will use <paramref name="layerDepth" /> + 0.01f</param>
-    public void DrawTooltip(SpriteBatch spriteBatch, ToolTip tooltip, float layerDepth = 0f)
+    public void DrawTooltip(SpriteBatch spriteBatch, ToolTip tooltip, float layerDepth = Layers.Tooltips)
     {
         var mouseState = Mouse.GetState();
         var tooltipPos = new Vector2(mouseState.X + 20, mouseState.Y);
