@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using ContentLibrary;
 using GameLoop.Scenes.SphereGridScene.UI;
-using GameLoop.UI;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
@@ -349,7 +348,8 @@ public class Editor : Game
             var offset = GetDirectionOffset(_pendingConnectionDirection.Value, radius);
             var startPos = _nodePositions[_connectingFromNode] + offset + _cameraOffset;
             var mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-            _primitiveRenderer.DrawLine(_spriteBatch, startPos, mousePos, Color.Yellow * 0.7f, 3);
+            _primitiveRenderer.DrawLine(_spriteBatch, startPos, mousePos, Color.Yellow * 0.7f, 3,
+                Layers.HelpText - 0.05f);
         }
 
         // Draw nodes
@@ -367,9 +367,9 @@ public class Editor : Game
             if (isSelected) color = Color.White;
             else if (isHovered) color = Color.Lerp(baseColor, Color.White, 0.5f);
 
-            DrawCircle(screenPos, radius, color);
-            DrawCircle(screenPos, radius - 2, new Color(20, 20, 30));
-            DrawCircle(screenPos, radius - 4, color * 0.3f);
+            DrawCircle(screenPos, radius, color, Layers.Node);
+            DrawCircle(screenPos, radius - 2, new Color(20, 20, 30), Layers.Node + 0.001f);
+            DrawCircle(screenPos, radius - 4, color * 0.3f, Layers.Node + 0.002f);
 
             // Draw abbreviation and level
             var abbrev = Abbreviation(node);
@@ -380,11 +380,11 @@ public class Editor : Game
 
             // Draw abbreviation on top
             var abbrevPos = screenPos - new Vector2(abbrevSize.X / 2, abbrevSize.Y + 2);
-            _spriteBatch.DrawString(_font, abbrev, abbrevPos, Color.White, layerDepth: 0.01f);
+            _spriteBatch.DrawString(_font, abbrev, abbrevPos, Color.White, layerDepth: Layers.NodeText);
 
             // Draw level below abbreviation
             var levelPos = screenPos - new Vector2(levelSize.X / 2, -2);
-            _spriteBatch.DrawString(_font, level, levelPos, Color.LightGray, layerDepth: 0.01f);
+            _spriteBatch.DrawString(_font, level, levelPos, Color.LightGray, layerDepth: Layers.NodeText);
         }
 
         // Draw tooltip for hovered node (follows mouse)
@@ -432,7 +432,7 @@ public class Editor : Game
             var textSize = font.MeasureString(helpLines[i]);
             y -= textSize.Y + 2;
             _spriteBatch.DrawString(font, helpLines[i],
-                new Vector2(10, y), Color.Gray, layerDepth: 0.01f);
+                new Vector2(10, y), Color.Gray, layerDepth: Layers.HelpText);
         }
 
         // Draw connection mode indicator
@@ -445,9 +445,9 @@ public class Editor : Game
             // Draw background
             var bgRect = new Rectangle((int)msgPos.X - 10, (int)msgPos.Y - 5,
                 (int)msgSize.X + 20, (int)msgSize.Y + 10);
-            _primitiveRenderer.DrawRectangle(_spriteBatch, bgRect, Color.Black * 0.9f);
+            _primitiveRenderer.DrawRectangle(_spriteBatch, bgRect, Color.Black * 0.9f, Layers.HelpText - 0.01f);
 
-            _spriteBatch.DrawString(font, msg, msgPos, Color.Yellow, layerDepth: 0.01f);
+            _spriteBatch.DrawString(font, msg, msgPos, Color.Yellow, layerDepth: Layers.HelpText);
         }
 
         // Draw node creation menu with buttons
@@ -485,46 +485,53 @@ public class Editor : Game
 
             // Draw background
             var menuRect = new Rectangle((int)menuPos.X, (int)menuPos.Y, menuWidth, menuHeight);
-            _primitiveRenderer.DrawRectangle(_spriteBatch, menuRect, Color.Black * 0.95f);
+            _primitiveRenderer.DrawRectangle(_spriteBatch, menuRect, Color.Black * 0.95f, Layers.CreateNode - 0.001f);
 
             // Draw border
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(menuRect.X, menuRect.Y, menuRect.Width, 2), Color.Yellow);
+                new Rectangle(menuRect.X, menuRect.Y, menuRect.Width, 2), Color.Yellow, Layers.CreateNode);
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(menuRect.X, menuRect.Y + menuRect.Height - 2, menuRect.Width, 2), Color.Yellow);
+                new Rectangle(menuRect.X, menuRect.Y + menuRect.Height - 2, menuRect.Width, 2), Color.Yellow,
+                Layers.CreateNode);
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(menuRect.X, menuRect.Y, 2, menuRect.Height), Color.Yellow);
+                new Rectangle(menuRect.X, menuRect.Y, 2, menuRect.Height), Color.Yellow, Layers.CreateNode);
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(menuRect.X + menuRect.Width - 2, menuRect.Y, 2, menuRect.Height), Color.Yellow);
+                new Rectangle(menuRect.X + menuRect.Width - 2, menuRect.Y, 2, menuRect.Height), Color.Yellow,
+                Layers.CreateNode);
 
             // Title
             _spriteBatch.DrawString(font, "Create Node",
-                menuPos + new Vector2(padding, padding), Color.Yellow, layerDepth: 0.01f);
+                menuPos + new Vector2(padding, padding), Color.Yellow, layerDepth: Layers.CreateNodeText);
 
             // Node Level display
             var inputY = menuPos.Y + padding * 2 + lineHeight;
             _spriteBatch.DrawString(font, "Node Level:",
-                new Vector2(menuPos.X + padding, inputY), Color.White, layerDepth: 0.01f);
+                new Vector2(menuPos.X + padding, inputY), Color.White, layerDepth: Layers.CreateNodeText);
 
             var labelWidth = font.MeasureString("Node Level:").X;
             var boxSize = (int)lineHeight + 8;
             var inputRect = new Rectangle((int)menuPos.X + padding + (int)labelWidth + 10, (int)inputY - 4, boxSize,
                 boxSize);
-            _primitiveRenderer.DrawRectangle(_spriteBatch, inputRect, Color.DarkGray * 0.5f);
+            _primitiveRenderer.DrawRectangle(_spriteBatch, inputRect, Color.DarkGray * 0.5f,
+                Layers.CreateNode + 0.03f);
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X, inputRect.Y, inputRect.Width, 1), Color.Gray);
+                new Rectangle(inputRect.X, inputRect.Y, inputRect.Width, 1), Color.Gray,
+                Layers.CreateNode + 0.03f);
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X, inputRect.Y + inputRect.Height - 1, inputRect.Width, 1), Color.Gray);
+                new Rectangle(inputRect.X, inputRect.Y + inputRect.Height - 1, inputRect.Width, 1), Color.Gray,
+                Layers.CreateNode + 0.03f);
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X, inputRect.Y, 1, inputRect.Height), Color.Gray);
+                new Rectangle(inputRect.X, inputRect.Y, 1, inputRect.Height), Color.Gray,
+                Layers.CreateNode + 0.03f);
             _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X + inputRect.Width - 1, inputRect.Y, 1, inputRect.Height), Color.Gray);
+                new Rectangle(inputRect.X + inputRect.Width - 1, inputRect.Y, 1, inputRect.Height), Color.Gray,
+                Layers.CreateNode + 0.03f);
 
             var displayText = _nodeLevelInput.ToString();
             var textSize = font.MeasureString(displayText);
             _spriteBatch.DrawString(font, displayText,
                 new Vector2(inputRect.X + (boxSize - textSize.X) / 2, inputRect.Y + (boxSize - textSize.Y) / 2),
-                Color.White, layerDepth: 0.01f);
+                Color.White, layerDepth: Layers.CreateNodeText);
 
             // Button grid
             var buttonStartY = inputY + lineHeight + padding * 2;
@@ -542,36 +549,39 @@ public class Editor : Game
                 var isHovered = buttonRect.Contains(mousePos);
                 var buttonColor = isHovered ? Color.Yellow * 0.3f : Color.DarkGray * 0.5f;
 
-                _primitiveRenderer.DrawRectangle(_spriteBatch, buttonRect, buttonColor);
+                _primitiveRenderer.DrawRectangle(_spriteBatch, buttonRect, buttonColor, Layers.CreateNodeButton);
 
                 // Button border
                 var borderColor = isHovered ? Color.Yellow : Color.Gray;
                 _primitiveRenderer.DrawRectangle(_spriteBatch,
-                    new Rectangle(buttonRect.X, buttonRect.Y, buttonRect.Width, 1), borderColor);
+                    new Rectangle(buttonRect.X, buttonRect.Y, buttonRect.Width, 1),
+                    borderColor, Layers.CreateNodeButton + 0.001f);
                 _primitiveRenderer.DrawRectangle(_spriteBatch,
                     new Rectangle(buttonRect.X, buttonRect.Y + buttonRect.Height - 1, buttonRect.Width, 1),
-                    borderColor);
+                    borderColor, Layers.CreateNodeButton + 0.001f);
                 _primitiveRenderer.DrawRectangle(_spriteBatch,
-                    new Rectangle(buttonRect.X, buttonRect.Y, 1, buttonRect.Height), borderColor);
+                    new Rectangle(buttonRect.X, buttonRect.Y, 1, buttonRect.Height),
+                    borderColor, Layers.CreateNodeButton + 0.001f);
                 _primitiveRenderer.DrawRectangle(_spriteBatch,
                     new Rectangle(buttonRect.X + buttonRect.Width - 1, buttonRect.Y, 1, buttonRect.Height),
-                    borderColor);
+                    borderColor, Layers.CreateNodeButton + 0.001f);
 
                 var labelSize = font.MeasureString(label);
                 var textPos = new Vector2(buttonRect.X + (buttonRect.Width - labelSize.X) / 2,
                     buttonRect.Y + (buttonRect.Height - labelSize.Y) / 2);
-                _spriteBatch.DrawString(font, label, textPos, Color.White, layerDepth: 0.01f);
+                _spriteBatch.DrawString(font, label, textPos, Color.White, layerDepth: Layers.CreateNodeText);
             }
 
             // Help text
             var helpText = "Press 1-9 to set level, then click a node type";
             var helpY = buttonStartY + buttons.Length * (buttonHeight + 5) + padding;
             _spriteBatch.DrawString(font, helpText,
-                new Vector2(menuPos.X + padding, helpY), Color.Gray, layerDepth: 0.01f);
+                new Vector2(menuPos.X + padding, helpY), Color.Gray, layerDepth: Layers.CreateNodeText);
 
             var escText = "ESC - Cancel";
             _spriteBatch.DrawString(font, escText,
-                new Vector2(menuPos.X + padding, helpY + lineHeight + 5), Color.Gray, layerDepth: 0.01f);
+                new Vector2(menuPos.X + padding, helpY + lineHeight + 5), Color.Gray,
+                layerDepth: Layers.CreateNodeText);
         }
 
         // Draw placement mode indicator
@@ -585,9 +595,9 @@ public class Editor : Game
             // Draw background
             var bgRect = new Rectangle((int)msgPos.X - 10, (int)msgPos.Y - 5,
                 (int)msgSize.X + 20, (int)msgSize.Y + 10);
-            _primitiveRenderer.DrawRectangle(_spriteBatch, bgRect, Color.Black * 0.9f);
+            _primitiveRenderer.DrawRectangle(_spriteBatch, bgRect, Color.Black * 0.9f, Layers.HelpText - 0.001f);
 
-            _spriteBatch.DrawString(font, msg, msgPos, Color.Cyan, layerDepth: 0.01f);
+            _spriteBatch.DrawString(font, msg, msgPos, Color.Cyan, layerDepth: Layers.HelpText);
         }
 
         _spriteBatch.End();
@@ -605,7 +615,7 @@ public class Editor : Game
         _ => Vector2.Zero,
     };
 
-    private void DrawCircle(Vector2 center, float radius, Color color)
+    private void DrawCircle(Vector2 center, float radius, Color color, float layerDepth)
     {
         var segments = 32;
 
@@ -617,7 +627,7 @@ public class Editor : Game
             var p1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * radius;
             var p2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * radius;
 
-            _primitiveRenderer.DrawLine(_spriteBatch, p1, p2, color, 2);
+            _primitiveRenderer.DrawLine(_spriteBatch, p1, p2, color, 2, layerDepth);
         }
     }
 
@@ -635,17 +645,17 @@ public class Editor : Game
 
         // Draw background
         var rect = new Rectangle((int)position.X, (int)position.Y, (int)panelWidth, (int)panelHeight);
-        _primitiveRenderer.DrawRectangle(_spriteBatch, rect, Color.Black * 0.9f);
+        _primitiveRenderer.DrawRectangle(_spriteBatch, rect, Color.Black * 0.9f, Layers.InfoPanel);
 
         // Draw title
         var textPos = position + new Vector2(padding, padding);
-        _spriteBatch.DrawString(_font, title, textPos, Color.White, layerDepth: 0.01f);
+        _spriteBatch.DrawString(_font, title, textPos, Color.White, layerDepth: Layers.InfoPanel + 0.1f);
 
         // Draw lines
         for (var i = 0; i < lines.Length; i++)
         {
             textPos = position + new Vector2(padding, padding + (i + 1) * lineHeight);
-            _spriteBatch.DrawString(_font, lines[i], textPos, textColor, layerDepth: 0.01f);
+            _spriteBatch.DrawString(_font, lines[i], textPos, textColor, layerDepth: Layers.InfoPanel + 0.01f);
         }
     }
 
@@ -793,6 +803,18 @@ public class Editor : Game
         WeaponUnlock<Shotgun> _ => "WPN",
         _ => throw new ArgumentOutOfRangeException(nameof(node)),
     };
+
+    private static class Layers
+    {
+        internal const float Node = 0.30f;
+        internal const float NodeText = 0.35f;
+
+        internal const float InfoPanel = 0.60f;
+        internal const float HelpText = 0.60f;
+        internal const float CreateNode = 0.80f;
+        internal const float CreateNodeButton = 0.85f;
+        internal const float CreateNodeText = 0.90f;
+    }
 }
 
 internal static class Extensions
