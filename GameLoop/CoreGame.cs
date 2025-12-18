@@ -5,24 +5,13 @@ using GameLoop.Input;
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
-using GameLoop.Scenes.Gameplay.UI;
 using GameLoop.Scenes.Pause;
-using GameLoop.Scenes.Pause.UI;
 using GameLoop.Scenes.SphereGridScene;
-using GameLoop.Scenes.SphereGridScene.UI;
 using GameLoop.Scenes.Title;
 using GameLoop.UI;
 using Gameplay;
 using Gameplay.Audio;
-using Gameplay.Combat.Weapons;
-using Gameplay.Combat.Weapons.OnHitEffects;
-using Gameplay.Combat.Weapons.Projectile;
-using Gameplay.Entities;
-using Gameplay.Entities.Enemies;
-using Gameplay.Levelling;
-using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
-using Gameplay.Rendering.Effects;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -54,11 +43,7 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ShowGameOver()
     {
-        var scope = _gameplayScope.BeginLifetimeScope(builder =>
-        {
-            builder.RegisterType<GameOverInputManager>();
-            builder.RegisterType<GameOverScene>();
-        });
+        var scope = _gameplayScope.BeginLifetimeScope(GameOverScene.ConfigureServices);
 
         var gameOverScene = scope.Resolve<GameOverScene>();
         _sceneManager.Push(gameOverScene);
@@ -73,14 +58,7 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ShowSphereGrid()
     {
-        var scope = _gameplayScope.BeginLifetimeScope(builder =>
-        {
-            builder.RegisterType<SphereGridInputManager>().SingleInstance();
-            builder.RegisterType<SphereGridUi>();
-
-            // Register the scene itself
-            builder.RegisterType<SphereGridScene>();
-        });
+        var scope = _gameplayScope.BeginLifetimeScope(SphereGridScene.ConfigureServices);
 
         // Resolve the scene from the scope
         var scene = scope.Resolve<SphereGridScene>();
@@ -94,14 +72,7 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ShowPauseMenu()
     {
-        var scope = _gameplayScope.BeginLifetimeScope(builder =>
-        {
-            builder.RegisterType<PauseInputManager>();
-            builder.RegisterType<PauseUi>();
-
-            // Register the scene itself
-            builder.RegisterType<PauseMenuScene>();
-        });
+        var scope = _gameplayScope.BeginLifetimeScope(PauseMenuScene.ConfigureServices);
 
         var scene = scope.Resolve<PauseMenuScene>();
         _sceneManager.Push(scene);
@@ -115,56 +86,7 @@ public class CoreGame : Game, IGlobalCommands
         // Dispose previous gameplay scope if restarting
         _gameplayScope?.Dispose();
 
-        _gameplayScope = _contentScope.BeginLifetimeScope(builder =>
-        {
-            builder.Register(ctx => ctx.Resolve<GraphicsDevice>().Viewport);
-
-            // Gameplay-specific services
-            builder.RegisterType<BulletSplitOnHit>();
-
-            builder.RegisterType<BasicGun>();
-            builder.RegisterType<WeaponBelt>()
-                .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
-                .SingleInstance();
-
-            builder.RegisterType<PlayerCharacter>().SingleInstance()
-                .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
-                .OnActivated(a => a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance));
-
-            builder.RegisterType<EffectManager>().SingleInstance();
-            builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();
-            builder.RegisterType<LevelManager>().SingleInstance();
-            builder.RegisterType<ExperienceSpawner>().SingleInstance();
-            builder.RegisterType<EnemySpawner>().SingleInstance();
-
-            builder.RegisterType<EntityRenderer>().SingleInstance();
-
-            builder.Register<ChaseCamera>(ctx =>
-            {
-                var player = ctx.Resolve<PlayerCharacter>();
-                var viewport = ctx.Resolve<Viewport>();
-                Vector2 viewportSize = new(viewport.Width, viewport.Height);
-                return new ChaseCamera(viewportSize, player);
-            }).SingleInstance();
-
-            builder.Register<SphereGrid>(ctx =>
-            {
-                var player = ctx.Resolve<PlayerCharacter>();
-                return GridFactory.Create(player.AddPowerUp);
-            }).SingleInstance();
-
-            builder.RegisterType<ExperienceBarFactory>().SingleInstance();
-            builder.Register<ExperienceBar>(ctx => ctx.Resolve<ExperienceBarFactory>().Create());
-
-            builder.RegisterType<HealthBar>()
-                .WithProperty(h => h.Position, new Vector2(10, 10));
-
-            builder.RegisterType<GameplayInputManager>()
-                .SingleInstance();
-
-            // Finally register the scene itself
-            builder.RegisterType<MainGameScene>().InstancePerDependency();
-        });
+        _gameplayScope = _contentScope.BeginLifetimeScope(MainGameScene.ConfigureServices);
 
         // Resolve and push the scene
         var mainScene = _gameplayScope.Resolve<MainGameScene>();
@@ -200,7 +122,6 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterType<SoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
 
             builder.RegisterType<TitleInputManager>().SingleInstance();
-
             builder.RegisterType<TitleScene>().InstancePerDependency();
         });
 

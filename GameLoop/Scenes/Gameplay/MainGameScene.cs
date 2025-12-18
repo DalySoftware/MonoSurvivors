@@ -1,8 +1,13 @@
+using Autofac;
 using ContentLibrary;
 using GameLoop.Scenes.Gameplay.UI;
-using GameLoop.UI;
+using Gameplay.Combat.Weapons;
+using Gameplay.Combat.Weapons.OnHitEffects;
+using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
+using Gameplay.Levelling;
+using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects;
@@ -54,5 +59,54 @@ internal class MainGameScene(
         spriteBatch.Draw(_backgroundTile, camera.VisibleWorldBounds, camera.VisibleWorldBounds,
             Color.DarkSlateGray.ShiftChroma(-0.02f).ShiftLightness(0.05f));
         spriteBatch.End();
+    }
+
+    internal static void ConfigureServices(ContainerBuilder builder)
+    {
+        builder.Register(ctx => ctx.Resolve<GraphicsDevice>().Viewport);
+
+        builder.RegisterType<BulletSplitOnHit>();
+
+        builder.RegisterType<BasicGun>();
+        builder.RegisterType<WeaponBelt>()
+            .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
+            .SingleInstance();
+
+        builder.RegisterType<PlayerCharacter>().SingleInstance()
+            .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
+            .OnActivated(a => a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance));
+
+        builder.RegisterType<EffectManager>().SingleInstance();
+        builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();
+        builder.RegisterType<LevelManager>().SingleInstance();
+        builder.RegisterType<ExperienceSpawner>().SingleInstance();
+        builder.RegisterType<EnemySpawner>().SingleInstance();
+
+        builder.RegisterType<EntityRenderer>().SingleInstance();
+
+        builder.Register<ChaseCamera>(ctx =>
+        {
+            var player = ctx.Resolve<PlayerCharacter>();
+            var viewport = ctx.Resolve<Viewport>();
+            Vector2 viewportSize = new(viewport.Width, viewport.Height);
+            return new ChaseCamera(viewportSize, player);
+        }).SingleInstance();
+
+        builder.Register<SphereGrid>(ctx =>
+        {
+            var player = ctx.Resolve<PlayerCharacter>();
+            return GridFactory.Create(player.AddPowerUp);
+        }).SingleInstance();
+
+        builder.RegisterType<ExperienceBarFactory>().SingleInstance();
+        builder.Register<ExperienceBar>(ctx => ctx.Resolve<ExperienceBarFactory>().Create());
+
+        builder.RegisterType<HealthBar>()
+            .WithProperty(h => h.Position, new Vector2(10, 10));
+
+        builder.RegisterType<GameplayInputManager>()
+            .SingleInstance();
+
+        builder.RegisterType<MainGameScene>().InstancePerDependency();
     }
 }

@@ -1,5 +1,5 @@
+using Autofac;
 using GameLoop.Scenes.SphereGridScene.UI;
-using GameLoop.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -19,4 +19,13 @@ internal class SphereGridScene(
 
     public void Draw(GameTime gameTime) => sphereGridUi.Draw(spriteBatch);
     public void Dispose() { }
+
+    public static void ConfigureServices(ContainerBuilder builder)
+    {
+        builder.RegisterType<SphereGridInputManager>().SingleInstance();
+        builder.RegisterType<SphereGridUi>();
+
+        // Register the scene itself
+        builder.RegisterType<SphereGridScene>();
+    }
 }

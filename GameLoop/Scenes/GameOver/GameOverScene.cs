@@ -1,3 +1,4 @@
+using Autofac;
 using ContentLibrary;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
@@ -42,4 +43,10 @@ internal class GameOverScene(
     }
 
     public void Dispose() => spriteBatch.Dispose();
+
+    public static void ConfigureServices(ContainerBuilder builder)
+    {
+        builder.RegisterType<GameOverInputManager>();
+        builder.RegisterType<GameOverScene>();
+    }
 }
