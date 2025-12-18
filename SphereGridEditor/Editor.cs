@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ContentLibrary;
+using GameLoop.Scenes.SphereGridScene.UI;
 using GameLoop.UI;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Levelling.PowerUps;

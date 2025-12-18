@@ -3,7 +3,7 @@ using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameLoop.UI;
+namespace GameLoop.Scenes.SphereGridScene.UI;
 
 internal sealed class FogOfWarMask
 {

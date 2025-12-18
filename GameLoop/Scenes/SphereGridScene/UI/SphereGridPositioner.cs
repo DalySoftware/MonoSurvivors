@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Gameplay.Levelling.SphereGrid;
 using Microsoft.Xna.Framework;
 
-namespace GameLoop.UI;
+namespace GameLoop.Scenes.SphereGridScene.UI;
 
 /// <param name="hexRadius">How large to make the hexagons, ie how far between nodes</param>
 internal class SphereGridPositioner(SphereGrid grid)

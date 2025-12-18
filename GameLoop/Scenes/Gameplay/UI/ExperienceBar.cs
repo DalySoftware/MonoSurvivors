@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameLoop.UI;
 using Gameplay.Levelling;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameLoop.UI;
+namespace GameLoop.Scenes.Gameplay.UI;
 
 internal sealed class ExperienceBarRenderer(
     PanelRenderer panelRenderer,

@@ -1,12 +1,13 @@
 using System;
 using ContentLibrary;
+using GameLoop.UI;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameLoop.UI;
+namespace GameLoop.Scenes.Pause.UI;
 
 public class VolumeControl
 {

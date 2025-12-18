@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameLoop.UI;
+namespace GameLoop.Scenes.Gameplay.UI;
 
 /// <summary>
 ///     Health bar that displays health using heart sprites

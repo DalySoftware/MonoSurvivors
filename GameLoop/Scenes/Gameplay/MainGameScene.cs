@@ -1,4 +1,5 @@
 using ContentLibrary;
+using GameLoop.Scenes.Gameplay.UI;
 using GameLoop.UI;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;

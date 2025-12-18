@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using ContentLibrary;
+using GameLoop.UI;
 using GameLoop.UserSettings;
 using Gameplay.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameLoop.UI;
+namespace GameLoop.Scenes.Pause.UI;
 
 internal class PauseUi
 {

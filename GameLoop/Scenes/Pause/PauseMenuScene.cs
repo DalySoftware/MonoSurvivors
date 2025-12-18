@@ -1,3 +1,4 @@
+using GameLoop.Scenes.Pause.UI;
 using GameLoop.UI;
 using Microsoft.Xna.Framework;
 

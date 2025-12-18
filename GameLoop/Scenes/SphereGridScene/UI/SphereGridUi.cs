@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
-using GameLoop.Scenes.SphereGridScene;
+using GameLoop.UI;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameLoop.UI;
+namespace GameLoop.Scenes.SphereGridScene.UI;
 
 /// <summary>
 ///     UI overlay for the sphere grid levelling system
@@ -193,7 +193,7 @@ internal class SphereGridUi(
         internal const float Edges = 0.40f;
         internal const float Nodes = 0.50f;
         internal const float Fog = 0.70f;
-        internal const float Title = Gameplay.Rendering.Layers.Ui + 0.05f;
-        internal const float ToolTip = Gameplay.Rendering.Layers.Ui + 0.10f;
+        internal const float Title = global::Gameplay.Rendering.Layers.Ui + 0.05f;
+        internal const float ToolTip = global::Gameplay.Rendering.Layers.Ui + 0.10f;
     }
 }

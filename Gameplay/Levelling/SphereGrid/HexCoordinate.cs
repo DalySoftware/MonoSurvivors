@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Gameplay.Levelling.SphereGrid.Generation;
+namespace Gameplay.Levelling.SphereGrid;
 
 /// <summary>
 ///     Axial hex coordinates (Q,R) with derived S = -Q-R.
