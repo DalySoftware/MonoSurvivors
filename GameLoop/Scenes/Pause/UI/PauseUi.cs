@@ -3,6 +3,7 @@ using System.Globalization;
 using ContentLibrary;
 using GameLoop.UI;
 using GameLoop.UserSettings;
+using Gameplay;
 using Gameplay.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -20,15 +21,15 @@ internal class PauseUi
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly IConfiguration _configuration;
     private readonly AudioSettings _audioSettings;
-    private readonly Action _onResume;
-    private readonly Action _onExit;
 
     private readonly VolumeControl[] _volumeControls;
     private readonly Button[] _buttons;
     private readonly SpriteFont _font;
+    private readonly Action _onResume;
+    private readonly Action _onReturnToTitle;
     public PauseUi(SpriteBatch spriteBatch, Viewport viewport, ContentManager content,
         PrimitiveRenderer primitiveRenderer,
-        IConfiguration configuration, IOptions<AudioSettings> audioSettings, Action onResume, Action onExit)
+        IConfiguration configuration, IOptions<AudioSettings> audioSettings, IGlobalCommands globalCommands)
     {
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
         _spriteBatch = spriteBatch;
@@ -36,8 +37,8 @@ internal class PauseUi
         _primitiveRenderer = primitiveRenderer;
         _configuration = configuration;
         _audioSettings = audioSettings.Value;
-        _onResume = onResume;
-        _onExit = onExit;
+        _onResume = globalCommands.ResumeGame;
+        _onReturnToTitle = globalCommands.ReturnToTitle;
 
         var screenWidth = viewport.Width;
         var screenHeight = viewport.Height;
@@ -135,6 +136,6 @@ internal class PauseUi
     private void OnExitToTitle()
     {
         SaveSettings();
-        _onExit();
+        _onReturnToTitle();
     }
 }

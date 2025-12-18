@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Input;
 
@@ -31,8 +30,6 @@ internal abstract class BaseInputManager
     protected static GamePadState GamePadState { get; private set; } = GamePad.GetState(0);
     protected static MouseState MouseState { get; private set; } = Mouse.GetState();
     protected static MouseState PreviousMouseState { get; private set; } = Mouse.GetState();
-
-    internal required Action OnExit { get; init; }
 
     internal virtual void Update()
     {

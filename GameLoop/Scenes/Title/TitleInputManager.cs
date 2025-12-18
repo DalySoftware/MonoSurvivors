@@ -1,10 +1,11 @@
 ﻿using System;
 using GameLoop.Input;
+using Gameplay;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Title;
 
-internal class TitleInputManager : BaseInputManager
+internal class TitleInputManager(IGlobalCommands globalCommands) : BaseInputManager
 {
     internal Action OnStartGame { get; init; } = () => { };
 
@@ -12,7 +13,8 @@ internal class TitleInputManager : BaseInputManager
     {
         base.Update();
 
-        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) OnExit();
-        if (WasPressedThisFrame(Keys.Enter) || GamePadState.Buttons.Start == ButtonState.Pressed) OnStartGame();
+        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) globalCommands.Exit();
+        if (WasPressedThisFrame(Keys.Enter) || GamePadState.Buttons.Start == ButtonState.Pressed)
+            globalCommands.StartGame();
     }
 }

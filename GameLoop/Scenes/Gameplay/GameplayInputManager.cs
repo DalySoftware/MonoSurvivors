@@ -1,29 +1,26 @@
-using System;
 using GameLoop.Input;
+using Gameplay;
 using Gameplay.Entities;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Gameplay;
 
-internal class GameplayInputManager(PlayerCharacter player) : BaseInputManager
+internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands globalCommands) : BaseInputManager
 {
-    internal Action OnOpenSphereGrid { get; init; } = () => { };
-    internal Action OnPause { get; init; } = () => { };
-
     internal override void Update()
     {
         base.Update();
 
         if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Start == ButtonState.Pressed)
         {
-            OnPause();
+            globalCommands.ShowPauseMenu();
             return;
         }
 
         if (WasPressedThisFrame(Keys.Tab))
         {
-            OnOpenSphereGrid();
+            globalCommands.ShowSphereGrid();
             return;
         }
 

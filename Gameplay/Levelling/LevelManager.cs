@@ -11,10 +11,10 @@ public class LevelManager
 
     private int _lastSeenPlayerLevel = 1;
 
-    public LevelManager(PlayerCharacter player, Action<int> onLevelUp)
+    public LevelManager(PlayerCharacter player, IGlobalCommands globalCommands)
     {
         _player = player;
-        _onLevelUp = onLevelUp;
+        _onLevelUp = globalCommands.OnLevelUp;
 
         const float baseRequirement = 10f;
         const float growthFactor = 1.3f;

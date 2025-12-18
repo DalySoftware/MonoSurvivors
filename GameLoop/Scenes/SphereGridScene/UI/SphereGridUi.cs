@@ -45,7 +45,7 @@ internal class SphereGridUi(
 
     private Vector2 ScreenSpaceOrigin
     {
-        get => field + SphereGridInputManager.CameraOffset;
+        get => field + inputManager.CameraOffset;
     } = graphicsDevice.Viewport.Bounds.Center.ToVector2();
 
     private static string TitleText(int points) => $"You have {points} Skill Points to spend";

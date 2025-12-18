@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using GameLoop.Scenes;
+using Gameplay;
 using Microsoft.Xna.Framework;
 
 namespace GameLoop.DependencyInjection;
@@ -12,6 +13,7 @@ public sealed class GameContainer
 
         builder.RegisterInstance(game)
             .As<Game>()
+            .As<IGlobalCommands>()
             .SingleInstance();
 
         builder.RegisterInstance(game.Window)

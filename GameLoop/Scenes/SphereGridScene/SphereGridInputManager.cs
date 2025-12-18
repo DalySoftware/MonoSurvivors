@@ -1,17 +1,14 @@
-using System;
 using GameLoop.Input;
+using Gameplay;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.SphereGridScene;
 
-internal class SphereGridInputManager : BaseInputManager
+internal class SphereGridInputManager(IGlobalCommands globalCommands) : BaseInputManager
 {
-    internal Action OnClose { get; init; } = () => { };
-    internal static Vector2 CameraOffset { get; private set; }
+    internal Vector2 CameraOffset { get; private set; } = Vector2.Zero;
     internal bool IsPanning { get; private set; }
-
-    internal static void ResetCamera() => CameraOffset = Vector2.Zero;
 
     internal override void Update()
     {
@@ -19,7 +16,7 @@ internal class SphereGridInputManager : BaseInputManager
 
         if (WasPressedThisFrame(Keys.Escape) ||
             GamePadState.Buttons.Back == ButtonState.Pressed ||
-            WasPressedThisFrame(Keys.Tab)) OnClose();
+            WasPressedThisFrame(Keys.Tab)) globalCommands.CloseSphereGrid();
 
         IsPanning = MouseState.MiddleButton == ButtonState.Pressed;
         if (IsPanning)

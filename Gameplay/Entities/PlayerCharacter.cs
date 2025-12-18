@@ -40,13 +40,13 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISimpleVisual
         IAudioPlayer audio,
         EntityManager entityManager,
         ExperienceSpawner experienceSpawner,
-        Action? onDeath = null) : base(position)
+        IGlobalCommands globalCommands) : base(position)
     {
         _effectManager = effectManager;
         _audio = audio;
         _entityManager = entityManager;
         _experienceSpawner = experienceSpawner;
-        _onDeath = onDeath;
+        _onDeath = globalCommands.ShowGameOver;
 
         _entityManager.Spawn(this);
     }
