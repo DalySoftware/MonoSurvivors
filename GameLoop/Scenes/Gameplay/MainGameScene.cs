@@ -1,11 +1,8 @@
 using System;
 using ContentLibrary;
 using GameLoop.UI;
-using Gameplay.Audio;
-using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
-using Gameplay.Levelling;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects;
@@ -19,7 +16,6 @@ internal class MainGameScene : IScene
 {
     private readonly Texture2D _backgroundTile;
     private readonly ChaseCamera _camera;
-    private readonly ContentManager _content;
     private readonly EffectManager _effectManager;
     private readonly EntityManager _entityManager;
     private readonly EntityRenderer _entityRenderer;
@@ -29,39 +25,30 @@ internal class MainGameScene : IScene
     private readonly ExperienceBar _experienceBar;
 
     public MainGameScene(
-        GraphicsDevice graphicsDevice,
-        ContentManager coreContent,
+        SpriteBatch spriteBatch,
         Action exitGame,
         EntityManager entityManager,
-        IAudioPlayer audioPlayer,
         EffectManager effectManager,
         Action openSphereGrid,
         Action openPauseMenu,
         PlayerCharacter player,
-        LevelManager levelManager)
+        EnemySpawner spawner,
+        ChaseCamera camera,
+        ContentManager content,
+        ExperienceBar experienceBar,
+        EntityRenderer entityRenderer)
     {
-        _content = new ContentManager(coreContent.ServiceProvider)
-        {
-            RootDirectory = coreContent.RootDirectory,
-        };
-
-        _spriteBatch = new SpriteBatch(graphicsDevice);
+        _spriteBatch = spriteBatch;
         _entityManager = entityManager;
         _effectManager = effectManager;
+        _experienceBar = experienceBar;
+        _camera = camera;
+        _entityRenderer = entityRenderer;
+
+        _backgroundTile = content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
         _entityManager.Spawn(player);
-        player.WeaponBelt.AddWeapon(new BasicGun(player, _entityManager, _entityManager, audioPlayer));
-
-        Vector2 viewportSize = new(graphicsDevice.PresentationParameters.BackBufferWidth,
-            graphicsDevice.PresentationParameters.BackBufferHeight);
-        _camera = new ChaseCamera(viewportSize, player);
-
-        _entityRenderer = new EntityRenderer(_content, _spriteBatch, _camera, _effectManager);
-        _backgroundTile = _content.Load<Texture2D>(Paths.Images.BackgroundTile);
-
-        var enemySpawner = new EnemySpawner(_entityManager, player, graphicsDevice);
-
-        _entityManager.Spawn(enemySpawner);
+        _entityManager.Spawn(spawner);
 
         _input = new GameplayInputManager(player)
         {
@@ -70,25 +57,13 @@ internal class MainGameScene : IScene
             OnPause = openPauseMenu,
         };
 
-        _healthBar = new HealthBar(_content, player)
+        _healthBar = new HealthBar(content, player)
         {
             Position = new Vector2(10, 10),
         };
-        var primitiveRenderer = new PrimitiveRenderer(_content, graphicsDevice);
-        var panelRenderer = new PanelRenderer(_content, primitiveRenderer);
-        var experienceBarRenderer = new ExperienceBarRenderer(panelRenderer, primitiveRenderer, levelManager);
-        const float padding = 50f;
-        var expBarSize = new Vector2(graphicsDevice.Viewport.Width * 0.7f, 20);
-        var expBarCentre = new Vector2(graphicsDevice.Viewport.Bounds.Center.ToVector2().X,
-            graphicsDevice.Viewport.Bounds.Height - expBarSize.Y - padding);
-        _experienceBar = experienceBarRenderer.Define(expBarCentre, expBarSize, Layers.UI);
     }
 
-    public void Dispose()
-    {
-        _content.Dispose();
-        _spriteBatch.Dispose();
-    }
+    public void Dispose() { }
 
     public void Update(GameTime gameTime)
     {

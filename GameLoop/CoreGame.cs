@@ -13,7 +13,9 @@ using GameLoop.Scenes.SphereGridScene;
 using GameLoop.Scenes.Title;
 using GameLoop.UI;
 using Gameplay.Audio;
+using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
+using Gameplay.Entities.Enemies;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
@@ -87,30 +89,52 @@ public class CoreGame : Game
 
         _gameplayScope = _contentScope.BeginLifetimeScope(builder =>
         {
+            builder.Register(ctx => ctx.Resolve<GraphicsDevice>().Viewport);
+
             builder.RegisterInstance<Action>(Exit).Named<Action>("exitGame");
             builder.RegisterInstance<Action>(ShowSphereGrid).Named<Action>("openSphereGrid");
             builder.RegisterInstance<Action>(ShowPauseMenu).Named<Action>("openPauseMenu");
 
             // Gameplay-specific services
-            builder.RegisterType<EffectManager>().SingleInstance();
-            builder.RegisterType<EntityManager>().SingleInstance();
-            builder.RegisterType<LevelManager>().SingleInstance()
-                .WithParameter((pi, _) => pi.Name == "onLevelUp", (_, _) => (Action<int>)OnLevelUp);
+            builder.RegisterType<BasicGun>();
             builder.RegisterType<PlayerCharacter>().SingleInstance()
                 .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
-                .WithParameter((pi, _) => pi.Name == "onDeath", (_, _) => (Action)ShowGameOver);
-            builder.RegisterType<ExperienceSpawner>().SingleInstance();
+                .WithParameter((pi, _) => pi.Name == "onDeath", (_, _) => (Action)ShowGameOver)
+                .OnActivated(p => p.Instance.WeaponBelt.AddWeapon(p.Context.Resolve<BasicGun>()));
 
-            // Register dependencies for MainGameScene
+            builder.RegisterType<EffectManager>().SingleInstance();
+            builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();
+            builder.RegisterType<LevelManager>().SingleInstance()
+                .WithParameter((pi, _) => pi.Name == "onLevelUp", (_, _) => (Action<int>)OnLevelUp);
+            builder.RegisterType<ExperienceSpawner>().SingleInstance();
+            builder.RegisterType<EnemySpawner>().SingleInstance();
+
             builder.RegisterType<EntityRenderer>().InstancePerDependency();
-            builder.RegisterType<PanelRenderer>().InstancePerDependency();
             builder.RegisterType<ExperienceBarRenderer>().InstancePerDependency();
+
+            builder.Register<ChaseCamera>(ctx =>
+            {
+                var player = ctx.Resolve<PlayerCharacter>();
+                var viewport = ctx.Resolve<Viewport>();
+                Vector2 viewportSize = new(viewport.Width, viewport.Height);
+                return new ChaseCamera(viewportSize, player);
+            }).SingleInstance();
 
             builder.Register<SphereGrid>(ctx =>
             {
                 var player = ctx.Resolve<PlayerCharacter>();
                 return GridFactory.Create(player.AddPowerUp);
             }).SingleInstance();
+
+            builder.Register<ExperienceBar>(ctx =>
+            {
+                var graphicsDevice = ctx.Resolve<GraphicsDevice>();
+                const float padding = 50f;
+                var expBarSize = new Vector2(graphicsDevice.Viewport.Width * 0.7f, 20);
+                var expBarCentre = new Vector2(graphicsDevice.Viewport.Bounds.Center.ToVector2().X,
+                    graphicsDevice.Viewport.Bounds.Height - expBarSize.Y - padding);
+                return ctx.Resolve<ExperienceBarRenderer>().Define(expBarCentre, expBarSize, padding);
+            });
 
             // Finally register the scene itself
             builder.RegisterType<MainGameScene>()

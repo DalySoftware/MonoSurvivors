@@ -15,6 +15,7 @@ namespace GameLoop.UI;
 internal class PauseUi
 {
     private readonly SpriteBatch _spriteBatch;
+    private readonly Viewport _viewport;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly IConfiguration _configuration;
     private readonly AudioSettings _audioSettings;
@@ -24,20 +25,21 @@ internal class PauseUi
     private readonly VolumeControl[] _volumeControls;
     private readonly Button[] _buttons;
     private readonly SpriteFont _font;
-    public PauseUi(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, ContentManager content,
+    public PauseUi(SpriteBatch spriteBatch, Viewport viewport, ContentManager content,
         PrimitiveRenderer primitiveRenderer,
         IConfiguration configuration, IOptions<AudioSettings> audioSettings, Action onResume, Action onExit)
     {
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
         _spriteBatch = spriteBatch;
+        _viewport = viewport;
         _primitiveRenderer = primitiveRenderer;
         _configuration = configuration;
         _audioSettings = audioSettings.Value;
         _onResume = onResume;
         _onExit = onExit;
 
-        var screenWidth = graphicsDevice.Viewport.Width;
-        var screenHeight = graphicsDevice.Viewport.Height;
+        var screenWidth = viewport.Width;
+        var screenHeight = viewport.Height;
         var centerX = screenWidth / 2f;
         var centerY = screenHeight / 2f;
 
@@ -73,16 +75,15 @@ internal class PauseUi
     {
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
 
-        var viewport = _spriteBatch.GraphicsDevice.Viewport;
         // Draw semi-transparent background
         _primitiveRenderer.DrawRectangle(_spriteBatch,
-            new Rectangle(0, 0, viewport.Width, viewport.Height),
+            new Rectangle(0, 0, _viewport.Width, _viewport.Height),
             new Color(0, 0, 0, 180), 0.3f);
 
         // Draw title
         const string title = "PAUSED";
         var titleSize = _font.MeasureString(title);
-        var titlePosition = new Vector2(viewport.Width / 2f - titleSize.X / 2, 100);
+        var titlePosition = new Vector2(_viewport.Width / 2f - titleSize.X / 2, 100);
         _spriteBatch.DrawString(_font, title, titlePosition, Color.White, 0f, Vector2.Zero, 1f,
             SpriteEffects.None, 0.5f);
 
