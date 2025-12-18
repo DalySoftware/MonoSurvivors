@@ -39,7 +39,11 @@ internal class Frame(
     private readonly Rectangle _rightEdge = new(FarEdgeOrigin, CornerSize, EdgeThickness, EdgeLength);
 
     internal float LayerDepth => layerDepth;
-    internal Vector2 TopLeft => centre - new Vector2(interiorSize.X / 2 + CornerSize, interiorSize.Y / 2 + CornerSize);
+
+    internal Vector2 TopLeft =>
+        centre - new Vector2(interiorSize.X * 0.5f + CornerSize, interiorSize.Y * 0.5f + CornerSize);
+
+    internal Vector2 MiddleRight => centre + new Vector2(interiorSize.X * 0.5f + CornerSize, 0);
 
     private static int TotalWidth => CornerSize * 2 + EdgeLength;
     private static int FarEdgeOrigin => TotalWidth - EdgeThickness;

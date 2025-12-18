@@ -128,16 +128,8 @@ public class CoreGame : Game
                 return GridFactory.Create(player.AddPowerUp);
             }).SingleInstance();
 
-            builder.RegisterType<ExperienceBarRenderer>().SingleInstance();
-            builder.Register<ExperienceBar>(ctx =>
-            {
-                var viewport = ctx.Resolve<Viewport>();
-                const float padding = 50f;
-                var expBarSize = new Vector2(viewport.Width * 0.7f, 20);
-                var expBarCentre = new Vector2(viewport.Bounds.Center.ToVector2().X,
-                    viewport.Bounds.Height - expBarSize.Y - padding);
-                return ctx.Resolve<ExperienceBarRenderer>().Define(expBarCentre, expBarSize);
-            });
+            builder.RegisterType<ExperienceBarFactory>().SingleInstance();
+            builder.Register<ExperienceBar>(ctx => ctx.Resolve<ExperienceBarFactory>().Create());
 
             builder.RegisterType<HealthBar>()
                 .WithProperty(h => h.Position, new Vector2(10, 10));
