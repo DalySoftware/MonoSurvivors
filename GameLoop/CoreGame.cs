@@ -61,22 +61,22 @@ public class CoreGame : Game
             builder.RegisterType<SpriteBatch>().ExternallyOwned();
 
             builder.RegisterType<PrimitiveRenderer>().SingleInstance();
-            builder.RegisterType<PanelRenderer>();
-            builder.RegisterType<ToolTipRenderer>();
+            builder.RegisterType<PanelRenderer>().SingleInstance();
+            builder.RegisterType<ToolTipRenderer>().SingleInstance();
             builder.RegisterType<MusicPlayer>().SingleInstance();
 
             builder.RegisterType<SceneManager>().SingleInstance();
             builder.RegisterType<SoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
+
+            builder.RegisterType<TitleInputManager>()
+                .WithProperty(i => i.OnStartGame, StartGame)
+                .WithProperty(i => i.OnExit, Exit)
+                .SingleInstance();
+
+            builder.RegisterType<TitleScreen>().InstancePerDependency();
         });
 
-        var title = new TitleScreen(
-            GraphicsDevice,
-            Window,
-            Content,
-            StartGame,
-            Exit);
-
-        _sceneManager.Push(title);
+        ReturnToTitle();
 
         base.LoadContent();
     }
@@ -136,9 +136,17 @@ public class CoreGame : Game
                 return ctx.Resolve<ExperienceBarRenderer>().Define(expBarCentre, expBarSize);
             });
 
+            builder.RegisterType<HealthBar>()
+                .WithProperty(h => h.Position, new Vector2(10, 10));
+
+            builder.RegisterType<GameplayInputManager>()
+                .WithProperty(i => i.OnExit, Exit)
+                .WithProperty(i => i.OnOpenSphereGrid, ShowSphereGrid)
+                .WithProperty(i => i.OnPause, ShowPauseMenu)
+                .SingleInstance();
+
             // Finally register the scene itself
             builder.RegisterType<MainGameScene>()
-                .As<IScene>()
                 .WithParameter(
                     (pi, _) => pi.Name == "exitGame",
                     (_, _) => (Action)Exit)
@@ -152,7 +160,7 @@ public class CoreGame : Game
         });
 
         // Resolve and push the scene
-        var mainScene = _gameplayScope.Resolve<IScene>();
+        var mainScene = _gameplayScope.Resolve<MainGameScene>();
         _sceneManager.Push(mainScene);
 
         // Play background music
@@ -169,7 +177,7 @@ public class CoreGame : Game
 
     private void ReturnToTitle()
     {
-        var title = new TitleScreen(GraphicsDevice, Window, Content, StartGame, Exit);
+        var title = _contentScope.Resolve<TitleScreen>();
         _sceneManager.Push(title);
     }
 

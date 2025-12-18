@@ -1,5 +1,4 @@
-﻿using System;
-using ContentLibrary;
+﻿using ContentLibrary;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -8,42 +7,21 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameLoop.Scenes.Title;
 
-internal class TitleScreen : IScene
+internal class TitleScreen(
+    SpriteBatch spriteBatch,
+    ContentManager content,
+    TitleInputManager input)
+    : IScene
 {
-    private readonly ContentManager _content;
+    private readonly SpriteFont _titleFont = content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
 
-    private readonly TitleInputManager _input;
-    private readonly SpriteBatch _spriteBatch;
-
-    private readonly SpriteFont _titleFont;
-    private readonly GameWindow _window;
-
-    public TitleScreen(GraphicsDevice graphicsDevice, GameWindow window, ContentManager coreContent, Action onStartGame,
-        Action onExit)
-    {
-        _window = window;
-        _spriteBatch = new SpriteBatch(graphicsDevice);
-
-        _content = new ContentManager(coreContent.ServiceProvider)
-        {
-            RootDirectory = coreContent.RootDirectory,
-        };
-
-        _titleFont = _content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
-        _input = new TitleInputManager
-        {
-            OnStartGame = onStartGame,
-            OnExit = onExit,
-        };
-    }
-
-    public void Update(GameTime gameTime) => _input.Update();
+    public void Update(GameTime gameTime) => input.Update();
 
     public void Draw(GameTime gameTime)
     {
-        _spriteBatch.Begin(SpriteSortMode.FrontToBack);
+        spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
-        var windowCentre = _window.Centre;
+        var windowCentre = spriteBatch.GraphicsDevice.Viewport.Bounds.Center.ToVector2();
         var shadowOffset = new Vector2(5f, 5f);
 
         const float shadow = 0.4f;
@@ -52,25 +30,21 @@ internal class TitleScreen : IScene
         const string line1 = "Mono";
         var line1Centre = _titleFont.MeasureString(line1) / 2;
         var line1Position = windowCentre + new Vector2(0f, -75f);
-        _spriteBatch.DrawString(_titleFont, line1, line1Position + shadowOffset, Color.DimGray,
+        spriteBatch.DrawString(_titleFont, line1, line1Position + shadowOffset, Color.DimGray,
             origin: line1Centre, layerDepth: shadow);
-        _spriteBatch.DrawString(_titleFont, line1, line1Position, Color.DarkOrange, origin: line1Centre,
+        spriteBatch.DrawString(_titleFont, line1, line1Position, Color.DarkOrange, origin: line1Centre,
             layerDepth: front);
 
         const string line2 = "Survivors";
         var line2Centre = _titleFont.MeasureString(line2) / 2;
         var line2Position = windowCentre + new Vector2(0f, 75f);
-        _spriteBatch.DrawString(_titleFont, line2, line2Position + shadowOffset, Color.DimGray,
+        spriteBatch.DrawString(_titleFont, line2, line2Position + shadowOffset, Color.DimGray,
             origin: line2Centre, layerDepth: shadow);
-        _spriteBatch.DrawString(_titleFont, line2, line2Position, Color.DarkOrange, origin: line2Centre,
+        spriteBatch.DrawString(_titleFont, line2, line2Position, Color.DarkOrange, origin: line2Centre,
             layerDepth: front);
 
-        _spriteBatch.End();
+        spriteBatch.End();
     }
 
-    public void Dispose()
-    {
-        _content.Dispose();
-        _spriteBatch.Dispose();
-    }
+    public void Dispose() { }
 }
