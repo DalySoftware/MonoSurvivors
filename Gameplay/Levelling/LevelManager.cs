@@ -1,20 +1,26 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Gameplay.Entities;
+using Gameplay.Levelling.SphereGrid;
 
 namespace Gameplay.Levelling;
 
 public class LevelManager
 {
     private readonly LevelCalculator _levelCalculator;
-    private readonly Action<int> _onLevelUp;
     private readonly PlayerCharacter _player;
+    private readonly IGlobalCommands _globalCommands;
+    private readonly SphereGrid.SphereGrid _sphereGrid;
 
     private int _lastSeenPlayerLevel = 1;
 
-    public LevelManager(PlayerCharacter player, IGlobalCommands globalCommands)
+    private HashSet<Node> _lastSeenUnlockables = [];
+
+    public LevelManager(PlayerCharacter player, IGlobalCommands globalCommands, SphereGrid.SphereGrid sphereGrid)
     {
         _player = player;
-        _onLevelUp = globalCommands.OnLevelUp;
+        _globalCommands = globalCommands;
+        _sphereGrid = sphereGrid;
 
         const float baseRequirement = 10f;
         const float growthFactor = 1.3f;
@@ -24,7 +30,7 @@ public class LevelManager
         _player.OnExperienceGain += OnExperienceGain;
     }
 
-    public int Level => _levelCalculator.GetLevel(_player.Experience);
+    private int Level => _levelCalculator.GetLevel(_player.Experience);
 
     public float ExperienceSinceLastLevel => _player.Experience - (float)_levelCalculator.TotalExperienceToReach(Level);
     public float ExperienceToNextLevel => (float)_levelCalculator.ExtraExperienceToLevelUpFrom(Level);
@@ -33,7 +39,18 @@ public class LevelManager
     {
         if (_lastSeenPlayerLevel == Level) return;
 
-        _onLevelUp(Level - _lastSeenPlayerLevel);
+        OnLevelUp(Level - _lastSeenPlayerLevel);
         _lastSeenPlayerLevel = Level;
+    }
+
+    private void OnLevelUp(int levelsGained)
+    {
+        _sphereGrid.AddSkillPoints(levelsGained);
+        var unlockables = _sphereGrid.Unlockable.ToHashSet();
+        var anythingHasChanged = !unlockables.SetEquals(_lastSeenUnlockables);
+        if (unlockables.Count > 0 && anythingHasChanged)
+            _globalCommands.ShowSphereGrid();
+
+        _lastSeenUnlockables = unlockables;
     }
 }

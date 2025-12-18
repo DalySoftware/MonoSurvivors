@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using GameLoop.Audio;
 using GameLoop.DependencyInjection;
 using GameLoop.Input;
@@ -35,7 +33,6 @@ public class CoreGame : Game, IGlobalCommands
     private readonly SceneManager _sceneManager = new(null);
     private readonly GameContainer _container;
 
-    private HashSet<Node> _lastSeenUnlockables = [];
     private ILifetimeScope _contentScope = null!;
     private ILifetimeScope _gameplayScope = null!;
 
@@ -71,18 +68,6 @@ public class CoreGame : Game, IGlobalCommands
         _sceneManager.Push(title);
     }
 
-    public void OnLevelUp(int levelsGained)
-    {
-        var sphereGrid = _gameplayScope.Resolve<SphereGrid>();
-
-        sphereGrid.AddSkillPoints(levelsGained);
-        var unlockables = sphereGrid.Unlockable.ToHashSet();
-        var anythingHasChanged = !unlockables.SetEquals(_lastSeenUnlockables);
-        if (unlockables.Count > 0 && anythingHasChanged)
-            ShowSphereGrid();
-
-        _lastSeenUnlockables = unlockables;
-    }
 
     public void ShowSphereGrid()
     {
