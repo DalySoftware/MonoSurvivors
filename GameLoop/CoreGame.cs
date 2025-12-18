@@ -58,14 +58,14 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ShowSphereGrid()
     {
-        var scope = _gameplayScope.BeginLifetimeScope(SphereGridScene.ConfigureServices);
+        var scope = _gameplayScope.BeginLifetimeScope();
 
         // Resolve the scene from the scope
         var scene = scope.Resolve<SphereGridScene>();
         _sceneManager.Push(scene);
 
         // Duck the music while the scene is active
-        var music = _gameplayScope.Resolve<MusicPlayer>();
+        var music = scope.Resolve<MusicPlayer>();
         music.DuckBackgroundMusic();
     }
 
@@ -86,7 +86,12 @@ public class CoreGame : Game, IGlobalCommands
         // Dispose previous gameplay scope if restarting
         _gameplayScope?.Dispose();
 
-        _gameplayScope = _contentScope.BeginLifetimeScope(MainGameScene.ConfigureServices);
+        _gameplayScope = _contentScope
+            .BeginLifetimeScope(builder =>
+            {
+                MainGameScene.ConfigureServices(builder);
+                SphereGridScene.ConfigureServices(builder); // sphere grid shares lifetime
+            });
 
         // Resolve and push the scene
         var mainScene = _gameplayScope.Resolve<MainGameScene>();
