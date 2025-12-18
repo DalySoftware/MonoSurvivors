@@ -7,7 +7,7 @@ using Gameplay.Rendering;
 
 namespace Gameplay.Levelling;
 
-public class Experience : MovableEntity, IPickup, ISimpleVisual
+public class Experience : MovableEntity, IPickup, ISpriteVisual
 {
     private readonly IAudioPlayer _audio;
     private readonly GravitateToEntity _followEntity;

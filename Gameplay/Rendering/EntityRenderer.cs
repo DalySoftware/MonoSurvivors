@@ -12,7 +12,8 @@ public class EntityRenderer(
     ContentManager content,
     SpriteBatch spriteBatch,
     ChaseCamera camera,
-    EffectManager effectManager)
+    EffectManager effectManager,
+    PrimitiveRenderer primitiveRenderer)
 {
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
     private readonly Dictionary<string, Texture2D> _textureCache = [];
@@ -44,8 +45,11 @@ public class EntityRenderer(
             case ISpriteSheetVisual spriteSheetVisual:
                 DrawFromSpriteSheet(spriteSheetVisual);
                 break;
-            case ISimpleVisual simpleVisual:
+            case ISpriteVisual simpleVisual:
                 DrawSimpleSprite(simpleVisual);
+                break;
+            case IPrimitiveVisual primitiveVisual:
+                primitiveVisual.Draw(spriteBatch, primitiveRenderer);
                 break;
         }
     }
@@ -59,7 +63,7 @@ public class EntityRenderer(
             layerDepth: visual.Layer);
     }
 
-    private void DrawSimpleSprite(ISimpleVisual visual)
+    private void DrawSimpleSprite(ISpriteVisual visual)
     {
         var texture = GetTexture(visual.TexturePath);
         var origin = new Vector2(texture.Width / 2f, texture.Height / 2f);

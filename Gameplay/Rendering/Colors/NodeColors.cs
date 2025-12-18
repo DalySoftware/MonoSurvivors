@@ -1,1 +1,0 @@
-﻿namespace Gameplay.Rendering.Colors;

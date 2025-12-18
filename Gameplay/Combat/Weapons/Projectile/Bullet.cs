@@ -9,7 +9,7 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
-public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
+public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
 {
     private readonly HashSet<EnemyBase> _hitEnemies = [];
     private readonly HashSet<EnemyBase> _immuneEnemies;

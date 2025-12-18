@@ -6,7 +6,7 @@ using Gameplay.Levelling.PowerUps.Weapon;
 
 namespace Gameplay.Combat.Weapons;
 
-public class WeaponBelt(BulletSplitOnHit bulletSplit) : IEntity
+public class WeaponBelt(BulletSplitOnHit bulletSplit, ChainLightningOnHit chainLightning) : IEntity
 {
     private readonly List<IWeaponPowerUp> _powerUps = [];
     private readonly List<IWeapon> _weapons = [];
@@ -16,6 +16,7 @@ public class WeaponBelt(BulletSplitOnHit bulletSplit) : IEntity
     public List<IOnHitEffect> OnHitEffects { get; } =
     [
         bulletSplit,
+        chainLightning,
     ];
 
     public void Update(GameTime gameTime) => _weapons.ForEach(w => w.Update(gameTime, Stats));
@@ -40,6 +41,7 @@ public class WeaponBelt(BulletSplitOnHit bulletSplit) : IEntity
         Stats.CritChance = _powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
         Stats.CritDamage =
             _powerUps.OfType<CritDamageUp>().Sum(p => p.Value) + CritCalculator.BaseCritDamageMultiplier;
+        Stats.ChainLightningChance = _powerUps.OfType<ChainLightningUp>().Sum(p => p.Value);
 
         var bulletSplit = _powerUps.OfType<BulletSplitUp>().Sum(p => p.Bullets);
         Stats.BulletSplit = bulletSplit <= 0 ? 0 : bulletSplit + 1; // never split into only 1 bullet
@@ -58,4 +60,5 @@ public class WeaponBeltStats
     public float CritChance { get; set; } = 0f;
     public float CritDamage { get; set; } = CritCalculator.BaseCritDamageMultiplier;
     public int BulletSplit { get; set; } = 0;
+    public float ChainLightningChance { get; set; } = 0f;
 }

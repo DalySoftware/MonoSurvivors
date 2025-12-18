@@ -3,7 +3,7 @@
 /// <summary>
 ///     Declares the visual representation (texture path) for an entity
 /// </summary>
-public interface ISimpleVisual : IVisual
+public interface ISpriteVisual : IVisual
 {
     /// <summary>
     ///     The content path to the texture asset for this entity

@@ -55,6 +55,9 @@ internal static class NodeFactory
     internal static Node ShotgunUnlock(int nodeLevel) =>
         new(new WeaponUnlock<Shotgun>(), nodeLevel, 5);
 
+    internal static Node ChainLightningUp(int nodeLevel) =>
+        new(new ChainLightningUp(nodeLevel * 0.1f), nodeLevel, MediumCost(nodeLevel));
+
 
     private static int MediumCost(int nodeLevel) => nodeLevel switch
     {

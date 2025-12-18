@@ -66,6 +66,7 @@ internal class MainGameScene(
         builder.Register(ctx => ctx.Resolve<GraphicsDevice>().Viewport);
 
         builder.RegisterType<BulletSplitOnHit>();
+        builder.RegisterType<ChainLightningOnHit>();
 
         builder.RegisterType<BasicGun>();
         builder.RegisterType<WeaponBelt>()

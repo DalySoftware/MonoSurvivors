@@ -32,6 +32,7 @@ public static class PowerUpCatalog
             BulletSplitUp => "Increase Bullet Split",
             ExplodeOnKillUp => "Increase on kill explosion",
             WeaponUnlock<Shotgun> => "Unlock the Shotgun",
+            ChainLightningUp => "Increase Chain Lightning chance",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
         public string Description() => powerUp switch
@@ -52,6 +53,7 @@ public static class PowerUpCatalog
             BulletSplitUp => "Increase Bullet Split",
             ExplodeOnKillUp => "Increase explosion size on kill",
             WeaponUnlock<Shotgun> => "Unlock an extra weapon. The shotgun fires bullets in a spread",
+            ChainLightningUp => "Increase chance to trigger chain lightning on hit",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
     }
@@ -72,7 +74,7 @@ public static class PowerUpCatalog
             return powerUp switch
             {
                 DamageUp or AttackSpeedUp => damageColor,
-                ShotCountUp or PierceUp or BulletSplitUp or ExplodeOnKillUp => damageEffectsColor,
+                ShotCountUp or PierceUp or BulletSplitUp or ExplodeOnKillUp or ChainLightningUp => damageEffectsColor,
                 MaxHealthUp or LifeStealUp => healthColor,
                 SpeedUp => speedColor,
                 PickupRadiusUp or ExperienceUp or RangeUp or ProjectileSpeedUp => utilityColor,

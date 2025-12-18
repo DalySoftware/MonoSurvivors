@@ -23,7 +23,7 @@ public class PlayerCharacter(
     ExperienceSpawner experienceSpawner,
     IGlobalCommands globalCommands,
     WeaponBelt weaponBelt)
-    : MovableEntity(position), IDamageablePlayer, ISimpleVisual
+    : MovableEntity(position), IDamageablePlayer, ISpriteVisual
 {
     private const float BaseSpeed = 0.25f;
 
