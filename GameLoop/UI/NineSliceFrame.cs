@@ -77,20 +77,21 @@ internal class Frame(
     public Rectangle ExteriorRectangle =>
         new((int)TopLeft.X, (int)TopLeft.Y, (int)interiorSize.X + CornerSize * 2, (int)interiorSize.Y + CornerSize * 2);
 
-    internal IEnumerable<(Vector2 topLeft, float rotation)> CornerTriangles
-    {
-        get
-        {
-            var farCornerOffset = interiorSize + Vector2.One * CornerSize * 2f;
-            return
-            [
-                (TopLeft, 0f),
-                (TopLeft + farCornerOffset.XProjection, MathF.PI / 2),
-                (TopLeft + farCornerOffset.YProjection, -MathF.PI / 2),
-                (TopLeft + farCornerOffset, MathF.PI),
-            ];
-        }
-    }
+    private Vector2 FarCornerOffset => interiorSize + Vector2.One * CornerSize * 2f;
+    internal (Vector2 topLeft, float rotation) TopLeftTriangle => (TopLeft, 0f);
+
+    internal (Vector2 topLeft, float rotation) TopRightTriangle =>
+        (TopLeft + FarCornerOffset.XProjection, MathF.PI / 2);
+
+    internal (Vector2 topLeft, float rotation) BottomLeftTriangle =>
+        (TopLeft + FarCornerOffset.YProjection, -MathF.PI / 2);
+
+    internal (Vector2 topLeft, float rotation) BottomRightTriangle => (TopLeft + FarCornerOffset, MathF.PI);
+
+    internal IEnumerable<(Vector2 topLeft, float rotation)> CornerTriangles =>
+    [
+        TopLeftTriangle, TopRightTriangle, BottomLeftTriangle, BottomRightTriangle,
+    ];
 
     internal void Draw(SpriteBatch spriteBatch, Color color)
     {

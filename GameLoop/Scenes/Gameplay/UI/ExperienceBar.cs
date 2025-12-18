@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ContentLibrary;
 using GameLoop.UI;
 using Gameplay.Levelling;
@@ -73,7 +72,7 @@ internal class ExperienceBar(
 
         DrawInterior(spriteBatch, fillColor, interiorRect, filledWidth);
         DrawEdges(spriteBatch, fillColor, frame, filledWidth, interiorRect);
-        DrawCorners(spriteBatch, fillColor, frame, interiorRect, filledWidth);
+        DrawCorners(spriteBatch, fillColor, frame, filledWidth, interiorRect);
 
         // We set layer depths to ensure our filled parts are above the background but below the frame
         barPanel.Draw(spriteBatch, frameColor, Color.SlateGray);
@@ -98,15 +97,21 @@ internal class ExperienceBar(
         spriteBatch.DrawString(font, text, textPosition, Color.White, layerDepth: textLayer);
     }
 
-
-    private void DrawCorners(SpriteBatch spriteBatch, Color fillColor, Frame frame, Rectangle interiorRect,
-        int filledWidth)
+    private void DrawCorners(SpriteBatch spriteBatch, Color fillColor, Frame frame, int filledWidth,
+        Rectangle interiorRect)
     {
-        // Only draw the triangle if it lies within the filled width
-        var trianglesWithinFilledWidth = frame.CornerTriangles.Where(t => t.topLeft.X - interiorRect.X < filledWidth);
-        foreach (var (pos, rotation) in trianglesWithinFilledWidth)
+        List<(Vector2 position, float rotation)> toDraw = [];
+
+        if (filledWidth > 0)
+            toDraw.AddRange([frame.TopLeftTriangle, frame.BottomLeftTriangle]);
+
+        if (filledWidth >= interiorRect.X)
+            toDraw.AddRange([frame.TopRightTriangle, frame.BottomRightTriangle]);
+
+        foreach (var (pos, rotation) in toDraw)
             primitiveRenderer.DrawTriangle(spriteBatch, pos, fillColor, rotation, _fillLayerDepth);
     }
+
     private void DrawEdges(SpriteBatch spriteBatch, Color fillColor, Frame frame, int filledWidth,
         Rectangle interiorRect)
     {
@@ -118,11 +123,15 @@ internal class ExperienceBar(
         var bottomInterior = new Rectangle(bottomEdge.X, bottomEdge.Y,
             Math.Min((int)(bottomEdge.Width * Progress), filledWidth), bottomEdge.Height);
 
-        var leftEdge = frame.LeftEdgeRectangle;
-
-        IEnumerable<Rectangle> toDraw = [topInterior, bottomInterior, leftEdge];
+        IEnumerable<Rectangle> toDraw = [topInterior, bottomInterior];
         foreach (var rectangle in toDraw)
             primitiveRenderer.DrawRectangle(spriteBatch, rectangle, fillColor, _fillLayerDepth);
+
+        if (filledWidth > 0)
+        {
+            var leftEdge = frame.LeftEdgeRectangle;
+            primitiveRenderer.DrawRectangle(spriteBatch, leftEdge, fillColor, _fillLayerDepth);
+        }
 
         // Only draw right edge once the fill reaches it
         var rightEdge = frame.RightEdgeRectangle;
