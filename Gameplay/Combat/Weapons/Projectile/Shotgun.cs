@@ -5,11 +5,13 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
-public class Shotgun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFinder entityFinder, IAudioPlayer audio)
+public class Shotgun(
+    PlayerCharacter owner,
+    ISpawnEntity spawnEntity,
+    IEntityFinder entityFinder,
+    IAudioPlayer audio)
     : GunBase(owner.WeaponBelt.Stats)
 {
-    private readonly BulletSplitter _bulletSplitter = new(owner, MathF.PI / 6, 0.5f, spawnEntity);
-
     protected override void Shoot()
     {
         var target = entityFinder.NearestEnemyTo(owner);
@@ -25,7 +27,7 @@ public class Shotgun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFin
         {
             var velocity = direction * bulletSpeed * owner.WeaponBelt.Stats.ProjectileSpeedMultiplier;
             var bullet = new Bullet(owner, owner.Position, velocity, damage, range, Stats.Pierce,
-                _bulletSplitter.SpawnAnyOnHitBulletSplits);
+                owner.WeaponBelt.OnHitEffects);
             spawnEntity.Spawn(bullet);
         }
 

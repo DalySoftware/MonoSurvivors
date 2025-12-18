@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.CollisionDetection;
+using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
 using Gameplay.Rendering;
@@ -13,21 +13,20 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
 {
     private readonly HashSet<EnemyBase> _hitEnemies = [];
     private readonly HashSet<EnemyBase> _immuneEnemies;
-    private readonly PlayerCharacter _owner;
-    private readonly Action<Bullet, EnemyBase>? _onHit;
+    private readonly IEnumerable<IOnHitEffect> _onHits;
     private readonly int _pierce;
 
     private float _distanceTraveled = 0f;
 
     public Bullet(PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage, float maxRange,
-        int pierceEnemies = 0, Action<Bullet, EnemyBase>? onHit = null,
+        int pierceEnemies = 0, IEnumerable<IOnHitEffect>? onHits = null,
         HashSet<EnemyBase>? immuneEnemies = null) : base(
         initialPosition)
     {
-        _owner = owner;
+        Owner = owner;
         MaxRange = maxRange;
         _pierce = pierceEnemies;
-        _onHit = onHit;
+        _onHits = onHits ?? [];
         _immuneEnemies = immuneEnemies ?? [];
 
         Velocity = velocity;
@@ -41,11 +40,13 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
     /// <param name="pierceEnemies">Pierce this many enemies</param>
     /// <param name="onHit">Applied on hitting an enemy</param>
     public Bullet(PlayerCharacter owner, Vector2 initialPosition, Vector2 target, float damage, float maxRange,
-        int pierceEnemies = 0,
-        float speed = 1f, Action<Bullet, EnemyBase>? onHit = null, HashSet<EnemyBase>? immuneEnemies = null) :
+        int pierceEnemies = 0, float speed = 1f, IEnumerable<IOnHitEffect>? onHits = null,
+        HashSet<EnemyBase>? immuneEnemies = null) :
         this(owner, initialPosition, CalculateVelocity(initialPosition, target, speed), damage, maxRange, pierceEnemies,
-            onHit, immuneEnemies) { }
+            onHits, immuneEnemies) { }
 
+
+    internal PlayerCharacter Owner { get; }
     internal float MaxRange { get; }
     public float Damage { get; }
     public ICollider Collider => new CircleCollider(this, 16f);
@@ -54,11 +55,12 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISimpleVisual
     {
         if (_immuneEnemies.Contains(enemy)) return;
 
-        enemy.TakeDamage(_owner, Damage);
+        enemy.TakeDamage(Owner, Damage);
         _hitEnemies.Add(enemy);
         if (_hitEnemies.Count > _pierce)
             MarkedForDeletion = true;
-        _onHit?.Invoke(this, enemy);
+
+        foreach (var onHit in _onHits) onHit.Apply(this, enemy);
     }
     public float Layer => Layers.Projectiles;
 

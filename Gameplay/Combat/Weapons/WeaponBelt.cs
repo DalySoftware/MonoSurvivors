@@ -1,16 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
 using Gameplay.Levelling.PowerUps.Weapon;
 
 namespace Gameplay.Combat.Weapons;
 
-public class WeaponBelt : IEntity
+public class WeaponBelt(BulletSplitOnHit bulletSplit) : IEntity
 {
     private readonly List<IWeaponPowerUp> _powerUps = [];
     private readonly List<IWeapon> _weapons = [];
 
     public WeaponBeltStats Stats { get; } = new();
+
+    public List<IOnHitEffect> OnHitEffects { get; } =
+    [
+        bulletSplit,
+    ];
 
     public void Update(GameTime gameTime) => _weapons.ForEach(w => w.Update(gameTime, Stats));
 

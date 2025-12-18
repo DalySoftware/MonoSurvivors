@@ -1,5 +1,4 @@
-﻿using System;
-using Gameplay.Audio;
+﻿using Gameplay.Audio;
 using Gameplay.Entities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
@@ -7,8 +6,6 @@ namespace Gameplay.Combat.Weapons.Projectile;
 public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFinder entityFinder, IAudioPlayer audio)
     : GunBase(owner.WeaponBelt.Stats)
 {
-    private readonly BulletSplitter _bulletSplitter = new(owner, MathF.PI / 6, 0.5f, spawnEntity);
-
     protected override void Shoot()
     {
         var target = entityFinder.NearestEnemyTo(owner);
@@ -20,7 +17,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var range = 300f * Stats.RangeMultiplier;
 
         var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,
-            bulletSpeed * Stats.SpeedMultiplier, _bulletSplitter.SpawnAnyOnHitBulletSplits);
+            bulletSpeed * Stats.SpeedMultiplier, owner.WeaponBelt.OnHitEffects);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.Shoot);
     }

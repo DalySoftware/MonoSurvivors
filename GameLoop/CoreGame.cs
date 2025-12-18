@@ -14,6 +14,8 @@ using GameLoop.Scenes.Title;
 using GameLoop.UI;
 using Gameplay;
 using Gameplay.Audio;
+using Gameplay.Combat.Weapons;
+using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
@@ -118,10 +120,16 @@ public class CoreGame : Game, IGlobalCommands
             builder.Register(ctx => ctx.Resolve<GraphicsDevice>().Viewport);
 
             // Gameplay-specific services
+            builder.RegisterType<BulletSplitOnHit>();
+
             builder.RegisterType<BasicGun>();
+            builder.RegisterType<WeaponBelt>()
+                .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
+                .SingleInstance();
+
             builder.RegisterType<PlayerCharacter>().SingleInstance()
                 .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
-                .OnActivated(p => p.Instance.WeaponBelt.AddWeapon(p.Context.Resolve<BasicGun>()));
+                .OnActivated(a => a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance));
 
             builder.RegisterType<EffectManager>().SingleInstance();
             builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();

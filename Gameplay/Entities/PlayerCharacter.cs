@@ -15,18 +15,22 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Entities;
 
-public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISimpleVisual
+public class PlayerCharacter(
+    Vector2 position,
+    EffectManager effectManager,
+    IAudioPlayer audio,
+    EntityManager entityManager,
+    ExperienceSpawner experienceSpawner,
+    IGlobalCommands globalCommands,
+    WeaponBelt weaponBelt)
+    : MovableEntity(position), IDamageablePlayer, ISimpleVisual
 {
     private const float BaseSpeed = 0.25f;
 
     private const int BaseHealth = 6;
 
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
-    private readonly EffectManager _effectManager;
-    private readonly IAudioPlayer _audio;
-    private readonly EntityManager _entityManager;
-    private readonly ExperienceSpawner _experienceSpawner;
-    private readonly Action? _onDeath;
+    private readonly Action? _onDeath = globalCommands.ShowGameOver;
     private float _experienceMultiplier = 1f;
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
 
@@ -35,26 +39,10 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISimpleVisual
     private float _speedMultiplier = 1f;
     private int _enemyDeathExplosionBullets;
 
-    public PlayerCharacter(Vector2 position,
-        EffectManager effectManager,
-        IAudioPlayer audio,
-        EntityManager entityManager,
-        ExperienceSpawner experienceSpawner,
-        IGlobalCommands globalCommands) : base(position)
-    {
-        _effectManager = effectManager;
-        _audio = audio;
-        _entityManager = entityManager;
-        _experienceSpawner = experienceSpawner;
-        _onDeath = globalCommands.ShowGameOver;
-
-        _entityManager.Spawn(this);
-    }
-
     private float Speed => BaseSpeed * _speedMultiplier;
 
     public float PickupRadiusMultiplier { get; private set; } = 1f;
-    public WeaponBelt WeaponBelt { get; } = new();
+    public WeaponBelt WeaponBelt { get; } = weaponBelt;
 
     public float Experience { get; private set; }
     public int MaxHealth { get; private set; } = BaseHealth;
@@ -77,8 +65,8 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISimpleVisual
 
         Health -= damage;
         _invincibilityDuration = _invincibilityOnHit;
-        _effectManager.FireEffect(this, new GreyscaleEffect(_invincibilityOnHit));
-        _audio.Play(SoundEffectTypes.PlayerHurt);
+        effectManager.FireEffect(this, new GreyscaleEffect(_invincibilityOnHit));
+        audio.Play(SoundEffectTypes.PlayerHurt);
 
         if (Health > 0) return;
 
@@ -141,7 +129,7 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISimpleVisual
                 _enemyDeathExplosionBullets += explodeOnKillUp.Bullets;
                 break;
             case WeaponUnlock<Shotgun>:
-                var shotgun = new Shotgun(this, _entityManager, _entityManager, _audio);
+                var shotgun = new Shotgun(this, entityManager, entityManager, audio);
                 WeaponBelt.AddWeapon(shotgun);
                 break;
             case IWeaponPowerUp weaponPowerUp:
@@ -152,10 +140,10 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISimpleVisual
 
     public void OnKill(EnemyBase enemy)
     {
-        _experienceSpawner.SpawnExperienceFor(enemy, this);
-        _audio.Play(SoundEffectTypes.EnemyDeath);
+        experienceSpawner.SpawnExperienceFor(enemy, this);
+        audio.Play(SoundEffectTypes.EnemyDeath);
         TrackKills(1);
-        EnemyDeathBlast.Explode(_entityManager, this, enemy.Position, _enemyDeathExplosionBullets,
+        EnemyDeathBlast.Explode(entityManager, this, enemy.Position, _enemyDeathExplosionBullets,
             WeaponBelt.Stats.DamageMultiplier);
     }
 }
