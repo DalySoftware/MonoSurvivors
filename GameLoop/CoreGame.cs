@@ -67,7 +67,7 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ReturnToTitle()
     {
-        var title = _contentScope.Resolve<TitleScreen>();
+        var title = _contentScope.Resolve<TitleScene>();
         _sceneManager.Push(title);
     }
 
@@ -209,7 +209,7 @@ public class CoreGame : Game, IGlobalCommands
 
             builder.RegisterType<TitleInputManager>().SingleInstance();
 
-            builder.RegisterType<TitleScreen>().InstancePerDependency();
+            builder.RegisterType<TitleScene>().InstancePerDependency();
         });
 
         ReturnToTitle();

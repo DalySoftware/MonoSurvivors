@@ -7,7 +7,7 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameLoop.Scenes.Title;
 
-internal class TitleScreen(
+internal class TitleScene(
     SpriteBatch spriteBatch,
     ContentManager content,
     TitleInputManager input)
