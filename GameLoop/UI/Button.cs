@@ -91,6 +91,6 @@ internal class Button
         var textSize = _font.MeasureString(_text);
         var textPosition = _panel.Centre - textSize / 2;
 
-        spriteBatch.DrawString(_font, _text, textPosition, layerDepth: Layers.Ui + 0.05f);
+        spriteBatch.DrawString(_font, _text, textPosition, layerDepth: _panel.InteriorLayerDepth + 0.01f);
     }
 }

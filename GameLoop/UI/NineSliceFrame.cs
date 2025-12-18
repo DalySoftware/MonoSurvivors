@@ -14,7 +14,7 @@ internal sealed class NineSliceFrame(ContentManager content)
 
     private readonly Texture2D _texture = content.Load<Texture2D>(Paths.Images.PanelNineSlice);
 
-    internal Frame Define(Vector2 centre, Vector2 interiorSize, float layerDepth = 0f) =>
+    internal Frame Define(Vector2 centre, Vector2 interiorSize, float layerDepth) =>
         new(_texture, centre, interiorSize, layerDepth);
 }
 
@@ -38,11 +38,12 @@ internal class Frame(
     private readonly Rectangle _leftEdge = new(0, CornerSize, EdgeThickness, EdgeLength);
     private readonly Rectangle _rightEdge = new(FarEdgeOrigin, CornerSize, EdgeThickness, EdgeLength);
 
+    internal float LayerDepth => layerDepth;
+    internal Vector2 TopLeft => centre - new Vector2(interiorSize.X / 2 + CornerSize, interiorSize.Y / 2 + CornerSize);
+
     private static int TotalWidth => CornerSize * 2 + EdgeLength;
     private static int FarEdgeOrigin => TotalWidth - EdgeThickness;
     private static int FarCornerOrigin => TotalWidth - CornerSize;
-
-    internal Vector2 TopLeft => centre - new Vector2(interiorSize.X / 2 + CornerSize, interiorSize.Y / 2 + CornerSize);
 
     internal Rectangle TopEdgeRectangle =>
         new((int)TopLeft.X + CornerSize, (int)TopLeft.Y, (int)interiorSize.X, CornerSize);

@@ -95,13 +95,13 @@ internal class SphereGridUi(
         var titleText = TitleText(grid.AvailablePoints);
         var titleSize = _fontLarge.MeasureString(titleText);
         spriteBatch.DrawString(_fontLarge, titleText, titleCenter, Color.White, origin: titleSize / 2f,
-            layerDepth: Layers.Title);
+            layerDepth: TitlePanel.InteriorLayerDepth + 0.01f);
 
         const string helpText = "Click nodes to unlock | Tab to close";
         var helpSize = _fontSmall.MeasureString(helpText);
         spriteBatch.DrawString(_fontSmall, helpText,
             new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40),
-            Color.Gray, layerDepth: Layers.Title);
+            Color.Gray, layerDepth: Layers.HelpText);
 
         foreach (var node in grid.Nodes)
         {
@@ -196,7 +196,7 @@ internal class SphereGridUi(
         internal const float Edges = 0.40f;
         internal const float Nodes = 0.50f;
         internal const float Fog = 0.70f;
-        internal const float Title = global::Gameplay.Rendering.Layers.Ui + 0.05f;
+        internal const float HelpText = 0.8f;
         internal const float ToolTip = global::Gameplay.Rendering.Layers.Ui + 0.10f;
     }
 }

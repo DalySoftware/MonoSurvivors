@@ -24,15 +24,17 @@ internal class Panel(
     internal Frame Frame => nineSliceFrame.Define(centre, interiorSize, frameDepth);
     internal Vector2 ExteriorSize => new(Frame.ExteriorRectangle.Width, Frame.ExteriorRectangle.Height);
 
+    internal float InteriorLayerDepth => Frame.LayerDepth - 0.01f;
+
     internal void Draw(SpriteBatch spriteBatch, Color frameColor, Color interiorColor)
     {
-        primitiveRenderer.DrawRectangle(spriteBatch, Frame.InteriorRectangle, interiorColor, Layers.Ui);
+        primitiveRenderer.DrawRectangle(spriteBatch, Frame.InteriorRectangle, interiorColor, InteriorLayerDepth);
 
         foreach (var (pos, rotation) in Frame.CornerTriangles)
-            primitiveRenderer.DrawTriangle(spriteBatch, pos, interiorColor, rotation, Layers.Ui);
+            primitiveRenderer.DrawTriangle(spriteBatch, pos, interiorColor, rotation, InteriorLayerDepth);
 
         foreach (var rect in Frame.EdgeRectangles)
-            primitiveRenderer.DrawRectangle(spriteBatch, rect, interiorColor, Layers.Ui);
+            primitiveRenderer.DrawRectangle(spriteBatch, rect, interiorColor, InteriorLayerDepth);
 
         Frame.Draw(spriteBatch, frameColor);
     }
