@@ -9,18 +9,19 @@ internal sealed class PanelRenderer(ContentManager content, PrimitiveRenderer pr
 {
     private readonly NineSliceFrame _frame = new(content);
 
-    internal Panel Define(Vector2 centre, Vector2 interiorSize) =>
-        new(_frame, primitiveRenderer, centre, interiorSize);
+    internal Panel Define(Vector2 centre, Vector2 interiorSize, float frameDepth = Layers.Ui + 0.1f) =>
+        new(_frame, primitiveRenderer, centre, interiorSize, frameDepth);
 }
 
 internal class Panel(
     NineSliceFrame nineSliceFrame,
     PrimitiveRenderer primitiveRenderer,
     Vector2 centre,
-    Vector2 interiorSize)
+    Vector2 interiorSize,
+    float frameDepth)
 {
     internal Vector2 Centre => centre;
-    internal Frame Frame => nineSliceFrame.Define(centre, interiorSize, Layers.Ui + 0.01f);
+    internal Frame Frame => nineSliceFrame.Define(centre, interiorSize, frameDepth);
     internal Vector2 ExteriorSize => new(Frame.ExteriorRectangle.Width, Frame.ExteriorRectangle.Height);
 
     internal void Draw(SpriteBatch spriteBatch, Color frameColor, Color interiorColor)
