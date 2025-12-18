@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,50 +23,60 @@ internal sealed class FogOfWarMask
         { 3, 11, 1, 9 },
         { 15, 7, 13, 5 },
     };
-    private readonly GraphicsDevice _gd;
+    private readonly GraphicsDevice _graphics;
     private readonly RenderTarget2D _fogTarget;
     private readonly Texture2D _circle;
-    private readonly SpriteBatch _sb;
+    private readonly SpriteBatch _spriteBatch;
     private readonly int _baseVisionRadius;
     private readonly float _layerDepth;
 
-    public FogOfWarMask(GraphicsDevice gd, int baseVisionRadius, float layerDepth)
+    private List<Vector2> _visibleCentres = [];
+
+    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius, float layerDepth)
     {
-        _gd = gd;
+        _graphics = graphics;
         _baseVisionRadius = baseVisionRadius;
         _layerDepth = layerDepth;
-        _sb = new SpriteBatch(gd);
+        _spriteBatch = new SpriteBatch(graphics);
 
-        var vp = gd.Viewport;
+        var vp = graphics.Viewport;
         _fogTarget = new RenderTarget2D(
-            gd, vp.Width, vp.Height,
+            graphics, vp.Width, vp.Height,
             false, SurfaceFormat.Color, DepthFormat.None);
 
-        _circle = CreateSoftCircle(gd, baseVisionRadius);
+        _circle = CreateSoftCircle(graphics, baseVisionRadius);
     }
 
-    public void Rebuild(IEnumerable<Vector2> visibleCenters)
+    public void Rebuild(IEnumerable<Vector2> visibleCentres)
     {
-        _gd.SetRenderTarget(_fogTarget);
-        _gd.Clear(Color.DarkSlateGray);
+        _visibleCentres = visibleCentres.ToList();
+
+        _graphics.SetRenderTarget(_fogTarget);
+        _graphics.Clear(Color.DarkSlateGray);
 
         // Punch holes
-        _sb.Begin(blendState: EraseBlend);
+        _spriteBatch.Begin(blendState: EraseBlend);
 
-        foreach (var pos in visibleCenters)
-            _sb.Draw(
+        foreach (var pos in _visibleCentres)
+            _spriteBatch.Draw(
                 _circle,
                 pos,
                 origin: new Vector2(_baseVisionRadius),
                 color: Color.White,
                 layerDepth: _layerDepth + 0.01f);
 
-        _sb.End();
-
-        _gd.SetRenderTarget(null);
+        _spriteBatch.End();
+        _graphics.SetRenderTarget(null);
     }
 
-    public void Draw(SpriteBatch sb) => sb.Draw(_fogTarget, Vector2.Zero, Color.DarkSlateGray, layerDepth: _layerDepth);
+    public void Draw(SpriteBatch spriteBatch) =>
+        spriteBatch.Draw(_fogTarget, Vector2.Zero, Color.DarkSlateGray, layerDepth: _layerDepth);
+
+    public bool IsVisible(Vector2 screenPosition)
+    {
+        var radiusSquared = _baseVisionRadius * _baseVisionRadius;
+        return _visibleCentres.Any(center => Vector2.DistanceSquared(center, screenPosition) <= radiusSquared);
+    }
 
     private static Texture2D CreateSoftCircle(
         GraphicsDevice gd,

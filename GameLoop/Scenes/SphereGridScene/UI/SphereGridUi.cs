@@ -59,6 +59,9 @@ internal class SphereGridUi(
             if (!_nodePositions.TryGetValue(node, out var nodePos)) return false;
 
             var screenPos = ScreenSpaceOrigin + nodePos;
+
+            if (!_fog.IsVisible(screenPos)) return false;
+
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
             var radius = NodeTexture(node).Width / 2f;
