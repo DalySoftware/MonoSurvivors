@@ -22,6 +22,8 @@
         </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="Autofac" Version="9.0.0"/>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.1"/>
@@ -39,7 +41,7 @@
     <ItemGroup>
         <MonoGameContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>SphereGridEditor</_Parameter1>

@@ -6,8 +6,10 @@ using Microsoft.Xna.Framework;
 namespace GameLoop.UI;
 
 /// <param name="hexRadius">How large to make the hexagons, ie how far between nodes</param>
-internal class SphereGridPositioner(SphereGrid grid, float hexRadius)
+internal class SphereGridPositioner(SphereGrid grid)
 {
+    internal const float HexRadius = 160f;
+
     private readonly Dictionary<Node, Vector2>? _cached = null;
 
     internal IReadOnlyDictionary<Node, Vector2> NodePositions() => _cached ?? CalculateNodePositions();
@@ -58,12 +60,12 @@ internal class SphereGridPositioner(SphereGrid grid, float hexRadius)
             EdgeDirection.MiddleLeft => MathF.PI,
             EdgeDirection.BottomLeft => 4f * MathF.PI / 3f,
             EdgeDirection.BottomRight => 5f * MathF.PI / 3f,
-            _ => 0f
+            _ => 0f,
         };
 
         return new Vector2(
-            hexRadius * MathF.Cos(angle),
-            -hexRadius * MathF.Sin(angle) // Negate Y for screen coordinates
+            HexRadius * MathF.Cos(angle),
+            -HexRadius * MathF.Sin(angle) // Negate Y for screen coordinates
         );
     }
 }

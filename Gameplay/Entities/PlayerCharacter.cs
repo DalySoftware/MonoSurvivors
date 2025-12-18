@@ -126,7 +126,7 @@ public class PlayerCharacter(
             case ExplodeOnKillUp explodeOnKillUp:
                 _enemyDeathExplosionBullets += explodeOnKillUp.Bullets;
                 break;
-            case WeaponUnlock<Shotgun> shotgunUnlock:
+            case WeaponUnlock<Shotgun>:
                 var shotgun = new Shotgun(this, entityManager, entityManager, audio);
                 WeaponBelt.AddWeapon(shotgun);
                 break;

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using GameLoop.Audio;
+using GameLoop.DependencyInjection;
 using GameLoop.Input;
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
@@ -9,30 +11,28 @@ using GameLoop.Scenes.Gameplay;
 using GameLoop.Scenes.Pause;
 using GameLoop.Scenes.SphereGridScene;
 using GameLoop.Scenes.Title;
-using GameLoop.UserSettings;
+using GameLoop.UI;
 using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop;
 
 public class CoreGame : Game
 {
     private readonly SceneManager _sceneManager = new(null);
-    private readonly IServiceProvider _services;
+    private readonly GameContainer _container;
 
     private HashSet<Node> _lastSeenUnlockables = [];
-    private LevelManager _levelSystem = null!;
-    private MusicPlayer _music = null!;
-    private PrimitiveRenderer _primitiveRenderer = null!;
-    private SphereGrid _sphereGrid = null!;
+    private ILifetimeScope _contentScope = null!;
+    private ILifetimeScope _gameplayScope = null!;
 
     public CoreGame()
     {
@@ -43,7 +43,7 @@ public class CoreGame : Game
 
         Window.Title = "Mono Survivors";
 
-        _services = ServiceConfiguration.ConfigureServices(Content);
+        _container = new GameContainer(this);
     }
 
     private IScene Scene => _sceneManager.Current!;
@@ -52,7 +52,28 @@ public class CoreGame : Game
     {
         Content.RootDirectory = "ContentLibrary";
 
-        var title = new TitleScreen(GraphicsDevice, Window, Content, StartGame, Exit);
+        _contentScope = _container.Root.BeginLifetimeScope(builder =>
+        {
+            builder.RegisterInstance(GraphicsDevice).As<GraphicsDevice>();
+            builder.RegisterInstance(Content).As<ContentManager>();
+            builder.RegisterType<SpriteBatch>().ExternallyOwned();
+
+            builder.RegisterType<PrimitiveRenderer>().SingleInstance();
+            builder.RegisterType<PanelRenderer>();
+            builder.RegisterType<ToolTipRenderer>();
+            builder.RegisterType<MusicPlayer>().SingleInstance();
+
+            builder.RegisterType<SceneManager>().SingleInstance();
+            builder.RegisterType<SoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
+        });
+
+        var title = new TitleScreen(
+            GraphicsDevice,
+            Window,
+            Content,
+            StartGame,
+            Exit);
+
         _sceneManager.Push(title);
 
         base.LoadContent();
@@ -60,22 +81,59 @@ public class CoreGame : Game
 
     private void StartGame()
     {
-        _primitiveRenderer = new PrimitiveRenderer(Content, GraphicsDevice);
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        // Dispose previous gameplay scope if restarting
+        _gameplayScope?.Dispose();
 
-        var entityManager = _services.GetRequiredService<EntityManager>();
-        var audioPlayer = _services.GetRequiredService<IAudioPlayer>();
-        var effectManager = _services.GetRequiredService<EffectManager>();
-        _music = _services.GetRequiredService<MusicPlayer>();
-        _music.PlayBackgroundMusic();
+        _gameplayScope = _contentScope.BeginLifetimeScope(builder =>
+        {
+            builder.RegisterInstance<Action>(Exit).Named<Action>("exitGame");
+            builder.RegisterInstance<Action>(ShowSphereGrid).Named<Action>("openSphereGrid");
+            builder.RegisterInstance<Action>(ShowPauseMenu).Named<Action>("openPauseMenu");
 
-        var experienceSpawner = new ExperienceSpawner(entityManager, audioPlayer);
-        var player = new PlayerCharacter(Window.Centre, effectManager, audioPlayer, entityManager, experienceSpawner,
-            ShowGameOver);
-        _levelSystem = new LevelManager(player, OnLevelUp);
-        _sphereGrid = GridFactory.Create(player.AddPowerUp);
+            // Gameplay-specific services
+            builder.RegisterType<EffectManager>().SingleInstance();
+            builder.RegisterType<EntityManager>().SingleInstance();
+            builder.RegisterType<LevelManager>().SingleInstance()
+                .WithParameter((pi, _) => pi.Name == "onLevelUp", (_, _) => (Action<int>)OnLevelUp);
+            builder.RegisterType<PlayerCharacter>().SingleInstance()
+                .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
+                .WithParameter((pi, _) => pi.Name == "onDeath", (_, _) => (Action)ShowGameOver);
+            builder.RegisterType<ExperienceSpawner>().SingleInstance();
 
-        _sceneManager.Push(new MainGameScene(GraphicsDevice, Content, Exit, entityManager, audioPlayer, effectManager,
-            ShowSphereGrid, ShowPauseMenu, player, _levelSystem));
+            // Register dependencies for MainGameScene
+            builder.RegisterType<EntityRenderer>().InstancePerDependency();
+            builder.RegisterType<PanelRenderer>().InstancePerDependency();
+            builder.RegisterType<ExperienceBarRenderer>().InstancePerDependency();
+
+            builder.Register<SphereGrid>(ctx =>
+            {
+                var player = ctx.Resolve<PlayerCharacter>();
+                return GridFactory.Create(player.AddPowerUp);
+            }).SingleInstance();
+
+            // Finally register the scene itself
+            builder.RegisterType<MainGameScene>()
+                .As<IScene>()
+                .WithParameter(
+                    (pi, _) => pi.Name == "exitGame",
+                    (_, _) => (Action)Exit)
+                .WithParameter(
+                    (pi, _) => pi.Name == "openSphereGrid",
+                    (_, _) => (Action)ShowSphereGrid)
+                .WithParameter(
+                    (pi, _) => pi.Name == "openPauseMenu",
+                    (_, _) => (Action)ShowPauseMenu)
+                .InstancePerDependency();
+        });
+
+        // Resolve and push the scene
+        var mainScene = _gameplayScope.Resolve<IScene>();
+        _sceneManager.Push(mainScene);
+
+        // Play background music
+        var music = _gameplayScope.Resolve<MusicPlayer>();
+        music.PlayBackgroundMusic();
     }
 
     private void ShowGameOver()
@@ -93,8 +151,10 @@ public class CoreGame : Game
 
     private void OnLevelUp(int levelsGained)
     {
-        _sphereGrid.AddSkillPoints(levelsGained);
-        var unlockables = _sphereGrid.Unlockable.ToHashSet();
+        var sphereGrid = _gameplayScope.Resolve<SphereGrid>();
+
+        sphereGrid.AddSkillPoints(levelsGained);
+        var unlockables = sphereGrid.Unlockable.ToHashSet();
         var anythingHasChanged = !unlockables.SetEquals(_lastSeenUnlockables);
         if (unlockables.Count > 0 && anythingHasChanged)
             ShowSphereGrid();
@@ -104,37 +164,49 @@ public class CoreGame : Game
 
     private void ShowSphereGrid()
     {
-        void OnClose()
-        {
-            _sceneManager.Pop();
-            _music.RestoreBackgroundMusic();
-        }
+        var music = _gameplayScope.Resolve<MusicPlayer>();
 
-        var scene = new SphereGridScene(
-            GraphicsDevice,
-            Content,
-            _sphereGrid,
-            _primitiveRenderer,
-            OnClose,
-            Exit);
+        var scope = _gameplayScope.BeginLifetimeScope(builder =>
+        {
+            builder.RegisterType<SphereGridInputManager>()
+                .WithProperty(i => i.OnClose, () =>
+                {
+                    _sceneManager.Pop();
+                    music.RestoreBackgroundMusic();
+                })
+                .WithProperty(i => i.OnExit, Exit);
+            builder.RegisterType<SphereGridUi>();
+
+            // Register the scene itself
+            builder.RegisterType<SphereGridScene>();
+        });
+
+        // Resolve the scene from the scope
+        var scene = scope.Resolve<SphereGridScene>();
         _sceneManager.Push(scene);
-        _music.DuckBackgroundMusic();
+
+        // Duck the music while the scene is active
+        music.DuckBackgroundMusic();
     }
+
 
     private void ShowPauseMenu()
     {
-        void OnResume() => _sceneManager.Pop();
+        var scope = _gameplayScope.BeginLifetimeScope(builder =>
+        {
+            builder.RegisterType<PauseInputManager>()
+                .WithProperty(i => i.OnResume, _sceneManager.Pop)
+                .WithProperty(i => i.OnExit, ReturnToTitle);
 
-        var audioSettings = _services.GetRequiredService<IOptions<AudioSettings>>();
-        var configuration = _services.GetRequiredService<IConfiguration>();
+            builder.RegisterType<PauseUi>()
+                .WithParameter((p, _) => p.Name == "onResume", (_, _) => (Action)_sceneManager.Pop)
+                .WithParameter((p, _) => p.Name == "onExit", (_, _) => (Action)ReturnToTitle);
 
-        var scene = new PauseMenuScene(
-            GraphicsDevice,
-            Content,
-            OnResume,
-            ReturnToTitle,
-            audioSettings,
-            configuration);
+            // Register the scene itself
+            builder.RegisterType<PauseMenuScene>();
+        });
+
+        var scene = scope.Resolve<PauseMenuScene>();
         _sceneManager.Push(scene);
     }
 

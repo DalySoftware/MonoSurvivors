@@ -17,59 +17,36 @@ namespace GameLoop.UI;
 /// <summary>
 ///     UI overlay for the sphere grid levelling system
 /// </summary>
-internal class SphereGridUi
+internal class SphereGridUi(
+    ContentManager content,
+    GraphicsDevice graphicsDevice,
+    SphereGrid grid,
+    PrimitiveRenderer primitiveRenderer,
+    SphereGridInputManager inputManager,
+    ToolTipRenderer toolTipRenderer,
+    PanelRenderer panelRenderer)
 {
-    private readonly SpriteFont _fontLarge;
-    private readonly SpriteFont _fontSmall;
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly SpriteFont _fontLarge = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
+    private readonly SpriteFont _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
 
-
-    private readonly SphereGrid _grid;
-    private readonly Texture2D _gridNodeLarge;
-    private readonly Texture2D _gridNodeMedium;
-    private readonly Texture2D _gridNodeSmall;
-    private readonly SphereGridInputManager _inputManager;
-    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions;
-    private readonly Panel _titlePanel;
-    private readonly PowerUpIcons _powerUpIcons;
-    private readonly PrimitiveRenderer _primitiveRenderer;
-    private readonly ToolTipRenderer _toolTipRenderer;
-    private readonly FogOfWarMask _fog;
-
+    private readonly Texture2D _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNode.Large);
+    private readonly Texture2D _gridNodeMedium = content.Load<Texture2D>(Paths.Images.GridNode.Medium);
+    private readonly Texture2D _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode.Small);
+    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions = new SphereGridPositioner(grid).NodePositions();
+    private readonly PowerUpIcons _powerUpIcons = new(content);
+    private readonly FogOfWarMask _fog = new(graphicsDevice, (int)(SphereGridPositioner.HexRadius * 1.5f), Layers.Fog);
 
     private Node? _hoveredNode;
     private MouseState _previousMouseState;
 
-    internal SphereGridUi(ContentManager content, GraphicsDevice graphicsDevice, SphereGrid grid,
-        PrimitiveRenderer primitiveRenderer, SphereGridInputManager inputManager)
+    private Panel TitlePanel => panelRenderer.Define(TitleCentre, TitleSize, Layers.Title - 0.01f);
+    private Vector2 TitleSize => _fontLarge.MeasureString(TitleText(100));
+    private Vector2 TitleCentre => new(graphicsDevice.Viewport.Width / 2f, 80);
+
+    private Vector2 ScreenSpaceOrigin
     {
-        _grid = grid;
-        _primitiveRenderer = primitiveRenderer;
-        _toolTipRenderer = new ToolTipRenderer(_primitiveRenderer, content);
-        var panelRenderer = new PanelRenderer(content, primitiveRenderer);
-        _powerUpIcons = new PowerUpIcons(content);
-
-        _inputManager = inputManager;
-        _graphicsDevice = graphicsDevice;
-        _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
-        _fontLarge = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
-        _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode.Small);
-        _gridNodeMedium = content.Load<Texture2D>(Paths.Images.GridNode.Medium);
-        _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNode.Large);
-
-        ScreenSpaceOrigin = _graphicsDevice.Viewport.Bounds.Center.ToVector2();
-
-        const float nodeSpacing = 160f;
-        _nodePositions = new SphereGridPositioner(_grid, nodeSpacing).NodePositions();
-
-        const int baseVisionRadius = (int)(nodeSpacing * 1.5f);
-        _fog = new FogOfWarMask(graphicsDevice, baseVisionRadius, Layers.Fog);
-
-        var titleSize = _fontLarge.MeasureString(TitleText(100));
-        var titleCentre = new Vector2(_graphicsDevice.Viewport.Width / 2f, 80);
-        _titlePanel = panelRenderer.Define(titleCentre, titleSize, Layers.Title - 0.01f);
-    }
-    private Vector2 ScreenSpaceOrigin => field + SphereGridInputManager.CameraOffset;
+        get => field + SphereGridInputManager.CameraOffset;
+    } = graphicsDevice.Viewport.Bounds.Center.ToVector2();
 
     private static string TitleText(int points) => $"You have {points} Skill Points to spend";
 
@@ -77,7 +54,7 @@ internal class SphereGridUi
     {
         var mouseState = Mouse.GetState();
 
-        _hoveredNode = _grid.Nodes.FirstOrDefault(node =>
+        _hoveredNode = grid.Nodes.FirstOrDefault(node =>
         {
             if (!_nodePositions.TryGetValue(node, out var nodePos)) return false;
 
@@ -89,30 +66,30 @@ internal class SphereGridUi
         });
 
         // Click to unlock
-        if (!_inputManager.IsPanning &&
+        if (!inputManager.IsPanning &&
             _hoveredNode != null &&
             mouseState.LeftButton == ButtonState.Pressed &&
             _previousMouseState.LeftButton == ButtonState.Released)
-            _grid.Unlock(_hoveredNode);
+            grid.Unlock(_hoveredNode);
 
         _previousMouseState = mouseState;
 
         _fog.Rebuild(
-            _grid.UnlockedNodes.Select(n => ScreenSpaceOrigin + _nodePositions[n]));
+            grid.UnlockedNodes.Select(n => ScreenSpaceOrigin + _nodePositions[n]));
     }
 
     internal void Draw(SpriteBatch spriteBatch)
     {
-        _graphicsDevice.Clear(Color.DarkSlateGray);
+        graphicsDevice.Clear(Color.DarkSlateGray);
 
         spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
 
-        var viewport = _graphicsDevice.Viewport;
+        var viewport = graphicsDevice.Viewport;
 
-        _titlePanel.Draw(spriteBatch, Color.White, Color.SlateGray.ShiftLightness(-.1f));
+        TitlePanel.Draw(spriteBatch, Color.White, Color.SlateGray.ShiftLightness(-.1f));
 
-        var titleCenter = _titlePanel.Centre;
-        var titleText = TitleText(_grid.AvailablePoints);
+        var titleCenter = TitlePanel.Centre;
+        var titleText = TitleText(grid.AvailablePoints);
         var titleSize = _fontLarge.MeasureString(titleText);
         spriteBatch.DrawString(_fontLarge, titleText, titleCenter, Color.White, origin: titleSize / 2f,
             layerDepth: Layers.Title);
@@ -123,7 +100,7 @@ internal class SphereGridUi
             new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40),
             Color.Gray, layerDepth: Layers.Title);
 
-        foreach (var node in _grid.Nodes)
+        foreach (var node in grid.Nodes)
         {
             if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
 
@@ -134,14 +111,14 @@ internal class SphereGridUi
                 if (!_nodePositions.TryGetValue(neighbor, out var neighborPos)) continue;
 
                 var screenNeighborPos = ScreenSpaceOrigin + neighborPos;
-                var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
+                var isUnlocked = grid.IsUnlocked(node) && grid.IsUnlocked(neighbor);
 
                 var color = isUnlocked ? Color.Gold : Color.Gray * 0.5f;
-                _primitiveRenderer.DrawLine(spriteBatch, screenNodePos, screenNeighborPos, color, 8f, Layers.Edges);
+                primitiveRenderer.DrawLine(spriteBatch, screenNodePos, screenNeighborPos, color, 8f, Layers.Edges);
             }
         }
 
-        foreach (var node in _grid.Nodes)
+        foreach (var node in grid.Nodes)
             DrawNode(spriteBatch, node);
 
         _fog.Draw(spriteBatch);
@@ -152,8 +129,8 @@ internal class SphereGridUi
     {
         if (!_nodePositions.TryGetValue(node, out var nodePos)) return;
 
-        var isUnlocked = _grid.IsUnlocked(node);
-        var canUnlock = _grid.CanUnlock(node);
+        var isUnlocked = grid.IsUnlocked(node);
+        var canUnlock = grid.CanUnlock(node);
 
         var baseColor = node.PowerUp.BaseColor();
         var color =
@@ -202,13 +179,13 @@ internal class SphereGridUi
         ];
 
         var tooltip = new ToolTip(title, body);
-        _toolTipRenderer.DrawTooltip(spriteBatch, tooltip, Layers.ToolTip);
+        toolTipRenderer.DrawTooltip(spriteBatch, tooltip, Layers.ToolTip);
     }
 
 
     private ToolTipBodyLine UnlockTextFor(Node node) =>
-        _grid.IsUnlocked(node) ? new ToolTipBodyLine("[Unlocked]", Color.LawnGreen) :
-        _grid.CanUnlock(node) ? new ToolTipBodyLine("[Click to unlock]", Color.Turquoise) :
+        grid.IsUnlocked(node) ? new ToolTipBodyLine("[Unlocked]", Color.LawnGreen) :
+        grid.CanUnlock(node) ? new ToolTipBodyLine("[Click to unlock]", Color.Turquoise) :
         new ToolTipBodyLine("[Cannot unlock]", Color.DimGray);
 
     private static class Layers

@@ -118,7 +118,7 @@ public class Editor : Game
         var root = _grid.Root;
         _nodePositions[root] = Vector2.Zero;
 
-        var positioner = new SphereGridPositioner(_grid, 150f);
+        var positioner = new SphereGridPositioner(_grid);
         foreach (var (node, position) in positioner.NodePositions())
             _nodePositions[node] = position;
     }
