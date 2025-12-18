@@ -71,8 +71,6 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ShowSphereGrid()
     {
-        var music = _gameplayScope.Resolve<MusicPlayer>();
-
         var scope = _gameplayScope.BeginLifetimeScope(builder =>
         {
             builder.RegisterType<SphereGridInputManager>().SingleInstance();
@@ -87,6 +85,7 @@ public class CoreGame : Game, IGlobalCommands
         _sceneManager.Push(scene);
 
         // Duck the music while the scene is active
+        var music = _gameplayScope.Resolve<MusicPlayer>();
         music.DuckBackgroundMusic();
     }
 
@@ -222,6 +221,7 @@ public class CoreGame : Game, IGlobalCommands
 
     protected override void Dispose(bool disposing)
     {
+        _container.Root.Dispose();
         Scene.Dispose();
         _sceneManager.Dispose();
         base.Dispose(disposing);
