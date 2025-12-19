@@ -60,8 +60,13 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         if (_hitEnemies.Count > _pierce)
             MarkedForDeletion = true;
 
-        foreach (var onHit in _onHits) onHit.Apply(this, enemy);
+        foreach (var onHit in _onHits)
+        {
+            var context = new BulletHitContext(Owner, enemy, this);
+            onHit.Apply(context);
+        }
     }
+
     public float Layer => Layers.Projectiles;
 
     public string TexturePath => Paths.Images.Bullet;

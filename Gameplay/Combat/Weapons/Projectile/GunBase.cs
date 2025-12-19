@@ -8,12 +8,10 @@ public abstract class GunBase(WeaponBeltStats stats) : IWeapon
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
 
     protected abstract TimeSpan Cooldown { get; }
-    protected WeaponBeltStats Stats { get; private set; } = new();
+    protected WeaponBeltStats Stats => stats;
 
-    public void Update(GameTime gameTime, WeaponBeltStats stats)
+    public void Update(GameTime gameTime)
     {
-        Stats = stats;
-
         // Handle extra shots first
         var extraShotsResult = _extraShotHandler.Update(gameTime, Shoot);
         if (extraShotsResult is ExtraShotResult.WaitingToFire or ExtraShotResult.Fired)

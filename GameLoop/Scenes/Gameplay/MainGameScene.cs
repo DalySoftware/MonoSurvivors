@@ -3,9 +3,11 @@ using ContentLibrary;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay.Behaviour;
 using Gameplay.Combat.Weapons;
+using Gameplay.Combat.Weapons.AreaOfEffect;
 using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
+using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
@@ -72,6 +74,8 @@ internal class MainGameScene(
         builder.RegisterType<BasicGun>();
         builder.RegisterType<Shotgun>();
         builder.RegisterType<SniperRifle>();
+        builder.RegisterType<DamageAura>();
+
         builder.RegisterType<WeaponBelt>()
             .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
             .SingleInstance();
@@ -81,6 +85,8 @@ internal class MainGameScene(
         builder.RegisterType<PlayerCharacter>().SingleInstance()
             .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
             .OnActivated(a => a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance));
+
+        builder.RegisterType<DamageAuraEffect>().OnActivated(a => a.Context.Resolve<EntityManager>().Spawn(a.Instance));
 
         builder.RegisterType<EffectManager>().SingleInstance();
         builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();

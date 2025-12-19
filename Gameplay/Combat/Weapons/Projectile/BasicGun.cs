@@ -15,7 +15,7 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
 
         const float bulletSpeed = 1f;
         var baseDamage = 8f * Stats.DamageMultiplier;
-        var damage = CritCalculator.CalculateDamage(baseDamage, Stats.CritChance, Stats.CritDamage);
+        var damage = CritCalculator.CalculateCrit(baseDamage, Stats);
         var range = 300f * Stats.RangeMultiplier;
 
         var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,

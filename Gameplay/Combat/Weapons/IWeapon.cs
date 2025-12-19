@@ -2,5 +2,5 @@
 
 public interface IWeapon
 {
-    public void Update(GameTime gameTime, WeaponBeltStats stats);
+    public void Update(GameTime gameTime);
 }

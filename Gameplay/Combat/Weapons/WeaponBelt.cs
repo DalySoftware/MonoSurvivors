@@ -19,7 +19,7 @@ public class WeaponBelt(BulletSplitOnHit bulletSplit, ChainLightningOnHit chainL
         chainLightning,
     ];
 
-    public void Update(GameTime gameTime) => _weapons.ForEach(w => w.Update(gameTime, Stats));
+    public void Update(GameTime gameTime) => _weapons.ForEach(w => w.Update(gameTime));
 
     public void AddWeapon(IWeapon weapon) => _weapons.Add(weapon);
 
@@ -39,7 +39,7 @@ public class WeaponBelt(BulletSplitOnHit bulletSplit, ChainLightningOnHit chainL
         Stats.Pierce = _powerUps.OfType<PierceUp>().Sum(p => p.Value);
         Stats.ProjectileSpeedMultiplier = _powerUps.OfType<ProjectileSpeedUp>().Sum(p => p.Value) + 1f;
         Stats.CritChance = _powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
-        Stats.CritDamage =
+        Stats.CritDamageMultiplier =
             _powerUps.OfType<CritDamageUp>().Sum(p => p.Value) + CritCalculator.BaseCritDamageMultiplier;
         Stats.ChainLightningChance = _powerUps.OfType<ChainLightningUp>().Sum(p => p.Value);
 
@@ -58,7 +58,7 @@ public class WeaponBeltStats
     public int Pierce { get; set; } = 0;
     public float SpeedMultiplier { get; set; } = 1f;
     public float CritChance { get; set; } = 0f;
-    public float CritDamage { get; set; } = CritCalculator.BaseCritDamageMultiplier;
+    public float CritDamageMultiplier { get; set; } = CritCalculator.BaseCritDamageMultiplier;
     public int BulletSplit { get; set; } = 0;
     public float ChainLightningChance { get; set; } = 0f;
 }

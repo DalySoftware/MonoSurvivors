@@ -51,6 +51,9 @@ public class EntityRenderer(
             case IPrimitiveVisual primitiveVisual:
                 primitiveVisual.Draw(spriteBatch, primitiveRenderer);
                 break;
+            case IGenericVisual genericVisual:
+                genericVisual.Draw(spriteBatch);
+                break;
         }
     }
 

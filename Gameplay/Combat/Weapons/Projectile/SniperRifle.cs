@@ -18,7 +18,7 @@ public class SniperRifle(
 
         const float bulletSpeed = 3f;
         var baseDamage = 24f * Stats.DamageMultiplier;
-        var damage = CritCalculator.CalculateDamage(baseDamage, Stats.CritChance, Stats.CritDamage);
+        var damage = CritCalculator.CalculateCrit(baseDamage, Stats);
         var range = 1000f * Stats.RangeMultiplier;
 
         var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,

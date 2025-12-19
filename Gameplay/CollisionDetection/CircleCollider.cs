@@ -4,6 +4,6 @@ namespace Gameplay.CollisionDetection;
 
 internal class CircleCollider(IHasPosition owner, float radius) : ICollider
 {
-    public float CollisionRadius { get; } = radius;
+    internal float CollisionRadius { get; set; } = radius;
     public Vector2 Position => owner.Position;
 }

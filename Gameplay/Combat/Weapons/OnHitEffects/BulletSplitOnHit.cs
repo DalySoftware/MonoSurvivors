@@ -1,7 +1,6 @@
 ﻿using System;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
-using Gameplay.Entities.Enemies;
 using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.OnHitEffects;
@@ -18,8 +17,10 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity) : IOnHitEffect
     /// </summary>
     private const float DamageRatio = 0.3f;
 
-    public void Apply(Bullet bullet, EnemyBase enemy)
+    public void Apply(IHitContext hitContext)
     {
+        if (hitContext is not BulletHitContext(_, var enemy, var bullet)) return;
+
         var stats = bullet.Owner.WeaponBelt.Stats;
         if (stats.BulletSplit <= 0)
             return;

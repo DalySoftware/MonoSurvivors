@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies;
@@ -19,11 +18,9 @@ public sealed class ChainLightningOnHit(
     private const int MaxChains = 3;
     private const float BaseDamage = 8f;
 
-    public void Apply(
-        Bullet bullet,
-        EnemyBase enemy)
+    public void Apply(IHitContext context)
     {
-        var owner = bullet.Owner;
+        var owner = context.Owner;
         var stats = owner.WeaponBelt.Stats;
 
         var chance = MathF.Min(stats.ChainLightningChance, 1f);
@@ -32,9 +29,9 @@ public sealed class ChainLightningOnHit(
 
         var remainingChains = MaxChains;
 
-        var hitEnemies = new HashSet<EnemyBase> { enemy };
+        var hitEnemies = new HashSet<EnemyBase> { context.Enemy };
 
-        var currentEnemy = enemy;
+        var currentEnemy = context.Enemy;
         var damage = BaseDamage * stats.DamageMultiplier;
 
         while (remainingChains-- > 0)
