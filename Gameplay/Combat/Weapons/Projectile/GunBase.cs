@@ -4,9 +4,10 @@ namespace Gameplay.Combat.Weapons.Projectile;
 
 public abstract class GunBase(WeaponBeltStats stats) : IWeapon
 {
-    private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
     private readonly ExtraShotHandler _extraShotHandler = new(stats);
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
+
+    protected abstract TimeSpan Cooldown { get; }
     protected WeaponBeltStats Stats { get; private set; } = new();
 
     public void Update(GameTime gameTime, WeaponBeltStats stats)
@@ -24,7 +25,7 @@ public abstract class GunBase(WeaponBeltStats stats) : IWeapon
 
         Shoot();
         _extraShotHandler.QueueFire();
-        _remainingCooldown = _cooldown / stats.AttackSpeedMultiplier;
+        _remainingCooldown = Cooldown / stats.AttackSpeedMultiplier;
     }
     protected abstract void Shoot();
 }

@@ -69,6 +69,8 @@ internal class MainGameScene(
         builder.RegisterType<ChainLightningOnHit>();
 
         builder.RegisterType<BasicGun>();
+        builder.RegisterType<Shotgun>();
+        builder.RegisterType<SniperRifle>();
         builder.RegisterType<WeaponBelt>()
             .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
             .SingleInstance();

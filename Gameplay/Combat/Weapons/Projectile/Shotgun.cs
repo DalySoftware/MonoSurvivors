@@ -12,6 +12,7 @@ public class Shotgun(
     IAudioPlayer audio)
     : GunBase(owner.WeaponBelt.Stats)
 {
+    protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(1);
     protected override void Shoot()
     {
         var target = entityFinder.NearestEnemyTo(owner);
