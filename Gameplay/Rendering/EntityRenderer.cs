@@ -95,7 +95,7 @@ public class EntityRenderer(
 
     private static bool IsVisible(IVisual visual, Rectangle visibleBounds)
     {
-        const int margin = 300; // Include entities a bit off-screen
+        const int margin = 600; // Include entities a decent amount off screen
         var expandedBounds = new Rectangle(
             visibleBounds.X - margin,
             visibleBounds.Y - margin,
