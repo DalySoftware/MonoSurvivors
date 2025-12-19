@@ -1,6 +1,7 @@
 ﻿using System;
 using ContentLibrary;
 using Gameplay.Audio;
+using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
@@ -22,11 +23,11 @@ public class PlayerCharacter(
     EntityManager entityManager,
     ExperienceSpawner experienceSpawner,
     IGlobalCommands globalCommands,
-    WeaponBelt weaponBelt)
+    WeaponBelt weaponBelt,
+    HealthRegenManager healthRegen)
     : MovableEntity(position), IDamageablePlayer, ISpriteVisual
 {
     private const float BaseSpeed = 0.25f;
-
     private const int BaseHealth = 6;
 
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
@@ -46,6 +47,7 @@ public class PlayerCharacter(
 
     public float Experience { get; private set; }
     public int MaxHealth { get; private set; } = BaseHealth;
+    public float HealthRegen { get; private set; } = 0f;
 
     private int KillsPerHeal => _lifeSteal == 0 ? int.MaxValue : 100 / _lifeSteal;
 
@@ -92,6 +94,7 @@ public class PlayerCharacter(
         _invincibilityDuration -= gameTime.ElapsedGameTime;
         WeaponBelt.Update(gameTime);
         ApplyLifeSteal();
+        healthRegen.Update(gameTime, this);
         base.Update(gameTime);
     }
 
@@ -118,6 +121,9 @@ public class PlayerCharacter(
             case MaxHealthUp maxHealthUp:
                 MaxHealth += maxHealthUp.Value;
                 Health += maxHealthUp.Value;
+                break;
+            case HealthRegenUp healthRegenUp:
+                HealthRegen += healthRegenUp.Value;
                 break;
             case LifeStealUp lifeStealUp:
                 _lifeSteal += lifeStealUp.Value;

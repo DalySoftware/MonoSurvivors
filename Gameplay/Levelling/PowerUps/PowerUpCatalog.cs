@@ -17,6 +17,7 @@ public static class PowerUpCatalog
         public string Title() => powerUp switch
         {
             MaxHealthUp => "Increase Max Health",
+            HealthRegenUp => "Increase Health Regen",
             SpeedUp => "Increase Speed",
             PickupRadiusUp => "Increase Pickup Radius",
             DamageUp => "Increase Damage",
@@ -35,9 +36,11 @@ public static class PowerUpCatalog
             ChainLightningUp => "Increase Chain Lightning chance",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
+
         public string Description() => powerUp switch
         {
             MaxHealthUp maxHealthUp => $"Increase Max Health by {(maxHealthUp.Value / 2).HeartLabel()}",
+            HealthRegenUp => "Increase Health Regen",
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
             PickupRadiusUp pickupRadiusUp => $"Increase Pickup Radius by {pickupRadiusUp.Value:P0}",
             DamageUp damageUp => $"Increase Damage by {damageUp.Value:P0}",
@@ -75,7 +78,7 @@ public static class PowerUpCatalog
             {
                 DamageUp or AttackSpeedUp => damageColor,
                 ShotCountUp or PierceUp or BulletSplitUp or ExplodeOnKillUp or ChainLightningUp => damageEffectsColor,
-                MaxHealthUp or LifeStealUp => healthColor,
+                MaxHealthUp or HealthRegenUp or LifeStealUp => healthColor,
                 SpeedUp => speedColor,
                 PickupRadiusUp or ExperienceUp or RangeUp or ProjectileSpeedUp => utilityColor,
                 CritChanceUp or CritDamageUp => critColor,
@@ -118,9 +121,12 @@ public class PowerUpIcons(ContentManager content)
         ProjectileSpeedUp => _projectileSpeed,
         RangeUp => _range,
         ShotCountUp => _shotCount,
-        BulletSplitUp => _shotCount, // todo
-        ExplodeOnKillUp => _shotCount, // todo
-        WeaponUnlock<Shotgun> => _shotCount, // todo
+        BulletSplitUp => _shotCount, // todo icons for all below
+        ChainLightningUp => _shotCount,
+        ExplodeOnKillUp => _shotCount,
+        HealthRegenUp => _shotCount,
+        WeaponUnlock<Shotgun> => _shotCount,
+
         null => null,
         _ => throw new ArgumentOutOfRangeException(nameof(node)),
     };

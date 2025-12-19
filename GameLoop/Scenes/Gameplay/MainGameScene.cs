@@ -1,6 +1,7 @@
 using Autofac;
 using ContentLibrary;
 using GameLoop.Scenes.Gameplay.UI;
+using Gameplay.Behaviour;
 using Gameplay.Combat.Weapons;
 using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Combat.Weapons.Projectile;
@@ -74,6 +75,8 @@ internal class MainGameScene(
         builder.RegisterType<WeaponBelt>()
             .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
             .SingleInstance();
+
+        builder.RegisterType<HealthRegenManager>().SingleInstance();
 
         builder.RegisterType<PlayerCharacter>().SingleInstance()
             .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
