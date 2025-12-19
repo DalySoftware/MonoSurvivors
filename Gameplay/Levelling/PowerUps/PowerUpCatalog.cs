@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using ContentLibrary;
+using Gameplay.Combat.Weapons.AreaOfEffect;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
@@ -12,6 +14,43 @@ namespace Gameplay.Levelling.PowerUps;
 
 public static class PowerUpCatalog
 {
+    internal readonly static Dictionary<Type, PowerUpCategory> Categories = new()
+    {
+        // Damage
+        [typeof(DamageUp)] = PowerUpCategory.Damage,
+        [typeof(AttackSpeedUp)] = PowerUpCategory.Damage,
+
+        // DamageEffects
+        [typeof(ShotCountUp)] = PowerUpCategory.DamageEffects,
+        [typeof(PierceUp)] = PowerUpCategory.DamageEffects,
+        [typeof(BulletSplitUp)] = PowerUpCategory.DamageEffects,
+        [typeof(ExplodeOnKillUp)] = PowerUpCategory.DamageEffects,
+        [typeof(ChainLightningUp)] = PowerUpCategory.DamageEffects,
+
+        // Health
+        [typeof(MaxHealthUp)] = PowerUpCategory.Health,
+        [typeof(HealthRegenUp)] = PowerUpCategory.Health,
+        [typeof(LifeStealUp)] = PowerUpCategory.Health,
+
+        // Speed
+        [typeof(SpeedUp)] = PowerUpCategory.Speed,
+
+        // Utility
+        [typeof(PickupRadiusUp)] = PowerUpCategory.Utility,
+        [typeof(ExperienceUp)] = PowerUpCategory.Utility,
+        [typeof(RangeUp)] = PowerUpCategory.Utility,
+        [typeof(ProjectileSpeedUp)] = PowerUpCategory.Utility,
+
+        // Crit
+        [typeof(CritChanceUp)] = PowerUpCategory.Crit,
+        [typeof(CritDamageUp)] = PowerUpCategory.Crit,
+
+        // WeaponUnlock
+        [typeof(WeaponUnlock<Shotgun>)] = PowerUpCategory.WeaponUnlock,
+        [typeof(WeaponUnlock<SniperRifle>)] = PowerUpCategory.WeaponUnlock,
+        [typeof(WeaponUnlock<DamageAura>)] = PowerUpCategory.WeaponUnlock,
+    };
+
     extension(IPowerUp powerUp)
     {
         public string Title() => powerUp switch
@@ -32,8 +71,10 @@ public static class PowerUpCatalog
             ProjectileSpeedUp => "Increase Projectile Speed",
             BulletSplitUp => "Increase Bullet Split",
             ExplodeOnKillUp => "Increase on kill explosion",
-            WeaponUnlock<Shotgun> => "Unlock the Shotgun",
             ChainLightningUp => "Increase Chain Lightning chance",
+            WeaponUnlock<Shotgun> => "Unlock the Shotgun",
+            WeaponUnlock<SniperRifle> => "Unlock the Sniper Rifle",
+            WeaponUnlock<DamageAura> => "Unlock a damaging aura",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
 
@@ -55,39 +96,55 @@ public static class PowerUpCatalog
             ProjectileSpeedUp projectileSpeedUp => $"Increase Projectile Speed by {projectileSpeedUp.Value:P0}",
             BulletSplitUp => "Increase Bullet Split",
             ExplodeOnKillUp => "Increase explosion size on kill",
-            WeaponUnlock<Shotgun> => "Unlock an extra weapon. The shotgun fires bullets in a spread",
             ChainLightningUp => "Increase chance to trigger chain lightning on hit",
+            WeaponUnlock<Shotgun> => "Unlock an extra weapon. The shotgun fires bullets in a spread",
+            WeaponUnlock<SniperRifle> => "Unlock an extra weapon. The sniper rifle fires high damage shots",
+            WeaponUnlock<DamageAura> => "Unlock an extra weapon. You emit an aura which damages all nearby enemies",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
+    }
+
+    private static class Colors
+    {
+        internal readonly static Color Health = new OklchColor(0.7f, 0.16f, 23).ToColor();
+        internal readonly static Color Speed = new OklchColor(0.7f, 0.16f, 80).ToColor();
+        internal readonly static Color Utility = new OklchColor(0.7f, 0.16f, 160).ToColor();
+        internal readonly static Color Special = new OklchColor(0.7f, 0.16f, 215).ToColor();
+        internal readonly static Color Damage = new OklchColor(0.7f, 0.16f, 295).ToColor();
+        internal readonly static Color Crit = new OklchColor(0.7f, 0.16f, 340).ToColor();
+        internal readonly static Color DamageEffects = new OklchColor(0.8f, 0.20f, 125).ToColor();
     }
 
     extension(IPowerUp? powerUp)
     {
         public Color BaseColor()
         {
-            // Categories
-            var healthColor = new OklchColor(0.7f, 0.16f, 23).ToColor();
-            var speedColor = new OklchColor(0.7f, 0.16f, 80).ToColor();
-            var utilityColor = new OklchColor(0.7f, 0.16f, 160).ToColor();
-            var specialColor = new OklchColor(0.7f, 0.16f, 215).ToColor();
-            var damageColor = new OklchColor(0.7f, 0.16f, 295).ToColor();
-            var critColor = new OklchColor(0.7f, 0.16f, 340).ToColor();
-            var damageEffectsColor = new OklchColor(0.8f, 0.20f, 125).ToColor();
+            if (powerUp is null) return Color.Gold;
 
-            return powerUp switch
+            return Categories[powerUp.GetType()] switch
             {
-                DamageUp or AttackSpeedUp => damageColor,
-                ShotCountUp or PierceUp or BulletSplitUp or ExplodeOnKillUp or ChainLightningUp => damageEffectsColor,
-                MaxHealthUp or HealthRegenUp or LifeStealUp => healthColor,
-                SpeedUp => speedColor,
-                PickupRadiusUp or ExperienceUp or RangeUp or ProjectileSpeedUp => utilityColor,
-                CritChanceUp or CritDamageUp => critColor,
-                WeaponUnlock<Shotgun> => specialColor,
-                null => Color.Gold,
+                PowerUpCategory.Damage => Colors.Damage,
+                PowerUpCategory.DamageEffects => Colors.DamageEffects,
+                PowerUpCategory.Health => Colors.Health,
+                PowerUpCategory.Speed => Colors.Speed,
+                PowerUpCategory.Utility => Colors.Utility,
+                PowerUpCategory.Crit => Colors.Crit,
+                PowerUpCategory.WeaponUnlock => Colors.Special,
                 _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
             };
         }
     }
+}
+
+public enum PowerUpCategory
+{
+    Damage,
+    DamageEffects,
+    Health,
+    Speed,
+    Utility,
+    Crit,
+    WeaponUnlock,
 }
 
 public class PowerUpIcons(ContentManager content)
@@ -126,6 +183,8 @@ public class PowerUpIcons(ContentManager content)
         ExplodeOnKillUp => _shotCount,
         HealthRegenUp => _shotCount,
         WeaponUnlock<Shotgun> => _shotCount,
+        WeaponUnlock<DamageAura> => _shotCount,
+        WeaponUnlock<SniperRifle> => _shotCount,
 
         null => null,
         _ => throw new ArgumentOutOfRangeException(nameof(node)),

@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 namespace GameLoop.Scenes.SphereGridScene.UI;
 
 /// <param name="hexRadius">How large to make the hexagons, ie how far between nodes</param>
-internal class SphereGridPositioner(SphereGrid grid)
+internal class SphereGridPositioner(Node root)
 {
     internal const float HexRadius = 160f;
 
@@ -17,8 +17,6 @@ internal class SphereGridPositioner(SphereGrid grid)
     private Dictionary<Node, Vector2> CalculateNodePositions()
     {
         var positions = new Dictionary<Node, Vector2>();
-
-        var root = grid.Root;
 
         // Place root node at origin
         positions[root] = Vector2.Zero;

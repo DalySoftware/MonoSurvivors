@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using ContentLibrary;
 using GameLoop.Scenes.SphereGridScene.UI;
-using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Levelling.PowerUps;
-using Gameplay.Levelling.PowerUps.Player;
-using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using static Gameplay.Levelling.SphereGrid.NodeFactory;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using ToolTip = Gameplay.Rendering.Tooltips.ToolTip;
@@ -24,38 +19,22 @@ namespace SphereGridEditor;
 
 public class Editor : Game
 {
-    private readonly static Dictionary<Type, Func<int, Node>> NodeFactories =
-        new()
-        {
-            { typeof(SpeedUp), SpeedUp },
-            { typeof(MaxHealthUp), MaxHealthUp },
-            { typeof(PickupRadiusUp), PickupRadiusUp },
-            { typeof(LifeStealUp), LifeStealUp },
-            { typeof(ExperienceUp), ExperienceUp },
-            { typeof(DamageUp), DamageUp },
-            { typeof(AttackSpeedUp), AttackSpeedUp },
-            { typeof(RangeUp), RangeUp },
-            { typeof(ShotCountUp), ShotCountUp },
-            { typeof(CritChanceUp), CritChanceUp },
-            { typeof(CritDamageUp), CritDamageUp },
-            { typeof(PierceUp), PierceUp },
-            { typeof(ProjectileSpeedUp), ProjectileSpeedUp },
-            { typeof(BulletSplitUp), BulletSplitUp },
-            { typeof(ExplodeOnKillUp), ExplodeOnKillUp },
-            { typeof(WeaponUnlock<Shotgun>), ShotgunUnlock },
-        };
-    private readonly Dictionary<Type, Rectangle> _nodeTypeButtons = [];
+    private readonly Dictionary<PowerUpCategory, Rectangle> _categoryButtons = [];
+    private readonly Dictionary<NodeRarity, Rectangle> _rarityButtons = [];
 
     private readonly Dictionary<Node, Vector2> _nodePositions = new();
+    private readonly Dictionary<Node, (PowerUpCategory? category, NodeRarity rarity)> _nodeMetadata = new();
+    private readonly HashSet<Node> _nodes = [];
+    private Rectangle _createButton;
     private Vector2 _cameraOffset;
     private Node? _connectingFromNode;
     private SpriteFont _font = null!;
 
-    private SphereGrid _grid = null!;
     private Node? _hoveredNode;
-    private int _nodeLevelInput = 1;
+    private PowerUpCategory _selectedCategory = PowerUpCategory.Damage;
+    private NodeRarity _selectedRarity = NodeRarity.Common;
     private EdgeDirection? _pendingConnectionDirection;
-    private Type? _pendingNodeType;
+    private (PowerUpCategory category, NodeRarity rarity)? _pendingNodePlacement;
     private Texture2D _pixel = null!;
     private KeyboardState _previousKeyboardState;
     private MouseState _previousMouseState;
@@ -64,6 +43,7 @@ public class Editor : Game
     private bool _showNodeCreationMenu;
     private SpriteBatch _spriteBatch = null!;
     private ToolTipRenderer _tooltipRenderer = null!;
+    private Node _root = null!;
 
     public Editor()
     {
@@ -81,22 +61,51 @@ public class Editor : Game
         // Initialize camera offset to center of screen
         _cameraOffset = new Vector2(GraphicsDevice.Viewport.Width / 2f, GraphicsDevice.Viewport.Height / 2f);
 
-        try
-        {
-            _grid = GridFactory.Create(_ => { });
-            Console.WriteLine($"Grid created with {_grid.Nodes.Count} nodes");
-            LayoutNodes();
-            Console.WriteLine("Layout complete");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in Initialize: {ex.Message}");
-            Console.WriteLine(ex.StackTrace);
-            throw;
-        }
+        // Load template from GridFactory
+        LoadTemplateIntoEditor(TemplateFactory.CreateTemplate());
 
         base.Initialize();
         Console.WriteLine("Initialize complete");
+    }
+
+    private void LoadTemplateIntoEditor(GridTemplate template)
+    {
+        // 1. Create nodes from template
+        var nodeMap = new Dictionary<int, Node>();
+        foreach (var nt in template.Nodes)
+        {
+            var node = new Node(null, 0);
+            nodeMap[nt.Id] = node;
+            _nodeMetadata[node] = (nt.Category, nt.Rarity);
+        }
+
+        // 2. Wire edges
+        foreach (var nt in template.Nodes)
+        {
+            var from = nodeMap[nt.Id];
+            foreach (var (direction, targetId) in nt.Neighbours)
+            {
+                var to = nodeMap[targetId];
+                if (from.GetNeighbour(direction) == null)
+                {
+                    from.SetNeighbour(direction, to);
+                    to.SetNeighbour(direction.Opposite(), from);
+                }
+            }
+        }
+
+        // 3. Create grid with root
+        _root = nodeMap[template.RootId];
+        _nodes.Add(_root);
+
+        // 4. Add all nodes to grid using reflection
+        foreach (var node in nodeMap.Values)
+            _nodes.Add(node);
+
+        // 5. Calculate initial positions
+        LayoutNodes();
+
+        Console.WriteLine($"Loaded template with {template.Nodes.Count} nodes");
     }
 
     protected override void LoadContent()
@@ -115,10 +124,9 @@ public class Editor : Game
 
     private void LayoutNodes()
     {
-        var root = _grid.Root;
-        _nodePositions[root] = Vector2.Zero;
+        _nodePositions[_root] = Vector2.Zero;
 
-        var positioner = new SphereGridPositioner(_grid);
+        var positioner = new SphereGridPositioner(_root);
         foreach (var (node, position) in positioner.NodePositions())
             _nodePositions[node] = position;
     }
@@ -131,8 +139,7 @@ public class Editor : Game
         if (kbState.IsKeyDown(Keys.LeftControl) && kbState.IsKeyDown(Keys.P))
             Exit();
 
-        // Copy code to clipboard on C key press
-        if (kbState.IsKeyDown(Keys.C) && _previousKeyboardState.IsKeyUp(Keys.C)) CopyCodeToClipboard();
+        if (kbState.IsKeyDown(Keys.C) && _previousKeyboardState.IsKeyUp(Keys.C)) CopyTemplateToClipboard();
 
         // Delete selected node on Delete key
         if (kbState.IsKeyDown(Keys.Delete) && _previousKeyboardState.IsKeyUp(Keys.Delete) && _selectedNode != null)
@@ -145,53 +152,46 @@ public class Editor : Game
         if (kbState.IsKeyDown(Keys.N) && _previousKeyboardState.IsKeyUp(Keys.N))
         {
             _showNodeCreationMenu = true;
-            _nodeLevelInput = 1;
+            _selectedCategory = PowerUpCategory.Damage;
+            _selectedRarity = NodeRarity.Common;
             Console.WriteLine("Node creation menu opened");
         }
 
         // Handle node creation menu interactions
         if (_showNodeCreationMenu)
-        {
-            // Handle number keys for immediate single-digit input
-            for (var i = 1; i <= 9; i++)
-            {
-                var key = Keys.D0 + i;
-                if (kbState.IsKeyDown(key) && _previousKeyboardState.IsKeyUp(key)) _nodeLevelInput = i;
-            }
-
             // Handle escape to close menu
             if (kbState.IsKeyDown(Keys.Escape) && _previousKeyboardState.IsKeyUp(Keys.Escape))
             {
                 _showNodeCreationMenu = false;
-                _pendingNodeType = null;
+                _pendingNodePlacement = null;
                 Console.WriteLine("Node creation cancelled");
             }
-        }
 
         // Handle pending node placement
-        if (_pendingNodeType != null)
+        if (_pendingNodePlacement != null)
         {
             // Place node on left click
             if (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Released)
             {
                 var worldPosition = new Vector2(mouseState.X, mouseState.Y) - _cameraOffset;
-                CreateNodeWithPowerup(_pendingNodeType, worldPosition, _nodeLevelInput);
-                _pendingNodeType = null;
-                Console.WriteLine("Node placed");
+                CreateNodeTemplate(_pendingNodePlacement.Value.category, _pendingNodePlacement.Value.rarity,
+                    worldPosition);
+                _pendingNodePlacement = null;
+                Console.WriteLine("Node template placed");
             }
 
             // Cancel on right click
             if (mouseState.RightButton == ButtonState.Pressed &&
                 _previousMouseState.RightButton == ButtonState.Released)
             {
-                _pendingNodeType = null;
+                _pendingNodePlacement = null;
                 Console.WriteLine("Node placement cancelled");
             }
 
             // Cancel on escape
             if (kbState.IsKeyDown(Keys.Escape) && _previousKeyboardState.IsKeyUp(Keys.Escape))
             {
-                _pendingNodeType = null;
+                _pendingNodePlacement = null;
                 Console.WriteLine("Node placement cancelled");
             }
         }
@@ -225,7 +225,7 @@ public class Editor : Game
         foreach (var (node, pos) in _nodePositions)
         {
             var screenPos = pos + _cameraOffset;
-            var nodeRadius = node == _grid.Root ? 50f : 40f;
+            var nodeRadius = node == _root ? 50f : 40f;
 
             if (Vector2.Distance(mouseScreenPos, screenPos) < nodeRadius)
             {
@@ -240,14 +240,23 @@ public class Editor : Game
             // Check if clicking on node creation menu buttons
             if (_showNodeCreationMenu)
             {
-                var buttonClicked = GetClickedMenuButton(mouseScreenPos);
+                var (categoryClicked, rarityClicked) = GetClickedMenuButton(mouseScreenPos);
 
-                if (buttonClicked != null)
+                if (categoryClicked.HasValue)
                 {
-                    // Set pending node type for placement
-                    _pendingNodeType = buttonClicked;
+                    _selectedCategory = categoryClicked.Value;
+                }
+                else if (rarityClicked.HasValue)
+                {
+                    _selectedRarity = rarityClicked.Value;
+                }
+                else if (GetClickedCreateButton(mouseScreenPos))
+                {
+                    // Set pending node placement
+                    _pendingNodePlacement = (_selectedCategory, _selectedRarity);
                     _showNodeCreationMenu = false;
-                    Console.WriteLine($"Selected {buttonClicked}. Left-click to place, right-click to cancel.");
+                    Console.WriteLine(
+                        $"Selected {_selectedCategory} ({_selectedRarity}). Left-click to place, right-click to cancel.");
                 }
             }
             else if (_connectingFromNode != null && _hoveredNode != null && _pendingConnectionDirection.HasValue)
@@ -269,8 +278,7 @@ public class Editor : Game
                         _connectingFromNode.SetNeighbour(direction, _hoveredNode);
                         _hoveredNode.SetNeighbour(reverseDirection, _connectingFromNode);
 
-                        Console.WriteLine(
-                            $"Connected {_connectingFromNode.PowerUp?.GetType().DisplayName() ?? "Node"} to {_hoveredNode.PowerUp?.GetType().DisplayName() ?? "Node"} via {direction} (reverse: {reverseDirection})");
+                        Console.WriteLine($"Connected nodes via {direction} (reverse: {reverseDirection})");
                     }
                 }
 
@@ -332,8 +340,8 @@ public class Editor : Game
                 // Only draw each edge once
                 if (_nodePositions[node].GetHashCode() < neighborPos.GetHashCode())
                 {
-                    var fromOffset = GetDirectionOffset(direction, node == _grid.Root ? 50f : 40f);
-                    var toOffset = GetDirectionOffset(direction.Opposite(), neighbor == _grid.Root ? 50f : 40f);
+                    var fromOffset = GetDirectionOffset(direction, node == _root ? 50f : 40f);
+                    var toOffset = GetDirectionOffset(direction.Opposite(), neighbor == _root ? 50f : 40f);
                     _primitiveRenderer.DrawLine(_spriteBatch, pos + fromOffset + _cameraOffset,
                         neighborPos + toOffset + _cameraOffset,
                         Color.Gray * 0.5f, 2);
@@ -344,7 +352,7 @@ public class Editor : Game
             _nodePositions.ContainsKey(_connectingFromNode) &&
             _pendingConnectionDirection.HasValue)
         {
-            var radius = _connectingFromNode == _grid.Root ? 50f : 40f;
+            var radius = _connectingFromNode == _root ? 50f : 40f;
             var offset = GetDirectionOffset(_pendingConnectionDirection.Value, radius);
             var startPos = _nodePositions[_connectingFromNode] + offset + _cameraOffset;
             var mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
@@ -356,35 +364,65 @@ public class Editor : Game
         foreach (var (node, pos) in _nodePositions)
         {
             var screenPos = pos + _cameraOffset;
-            var isRoot = node == _grid.Root;
+            var isRoot = node == _root;
             var isSelected = node == _selectedNode;
             var isHovered = node == _hoveredNode;
 
-            var radius = isRoot ? 50f : 40f;
-            var baseColor = node.PowerUp.BaseColor();
+            // Determine radius based on rarity
+            float baseRadius;
+            if (isRoot)
+                baseRadius = 50f;
+            else
+                baseRadius = node.Rarity switch
+                {
+                    NodeRarity.Legendary => 45f,
+                    NodeRarity.Rare => 40f,
+                    _ => 35f,
+                };
+
+            // Color based on category
+            var baseColor = isRoot ? Color.Gold : CategoryColor(node);
             var color = baseColor;
 
             if (isSelected) color = Color.White;
             else if (isHovered) color = Color.Lerp(baseColor, Color.White, 0.5f);
 
-            DrawCircle(screenPos, radius, color, Layers.Node);
-            DrawCircle(screenPos, radius - 2, new Color(20, 20, 30), Layers.Node + 0.001f);
-            DrawCircle(screenPos, radius - 4, color * 0.3f, Layers.Node + 0.002f);
+            // Draw main circle
+            DrawCircle(screenPos, baseRadius, color, Layers.Node);
+            DrawCircle(screenPos, baseRadius - 2, new Color(20, 20, 30), Layers.Node + 0.001f);
+            DrawCircle(screenPos, baseRadius - 4, color * 0.3f, Layers.Node + 0.002f);
 
-            // Draw abbreviation and level
-            var abbrev = Abbreviation(node);
-            var level = node.Level.ToString();
+            // Draw extra border for rare/legendary nodes
+            if (!isRoot)
+            {
+                if (node.Rarity == NodeRarity.Rare)
+                {
+                    DrawCircle(screenPos, baseRadius + 3, color * 0.6f, Layers.Node - 0.001f);
+                }
+                else if (node.Rarity == NodeRarity.Legendary)
+                {
+                    DrawCircle(screenPos, baseRadius + 3, color * 0.7f, Layers.Node - 0.001f);
+                    DrawCircle(screenPos, baseRadius + 6, color * 0.4f, Layers.Node - 0.002f);
+                }
+            }
 
-            var abbrevSize = _font.MeasureString(abbrev);
-            var levelSize = _font.MeasureString(level);
+            // Draw category abbreviation and rarity
+            var abbrev = isRoot ? "Root" : CategoryAbbreviation(node);
+            var rarityText = isRoot ? "" : RarityAbbreviation(node.Rarity);
 
-            // Draw abbreviation on top
-            var abbrevPos = screenPos - new Vector2(abbrevSize.X / 2, abbrevSize.Y + 2);
-            _spriteBatch.DrawString(_font, abbrev, abbrevPos, Color.White, layerDepth: Layers.NodeText);
+            if (!string.IsNullOrEmpty(abbrev))
+            {
+                var abbrevSize = _font.MeasureString(abbrev);
+                var abbrevPos = screenPos - new Vector2(abbrevSize.X / 2, abbrevSize.Y + 2);
+                _spriteBatch.DrawString(_font, abbrev, abbrevPos, Color.White, layerDepth: Layers.NodeText);
+            }
 
-            // Draw level below abbreviation
-            var levelPos = screenPos - new Vector2(levelSize.X / 2, -2);
-            _spriteBatch.DrawString(_font, level, levelPos, Color.LightGray, layerDepth: Layers.NodeText);
+            if (!string.IsNullOrEmpty(rarityText))
+            {
+                var raritySize = _font.MeasureString(rarityText);
+                var rarityPos = screenPos - new Vector2(raritySize.X / 2, -2);
+                _spriteBatch.DrawString(_font, rarityText, rarityPos, Color.LightGray, layerDepth: Layers.NodeText);
+            }
         }
 
         // Draw tooltip for hovered node (follows mouse)
@@ -394,35 +432,42 @@ public class Editor : Game
                 .Select(kvp => $"{kvp.Key}")
                 .ToList();
 
+            var category = _nodeMetadata.TryGetValue(_hoveredNode, out var meta) ? meta.category.ToString() : "Unknown";
             var tooltipLines = new List<ToolTipBodyLine>
             {
-                new($"Level: {_hoveredNode.Level}"),
-                new($"PowerUp: {_hoveredNode.PowerUp?.GetType().DisplayName() ?? "None"}"),
+                new($"Category: {category}"),
+                new($"Rarity: {_hoveredNode.Rarity}"),
                 new($"Connections: {_hoveredNode.Neighbours.Count}"),
             };
 
             foreach (var conn in connectionDetails)
                 tooltipLines.Add(new ToolTipBodyLine($"  - {conn}", Color.DarkGray));
 
-            var tooltip = new ToolTip("Node Info", tooltipLines);
+            var tooltip = new ToolTip("Template Node", tooltipLines);
             _tooltipRenderer.DrawTooltip(_spriteBatch, tooltip);
         }
 
         // Draw selected node info in top-left corner
         if (_selectedNode != null)
+        {
+            var category = _nodeMetadata.TryGetValue(_selectedNode, out var meta)
+                ? meta.category.ToString()
+                : "Unknown";
             DrawInfoPanel(new Vector2(10, 10), "SELECTED NODE", [
-                $"Level: {_selectedNode.Level}",
-                $"PowerUp: {_selectedNode.PowerUp?.GetType().DisplayName() ?? "None"}",
+                $"Category: {category}",
+                $"Cost: {_selectedNode.Cost} SP",
+                $"Rarity: {_selectedNode.Rarity}",
                 $"Connections: {_selectedNode.Neighbours.Count}",
             ], Color.Yellow);
+        }
 
         // Draw help text at bottom
         var font = Content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
 
         var helpLines = new[]
         {
-            "N: New node | Del: Delete node | Middle-drag: Pan",
-            "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | C: Copy | T: Recalculate layout",
+            "N: New node | Del: Delete node | Middle-drag: Pan | C: Copy template",
+            "Select node, 1-6 (TopL/TopR/MidL/MidR/BotL/BotR), click target | X: Delete edge | T: Recalculate layout",
         };
 
         var y = (float)GraphicsDevice.Viewport.Height;
@@ -450,38 +495,24 @@ public class Editor : Game
             _spriteBatch.DrawString(font, msg, msgPos, Color.Yellow, layerDepth: Layers.HelpText);
         }
 
-        // Draw node creation menu with buttons
+        // Draw node creation menu with category and rarity selection
         if (_showNodeCreationMenu && font != null)
         {
-            var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 200,
-                GraphicsDevice.Viewport.Height / 2f - 250);
+            var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 250,
+                GraphicsDevice.Viewport.Height / 2f - 200);
             var buttonWidth = 180;
             var buttonHeight = 30;
             var padding = 10;
             var lineHeight = font.MeasureString("A").Y;
 
-            var buttons = new[]
-            {
-                (typeof(DamageUp), "Damage Up"),
-                (typeof(SpeedUp), "Speed Up"),
-                (typeof(MaxHealthUp), "Max Health Up"),
-                (typeof(AttackSpeedUp), "Attack Speed Up"),
-                (typeof(PickupRadiusUp), "Pickup Radius Up"),
-                (typeof(RangeUp), "Range Up"),
-                (typeof(ShotCountUp), "Shot Count Up"),
-                (typeof(LifeStealUp), "Life Steal Up"),
-                (typeof(ExperienceUp), "Experience Up"),
-                (typeof(CritChanceUp), "Crit Chance Up"),
-                (typeof(CritDamageUp), "Crit Damage Up"),
-                (typeof(PierceUp), "Pierce Up"),
-                (typeof(ProjectileSpeedUp), "Projectile Speed Up"),
-                (typeof(BulletSplitUp), "Bullet Split Up"),
-                (typeof(ExplodeOnKillUp), "Explode On Kill Up"),
-                (typeof(WeaponUnlock<Shotgun>), "Shotgun Unlock"),
-            };
+            var categories = Enum.GetValues<PowerUpCategory>();
+            var rarities = Enum.GetValues<NodeRarity>();
 
-            var menuWidth = buttonWidth + padding * 2 + 300;
-            var menuHeight = (buttonHeight + 5) * (buttons.Length + 1) + padding * 3 + 120;
+            var menuWidth = buttonWidth * 2 + padding * 4;
+            var menuHeight = (buttonHeight + 5) * Math.Max(categories.Length, rarities.Length) +
+                             padding * 4 +
+                             (int)lineHeight * 3 +
+                             60;
 
             // Draw background
             var menuRect = new Rectangle((int)menuPos.X, (int)menuPos.Y, menuWidth, menuHeight);
@@ -500,95 +531,110 @@ public class Editor : Game
                 Layers.CreateNode);
 
             // Title
-            _spriteBatch.DrawString(font, "Create Node",
+            _spriteBatch.DrawString(font, "Create Node Template",
                 menuPos + new Vector2(padding, padding), Color.Yellow, layerDepth: Layers.CreateNodeText);
 
-            // Node Level display
-            var inputY = menuPos.Y + padding * 2 + lineHeight;
-            _spriteBatch.DrawString(font, "Node Level:",
-                new Vector2(menuPos.X + padding, inputY), Color.White, layerDepth: Layers.CreateNodeText);
-
-            var labelWidth = font.MeasureString("Node Level:").X;
-            var boxSize = (int)lineHeight + 8;
-            var inputRect = new Rectangle((int)menuPos.X + padding + (int)labelWidth + 10, (int)inputY - 4, boxSize,
-                boxSize);
-            _primitiveRenderer.DrawRectangle(_spriteBatch, inputRect, Color.DarkGray * 0.5f,
-                Layers.CreateNode + 0.03f);
-            _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X, inputRect.Y, inputRect.Width, 1), Color.Gray,
-                Layers.CreateNode + 0.03f);
-            _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X, inputRect.Y + inputRect.Height - 1, inputRect.Width, 1), Color.Gray,
-                Layers.CreateNode + 0.03f);
-            _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X, inputRect.Y, 1, inputRect.Height), Color.Gray,
-                Layers.CreateNode + 0.03f);
-            _primitiveRenderer.DrawRectangle(_spriteBatch,
-                new Rectangle(inputRect.X + inputRect.Width - 1, inputRect.Y, 1, inputRect.Height), Color.Gray,
-                Layers.CreateNode + 0.03f);
-
-            var displayText = _nodeLevelInput.ToString();
-            var textSize = font.MeasureString(displayText);
-            _spriteBatch.DrawString(font, displayText,
-                new Vector2(inputRect.X + (boxSize - textSize.X) / 2, inputRect.Y + (boxSize - textSize.Y) / 2),
-                Color.White, layerDepth: Layers.CreateNodeText);
-
-            // Button grid
-            var buttonStartY = inputY + lineHeight + padding * 2;
+            var currentY = menuPos.Y + padding * 2 + lineHeight;
             var mouseState = Mouse.GetState();
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
 
-            _nodeTypeButtons.Clear();
-            for (var i = 0; i < buttons.Length; i++)
-            {
-                var (type, label) = buttons[i];
-                var buttonY = buttonStartY + i * (buttonHeight + 5);
-                var buttonRect = new Rectangle((int)menuPos.X + padding, (int)buttonY, buttonWidth, buttonHeight);
-                _nodeTypeButtons[type] = buttonRect;
+            // Category column
+            _spriteBatch.DrawString(font, "Category:",
+                new Vector2(menuPos.X + padding, currentY), Color.White, layerDepth: Layers.CreateNodeText);
 
+            currentY += lineHeight + 5;
+            _categoryButtons.Clear();
+            for (var i = 0; i < categories.Length; i++)
+            {
+                var category = categories[i];
+                var buttonRect = new Rectangle((int)menuPos.X + padding, (int)currentY, buttonWidth, buttonHeight);
+                _categoryButtons[category] = buttonRect;
+
+                var isSelected = category == _selectedCategory;
                 var isHovered = buttonRect.Contains(mousePos);
-                var buttonColor = isHovered ? Color.Yellow * 0.3f : Color.DarkGray * 0.5f;
+                var buttonColor = isSelected ? Color.Green * 0.5f :
+                    isHovered ? Color.Yellow * 0.3f : Color.DarkGray * 0.5f;
 
                 _primitiveRenderer.DrawRectangle(_spriteBatch, buttonRect, buttonColor, Layers.CreateNodeButton);
 
                 // Button border
-                var borderColor = isHovered ? Color.Yellow : Color.Gray;
-                _primitiveRenderer.DrawRectangle(_spriteBatch,
-                    new Rectangle(buttonRect.X, buttonRect.Y, buttonRect.Width, 1),
-                    borderColor, Layers.CreateNodeButton + 0.001f);
-                _primitiveRenderer.DrawRectangle(_spriteBatch,
-                    new Rectangle(buttonRect.X, buttonRect.Y + buttonRect.Height - 1, buttonRect.Width, 1),
-                    borderColor, Layers.CreateNodeButton + 0.001f);
-                _primitiveRenderer.DrawRectangle(_spriteBatch,
-                    new Rectangle(buttonRect.X, buttonRect.Y, 1, buttonRect.Height),
-                    borderColor, Layers.CreateNodeButton + 0.001f);
-                _primitiveRenderer.DrawRectangle(_spriteBatch,
-                    new Rectangle(buttonRect.X + buttonRect.Width - 1, buttonRect.Y, 1, buttonRect.Height),
-                    borderColor, Layers.CreateNodeButton + 0.001f);
+                var borderColor = isSelected ? Color.Green : isHovered ? Color.Yellow : Color.Gray;
+                DrawButtonBorder(_spriteBatch, buttonRect, borderColor);
 
-                var labelSize = font.MeasureString(label);
+                var labelSize = font.MeasureString(category.ToString());
                 var textPos = new Vector2(buttonRect.X + (buttonRect.Width - labelSize.X) / 2,
                     buttonRect.Y + (buttonRect.Height - labelSize.Y) / 2);
-                _spriteBatch.DrawString(font, label, textPos, Color.White, layerDepth: Layers.CreateNodeText);
+                _spriteBatch.DrawString(font, category.ToString(), textPos, Color.White,
+                    layerDepth: Layers.CreateNodeText);
+
+                currentY += buttonHeight + 5;
             }
 
-            // Help text
-            var helpText = "Press 1-9 to set level, then click a node type";
-            var helpY = buttonStartY + buttons.Length * (buttonHeight + 5) + padding;
-            _spriteBatch.DrawString(font, helpText,
-                new Vector2(menuPos.X + padding, helpY), Color.Gray, layerDepth: Layers.CreateNodeText);
+            // Rarity column
+            currentY = menuPos.Y + padding * 2 + lineHeight;
+            _spriteBatch.DrawString(font, "Rarity:",
+                new Vector2(menuPos.X + padding * 3 + buttonWidth, currentY), Color.White,
+                layerDepth: Layers.CreateNodeText);
 
+            currentY += lineHeight + 5;
+            _rarityButtons.Clear();
+            for (var i = 0; i < rarities.Length; i++)
+            {
+                var rarity = rarities[i];
+                var buttonRect = new Rectangle((int)menuPos.X + padding * 3 + buttonWidth, (int)currentY, buttonWidth,
+                    buttonHeight);
+                _rarityButtons[rarity] = buttonRect;
+
+                var isSelected = rarity == _selectedRarity;
+                var isHovered = buttonRect.Contains(mousePos);
+                var buttonColor = isSelected ? Color.Green * 0.5f :
+                    isHovered ? Color.Yellow * 0.3f : Color.DarkGray * 0.5f;
+
+                _primitiveRenderer.DrawRectangle(_spriteBatch, buttonRect, buttonColor, Layers.CreateNodeButton);
+
+                // Button border
+                var borderColor = isSelected ? Color.Green : isHovered ? Color.Yellow : Color.Gray;
+                DrawButtonBorder(_spriteBatch, buttonRect, borderColor);
+
+                var labelSize = font.MeasureString(rarity.ToString());
+                var textPos = new Vector2(buttonRect.X + (buttonRect.Width - labelSize.X) / 2,
+                    buttonRect.Y + (buttonRect.Height - labelSize.Y) / 2);
+                _spriteBatch.DrawString(font, rarity.ToString(), textPos, Color.White,
+                    layerDepth: Layers.CreateNodeText);
+
+                currentY += buttonHeight + 5;
+            }
+
+            // Create button at bottom
+            currentY = menuPos.Y + menuHeight - padding - buttonHeight - 5;
+            var createButtonRect = new Rectangle((int)menuPos.X + padding, (int)currentY, menuWidth - padding * 2,
+                buttonHeight);
+            _createButton = createButtonRect;
+
+            var isCreateHovered = createButtonRect.Contains(mousePos);
+            var createButtonColor = isCreateHovered ? Color.Cyan * 0.5f : Color.DarkBlue * 0.7f;
+            _primitiveRenderer.DrawRectangle(_spriteBatch, createButtonRect, createButtonColor,
+                Layers.CreateNodeButton);
+            DrawButtonBorder(_spriteBatch, createButtonRect, isCreateHovered ? Color.Cyan : Color.Blue);
+
+            var createText = $"Create {_selectedCategory} ({_selectedRarity})";
+            var createTextSize = font.MeasureString(createText);
+            var createTextPos = new Vector2(createButtonRect.X + (createButtonRect.Width - createTextSize.X) / 2,
+                createButtonRect.Y + (createButtonRect.Height - createTextSize.Y) / 2);
+            _spriteBatch.DrawString(font, createText, createTextPos, Color.White, layerDepth: Layers.CreateNodeText);
+
+            // Help text
             var escText = "ESC - Cancel";
             _spriteBatch.DrawString(font, escText,
-                new Vector2(menuPos.X + padding, helpY + lineHeight + 5), Color.Gray,
+                new Vector2(menuPos.X + padding, currentY - lineHeight - 10), Color.Gray,
                 layerDepth: Layers.CreateNodeText);
         }
 
         // Draw placement mode indicator
-        if (_pendingNodeType != null && font != null)
+        if (_pendingNodePlacement != null && font != null)
         {
             var msg =
-                $"Placing {_pendingNodeType} (level {_nodeLevelInput}) - Left-click to place, Right-click to cancel";
+                $"Placing {_pendingNodePlacement.Value.category} ({_pendingNodePlacement.Value.rarity}) - Left-click to place, Right-click to cancel";
             var msgSize = font.MeasureString(msg);
             var msgPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - msgSize.X / 2, 10);
 
@@ -659,49 +705,43 @@ public class Editor : Game
         }
     }
 
-    private void CopyCodeToClipboard()
+    private void CopyTemplateToClipboard()
     {
-        // Generate node graph code
-        var nodeNames = new Dictionary<Node, string>();
-        var nodeIndex = 0;
+        var template = BuildTemplate(); // convert _grid + _nodeMetadata → GridTemplate
 
-        // Assign names to all nodes
-        foreach (var node in _grid.Nodes)
-            if (node == _grid.Root)
-            {
-                nodeNames[node] = "root";
-            }
-            else
-            {
-                var powerUpName = node.PowerUp?.GetType().DisplayName() ?? "Node";
-                nodeNames[node] = $"{powerUpName.ToLower()}{nodeIndex++}";
-            }
-
-        // Generate node creation code
-        var indent = new string(' ', 8);
         var sb = new StringBuilder();
-        sb.AppendLine($"{indent}var root = new Node(null, 0, 0);");
+        sb.AppendLine("internal static GridTemplate CreateTemplate() => new()");
+        sb.AppendLine("{");
+        sb.AppendLine($"    RootId = {template.RootId},");
+        sb.AppendLine("    Nodes =");
+        sb.AppendLine("    [");
 
-        string FactoryFor(IPowerUp powerUp) => NodeFactories[powerUp.GetType()].Method.Name;
-        foreach (var node in _grid.Nodes.Where(node => node != _grid.Root))
-            if (node.PowerUp is { } powerUp)
-                sb.AppendLine($"{indent}var {nodeNames[node]} = {FactoryFor(powerUp)}({node.Level});");
+        foreach (var nodeTemplate in template.Nodes)
+        {
+            sb.AppendLine("        new NodeTemplate");
+            sb.AppendLine("        {");
+            sb.AppendLine($"            Id = {nodeTemplate.Id},");
+            sb.AppendLine($"            Category = PowerUpCategory.{nodeTemplate.Category},");
+            sb.AppendLine($"            Rarity = NodeRarity.{nodeTemplate.Rarity},");
+            sb.AppendLine("            Neighbours = new Dictionary<EdgeDirection,int>");
+            sb.AppendLine("            {");
+            foreach (var kvp in nodeTemplate.Neighbours)
+                sb.AppendLine($"                {{ EdgeDirection.{kvp.Key}, {kvp.Value} }},");
+            sb.AppendLine("            },");
+            sb.AppendLine("        },");
+        }
 
-        sb.AppendLine();
+        sb.AppendLine("    ],");
+        sb.AppendLine("};");
 
-        // Generate connections - output all directions explicitly
-        foreach (var node in _grid.Nodes)
-        foreach (var (direction, neighbor) in node.Neighbours)
-            sb.AppendLine($"{indent}{nodeNames[node]}.SetNeighbour(EdgeDirection.{direction}, {nodeNames[neighbor]});");
-
-        var code = sb.ToString();
-        ClipboardHelper.Copy(code);
-        Console.WriteLine("Code copied to clipboard!");
+        ClipboardHelper.Copy(sb.ToString());
+        Console.WriteLine("C# GridTemplate copied to clipboard!");
     }
+
 
     private void DeleteNode(Node node)
     {
-        if (node == _grid.Root)
+        if (node == _root)
         {
             Console.WriteLine("Cannot delete root node!");
             return;
@@ -709,38 +749,94 @@ public class Editor : Game
 
         // Remove from position tracking
         _nodePositions.Remove(node);
+        _nodeMetadata.Remove(node);
 
         foreach (var (direction, neighbour) in node.Neighbours)
             neighbour.SetNeighbour(direction.Opposite(), null);
 
-        // Remove from grid nodes collection using reflection
-        var nodesField = typeof(SphereGrid).GetField("_nodes", BindingFlags.NonPublic | BindingFlags.Instance);
-        var nodes = nodesField?.GetValue(_grid) as ISet<Node>;
-        nodes?.Remove(node);
+        _nodes.Remove(node);
 
-        Console.WriteLine($"Deleted node with powerup: {node.PowerUp?.GetType().DisplayName() ?? "None"}");
+        Console.WriteLine($"Deleted template node (Cost: {node.Cost})");
     }
 
 
-    private void CreateNodeWithPowerup(Type powerupType, Vector2 worldPosition, int level)
+    private void CreateNodeTemplate(PowerUpCategory category, NodeRarity rarity, Vector2 worldPosition)
     {
-        if (!NodeFactories.TryGetValue(powerupType, out var createNode))
-            throw new ArgumentOutOfRangeException(nameof(powerupType));
-
-        var newNode = createNode(level);
+        // Create a placeholder node (will be replaced by GridFactory randomization)
+        var newNode = new Node(null, rarity);
         _nodePositions[newNode] = worldPosition;
+        _nodeMetadata[newNode] = (category, rarity);
 
-        // Add to grid using reflection
-        var nodesField = typeof(SphereGrid).GetField("_nodes", BindingFlags.NonPublic | BindingFlags.Instance);
-        var nodes = nodesField?.GetValue(_grid) as ISet<Node>;
-        nodes?.Add(newNode);
+        _nodes.Add(newNode);
 
         _selectedNode = newNode;
-        Console.WriteLine($"Created {powerupType} (level {level}) node. Press 1-6 to connect to other nodes.");
+        Console.WriteLine($"Created {category} ({rarity}) template node. Press 1-6 to connect to other nodes.");
     }
 
-    private Type? GetClickedMenuButton(Vector2 mousePos) =>
-        _nodeTypeButtons.FirstOrDefault(kvp => kvp.Value.Contains(mousePos)).Key;
+    private (PowerUpCategory? category, NodeRarity? rarity) GetClickedMenuButton(Vector2 mousePos)
+    {
+        foreach (var kvp in _categoryButtons.Where(kvp => kvp.Value.Contains(mousePos)))
+            return (kvp.Key, null);
+
+        foreach (var kvp in _rarityButtons.Where(kvp => kvp.Value.Contains(mousePos)))
+            return (null, kvp.Key);
+
+        return (null, null);
+    }
+
+    private GridTemplate BuildTemplate()
+    {
+        var nodes = _nodes.ToList();
+
+        var idMap = new Dictionary<Node, int>();
+        for (var i = 0; i < nodes.Count; i++)
+            idMap[nodes[i]] = i;
+
+        var template = new GridTemplate
+        {
+            RootId = idMap[_root],
+        };
+
+        foreach (var node in nodes)
+        {
+            var meta = _nodeMetadata.TryGetValue(node, out var m) ? m : throw new Exception();
+
+            var nodeTemplate = new NodeTemplate
+            {
+                Id = idMap[node],
+                Category = meta.Item1!.Value,
+                Rarity = meta.Item2,
+            };
+
+            foreach (var (dir, neighbour) in node.Neighbours)
+                // Only emit one direction (avoid duplicates)
+                if (idMap[node] < idMap[neighbour])
+                    nodeTemplate.Neighbours[dir] = idMap[neighbour];
+
+            template.Nodes.Add(nodeTemplate);
+        }
+
+        return template;
+    }
+
+
+    private bool GetClickedCreateButton(Vector2 mousePos) => _createButton.Contains(mousePos);
+
+    private void DrawButtonBorder(SpriteBatch spriteBatch, Rectangle rect, Color color)
+    {
+        _primitiveRenderer.DrawRectangle(spriteBatch,
+            new Rectangle(rect.X, rect.Y, rect.Width, 1),
+            color, Layers.CreateNodeButton + 0.001f);
+        _primitiveRenderer.DrawRectangle(spriteBatch,
+            new Rectangle(rect.X, rect.Y + rect.Height - 1, rect.Width, 1),
+            color, Layers.CreateNodeButton + 0.001f);
+        _primitiveRenderer.DrawRectangle(spriteBatch,
+            new Rectangle(rect.X, rect.Y, 1, rect.Height),
+            color, Layers.CreateNodeButton + 0.001f);
+        _primitiveRenderer.DrawRectangle(spriteBatch,
+            new Rectangle(rect.X + rect.Width - 1, rect.Y, 1, rect.Height),
+            color, Layers.CreateNodeButton + 0.001f);
+    }
 
     private void StartConnectionOrDelete(EdgeDirection direction)
     {
@@ -751,8 +847,7 @@ public class Editor : Game
 
         if (existingNeighbour != null)
         {
-            Console.WriteLine(
-                $"Node already has a connection in direction {direction} to {existingNeighbour.PowerUp?.GetType().DisplayName() ?? "Node"}. Press X to delete it.");
+            Console.WriteLine($"Node already has a connection in direction {direction}. Press X to delete it.");
 
             // Store the direction for deletion
             _pendingConnectionDirection = direction;
@@ -778,31 +873,52 @@ public class Editor : Game
         fromNode.SetNeighbour(direction, null);
         targetNode.SetNeighbour(direction.Opposite(), null);
 
-        Console.WriteLine(
-            $"Deleted edge from {fromNode.PowerUp?.GetType().DisplayName() ?? "Node"} to {targetNode.PowerUp?.GetType().DisplayName() ?? "Node"} (direction: {direction})");
+        Console.WriteLine($"Deleted edge between nodes (direction: {direction})");
     }
 
-    private static string Abbreviation(Node node) => node.PowerUp switch
+    private Color CategoryColor(Node node)
     {
-        null => "Root",
-        ExperienceUp _ => "XP",
-        LifeStealUp _ => "LS",
-        MaxHealthUp _ => "MHP",
-        PickupRadiusUp _ => "PR",
-        SpeedUp _ => "SPD",
-        AttackSpeedUp _ => "ASPD",
-        CritChanceUp _ => "CC",
-        CritDamageUp _ => "CD",
-        DamageUp _ => "DMG",
-        PierceUp _ => "PRC",
-        ProjectileSpeedUp _ => "PSPD",
-        RangeUp _ => "RNG",
-        ShotCountUp _ => "SC",
-        BulletSplitUp _ => "SPLT",
-        ExplodeOnKillUp _ => "EOK",
-        WeaponUnlock<Shotgun> _ => "WPN",
-        _ => throw new ArgumentOutOfRangeException(nameof(node)),
+        if (!_nodeMetadata.TryGetValue(node, out var meta))
+            return Color.Gray;
+
+        return meta.category switch
+        {
+            PowerUpCategory.Damage => new Color(220, 50, 50), // Red
+            PowerUpCategory.DamageEffects => new Color(255, 140, 0), // Orange
+            PowerUpCategory.Health => new Color(50, 200, 50), // Green
+            PowerUpCategory.Speed => new Color(100, 200, 255), // Light Blue
+            PowerUpCategory.Utility => new Color(200, 200, 100), // Yellow
+            PowerUpCategory.Crit => new Color(200, 50, 200), // Magenta
+            PowerUpCategory.WeaponUnlock => new Color(150, 100, 255), // Purple
+            _ => Color.Gray,
+        };
+    }
+
+    private static string RarityAbbreviation(NodeRarity rarity) => rarity switch
+    {
+        NodeRarity.Common => "C",
+        NodeRarity.Rare => "R",
+        NodeRarity.Legendary => "L",
+        _ => "",
     };
+
+    private string CategoryAbbreviation(Node node)
+    {
+        if (!_nodeMetadata.TryGetValue(node, out var meta))
+            return "?";
+
+        return meta.category switch
+        {
+            PowerUpCategory.Damage => "DMG",
+            PowerUpCategory.DamageEffects => "FX",
+            PowerUpCategory.Health => "HP",
+            PowerUpCategory.Speed => "SPD",
+            PowerUpCategory.Utility => "UTL",
+            PowerUpCategory.Crit => "CRIT",
+            PowerUpCategory.WeaponUnlock => "WPN",
+            _ => "?",
+        };
+    }
 
     private static class Layers
     {
@@ -815,15 +931,4 @@ public class Editor : Game
         internal const float CreateNodeButton = 0.85f;
         internal const float CreateNodeText = 0.90f;
     }
-}
-
-internal static class Extensions
-{
-    internal static string DisplayName(this Type? type) => type switch
-    {
-        { IsGenericType: true } when type.GetGenericTypeDefinition() == typeof(WeaponUnlock<>) =>
-            $"{type.GetGenericArguments()[0].Name}Unlock",
-        null => "NULL",
-        _ => type.Name,
-    };
 }

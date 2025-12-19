@@ -107,7 +107,7 @@ internal class MainGameScene(
         builder.Register<SphereGrid>(ctx =>
         {
             var player = ctx.Resolve<PlayerCharacter>();
-            return GridFactory.Create(player.AddPowerUp);
+            return GridFactory.CreateRandom(player.AddPowerUp);
         }).SingleInstance();
 
         builder.RegisterType<ExperienceBarFactory>().SingleInstance();

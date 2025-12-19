@@ -32,7 +32,8 @@ internal class SphereGridUi(
     private readonly Texture2D _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNode.Large);
     private readonly Texture2D _gridNodeMedium = content.Load<Texture2D>(Paths.Images.GridNode.Medium);
     private readonly Texture2D _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode.Small);
-    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions = new SphereGridPositioner(grid).NodePositions();
+    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions =
+        new SphereGridPositioner(grid.Root).NodePositions();
     private readonly PowerUpIcons _powerUpIcons = new(content);
     private readonly FogOfWarMask _fog = new(graphicsDevice, (int)(SphereGridPositioner.HexRadius * 1.5f), Layers.Fog);
 
@@ -158,10 +159,10 @@ internal class SphereGridUi(
         }
     }
 
-    private Texture2D NodeTexture(Node node) => node.Cost switch
+    private Texture2D NodeTexture(Node node) => node.Rarity switch
     {
-        >= 3 => _gridNodeLarge,
-        2 => _gridNodeMedium,
+        NodeRarity.Legendary => _gridNodeLarge,
+        NodeRarity.Rare => _gridNodeMedium,
         _ => _gridNodeSmall,
     };
 

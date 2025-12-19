@@ -3,11 +3,10 @@ using Gameplay.Levelling.PowerUps;
 
 namespace Gameplay.Levelling.SphereGrid;
 
-public class Node(IPowerUp? powerUp, int level, int cost)
+public class Node(IPowerUp? powerUp, NodeRarity rarity)
 {
     private readonly Dictionary<EdgeDirection, Node> _neighbours = new();
-    public int Cost { get; } = cost;
-    public int Level { get; } = level;
+    public NodeRarity Rarity { get; } = rarity;
     public IPowerUp? PowerUp { get; } = powerUp;
 
     public IReadOnlyDictionary<EdgeDirection, Node> Neighbours => _neighbours;

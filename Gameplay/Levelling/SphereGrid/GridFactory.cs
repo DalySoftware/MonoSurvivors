@@ -1,367 +1,59 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gameplay.Levelling.PowerUps;
-using static Gameplay.Levelling.SphereGrid.NodeFactory;
-
-// ReSharper disable IdentifierTypo
 
 namespace Gameplay.Levelling.SphereGrid;
 
 public static class GridFactory
 {
-    public static SphereGrid Create(Action<IPowerUp> onUnlock)
+    private static SphereGrid CreateFromTemplate(
+        GridTemplate template,
+        Action<IPowerUp> onUnlock)
     {
-        var root = new Node(null, 0, 0);
-        var speedup0 = SpeedUp(1);
-        var attackspeedup1 = AttackSpeedUp(1);
-        var projectilespeedup2 = ProjectileSpeedUp(1);
-        var experienceup3 = ExperienceUp(1);
-        var critdamageup4 = CritDamageUp(1);
-        var critchanceup5 = CritChanceUp(1);
-        var maxhealthup6 = MaxHealthUp(1);
-        var explodeonkillup7 = ExplodeOnKillUp(1);
-        var experienceup8 = ExperienceUp(1);
-        var critchanceup9 = CritChanceUp(1);
-        var critdamageup10 = CritDamageUp(1);
-        var pickupradiusup11 = PickupRadiusUp(1);
-        var critchanceup12 = CritChanceUp(1);
-        var shotcountup13 = ShotCountUp(1);
-        var pickupradiusup14 = PickupRadiusUp(1);
-        var damageup15 = DamageUp(1);
-        var projectilespeedup16 = ProjectileSpeedUp(1);
-        var attackspeedup17 = AttackSpeedUp(1);
-        var damageup18 = DamageUp(1);
-        var experienceup19 = ExperienceUp(1);
-        var rangeup20 = RangeUp(1);
-        var projectilespeedup21 = ProjectileSpeedUp(1);
-        var damageup22 = DamageUp(3);
-        var pickupradiusup23 = PickupRadiusUp(1);
-        var rangeup24 = RangeUp(1);
-        var speedup25 = SpeedUp(1);
-        var attackspeedup26 = AttackSpeedUp(1);
-        var maxhealthup27 = MaxHealthUp(1);
-        var rangeup28 = RangeUp(1);
-        var pickupradiusup29 = PickupRadiusUp(3);
-        var projectilespeedup30 = ProjectileSpeedUp(1);
-        var experienceup31 = ExperienceUp(1);
-        var attackspeedup32 = AttackSpeedUp(1);
-        var critchanceup33 = CritChanceUp(1);
-        var projectilespeedup34 = ProjectileSpeedUp(1);
-        var maxhealthup35 = MaxHealthUp(1);
-        var experienceup36 = ExperienceUp(1);
-        var damageup37 = DamageUp(2);
-        var maxhealthup38 = MaxHealthUp(1);
-        var experienceup39 = ExperienceUp(1);
-        var attackspeedup40 = AttackSpeedUp(1);
-        var maxhealthup41 = MaxHealthUp(1);
-        var pickupradiusup42 = PickupRadiusUp(1);
-        var damageup43 = DamageUp(1);
-        var shotcountup44 = ShotCountUp(1);
-        var rangeup45 = RangeUp(1);
-        var damageup46 = DamageUp(1);
-        var speedup47 = SpeedUp(1);
-        var rangeup48 = RangeUp(1);
-        var critchanceup49 = CritChanceUp(1);
-        var critdamageup50 = CritDamageUp(1);
-        var experienceup51 = ExperienceUp(1);
-        var rangeup52 = RangeUp(1);
-        var lifestealup53 = LifeStealUp(2);
-        var speedup54 = SpeedUp(1);
-        var experienceup55 = ExperienceUp(1);
-        var attackspeedup56 = AttackSpeedUp(1);
-        var projectilespeedup57 = ProjectileSpeedUp(1);
-        var maxhealthup58 = MaxHealthUp(1);
-        var speedup59 = SpeedUp(1);
-        var attackspeedup60 = AttackSpeedUp(1);
-        var experienceup61 = ExperienceUp(1);
-        var projectilespeedup62 = ProjectileSpeedUp(1);
-        var maxhealthup63 = MaxHealthUp(3);
-        var rangeup64 = RangeUp(1);
-        var damageup65 = DamageUp(1);
-        var pickupradiusup66 = PickupRadiusUp(1);
-        var speedup67 = SpeedUp(1);
-        var shotcountup68 = ShotCountUp(1);
-        var experienceup69 = ExperienceUp(1);
-        var rangeup70 = RangeUp(1);
-        var damageup71 = DamageUp(1);
-        var attackspeedup72 = AttackSpeedUp(1);
-        var projectilespeedup73 = ProjectileSpeedUp(1);
-        var damageup74 = DamageUp(1);
-        var critchanceup75 = CritChanceUp(1);
-        var pierceup76 = PierceUp(1);
-        var experienceup77 = ExperienceUp(1);
-        var critchanceup78 = CritChanceUp(1);
-        var speedup79 = SpeedUp(1);
-        var rangeup80 = RangeUp(1);
-        var explodeonkillup81 = ExplodeOnKillUp(2);
-        var attackspeedup82 = AttackSpeedUp(1);
-        var rangeup83 = RangeUp(1);
-        var speedup84 = SpeedUp(1);
-        var shotgununlock85 = ShotgunUnlock(1);
-        var maxhealthup86 = MaxHealthUp(1);
-        var projectilespeedup87 = ProjectileSpeedUp(1);
-        var damageup88 = DamageUp(1);
-        var damageup89 = DamageUp(1);
-        var experienceup90 = ExperienceUp(1);
-        var critchanceup91 = CritChanceUp(1);
-        var pickupradiusup92 = PickupRadiusUp(1);
-        var pierceup93 = PierceUp(2);
-        var attackspeedup94 = AttackSpeedUp(1);
-        var critdamageup95 = CritDamageUp(1);
-        var projectilespeedup96 = ProjectileSpeedUp(1);
-        var attackspeedup97 = AttackSpeedUp(1);
-        var projectilespeedup98 = ProjectileSpeedUp(1);
-        var experienceup99 = ExperienceUp(1);
-        var experienceup100 = ExperienceUp(3);
-        var speedup101 = SpeedUp(1);
-        var pickupradiusup102 = PickupRadiusUp(1);
-        var maxhealthup103 = MaxHealthUp(1);
-        var speedup104 = SpeedUp(1);
-        var critchanceup105 = CritChanceUp(1);
-        var damageup106 = DamageUp(1);
-        var bulletsplitup107 = BulletSplitUp(2);
-        var pickupradiusup108 = PickupRadiusUp(1);
-        var experienceup109 = ExperienceUp(1);
-        var attackspeedup110 = AttackSpeedUp(1);
-        var experienceup111 = ExperienceUp(1);
-        var projectilespeedup112 = ProjectileSpeedUp(1);
-        var rangeup113 = RangeUp(1);
-        var pierceup114 = PierceUp(2);
-
-        root.SetNeighbour(EdgeDirection.TopLeft, experienceup69);
-        root.SetNeighbour(EdgeDirection.BottomRight, speedup54);
-        root.SetNeighbour(EdgeDirection.TopRight, maxhealthup38);
-        root.SetNeighbour(EdgeDirection.MiddleLeft, projectilespeedup30);
-        root.SetNeighbour(EdgeDirection.MiddleRight, pickupradiusup14);
-        root.SetNeighbour(EdgeDirection.BottomLeft, speedup0);
-        speedup0.SetNeighbour(EdgeDirection.BottomLeft, attackspeedup1);
-        speedup0.SetNeighbour(EdgeDirection.TopRight, root);
-        attackspeedup1.SetNeighbour(EdgeDirection.TopRight, speedup0);
-        attackspeedup1.SetNeighbour(EdgeDirection.MiddleLeft, experienceup8);
-        attackspeedup1.SetNeighbour(EdgeDirection.BottomLeft, projectilespeedup2);
-        projectilespeedup2.SetNeighbour(EdgeDirection.TopRight, attackspeedup1);
-        projectilespeedup2.SetNeighbour(EdgeDirection.BottomRight, experienceup3);
-        experienceup3.SetNeighbour(EdgeDirection.TopLeft, projectilespeedup2);
-        experienceup3.SetNeighbour(EdgeDirection.MiddleRight, critdamageup4);
-        experienceup3.SetNeighbour(EdgeDirection.BottomLeft, speedup104);
-        critdamageup4.SetNeighbour(EdgeDirection.MiddleLeft, experienceup3);
-        critdamageup4.SetNeighbour(EdgeDirection.TopRight, critchanceup5);
-        critchanceup5.SetNeighbour(EdgeDirection.BottomLeft, critdamageup4);
-        critchanceup5.SetNeighbour(EdgeDirection.TopLeft, maxhealthup6);
-        maxhealthup6.SetNeighbour(EdgeDirection.BottomRight, critchanceup5);
-        maxhealthup6.SetNeighbour(EdgeDirection.BottomLeft, explodeonkillup7);
-        explodeonkillup7.SetNeighbour(EdgeDirection.TopRight, maxhealthup6);
-        experienceup8.SetNeighbour(EdgeDirection.MiddleRight, attackspeedup1);
-        experienceup8.SetNeighbour(EdgeDirection.MiddleLeft, critchanceup9);
-        critchanceup9.SetNeighbour(EdgeDirection.MiddleRight, experienceup8);
-        critchanceup9.SetNeighbour(EdgeDirection.BottomLeft, critdamageup10);
-        critdamageup10.SetNeighbour(EdgeDirection.TopRight, critchanceup9);
-        critdamageup10.SetNeighbour(EdgeDirection.BottomRight, pickupradiusup11);
-        pickupradiusup11.SetNeighbour(EdgeDirection.TopLeft, critdamageup10);
-        pickupradiusup11.SetNeighbour(EdgeDirection.MiddleRight, critchanceup12);
-        critchanceup12.SetNeighbour(EdgeDirection.MiddleLeft, pickupradiusup11);
-        critchanceup12.SetNeighbour(EdgeDirection.TopLeft, shotcountup13);
-        shotcountup13.SetNeighbour(EdgeDirection.BottomRight, critchanceup12);
-        pickupradiusup14.SetNeighbour(EdgeDirection.MiddleRight, damageup15);
-        pickupradiusup14.SetNeighbour(EdgeDirection.MiddleLeft, root);
-        damageup15.SetNeighbour(EdgeDirection.MiddleLeft, pickupradiusup14);
-        damageup15.SetNeighbour(EdgeDirection.MiddleRight, projectilespeedup16);
-        projectilespeedup16.SetNeighbour(EdgeDirection.MiddleLeft, damageup15);
-        projectilespeedup16.SetNeighbour(EdgeDirection.MiddleRight, attackspeedup17);
-        attackspeedup17.SetNeighbour(EdgeDirection.MiddleLeft, projectilespeedup16);
-        attackspeedup17.SetNeighbour(EdgeDirection.TopRight, damageup18);
-        damageup18.SetNeighbour(EdgeDirection.BottomLeft, attackspeedup17);
-        damageup18.SetNeighbour(EdgeDirection.BottomRight, pickupradiusup23);
-        damageup18.SetNeighbour(EdgeDirection.TopLeft, experienceup19);
-        damageup18.SetNeighbour(EdgeDirection.MiddleRight, speedup101);
-        experienceup19.SetNeighbour(EdgeDirection.BottomRight, damageup18);
-        experienceup19.SetNeighbour(EdgeDirection.MiddleLeft, rangeup20);
-        rangeup20.SetNeighbour(EdgeDirection.MiddleRight, experienceup19);
-        rangeup20.SetNeighbour(EdgeDirection.BottomLeft, projectilespeedup21);
-        projectilespeedup21.SetNeighbour(EdgeDirection.TopRight, rangeup20);
-        projectilespeedup21.SetNeighbour(EdgeDirection.MiddleRight, damageup22);
-        damageup22.SetNeighbour(EdgeDirection.MiddleLeft, projectilespeedup21);
-        pickupradiusup23.SetNeighbour(EdgeDirection.TopLeft, damageup18);
-        pickupradiusup23.SetNeighbour(EdgeDirection.BottomLeft, rangeup24);
-        rangeup24.SetNeighbour(EdgeDirection.TopRight, pickupradiusup23);
-        rangeup24.SetNeighbour(EdgeDirection.BottomRight, speedup25);
-        speedup25.SetNeighbour(EdgeDirection.MiddleRight, attackspeedup26);
-        speedup25.SetNeighbour(EdgeDirection.TopLeft, rangeup24);
-        attackspeedup26.SetNeighbour(EdgeDirection.TopRight, maxhealthup27);
-        attackspeedup26.SetNeighbour(EdgeDirection.MiddleLeft, speedup25);
-        maxhealthup27.SetNeighbour(EdgeDirection.BottomLeft, attackspeedup26);
-        maxhealthup27.SetNeighbour(EdgeDirection.TopLeft, rangeup28);
-        rangeup28.SetNeighbour(EdgeDirection.BottomRight, maxhealthup27);
-        rangeup28.SetNeighbour(EdgeDirection.BottomLeft, pickupradiusup29);
-        pickupradiusup29.SetNeighbour(EdgeDirection.TopRight, rangeup28);
-        projectilespeedup30.SetNeighbour(EdgeDirection.MiddleRight, root);
-        projectilespeedup30.SetNeighbour(EdgeDirection.BottomLeft, experienceup31);
-        experienceup31.SetNeighbour(EdgeDirection.TopRight, projectilespeedup30);
-        experienceup31.SetNeighbour(EdgeDirection.MiddleLeft, attackspeedup32);
-        attackspeedup32.SetNeighbour(EdgeDirection.MiddleRight, experienceup31);
-        attackspeedup32.SetNeighbour(EdgeDirection.MiddleLeft, critchanceup33);
-        critchanceup33.SetNeighbour(EdgeDirection.MiddleRight, attackspeedup32);
-        critchanceup33.SetNeighbour(EdgeDirection.TopLeft, projectilespeedup34);
-        critchanceup33.SetNeighbour(EdgeDirection.MiddleLeft, attackspeedup82);
-        projectilespeedup34.SetNeighbour(EdgeDirection.BottomRight, critchanceup33);
-        projectilespeedup34.SetNeighbour(EdgeDirection.TopRight, maxhealthup35);
-        maxhealthup35.SetNeighbour(EdgeDirection.BottomLeft, projectilespeedup34);
-        maxhealthup35.SetNeighbour(EdgeDirection.BottomRight, experienceup36);
-        experienceup36.SetNeighbour(EdgeDirection.TopLeft, maxhealthup35);
-        experienceup36.SetNeighbour(EdgeDirection.MiddleRight, damageup37);
-        damageup37.SetNeighbour(EdgeDirection.MiddleLeft, experienceup36);
-        maxhealthup38.SetNeighbour(EdgeDirection.BottomLeft, root);
-        maxhealthup38.SetNeighbour(EdgeDirection.MiddleRight, rangeup45);
-        maxhealthup38.SetNeighbour(EdgeDirection.TopLeft, experienceup39);
-        experienceup39.SetNeighbour(EdgeDirection.BottomRight, maxhealthup38);
-        experienceup39.SetNeighbour(EdgeDirection.TopLeft, attackspeedup40);
-        attackspeedup40.SetNeighbour(EdgeDirection.TopLeft, maxhealthup41);
-        attackspeedup40.SetNeighbour(EdgeDirection.BottomRight, experienceup39);
-        maxhealthup41.SetNeighbour(EdgeDirection.TopRight, pickupradiusup42);
-        maxhealthup41.SetNeighbour(EdgeDirection.BottomRight, attackspeedup40);
-        pickupradiusup42.SetNeighbour(EdgeDirection.MiddleRight, damageup43);
-        pickupradiusup42.SetNeighbour(EdgeDirection.BottomLeft, maxhealthup41);
-        damageup43.SetNeighbour(EdgeDirection.MiddleLeft, pickupradiusup42);
-        damageup43.SetNeighbour(EdgeDirection.BottomLeft, shotcountup44);
-        shotcountup44.SetNeighbour(EdgeDirection.TopRight, damageup43);
-        rangeup45.SetNeighbour(EdgeDirection.MiddleLeft, maxhealthup38);
-        rangeup45.SetNeighbour(EdgeDirection.TopRight, damageup46);
-        damageup46.SetNeighbour(EdgeDirection.BottomLeft, rangeup45);
-        damageup46.SetNeighbour(EdgeDirection.TopRight, speedup47);
-        speedup47.SetNeighbour(EdgeDirection.BottomLeft, damageup46);
-        speedup47.SetNeighbour(EdgeDirection.TopLeft, critchanceup49);
-        speedup47.SetNeighbour(EdgeDirection.TopRight, rangeup48);
-        speedup47.SetNeighbour(EdgeDirection.MiddleRight, critchanceup91);
-        rangeup48.SetNeighbour(EdgeDirection.BottomLeft, speedup47);
-        rangeup48.SetNeighbour(EdgeDirection.TopRight, attackspeedup110);
-        critchanceup49.SetNeighbour(EdgeDirection.MiddleLeft, critdamageup50);
-        critchanceup49.SetNeighbour(EdgeDirection.BottomRight, speedup47);
-        critdamageup50.SetNeighbour(EdgeDirection.BottomLeft, experienceup51);
-        critdamageup50.SetNeighbour(EdgeDirection.MiddleRight, critchanceup49);
-        experienceup51.SetNeighbour(EdgeDirection.TopRight, critdamageup50);
-        experienceup51.SetNeighbour(EdgeDirection.BottomRight, rangeup52);
-        rangeup52.SetNeighbour(EdgeDirection.TopLeft, experienceup51);
-        rangeup52.SetNeighbour(EdgeDirection.TopRight, lifestealup53);
-        lifestealup53.SetNeighbour(EdgeDirection.BottomLeft, rangeup52);
-        speedup54.SetNeighbour(EdgeDirection.TopLeft, root);
-        speedup54.SetNeighbour(EdgeDirection.MiddleRight, experienceup55);
-        experienceup55.SetNeighbour(EdgeDirection.MiddleLeft, speedup54);
-        experienceup55.SetNeighbour(EdgeDirection.MiddleRight, attackspeedup56);
-        attackspeedup56.SetNeighbour(EdgeDirection.MiddleLeft, experienceup55);
-        attackspeedup56.SetNeighbour(EdgeDirection.BottomRight, rangeup64);
-        attackspeedup56.SetNeighbour(EdgeDirection.MiddleRight, projectilespeedup57);
-        projectilespeedup57.SetNeighbour(EdgeDirection.MiddleLeft, attackspeedup56);
-        projectilespeedup57.SetNeighbour(EdgeDirection.BottomRight, maxhealthup58);
-        maxhealthup58.SetNeighbour(EdgeDirection.TopLeft, projectilespeedup57);
-        maxhealthup58.SetNeighbour(EdgeDirection.BottomLeft, speedup59);
-        speedup59.SetNeighbour(EdgeDirection.TopRight, maxhealthup58);
-        speedup59.SetNeighbour(EdgeDirection.BottomRight, attackspeedup60);
-        attackspeedup60.SetNeighbour(EdgeDirection.MiddleRight, experienceup61);
-        attackspeedup60.SetNeighbour(EdgeDirection.TopLeft, speedup59);
-        experienceup61.SetNeighbour(EdgeDirection.MiddleLeft, attackspeedup60);
-        experienceup61.SetNeighbour(EdgeDirection.TopRight, projectilespeedup62);
-        projectilespeedup62.SetNeighbour(EdgeDirection.BottomLeft, experienceup61);
-        projectilespeedup62.SetNeighbour(EdgeDirection.MiddleLeft, maxhealthup63);
-        maxhealthup63.SetNeighbour(EdgeDirection.MiddleRight, projectilespeedup62);
-        rangeup64.SetNeighbour(EdgeDirection.TopLeft, attackspeedup56);
-        rangeup64.SetNeighbour(EdgeDirection.BottomLeft, damageup65);
-        damageup65.SetNeighbour(EdgeDirection.TopRight, rangeup64);
-        damageup65.SetNeighbour(EdgeDirection.MiddleLeft, pickupradiusup66);
-        damageup65.SetNeighbour(EdgeDirection.BottomLeft, attackspeedup97);
-        pickupradiusup66.SetNeighbour(EdgeDirection.MiddleRight, damageup65);
-        pickupradiusup66.SetNeighbour(EdgeDirection.TopLeft, speedup67);
-        speedup67.SetNeighbour(EdgeDirection.BottomRight, pickupradiusup66);
-        speedup67.SetNeighbour(EdgeDirection.MiddleRight, shotcountup68);
-        shotcountup68.SetNeighbour(EdgeDirection.MiddleLeft, speedup67);
-        experienceup69.SetNeighbour(EdgeDirection.BottomRight, root);
-        experienceup69.SetNeighbour(EdgeDirection.TopLeft, rangeup70);
-        rangeup70.SetNeighbour(EdgeDirection.BottomRight, experienceup69);
-        rangeup70.SetNeighbour(EdgeDirection.TopLeft, damageup71);
-        damageup71.SetNeighbour(EdgeDirection.BottomRight, rangeup70);
-        damageup71.SetNeighbour(EdgeDirection.MiddleLeft, attackspeedup72);
-        attackspeedup72.SetNeighbour(EdgeDirection.MiddleRight, damageup71);
-        attackspeedup72.SetNeighbour(EdgeDirection.TopLeft, experienceup77);
-        attackspeedup72.SetNeighbour(EdgeDirection.BottomLeft, projectilespeedup73);
-        projectilespeedup73.SetNeighbour(EdgeDirection.TopRight, attackspeedup72);
-        projectilespeedup73.SetNeighbour(EdgeDirection.BottomRight, damageup74);
-        damageup74.SetNeighbour(EdgeDirection.TopLeft, projectilespeedup73);
-        damageup74.SetNeighbour(EdgeDirection.MiddleRight, critchanceup75);
-        critchanceup75.SetNeighbour(EdgeDirection.MiddleLeft, damageup74);
-        critchanceup75.SetNeighbour(EdgeDirection.TopLeft, pierceup76);
-        pierceup76.SetNeighbour(EdgeDirection.BottomRight, critchanceup75);
-        experienceup77.SetNeighbour(EdgeDirection.BottomRight, attackspeedup72);
-        experienceup77.SetNeighbour(EdgeDirection.MiddleLeft, rangeup80);
-        experienceup77.SetNeighbour(EdgeDirection.TopRight, speedup79);
-        critchanceup78.SetNeighbour(EdgeDirection.MiddleLeft, speedup79);
-        critchanceup78.SetNeighbour(EdgeDirection.BottomLeft, explodeonkillup81);
-        speedup79.SetNeighbour(EdgeDirection.BottomLeft, experienceup77);
-        speedup79.SetNeighbour(EdgeDirection.MiddleRight, critchanceup78);
-        rangeup80.SetNeighbour(EdgeDirection.MiddleRight, experienceup77);
-        explodeonkillup81.SetNeighbour(EdgeDirection.TopRight, critchanceup78);
-        attackspeedup82.SetNeighbour(EdgeDirection.MiddleRight, critchanceup33);
-        attackspeedup82.SetNeighbour(EdgeDirection.MiddleLeft, speedup84);
-        attackspeedup82.SetNeighbour(EdgeDirection.TopLeft, damageup89);
-        rangeup83.SetNeighbour(EdgeDirection.MiddleLeft, projectilespeedup87);
-        rangeup83.SetNeighbour(EdgeDirection.TopRight, damageup88);
-        speedup84.SetNeighbour(EdgeDirection.MiddleRight, attackspeedup82);
-        speedup84.SetNeighbour(EdgeDirection.BottomLeft, maxhealthup86);
-        shotgununlock85.SetNeighbour(EdgeDirection.MiddleRight, damageup88);
-        maxhealthup86.SetNeighbour(EdgeDirection.BottomRight, projectilespeedup87);
-        maxhealthup86.SetNeighbour(EdgeDirection.TopRight, speedup84);
-        projectilespeedup87.SetNeighbour(EdgeDirection.TopLeft, maxhealthup86);
-        projectilespeedup87.SetNeighbour(EdgeDirection.MiddleRight, rangeup83);
-        damageup88.SetNeighbour(EdgeDirection.BottomLeft, rangeup83);
-        damageup88.SetNeighbour(EdgeDirection.MiddleLeft, shotgununlock85);
-        damageup89.SetNeighbour(EdgeDirection.BottomRight, attackspeedup82);
-        damageup89.SetNeighbour(EdgeDirection.TopRight, experienceup90);
-        experienceup90.SetNeighbour(EdgeDirection.BottomLeft, damageup89);
-        critchanceup91.SetNeighbour(EdgeDirection.MiddleLeft, speedup47);
-        critchanceup91.SetNeighbour(EdgeDirection.TopRight, pickupradiusup92);
-        pickupradiusup92.SetNeighbour(EdgeDirection.BottomLeft, critchanceup91);
-        pickupradiusup92.SetNeighbour(EdgeDirection.MiddleRight, attackspeedup94);
-        pierceup93.SetNeighbour(EdgeDirection.BottomRight, projectilespeedup96);
-        attackspeedup94.SetNeighbour(EdgeDirection.MiddleLeft, pickupradiusup92);
-        attackspeedup94.SetNeighbour(EdgeDirection.BottomRight, critdamageup95);
-        critdamageup95.SetNeighbour(EdgeDirection.TopLeft, attackspeedup94);
-        critdamageup95.SetNeighbour(EdgeDirection.BottomLeft, projectilespeedup96);
-        projectilespeedup96.SetNeighbour(EdgeDirection.TopRight, critdamageup95);
-        projectilespeedup96.SetNeighbour(EdgeDirection.TopLeft, pierceup93);
-        attackspeedup97.SetNeighbour(EdgeDirection.TopRight, damageup65);
-        attackspeedup97.SetNeighbour(EdgeDirection.BottomRight, projectilespeedup98);
-        projectilespeedup98.SetNeighbour(EdgeDirection.TopLeft, attackspeedup97);
-        projectilespeedup98.SetNeighbour(EdgeDirection.MiddleRight, experienceup99);
-        experienceup99.SetNeighbour(EdgeDirection.MiddleLeft, projectilespeedup98);
-        experienceup99.SetNeighbour(EdgeDirection.TopLeft, experienceup100);
-        experienceup100.SetNeighbour(EdgeDirection.BottomRight, experienceup99);
-        speedup101.SetNeighbour(EdgeDirection.MiddleLeft, damageup18);
-        speedup101.SetNeighbour(EdgeDirection.TopRight, pickupradiusup102);
-        speedup101.SetNeighbour(EdgeDirection.MiddleRight, maxhealthup103);
-        pickupradiusup102.SetNeighbour(EdgeDirection.BottomLeft, speedup101);
-        maxhealthup103.SetNeighbour(EdgeDirection.MiddleLeft, speedup101);
-        speedup104.SetNeighbour(EdgeDirection.TopRight, experienceup3);
-        speedup104.SetNeighbour(EdgeDirection.BottomLeft, damageup106);
-        speedup104.SetNeighbour(EdgeDirection.BottomRight, critchanceup105);
-        critchanceup105.SetNeighbour(EdgeDirection.TopLeft, speedup104);
-        critchanceup105.SetNeighbour(EdgeDirection.MiddleRight, pickupradiusup108);
-        damageup106.SetNeighbour(EdgeDirection.TopRight, speedup104);
-        bulletsplitup107.SetNeighbour(EdgeDirection.MiddleRight, experienceup109);
-        pickupradiusup108.SetNeighbour(EdgeDirection.TopRight, experienceup109);
-        pickupradiusup108.SetNeighbour(EdgeDirection.MiddleLeft, critchanceup105);
-        experienceup109.SetNeighbour(EdgeDirection.BottomLeft, pickupradiusup108);
-        experienceup109.SetNeighbour(EdgeDirection.MiddleLeft, bulletsplitup107);
-        attackspeedup110.SetNeighbour(EdgeDirection.BottomLeft, rangeup48);
-        attackspeedup110.SetNeighbour(EdgeDirection.TopLeft, experienceup111);
-        experienceup111.SetNeighbour(EdgeDirection.BottomRight, attackspeedup110);
-        experienceup111.SetNeighbour(EdgeDirection.MiddleLeft, projectilespeedup112);
-        projectilespeedup112.SetNeighbour(EdgeDirection.MiddleRight, experienceup111);
-        projectilespeedup112.SetNeighbour(EdgeDirection.BottomLeft, rangeup113);
-        rangeup113.SetNeighbour(EdgeDirection.TopRight, projectilespeedup112);
-        rangeup113.SetNeighbour(EdgeDirection.MiddleRight, pierceup114);
-        pierceup114.SetNeighbour(EdgeDirection.MiddleLeft, rangeup113);
-
-
-        return new SphereGrid(root)
+        var nodeMap = CreateNodes(template);
+        WireEdges(template, nodeMap);
+        return new SphereGrid(nodeMap[template.RootId])
         {
             OnUnlock = onUnlock,
         };
     }
+
+    private static Dictionary<int, Node> CreateNodes(GridTemplate template)
+    {
+        var map = new Dictionary<int, Node>();
+
+        foreach (var nt in template.Nodes)
+        {
+            // Pick a concrete power-up for this node
+            var node = PowerUpRandomizer.Pick(nt.Category, nt.Rarity);
+            map.Add(nt.Id, node);
+        }
+
+        return map;
+    }
+
+    private static void WireEdges(
+        GridTemplate template,
+        Dictionary<int, Node> nodeMap)
+    {
+        foreach (var nt in template.Nodes)
+        {
+            var from = nodeMap[nt.Id];
+
+            foreach (var (direction, targetId) in nt.Neighbours)
+            {
+                var to = nodeMap[targetId];
+
+                // Prevent double-wiring if template contains both sides
+                if (from.GetNeighbour(direction) != null)
+                    continue;
+
+                from.SetNeighbour(direction, to);
+                to.SetNeighbour(direction.Opposite(), from);
+            }
+        }
+    }
+
+    public static SphereGrid CreateRandom(Action<IPowerUp> onUnlock) =>
+        CreateFromTemplate(TemplateFactory.CreateTemplate(), onUnlock);
 }
