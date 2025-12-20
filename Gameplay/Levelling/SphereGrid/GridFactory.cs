@@ -22,10 +22,11 @@ public static class GridFactory
     {
         var map = new Dictionary<int, Node>();
 
+        var randomizer = new PowerUpRandomizer();
         foreach (var nt in template.Nodes)
         {
             // Pick a concrete power-up for this node
-            var node = PowerUpRandomizer.Pick(nt.Category, nt.Rarity);
+            var node = randomizer.Pick(nt.Category, nt.Rarity);
             map.Add(nt.Id, node);
         }
 

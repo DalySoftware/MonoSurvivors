@@ -4,7 +4,7 @@ using Gameplay.Levelling.SphereGrid;
 
 namespace Tests;
 
-public class PowerUpRandomizerTests
+public class SphereGridGenerationTests
 {
     [Test]
     public async Task PowerUpRandomizer_HasAFactoryRegistered_ForEveryPowerUp()
@@ -33,5 +33,17 @@ public class PowerUpRandomizerTests
             .Count(n => n.PowerUp?.GetType().IsGenericType == true &&
                         n.PowerUp.GetType().GetGenericTypeDefinition() == typeof(WeaponUnlock<>))
             .IsEqualTo(weaponUnlocks.Length);
+    }
+
+    [Test]
+    public async Task RandomSphereGrid_OnlyIncludesEachWeaponOnce()
+    {
+        var weapons = PowerUpCatalog.Categories.Where(kvp => kvp.Value == PowerUpCategory.WeaponUnlock)
+            .Select(kvp => kvp.Key);
+
+        var grid = GridFactory.CreateRandom(_ => { });
+
+        await Assert.That(weapons)
+            .All(w => grid.Nodes.Count(n => n.PowerUp?.GetType() == w) == 1);
     }
 }

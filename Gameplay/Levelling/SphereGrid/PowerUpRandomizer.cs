@@ -4,10 +4,8 @@ using Gameplay.Levelling.PowerUps;
 
 namespace Gameplay.Levelling.SphereGrid;
 
-internal static class PowerUpRandomizer
+internal class PowerUpRandomizer
 {
-    private readonly static Random Rng = new();
-
     internal readonly static Dictionary<PowerUpCategory, Func<NodeRarity, Node>[]> Factories =
         new()
         {
@@ -60,13 +58,26 @@ internal static class PowerUpRandomizer
                 NodeFactory.DamageAuraUnlock,
             ],
         };
+    private readonly Random _random = new();
+    private readonly List<Func<NodeRarity, Node>> _remainingWeaponUnlocks = [..Factories[PowerUpCategory.WeaponUnlock]];
 
-    internal static Node Pick(PowerUpCategory category, NodeRarity rarity)
+    public Node Pick(PowerUpCategory category, NodeRarity rarity)
     {
+        if (category == PowerUpCategory.WeaponUnlock)
+        {
+            if (_remainingWeaponUnlocks.Count == 0)
+                throw new InvalidOperationException("All weapon unlocks already used.");
+
+            var index = _random.Next(_remainingWeaponUnlocks.Count);
+            var factory = _remainingWeaponUnlocks[index];
+            _remainingWeaponUnlocks.RemoveAt(index);
+
+            return factory(rarity);
+        }
+
         if (!Factories.TryGetValue(category, out var options) || options.Length == 0)
             throw new InvalidOperationException($"No power-ups registered for category {category}");
 
-        var factory = options[Rng.Next(options.Length)];
-        return factory(rarity);
+        return options[_random.Next(options.Length)](rarity);
     }
 }
