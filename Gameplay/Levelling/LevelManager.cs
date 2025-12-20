@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Entities;
 using Gameplay.Levelling.SphereGrid;
@@ -11,20 +12,20 @@ public class LevelManager
     private readonly PlayerCharacter _player;
     private readonly IGlobalCommands _globalCommands;
     private readonly SphereGrid.SphereGrid _sphereGrid;
+    private readonly IPlayTime _playTime;
 
     private int _lastSeenPlayerLevel = 1;
 
     private HashSet<Node> _lastSeenUnlockables = [];
 
-    public LevelManager(PlayerCharacter player, IGlobalCommands globalCommands, SphereGrid.SphereGrid sphereGrid)
+    public LevelManager(PlayerCharacter player, IGlobalCommands globalCommands, SphereGrid.SphereGrid sphereGrid,
+        IPlayTime playTime, LevelCalculator levelCalculator)
     {
         _player = player;
         _globalCommands = globalCommands;
         _sphereGrid = sphereGrid;
-
-        const float baseRequirement = 10f;
-        const float growthFactor = 1.26f;
-        _levelCalculator = new LevelCalculator(baseRequirement, growthFactor);
+        _playTime = playTime;
+        _levelCalculator = levelCalculator;
 
         _player.OnExperienceGain -= OnExperienceGain;
         _player.OnExperienceGain += OnExperienceGain;
@@ -46,6 +47,9 @@ public class LevelManager
     private void OnLevelUp(int levelsGained)
     {
         _sphereGrid.AddSkillPoints(levelsGained);
+
+        if (_playTime.TimeSinceRunStart > TimeSpan.FromMinutes(5)) return; // stop auto opening
+
         var unlockables = _sphereGrid.Unlockable.ToHashSet();
         var anythingHasChanged = !unlockables.SetEquals(_lastSeenUnlockables);
         if (unlockables.Count > 0 && anythingHasChanged)

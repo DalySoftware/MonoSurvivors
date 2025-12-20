@@ -7,7 +7,7 @@ namespace Gameplay.Levelling;
 ///     How much experience is required to level up from one level to the next.
 ///     <example><c>1.5f</c> means we require 50% more than the previous level</example>
 /// </param>
-internal class LevelCalculator(float baseRequirement, float growthFactor)
+public class LevelCalculator(float baseRequirement, float growthFactor)
 {
     internal int GetLevel(float totalExperience)
         // would need updating if we ever need negative exp
