@@ -19,7 +19,7 @@ internal class HealthBar(ContentManager content, PlayerCharacter player)
     internal void Draw(SpriteBatch spriteBatch)
     {
         var currentHealth = player.Health;
-        var maxHealth = player.MaxHealth;
+        var maxHealth = player.Stats.MaxHealth;
 
         // NB: integer maths
         var totalHearts = (maxHealth + 1) / 2;

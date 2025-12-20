@@ -37,7 +37,7 @@ public class Experience : MovableEntity, IPickup, ISpriteVisual
 
     public override void Update(GameTime gameTime)
     {
-        Velocity = _followEntity.CalculateVelocity() * _player.PickupRadiusMultiplier;
+        Velocity = _followEntity.CalculateVelocity() * _player.Stats.PickupRadiusMultiplier;
         base.Update(gameTime);
     }
 }

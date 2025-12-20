@@ -8,7 +8,7 @@ public class HealthRegenManager
     private readonly TimeSpan _baseCooldown = TimeSpan.FromMinutes(1.5);
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
 
-    internal void Update(GameTime gameTime, PlayerCharacter player)
+    internal void Update(GameTime gameTime, PlayerStats player)
     {
         _remainingCooldown -= gameTime.ElapsedGameTime;
         if (_remainingCooldown > TimeSpan.Zero) return;

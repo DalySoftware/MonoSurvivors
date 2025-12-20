@@ -82,6 +82,7 @@ internal class MainGameScene(
 
         builder.RegisterType<HealthRegenManager>().SingleInstance();
 
+        builder.RegisterType<PlayerStats>().SingleInstance();
         builder.RegisterType<PlayerCharacter>().SingleInstance()
             .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
             .OnActivated(a => a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance));
