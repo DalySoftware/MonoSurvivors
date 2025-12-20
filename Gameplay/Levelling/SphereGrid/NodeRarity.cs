@@ -4,5 +4,5 @@ public enum NodeRarity
 {
     Common,
     Rare,
-    Legendary
+    Legendary,
 }

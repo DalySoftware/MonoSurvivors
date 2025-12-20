@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gameplay.Levelling.PowerUps;
 
 namespace Gameplay.Levelling.SphereGrid;
@@ -23,12 +24,15 @@ public static class GridFactory
         var map = new Dictionary<int, Node>();
 
         var randomizer = new PowerUpRandomizer();
-        foreach (var nt in template.Nodes)
+        foreach (var nt in template.Nodes.Where(n => n.Id != template.RootId))
         {
             // Pick a concrete power-up for this node
             var node = randomizer.Pick(nt.Category, nt.Rarity);
             map.Add(nt.Id, node);
         }
+
+        var rootNode = new Node(null, NodeRarity.Common);
+        map.Add(template.RootId, rootNode);
 
         return map;
     }
