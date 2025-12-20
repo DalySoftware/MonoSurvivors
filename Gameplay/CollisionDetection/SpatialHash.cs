@@ -7,6 +7,8 @@ internal class SpatialHash<T>(float cellSize)
 {
     private readonly Dictionary<(int, int), List<T>> _grid = [];
 
+    internal float CellSize => cellSize;
+
     public void Insert(T item)
     {
         var cells = GetCells(item);
@@ -41,13 +43,15 @@ internal class SpatialHash<T>(float cellSize)
         }
     }
 
+    public void Clear() => _grid.Clear();
+
     private (int x, int y) GetCell(Vector2 position) => ((int)(position.X / cellSize), (int)(position.Y / cellSize));
 
     private IEnumerable<(int x, int y)> GetCells(T item) => item.Collider switch
     {
         CircleCollider circle => GetCircleCells(circle),
         RectangleCollider rect => GetRectangleCells(rect),
-        var unmatched => [GetCell(unmatched.Position)]
+        var unmatched => [GetCell(unmatched.Position)],
     };
 
     private IEnumerable<(int x, int y)> GetCircleCells(CircleCollider circle)
