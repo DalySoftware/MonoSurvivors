@@ -34,6 +34,7 @@ public static class PowerUpCatalog
 
         // Speed
         [typeof(SpeedUp)] = PowerUpCategory.Speed,
+        [typeof(DodgeChanceUp)] = PowerUpCategory.Speed,
 
         // Utility
         [typeof(PickupRadiusUp)] = PowerUpCategory.Utility,
@@ -61,6 +62,7 @@ public static class PowerUpCatalog
             CritChanceUp => "Increase Critical Hit Chance",
             CritDamageUp => "Increase Critical Hit Damage",
             DamageUp => "Increase Damage",
+            DodgeChanceUp => "Increase DodgeChance",
             ExperienceUp => "Increase Experience Multiplier",
             ExplodeOnKillUp => "Increase on kill explosion",
             HealthRegenUp => "Increase Health Regen",
@@ -80,17 +82,13 @@ public static class PowerUpCatalog
 
         public string Description() => powerUp switch
         {
-            MaxHealthUp maxHealthUp => $"Increase Max Health by {(maxHealthUp.Value / 2).HeartLabel()}",
-            HealthRegenUp => "Increase Health Regen",
-            SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
-            PickupRadiusUp pickupRadiusUp => $"Increase Pickup Radius by {pickupRadiusUp.Value:P0}",
-            DamageUp damageUp => $"Increase Damage by {damageUp.Value:P0}",
             AttackSpeedUp attackSpeedUp => $"Increase Attack Speed by {attackSpeedUp.Value:P0}",
             BulletSplitUp => "Increase Bullet Split",
             ChainLightningUp => "Increase chance to trigger chain lightning on hit",
             CritChanceUp critChanceUp => $"Increase Critical Hit Chance by {critChanceUp.Value:P0}",
             CritDamageUp critDamageUp => $"Increase Critical Hit Damage by {critDamageUp.Value:P0}",
             DamageUp damageUp => $"Increase Damage by {damageUp.Value:P0}",
+            DodgeChanceUp dodgeChangeUp => $"Increase Dodge Chance by {dodgeChangeUp.Value:P0}",
             ExperienceUp experienceUp => $"Increase Experience Multiplier by {experienceUp.Value:P0}",
             ExplodeOnKillUp => "Increase explosion size on kill",
             HealthRegenUp => "Increase Health Regen",
@@ -174,6 +172,7 @@ public class PowerUpIcons(ContentManager content)
         CritChanceUp => _critChance,
         CritDamageUp => _critDamage,
         DamageUp => _damage,
+
         ExperienceUp => _experience,
         LifeStealUp => _lifeSteal,
         MaxHealthUp => _maxHealth,
@@ -185,6 +184,7 @@ public class PowerUpIcons(ContentManager content)
         SpeedUp => _speed,
         BulletSplitUp => _shotCount, // todo icons for all below
         ChainLightningUp => _shotCount,
+        DodgeChanceUp => _shotCount,
         ExplodeOnKillUp => _shotCount,
         HealthRegenUp => _shotCount,
         WeaponUnlock<Shotgun> => _shotCount,

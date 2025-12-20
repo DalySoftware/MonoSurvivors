@@ -22,14 +22,14 @@ public class PlayerStats
     {
         switch (powerUp)
         {
-            case PickupRadiusUp radiusUp:
-                PickupRadiusMultiplier += radiusUp.Value;
+            case DodgeChanceUp dodgeChanceUp:
+                DodgeChance += dodgeChanceUp.Value;
                 break;
-            case SpeedUp speedUp:
-                _speedMultiplier += speedUp.Value;
+            case ExperienceUp experienceUp:
+                ExperienceMultiplier += experienceUp.Value;
                 break;
-            case MaxHealthUp maxHealthUp:
-                MaxHealth += maxHealthUp.Value;
+            case ExplodeOnKillUp explodeOnKillUp:
+                EnemyDeathExplosionBullets += explodeOnKillUp.Bullets;
                 break;
             case HealthRegenUp healthRegenUp:
                 HealthRegen += healthRegenUp.Value;
@@ -37,11 +37,14 @@ public class PlayerStats
             case LifeStealUp lifeStealUp:
                 _lifeSteal += lifeStealUp.Value;
                 break;
-            case ExperienceUp experienceUp:
-                ExperienceMultiplier += experienceUp.Value;
+            case MaxHealthUp maxHealthUp:
+                MaxHealth += maxHealthUp.Value;
                 break;
-            case ExplodeOnKillUp explodeOnKillUp:
-                EnemyDeathExplosionBullets += explodeOnKillUp.Bullets;
+            case PickupRadiusUp radiusUp:
+                PickupRadiusMultiplier += radiusUp.Value;
+                break;
+            case SpeedUp speedUp:
+                _speedMultiplier += speedUp.Value;
                 break;
         }
     }

@@ -36,6 +36,7 @@ internal static class PowerUpRandomizer
             [PowerUpCategory.Speed] =
             [
                 NodeFactory.SpeedUp,
+                NodeFactory.DodgeChanceUp,
             ],
 
             [PowerUpCategory.Utility] =

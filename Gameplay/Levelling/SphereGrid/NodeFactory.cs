@@ -58,6 +58,7 @@ internal static class NodeFactory
     internal static Node CritDamageUp(NodeRarity rarity) => CreateNode(rarity, s => new CritDamageUp(s * 0.1f));
     internal static Node DamageAuraUnlock(NodeRarity rarity) => new(new WeaponUnlock<DamageAura>(), rarity);
     internal static Node DamageUp(NodeRarity rarity) => CreateNode(rarity, s => new DamageUp(s * 0.25f));
+    internal static Node DodgeChanceUp(NodeRarity rarity) => CreateNode(rarity, s => new DodgeChanceUp(s * 0.3f));
     internal static Node ExperienceUp(NodeRarity rarity) => CreateNode(rarity, s => new ExperienceUp(s * 0.2f));
     internal static Node ExplodeOnKillUp(NodeRarity rarity) => CreateNode(rarity, s => new ExplodeOnKillUp((int)s * 3));
     internal static Node HealthRegenUp(NodeRarity rarity) => CreateNode(rarity, s => new HealthRegenUp((int)s));
