@@ -54,6 +54,8 @@ public class PlayerCharacter(
     {
         if (_invincibilityDuration > TimeSpan.Zero) return;
 
+        if (Random.Shared.NextSingle() < Stats.DodgeChance) return;
+
         Health -= damage;
         _invincibilityDuration = _invincibilityOnHit;
         effectManager.FireEffect(this, new GreyscaleEffect(_invincibilityOnHit));
