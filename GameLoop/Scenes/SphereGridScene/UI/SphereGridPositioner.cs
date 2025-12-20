@@ -10,16 +10,17 @@ internal class SphereGridPositioner(Node root)
 {
     internal const float HexRadius = 160f;
 
-    private readonly Dictionary<Node, Vector2>? _cached = null;
+    private readonly NodePositionMap? _cached = null;
 
-    internal IReadOnlyDictionary<Node, Vector2> NodePositions() => _cached ?? CalculateNodePositions();
+    internal NodePositionMap NodePositions() => _cached ?? CalculateNodePositions();
 
-    private Dictionary<Node, Vector2> CalculateNodePositions()
+    private NodePositionMap CalculateNodePositions()
     {
-        var positions = new Dictionary<Node, Vector2>();
-
-        // Place root node at origin
-        positions[root] = Vector2.Zero;
+        var positions = new Dictionary<Node, Vector2>
+        {
+            // Place root node at origin
+            [root] = Vector2.Zero,
+        };
 
         var visited = new HashSet<Node>();
         var queue = new Queue<Node>();
@@ -44,10 +45,10 @@ internal class SphereGridPositioner(Node root)
             }
         }
 
-        return positions;
+        return new NodePositionMap(positions);
     }
 
-    private Vector2 GetHexOffset(EdgeDirection direction)
+    private static Vector2 GetHexOffset(EdgeDirection direction)
     {
         // Hexagon positioning with equal 60° angles
         var angle = direction switch
@@ -66,4 +67,9 @@ internal class SphereGridPositioner(Node root)
             -HexRadius * MathF.Sin(angle) // Negate Y for screen coordinates
         );
     }
+}
+
+internal class NodePositionMap(IReadOnlyDictionary<Node, Vector2> nodePositions)
+{
+    internal IReadOnlyDictionary<Node, Vector2> Positions => nodePositions;
 }

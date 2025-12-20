@@ -1,27 +1,33 @@
 ﻿using System;
 using Gameplay.Behaviour;
+using Gameplay.Levelling.SphereGrid.UI;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class ChaseCamera(Vector2 viewportSize, IHasPosition target)
+public class ChaseCamera(Viewport viewport, IHasPosition? target, float decayRate = 0.0025f) : ISphereGridCamera
 {
-    public Vector2 Position { get; private set; } = target.Position;
+    private Vector2 ViewportSize => new(viewport.Width, viewport.Height);
+    private Vector2 ViewportCentre => ViewportSize / 2;
+    private Vector2 TopLeft => Position - ViewportCentre;
 
     public Rectangle VisibleWorldBounds =>
-        new((int)TopLeft.X, (int)TopLeft.Y, (int)viewportSize.X, (int)viewportSize.Y);
+        new((int)TopLeft.X, (int)TopLeft.Y, (int)ViewportSize.X, (int)ViewportSize.Y);
 
-    private Vector2 TopLeft => Position - ViewportCentre;
+    public IHasPosition? Target { get; set; } = target;
+    public Vector2 Position { get; set; } = target?.Position ?? Vector2.Zero;
 
     public Matrix Transform =>
         Matrix.CreateTranslation(-Position.X + ViewportCentre.X, -Position.Y + ViewportCentre.Y, 0);
 
-    private Vector2 ViewportCentre => viewportSize / 2;
-    public void Follow(GameTime gameTime) => Position = ExpDecay(gameTime);
+    public void Update(GameTime gameTime) => Position = ExpDecay(gameTime);
+
+    public Vector2 ScreenToWorld(Vector2 screenPosition) => Vector2.Transform(screenPosition, Matrix.Invert(Transform));
+    public Vector2 WorldToScreen(Vector2 worldPosition) => Vector2.Transform(worldPosition, Transform);
 
     private Vector2 ExpDecay(GameTime gameTime)
     {
-        const float decayRate = 0.0025f; // How aggressively the camera follows the target
-        return target.Position +
-               (Position - target.Position) * MathF.Exp(-decayRate * gameTime.ElapsedGameTime.Milliseconds);
+        var anchor = Target?.Position ?? Vector2.Zero;
+        return anchor + (Position - anchor) * MathF.Exp(-decayRate * gameTime.ElapsedGameTime.Milliseconds);
     }
 }

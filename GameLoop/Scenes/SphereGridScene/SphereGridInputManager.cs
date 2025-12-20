@@ -31,7 +31,7 @@ internal class SphereGridInputManager(IGlobalCommands globalCommands, SphereGrid
                 MouseState.X - PreviousMouseState.X,
                 MouseState.Y - PreviousMouseState.Y
             );
-            ui.ScreenSpaceOrigin += mouseDelta;
+            ui.Camera.Position -= mouseDelta;
         }
 
         if (MouseState.LeftButton == ButtonState.Pressed &&
@@ -44,7 +44,7 @@ internal class SphereGridInputManager(IGlobalCommands globalCommands, SphereGrid
         // Handle panning with gamepad right thumbstick
         var thumbstickInput = GamePadState.ThumbSticks.Right;
         if (thumbstickInput.LengthSquared() > 0.02f)
-            ui.ScreenSpaceOrigin += new Vector2(-thumbstickInput.X, thumbstickInput.Y) * 8f;
+            ui.Camera.Position -= new Vector2(-thumbstickInput.X, thumbstickInput.Y) * 8f;
 
         ui.HideFocus = CurrentInputMethod is InputMethod.KeyboardMouse;
 

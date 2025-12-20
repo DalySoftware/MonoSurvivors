@@ -44,7 +44,7 @@ internal class MainGameScene(
         input.Update(gameTime);
         effectManager.Update(gameTime);
         entityManager.Update(gameTime);
-        camera.Follow(gameTime);
+        camera.Update(gameTime);
         spawner.Update(gameTime);
         playTime.Update(gameTime);
     }
@@ -102,13 +102,9 @@ internal class MainGameScene(
 
         builder.RegisterType<EntityRenderer>().SingleInstance();
 
-        builder.Register<ChaseCamera>(ctx =>
-        {
-            var player = ctx.Resolve<PlayerCharacter>();
-            var viewport = ctx.Resolve<Viewport>();
-            Vector2 viewportSize = new(viewport.Width, viewport.Height);
-            return new ChaseCamera(viewportSize, player);
-        }).SingleInstance();
+        builder.RegisterType<ChaseCamera>()
+            .WithParameter((pi, _) => pi.Name == "target", (_, ctx) => ctx.Resolve<PlayerCharacter>())
+            .SingleInstance();
 
         builder.Register<SphereGrid>(ctx =>
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Gameplay.Levelling.SphereGrid.UI;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,14 +22,16 @@ internal sealed class FogOfWarMask
     private readonly Texture2D _circle;
     private readonly SpriteBatch _spriteBatch;
     private readonly int _baseVisionRadius;
+    private readonly ISphereGridCamera _camera;
     private readonly float _layerDepth;
 
     private List<Vector2> _visibleCentres = [];
 
-    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius)
+    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius, ISphereGridCamera camera)
     {
         _graphics = graphics;
         _baseVisionRadius = baseVisionRadius;
+        _camera = camera;
         _layerDepth = Layers.Fog;
         _spriteBatch = new SpriteBatch(graphics);
 
@@ -49,7 +52,7 @@ internal sealed class FogOfWarMask
         _graphics.Clear(Color.DarkSlateGray);
 
         // Punch holes
-        _spriteBatch.Begin(blendState: EraseBlend);
+        _spriteBatch.Begin(blendState: EraseBlend, transformMatrix: _camera.Transform);
 
         foreach (var pos in _visibleCentres)
             _spriteBatch.Draw(
