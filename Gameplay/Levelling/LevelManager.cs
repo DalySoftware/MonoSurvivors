@@ -23,7 +23,7 @@ public class LevelManager
         _sphereGrid = sphereGrid;
 
         const float baseRequirement = 10f;
-        const float growthFactor = 1.3f;
+        const float growthFactor = 1.26f;
         _levelCalculator = new LevelCalculator(baseRequirement, growthFactor);
 
         _player.OnExperienceGain -= OnExperienceGain;
