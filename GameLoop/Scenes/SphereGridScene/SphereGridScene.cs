@@ -13,7 +13,7 @@ internal class SphereGridScene(
 {
     public void Update(GameTime gameTime)
     {
-        inputManager.Update();
+        inputManager.Update(gameTime);
         sphereGridUi.Update();
     }
 

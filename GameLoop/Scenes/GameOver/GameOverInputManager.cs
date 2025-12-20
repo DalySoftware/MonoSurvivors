@@ -1,17 +1,18 @@
 using GameLoop.Input;
 using Gameplay;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.GameOver;
 
 internal class GameOverInputManager(IGlobalCommands globalCommands) : BaseInputManager
 {
-    internal override void Update()
+    internal override void Update(GameTime gameTime)
     {
-        base.Update();
+        base.Update(gameTime);
 
-        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Back == ButtonState.Pressed) globalCommands.Exit();
-        if (KeyboardState.IsKeyDown(Keys.Space) || GamePadState.Buttons.Start == ButtonState.Pressed)
+        if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Back)) globalCommands.Exit();
+        if (KeyboardState.IsKeyDown(Keys.Space) || WasPressedThisFrame(Buttons.Start))
             globalCommands.StartGame();
     }
 }

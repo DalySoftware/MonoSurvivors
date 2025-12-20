@@ -39,7 +39,7 @@ internal class MainGameScene(
 
     public void Update(GameTime gameTime)
     {
-        input.Update();
+        input.Update(gameTime);
         effectManager.Update(gameTime);
         entityManager.Update(gameTime);
         camera.Follow(gameTime);

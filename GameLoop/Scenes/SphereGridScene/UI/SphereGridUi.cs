@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
@@ -32,8 +33,6 @@ internal class SphereGridUi(
     private readonly Texture2D _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode.Small);
     private readonly PowerUpIcons _powerUpIcons = new(content);
     private readonly FogOfWarMask _fog = new(graphicsDevice, (int)(SphereGridPositioner.HexRadius * 1.5f), Layers.Fog);
-    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions =
-        new SphereGridPositioner(grid.Root).NodePositions();
 
     private Node? _hoveredNode;
 
@@ -43,20 +42,38 @@ internal class SphereGridUi(
 
     internal Vector2 ScreenSpaceOrigin { get; set; } = graphicsDevice.Viewport.Bounds.Center.ToVector2();
 
+    internal IReadOnlyDictionary<Node, Vector2> NodePositions { get; } =
+        new SphereGridPositioner(grid.Root).NodePositions();
+
+    internal Node FocusedNode { get; set; } = grid.Root;
+    internal bool HideFocus { get; set; } = false;
+
     private static string TitleText(int points) => $"You have {points} Skill Points to spend";
 
     internal void Update() => _fog.Rebuild(
-        grid.UnlockedNodes.Select(n => ScreenSpaceOrigin + _nodePositions[n]));
+        grid.UnlockedNodes.Select(n => ScreenSpaceOrigin + NodePositions[n]));
 
-    internal void UpdateHoveredNode(Vector2 mousePos) => _hoveredNode = _nodePositions.FirstOrDefault(kvp =>
+    internal bool IsVisible(Vector2 gridPosition)
     {
-        var screenPos = ScreenSpaceOrigin + kvp.Value;
+        var screenPosition = ScreenSpaceOrigin + gridPosition;
+        return _fog.IsVisible(screenPosition);
+    }
 
-        if (!_fog.IsVisible(screenPos)) return false;
+    internal void UpdateHoveredNode(Vector2 mousePos)
+    {
+        if (!_fog.IsVisible(mousePos))
+        {
+            _hoveredNode = null;
+            return;
+        }
 
-        var radius = NodeTexture(kvp.Key).Width * 0.5f;
-        return Vector2.Distance(mousePos, screenPos) <= radius;
-    }).Key;
+        _hoveredNode = NodePositions.FirstOrDefault(kvp =>
+        {
+            var screenPos = ScreenSpaceOrigin + kvp.Value;
+            var radius = NodeTexture(kvp.Key).Width * 0.5f;
+            return Vector2.Distance(mousePos, screenPos) <= radius;
+        }).Key;
+    }
 
     internal void UnlockHoveredNode()
     {
@@ -64,6 +81,8 @@ internal class SphereGridUi(
 
         grid.Unlock(_hoveredNode);
     }
+
+    internal void UnlockFocussedNode() => grid.Unlock(FocusedNode);
 
     internal void Draw(SpriteBatch spriteBatch)
     {
@@ -89,13 +108,13 @@ internal class SphereGridUi(
 
         foreach (var node in grid.Nodes)
         {
-            if (!_nodePositions.TryGetValue(node, out var nodePos)) continue;
+            if (!NodePositions.TryGetValue(node, out var nodePos)) continue;
 
             var screenNodePos = ScreenSpaceOrigin + nodePos;
 
             foreach (var (_, neighbor) in node.Neighbours)
             {
-                if (!_nodePositions.TryGetValue(neighbor, out var neighborPos)) continue;
+                if (!NodePositions.TryGetValue(neighbor, out var neighborPos)) continue;
 
                 var screenNeighborPos = ScreenSpaceOrigin + neighborPos;
                 var isUnlocked = grid.IsUnlocked(node) && grid.IsUnlocked(neighbor);
@@ -114,13 +133,16 @@ internal class SphereGridUi(
 
     private void DrawNode(SpriteBatch spriteBatch, Node node)
     {
-        if (!_nodePositions.TryGetValue(node, out var nodePos)) return;
+        if (!NodePositions.TryGetValue(node, out var nodePos)) return;
 
+        var isFocussed = !HideFocus && node == FocusedNode;
+        var isHovered = node == _hoveredNode;
         var isUnlocked = grid.IsUnlocked(node);
         var canUnlock = grid.CanUnlock(node);
 
         var baseColor = node.PowerUp.BaseColor();
         var color =
+            isFocussed || isHovered ? baseColor.ShiftHue(MathF.PI) :
             isUnlocked ? baseColor.ShiftLightness(-0.25f) :
             canUnlock ? baseColor.ShiftChroma(-0f).ShiftLightness(0.3f) :
             baseColor.ShiftChroma(-0.12f);
@@ -134,12 +156,8 @@ internal class SphereGridUi(
             spriteBatch.Draw(iconTexture, screenNodePos, origin: iconTexture.Centre, color: color,
                 layerDepth: Layers.Nodes + 0.01f);
 
-        if (node == _hoveredNode)
-        {
-            // Draw a highlight on top
-            DrawNode(spriteBatch, texture, screenNodePos, Color.White * 0.4f);
-            DrawTooltip(spriteBatch, _hoveredNode);
-        }
+        if (isHovered) DrawTooltip(spriteBatch, node);
+        if (isFocussed) DrawTooltip(spriteBatch, node, true);
     }
 
     private Texture2D NodeTexture(Node node) => node.Rarity switch
@@ -152,7 +170,7 @@ internal class SphereGridUi(
     private void DrawNode(SpriteBatch spriteBatch, Texture2D sprite, Vector2 center, Color color) =>
         spriteBatch.Draw(sprite, center, origin: sprite.Centre, color: color, layerDepth: Layers.Nodes);
 
-    private void DrawTooltip(SpriteBatch spriteBatch, Node node)
+    private void DrawTooltip(SpriteBatch spriteBatch, Node node, bool drawAtNode = false)
     {
         if (node.PowerUp is not { } powerUp) return;
 
@@ -166,7 +184,12 @@ internal class SphereGridUi(
         ];
 
         var tooltip = new ToolTip(title, body);
-        toolTipRenderer.DrawTooltip(spriteBatch, tooltip, Layers.ToolTip);
+
+        if (drawAtNode)
+            toolTipRenderer.DrawTooltipAt(spriteBatch, tooltip,
+                ScreenSpaceOrigin + NodePositions[node] + new Vector2(40f, 40f));
+        else
+            toolTipRenderer.DrawTooltip(spriteBatch, tooltip);
     }
 
 
@@ -181,6 +204,5 @@ internal class SphereGridUi(
         internal const float Nodes = 0.50f;
         internal const float Fog = 0.70f;
         internal const float HelpText = 0.8f;
-        internal const float ToolTip = global::Gameplay.Rendering.Layers.Ui + 0.10f;
     }
 }

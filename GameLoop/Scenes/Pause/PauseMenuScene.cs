@@ -8,7 +8,7 @@ internal class PauseMenuScene(PauseInputManager input, PauseUi ui) : IScene
 {
     public void Update(GameTime gameTime)
     {
-        input.Update();
+        input.Update(gameTime);
         ui.Update();
     }
 

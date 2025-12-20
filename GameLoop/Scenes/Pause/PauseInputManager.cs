@@ -1,6 +1,7 @@
 using System;
 using GameLoop.Input;
 using Gameplay;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Pause;
@@ -9,10 +10,12 @@ internal class PauseInputManager(IGlobalCommands globalCommands) : BaseInputMana
 {
     private readonly Action _onResume = globalCommands.ResumeGame;
 
-    internal override void Update()
+    internal override void Update(GameTime gameTime)
     {
-        base.Update();
+        base.Update(gameTime);
 
-        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Start == ButtonState.Pressed) _onResume();
+        if (WasPressedThisFrame(Keys.Escape) ||
+            WasPressedThisFrame(Buttons.Start) ||
+            WasPressedThisFrame(Buttons.B)) _onResume();
     }
 }

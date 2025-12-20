@@ -2,23 +2,24 @@ using GameLoop.Input;
 using Gameplay;
 using Gameplay.Entities;
 using Gameplay.Utilities;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Gameplay;
 
 internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands globalCommands) : BaseInputManager
 {
-    internal override void Update()
+    internal override void Update(GameTime gameTime)
     {
-        base.Update();
+        base.Update(gameTime);
 
-        if (WasPressedThisFrame(Keys.Escape) || GamePadState.Buttons.Start == ButtonState.Pressed)
+        if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Start))
         {
             globalCommands.ShowPauseMenu();
             return;
         }
 
-        if (WasPressedThisFrame(Keys.Tab))
+        if (WasPressedThisFrame(Keys.Tab) || WasPressedThisFrame(Buttons.Back))
         {
             globalCommands.ShowSphereGrid();
             return;

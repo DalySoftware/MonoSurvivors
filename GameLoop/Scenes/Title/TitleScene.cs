@@ -15,7 +15,7 @@ internal class TitleScene(
 {
     private readonly SpriteFont _titleFont = content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
 
-    public void Update(GameTime gameTime) => input.Update();
+    public void Update(GameTime gameTime) => input.Update(gameTime);
 
     public void Draw(GameTime gameTime)
     {
