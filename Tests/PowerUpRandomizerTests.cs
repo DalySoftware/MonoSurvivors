@@ -22,4 +22,16 @@ public class PowerUpRandomizerTests
             $"{type.GetGenericArguments()[0].Name}Unlock",
         _ => type.Name,
     };
+
+    [Test]
+    public async Task SphereGrid_HasEnoughWeaponUnlocks_ForPowerUpRandomizer()
+    {
+        var weaponUnlocks = PowerUpRandomizer.Factories[PowerUpCategory.WeaponUnlock];
+
+        var sphereGrid = GridFactory.CreateRandom(_ => { });
+        await Assert.That(sphereGrid.Nodes)
+            .Count(n => n.PowerUp?.GetType().IsGenericType == true &&
+                        n.PowerUp.GetType().GetGenericTypeDefinition() == typeof(WeaponUnlock<>))
+            .IsEqualTo(weaponUnlocks.Length);
+    }
 }

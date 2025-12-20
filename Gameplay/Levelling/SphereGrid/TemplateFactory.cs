@@ -7,7 +7,7 @@ namespace Gameplay.Levelling.SphereGrid;
 
 public static class TemplateFactory
 {
-    internal static GridTemplate CreateTemplate() => new()
+internal static GridTemplate CreateTemplate() => new()
 {
     RootId = 0,
     Nodes =
@@ -402,7 +402,7 @@ public static class TemplateFactory
         new NodeTemplate
         {
             Id = 38,
-            Category = PowerUpCategory.Utility,
+            Category = PowerUpCategory.WeaponUnlock,
             Rarity = NodeRarity.Legendary,
             Neighbours = new Dictionary<EdgeDirection,int>
             {
@@ -1173,5 +1173,6 @@ public static class TemplateFactory
         },
     ],
 };
+
 
 }
