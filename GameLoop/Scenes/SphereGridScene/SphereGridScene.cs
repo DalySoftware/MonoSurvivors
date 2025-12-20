@@ -23,7 +23,7 @@ internal class SphereGridScene(
     public static void ConfigureServices(ContainerBuilder builder)
     {
         builder.RegisterType<SphereGridInputManager>().SingleInstance();
-        builder.RegisterType<SphereGridUi>();
+        builder.RegisterType<SphereGridUi>().SingleInstance();
 
         // Register the scene itself
         builder.RegisterType<SphereGridScene>();

@@ -10,7 +10,6 @@ using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.SphereGridScene.UI;
 
@@ -22,7 +21,6 @@ internal class SphereGridUi(
     GraphicsDevice graphicsDevice,
     SphereGrid grid,
     PrimitiveRenderer primitiveRenderer,
-    SphereGridInputManager inputManager,
     ToolTipRenderer toolTipRenderer,
     PanelRenderer panelRenderer)
 {
@@ -32,54 +30,39 @@ internal class SphereGridUi(
     private readonly Texture2D _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNode.Large);
     private readonly Texture2D _gridNodeMedium = content.Load<Texture2D>(Paths.Images.GridNode.Medium);
     private readonly Texture2D _gridNodeSmall = content.Load<Texture2D>(Paths.Images.GridNode.Small);
-    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions =
-        new SphereGridPositioner(grid.Root).NodePositions();
     private readonly PowerUpIcons _powerUpIcons = new(content);
     private readonly FogOfWarMask _fog = new(graphicsDevice, (int)(SphereGridPositioner.HexRadius * 1.5f), Layers.Fog);
+    private readonly IReadOnlyDictionary<Node, Vector2> _nodePositions =
+        new SphereGridPositioner(grid.Root).NodePositions();
 
     private Node? _hoveredNode;
-    private MouseState _previousMouseState;
 
     private Panel TitlePanel => panelRenderer.Define(TitleCentre, TitleSize);
     private Vector2 TitleSize => _fontLarge.MeasureString(TitleText(100));
     private Vector2 TitleCentre => new(graphicsDevice.Viewport.Width / 2f, 80);
 
-    private Vector2 ScreenSpaceOrigin
-    {
-        get => field + inputManager.CameraOffset;
-    } = graphicsDevice.Viewport.Bounds.Center.ToVector2();
+    internal Vector2 ScreenSpaceOrigin { get; set; } = graphicsDevice.Viewport.Bounds.Center.ToVector2();
 
     private static string TitleText(int points) => $"You have {points} Skill Points to spend";
 
-    internal void Update()
+    internal void Update() => _fog.Rebuild(
+        grid.UnlockedNodes.Select(n => ScreenSpaceOrigin + _nodePositions[n]));
+
+    internal void UpdateHoveredNode(Vector2 mousePos) => _hoveredNode = _nodePositions.FirstOrDefault(kvp =>
     {
-        var mouseState = Mouse.GetState();
+        var screenPos = ScreenSpaceOrigin + kvp.Value;
 
-        _hoveredNode = grid.Nodes.FirstOrDefault(node =>
-        {
-            if (!_nodePositions.TryGetValue(node, out var nodePos)) return false;
+        if (!_fog.IsVisible(screenPos)) return false;
 
-            var screenPos = ScreenSpaceOrigin + nodePos;
+        var radius = NodeTexture(kvp.Key).Width * 0.5f;
+        return Vector2.Distance(mousePos, screenPos) <= radius;
+    }).Key;
 
-            if (!_fog.IsVisible(screenPos)) return false;
+    internal void UnlockHoveredNode()
+    {
+        if (_hoveredNode == null) return;
 
-            var mousePos = new Vector2(mouseState.X, mouseState.Y);
-
-            var radius = NodeTexture(node).Width / 2f;
-            return Vector2.Distance(mousePos, screenPos) <= radius;
-        });
-
-        // Click to unlock
-        if (!inputManager.IsPanning &&
-            _hoveredNode != null &&
-            mouseState.LeftButton == ButtonState.Pressed &&
-            _previousMouseState.LeftButton == ButtonState.Released)
-            grid.Unlock(_hoveredNode);
-
-        _previousMouseState = mouseState;
-
-        _fog.Rebuild(
-            grid.UnlockedNodes.Select(n => ScreenSpaceOrigin + _nodePositions[n]));
+        grid.Unlock(_hoveredNode);
     }
 
     internal void Draw(SpriteBatch spriteBatch)
