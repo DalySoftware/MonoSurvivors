@@ -12,7 +12,11 @@ public record ToolTip(string Title, IReadOnlyCollection<ToolTipBodyLine> Body)
     internal float MaxWidth(SpriteFont font)
     {
         var titleWidth = font.MeasureString(Title).X;
-        var bodyWidth = Body.Max(line => font.MeasureString(line.Text).X);
+        var bodyWidth = Body
+            .Select(line => font.MeasureString(line.Text).X)
+            .DefaultIfEmpty(0f)
+            .Max();
+
         return Math.Max(titleWidth, bodyWidth);
     }
 }

@@ -172,7 +172,21 @@ internal class SphereGridUi(
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node, bool drawAtNode = false)
     {
-        if (node.PowerUp is not { } powerUp) return;
+        var tooltip = GetTooltip(node);
+
+        if (drawAtNode)
+            toolTipRenderer.DrawTooltipAt(spriteBatch, tooltip,
+                ScreenSpaceOrigin + NodePositions[node] + new Vector2(40f, 40f));
+        else
+            toolTipRenderer.DrawTooltip(spriteBatch, tooltip);
+    }
+
+    private ToolTip GetTooltip(Node node)
+    {
+        if (node.PowerUp is not { } powerUp)
+            return new ToolTip("Starting Point", [
+                new ToolTipBodyLine("Unlock connected nodes to power up!"),
+            ]);
 
         var title = powerUp.Title();
 
@@ -183,13 +197,7 @@ internal class SphereGridUi(
             UnlockTextFor(node),
         ];
 
-        var tooltip = new ToolTip(title, body);
-
-        if (drawAtNode)
-            toolTipRenderer.DrawTooltipAt(spriteBatch, tooltip,
-                ScreenSpaceOrigin + NodePositions[node] + new Vector2(40f, 40f));
-        else
-            toolTipRenderer.DrawTooltip(spriteBatch, tooltip);
+        return new ToolTip(title, body);
     }
 
 
