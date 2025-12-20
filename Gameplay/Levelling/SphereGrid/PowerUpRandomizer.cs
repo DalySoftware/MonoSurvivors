@@ -8,7 +8,7 @@ internal static class PowerUpRandomizer
 {
     private readonly static Random Rng = new();
 
-    private readonly static Dictionary<PowerUpCategory, Func<NodeRarity, Node>[]> Factories =
+    internal readonly static Dictionary<PowerUpCategory, Func<NodeRarity, Node>[]> Factories =
         new()
         {
             [PowerUpCategory.Damage] =
@@ -56,7 +56,7 @@ internal static class PowerUpRandomizer
             [PowerUpCategory.WeaponUnlock] =
             [
                 NodeFactory.ShotgunUnlock,
-                NodeFactory.SniperUnlock,
+                NodeFactory.SniperRifleUnlock,
                 NodeFactory.DamageAuraUnlock,
             ],
         };

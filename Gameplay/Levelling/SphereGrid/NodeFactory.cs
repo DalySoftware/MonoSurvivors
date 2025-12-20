@@ -71,7 +71,7 @@ internal static class NodeFactory
     internal static Node RangeUp(NodeRarity rarity) => CreateNode(rarity, s => new RangeUp(s * 0.3f));
     internal static Node ShotCountUp(NodeRarity rarity) => CreateNode(rarity, s => new ShotCountUp((int)s));
     internal static Node ShotgunUnlock(NodeRarity rarity) => new(new WeaponUnlock<Shotgun>(), rarity);
-    internal static Node SniperUnlock(NodeRarity rarity) => new(new WeaponUnlock<SniperRifle>(), rarity);
+    internal static Node SniperRifleUnlock(NodeRarity rarity) => new(new WeaponUnlock<SniperRifle>(), rarity);
     internal static Node SpeedUp(NodeRarity rarity) => CreateNode(rarity, s => new SpeedUp(s * 0.05f));
 
     public record Scaling(int Cost, int ScaleFactor);
