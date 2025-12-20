@@ -74,7 +74,7 @@ public class Editor : Game
         var nodeMap = new Dictionary<int, Node>();
         foreach (var nt in template.Nodes)
         {
-            var node = new Node(null, 0);
+            var node = new Node(null, nt.Rarity);
             nodeMap[nt.Id] = node;
             _nodeMetadata[node] = (nt.Category, nt.Rarity);
         }
