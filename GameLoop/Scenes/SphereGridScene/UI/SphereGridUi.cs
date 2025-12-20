@@ -26,7 +26,7 @@ internal class SphereGridUi(
     PanelRenderer panelRenderer)
 {
     private readonly SpriteFont _fontLarge = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
-    private readonly SpriteFont _fontSmall = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
+    private readonly SpriteFont _fontMedium = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
 
     private readonly Texture2D _gridNodeLarge = content.Load<Texture2D>(Paths.Images.GridNode.Large);
     private readonly Texture2D _gridNodeMedium = content.Load<Texture2D>(Paths.Images.GridNode.Medium);
@@ -101,8 +101,8 @@ internal class SphereGridUi(
             layerDepth: TitlePanel.InteriorLayerDepth + 0.01f);
 
         const string helpText = "Click nodes to unlock | Tab to close";
-        var helpSize = _fontSmall.MeasureString(helpText);
-        spriteBatch.DrawString(_fontSmall, helpText,
+        var helpSize = _fontMedium.MeasureString(helpText);
+        spriteBatch.DrawString(_fontMedium, helpText,
             new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40),
             Color.Gray, layerDepth: Layers.HelpText);
 
