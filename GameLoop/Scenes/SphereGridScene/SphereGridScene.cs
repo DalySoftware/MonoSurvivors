@@ -22,6 +22,10 @@ internal class SphereGridScene(
 
     public static void ConfigureServices(ContainerBuilder builder)
     {
+        builder.RegisterType<FogOfWarMask>()
+            .WithParameter(new NamedParameter("baseVisionRadius", (int)SphereGridPositioner.HexRadius * 1.5f));
+
+        builder.RegisterType<SphereGridContent>();
         builder.RegisterType<SphereGridInputManager>().SingleInstance();
         builder.RegisterType<SphereGridUi>().SingleInstance();
 

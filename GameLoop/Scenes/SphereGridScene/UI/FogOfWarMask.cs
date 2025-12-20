@@ -25,11 +25,11 @@ internal sealed class FogOfWarMask
 
     private List<Vector2> _visibleCentres = [];
 
-    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius, float layerDepth)
+    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius)
     {
         _graphics = graphics;
         _baseVisionRadius = baseVisionRadius;
-        _layerDepth = layerDepth;
+        _layerDepth = Layers.Fog;
         _spriteBatch = new SpriteBatch(graphics);
 
         var vp = graphics.Viewport;
