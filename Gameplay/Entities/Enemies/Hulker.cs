@@ -14,12 +14,12 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
     [SetsRequiredMembers]
     public Hulker(Vector2 position, IHasPosition target) : base(position, 1)
     {
-        _followEntity = new FollowEntity(this, target, 0.07f);
+        _followEntity = new FollowEntity(this, target, 0.04f);
         Collider = new RectangleCollider(this, 128f, 128f);
-        Health = 100f;
+        Health = 120f;
     }
 
-    public override float Experience => 12f;
+    public override float Experience => 6f;
 
     public ISpriteSheet SpriteSheet { get; } = new HulkerSpriteSheet();
     public IFrame CurrentFrame { get; private set; } = new HulkerSpriteSheet.LookDirectionFrame(Vector2.Zero);

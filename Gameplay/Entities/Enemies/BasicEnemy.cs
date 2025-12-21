@@ -15,12 +15,12 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     [SetsRequiredMembers]
     public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition, 1)
     {
-        _followEntity = new FollowEntity(this, target, 0.1f);
+        _followEntity = new FollowEntity(this, target, 0.07f);
         Collider = new CircleCollider(this, 32f);
         Health = 20f;
     }
 
-    public override float Experience => 3f;
+    public override float Experience => 1f;
     public ISpriteSheet SpriteSheet { get; } = new BasicEnemySpriteSheet();
 
     public IFrame CurrentFrame { get; private set; } = new BasicEnemySpriteSheet.LookDirectionFrame(Vector2.Zero);

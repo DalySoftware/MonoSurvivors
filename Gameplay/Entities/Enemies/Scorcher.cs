@@ -13,7 +13,7 @@ public class Scorcher : EnemyBase, ISpriteVisual
     [SetsRequiredMembers]
     public Scorcher(Vector2 position, IHasPosition target) : base(position, 1)
     {
-        _followEntity = new FollowEntity(this, target, 0.2f);
+        _followEntity = new FollowEntity(this, target, 0.13f);
         Collider = new RectangleCollider(this, 96f, 96f);
         Health = 12f;
     }

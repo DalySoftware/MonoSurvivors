@@ -5,7 +5,7 @@ namespace Gameplay.Entities;
 public class PlayerStats
 {
     public const int BaseHealth = 6;
-    private const float BaseSpeed = 0.25f;
+    private const float BaseSpeed = 0.15f;
     private int _lifeSteal = 0;
     private float _speedMultiplier = 1f;
 
