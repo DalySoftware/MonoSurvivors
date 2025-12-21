@@ -19,7 +19,7 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
         Health = 100f;
     }
 
-    public override float Experience => 20f;
+    public override float Experience => 12f;
 
     public ISpriteSheet SpriteSheet { get; } = new HulkerSpriteSheet();
     public IFrame CurrentFrame { get; private set; } = new HulkerSpriteSheet.LookDirectionFrame(Vector2.Zero);
