@@ -65,6 +65,7 @@ public static class PowerUpCatalog
             DodgeChanceUp => "Increase DodgeChance",
             ExperienceUp => "Increase Experience Multiplier",
             ExplodeOnKillUp => "Increase on kill explosion",
+            GridVisionUp => "Increase Grid Vision",
             HealthRegenUp => "Increase Health Regen",
             LifeStealUp => "Increase Life Steal",
             MaxHealthUp => "Increase Max Health",
@@ -91,6 +92,7 @@ public static class PowerUpCatalog
             DodgeChanceUp dodgeChangeUp => $"Increase Dodge Chance by {dodgeChangeUp.Value:P0}",
             ExperienceUp experienceUp => $"Increase Experience Multiplier by {experienceUp.Value:P0}",
             ExplodeOnKillUp => "Increase explosion size on kill",
+            GridVisionUp gridVisionUp => $"Increase sphere grid vision range by {gridVisionUp.Value:P0}",
             HealthRegenUp => "Increase Health Regen",
             LifeStealUp => "Increase Life Steal",
             MaxHealthUp maxHealthUp => $"Increase Max Health by {(maxHealthUp.Value / 2).HeartLabel()}",
@@ -109,13 +111,13 @@ public static class PowerUpCatalog
 
     private static class Colors
     {
-        internal readonly static Color Health = new OklchColor(0.7f, 0.16f, 23).ToColor();
-        internal readonly static Color Speed = new OklchColor(0.7f, 0.16f, 80).ToColor();
-        internal readonly static Color Utility = new OklchColor(0.7f, 0.16f, 160).ToColor();
-        internal readonly static Color Special = new OklchColor(0.7f, 0.16f, 215).ToColor();
-        internal readonly static Color Damage = new OklchColor(0.7f, 0.16f, 295).ToColor();
-        internal readonly static Color Crit = new OklchColor(0.7f, 0.16f, 340).ToColor();
-        internal readonly static Color DamageEffects = new OklchColor(0.8f, 0.20f, 125).ToColor();
+        private readonly static Color Health = new OklchColor(0.7f, 0.16f, 23).ToColor();
+        private readonly static Color Speed = new OklchColor(0.7f, 0.16f, 80).ToColor();
+        private readonly static Color Utility = new OklchColor(0.7f, 0.16f, 160).ToColor();
+        private readonly static Color Special = new OklchColor(0.7f, 0.16f, 215).ToColor();
+        private readonly static Color Damage = new OklchColor(0.7f, 0.16f, 295).ToColor();
+        private readonly static Color Crit = new OklchColor(0.7f, 0.16f, 340).ToColor();
+        private readonly static Color DamageEffects = new OklchColor(0.8f, 0.20f, 125).ToColor();
 
         internal readonly static IReadOnlyDictionary<PowerUpCategory, Color> ByCategory =
             new Dictionary<PowerUpCategory, Color>
@@ -189,6 +191,7 @@ public class PowerUpIcons(ContentManager content)
         ChainLightningUp => _shotCount,
         DodgeChanceUp => _shotCount,
         ExplodeOnKillUp => _shotCount,
+        GridVisionUp => _shotCount,
         HealthRegenUp => _shotCount,
         WeaponUnlock<Shotgun> => _shotCount,
         WeaponUnlock<DamageAura> => _shotCount,

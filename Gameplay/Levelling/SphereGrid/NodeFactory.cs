@@ -61,6 +61,7 @@ internal static class NodeFactory
     internal static Node DodgeChanceUp(NodeRarity rarity) => CreateNode(rarity, s => new DodgeChanceUp(s * 0.03f));
     internal static Node ExperienceUp(NodeRarity rarity) => CreateNode(rarity, s => new ExperienceUp(s * 0.2f));
     internal static Node ExplodeOnKillUp(NodeRarity rarity) => CreateNode(rarity, s => new ExplodeOnKillUp((int)s * 3));
+    internal static Node GridVisionUp(NodeRarity rarity) => CreateNode(rarity, s => new GridVisionUp(s * 0.1f));
     internal static Node HealthRegenUp(NodeRarity rarity) => CreateNode(rarity, s => new HealthRegenUp((int)s));
     internal static Node LifeStealUp(NodeRarity rarity) => CreateNode(rarity, s => new LifeStealUp((int)s));
     internal static Node MaxHealthUp(NodeRarity rarity) => CreateNode(rarity, s => new MaxHealthUp((int)s * 2));

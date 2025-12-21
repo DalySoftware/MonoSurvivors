@@ -43,6 +43,7 @@ internal class PowerUpRandomizer
                 NodeFactory.ExperienceUp,
                 NodeFactory.RangeUp,
                 NodeFactory.ProjectileSpeedUp,
+                NodeFactory.GridVisionUp,
             ],
 
             [PowerUpCategory.Crit] =

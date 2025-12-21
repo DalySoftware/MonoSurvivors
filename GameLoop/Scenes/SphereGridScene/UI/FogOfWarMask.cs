@@ -32,7 +32,6 @@ internal sealed class FogOfWarMask
     private readonly PlayerStats _playerStats;
     private float _visionRadiusMultiplier = 1f;
 
-
     public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius, ISphereGridCamera camera,
         PlayerStats playerStats)
     {
@@ -69,7 +68,7 @@ internal sealed class FogOfWarMask
             _spriteBatch.Draw(
                 _circle,
                 pos,
-                origin: new Vector2(_baseVisionRadius),
+                origin: new Vector2(_baseVisionRadius * _visionRadiusMultiplier),
                 color: Color.White,
                 layerDepth: _layerDepth + 0.01f);
 
@@ -91,7 +90,7 @@ internal sealed class FogOfWarMask
 
     public bool IsVisible(Vector2 screenPosition)
     {
-        var radiusSquared = _baseVisionRadius * _baseVisionRadius;
+        var radiusSquared = _baseVisionRadius * _baseVisionRadius * _visionRadiusMultiplier * _visionRadiusMultiplier;
         return _visibleCentres.Any(center => Vector2.DistanceSquared(center, screenPosition) <= radiusSquared);
     }
 }

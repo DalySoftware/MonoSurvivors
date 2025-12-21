@@ -32,6 +32,9 @@ public class PlayerStats
             case ExplodeOnKillUp explodeOnKillUp:
                 EnemyDeathExplosionBullets += explodeOnKillUp.Bullets;
                 break;
+            case GridVisionUp gridVisionUp:
+                GridVisionMultiplier += gridVisionUp.Value;
+                break;
             case HealthRegenUp healthRegenUp:
                 HealthRegen += healthRegenUp.Value;
                 break;
