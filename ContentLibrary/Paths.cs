@@ -10,6 +10,7 @@ public static class Paths
         public const string Player = @"Images\Placeholder-Player";
         public const string Bullet = @"Images\Placeholder-Bullet";
         public const string Experience = @"Images\Experience";
+        public const string Experience2 = @"Images\Experience-2";
         public const string PanelNineSlice = @"Images\PanelNineSlice";
         public const string PanelTriangle = @"Images\PanelTriangle";
 

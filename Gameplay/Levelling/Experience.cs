@@ -29,7 +29,11 @@ public class Experience : MovableEntity, IPickup, ISpriteVisual
 
     public float Layer => Layers.Pickups;
 
-    public string TexturePath => Paths.Images.Experience;
+    public string TexturePath => _value switch
+    {
+        >= 5 => Paths.Images.Experience2,
+        _ => Paths.Images.Experience,
+    };
 
     public void AddVelocity(Vector2 velocity)
     {
