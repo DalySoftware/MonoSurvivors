@@ -116,6 +116,18 @@ public static class PowerUpCatalog
         internal readonly static Color Damage = new OklchColor(0.7f, 0.16f, 295).ToColor();
         internal readonly static Color Crit = new OklchColor(0.7f, 0.16f, 340).ToColor();
         internal readonly static Color DamageEffects = new OklchColor(0.8f, 0.20f, 125).ToColor();
+
+        internal readonly static IReadOnlyDictionary<PowerUpCategory, Color> ByCategory =
+            new Dictionary<PowerUpCategory, Color>
+            {
+                { PowerUpCategory.Damage, Damage },
+                { PowerUpCategory.DamageEffects, DamageEffects },
+                { PowerUpCategory.Health, Health },
+                { PowerUpCategory.Speed, Speed },
+                { PowerUpCategory.Utility, Utility },
+                { PowerUpCategory.Crit, Crit },
+                { PowerUpCategory.WeaponUnlock, Special },
+            };
     }
 
     extension(IPowerUp? powerUp)
@@ -124,17 +136,8 @@ public static class PowerUpCatalog
         {
             if (powerUp is null) return Color.Gold;
 
-            return Categories[powerUp.GetType()] switch
-            {
-                PowerUpCategory.Damage => Colors.Damage,
-                PowerUpCategory.DamageEffects => Colors.DamageEffects,
-                PowerUpCategory.Health => Colors.Health,
-                PowerUpCategory.Speed => Colors.Speed,
-                PowerUpCategory.Utility => Colors.Utility,
-                PowerUpCategory.Crit => Colors.Crit,
-                PowerUpCategory.WeaponUnlock => Colors.Special,
-                _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
-            };
+            var category = Categories[powerUp.GetType()];
+            return Colors.ByCategory[category];
         }
     }
 }
