@@ -14,8 +14,8 @@ internal class PauseMenuScene(PauseInputManager input, PauseUi ui) : IScene
 
     public static void ConfigureServices(ContainerBuilder builder)
     {
-        builder.RegisterType<PauseInputManager>();
-        builder.RegisterType<PauseUi>();
+        builder.RegisterType<PauseInputManager>().SingleInstance();
+        builder.RegisterType<PauseUi>().SingleInstance();
 
         // Register the scene itself
         builder.RegisterType<PauseMenuScene>();

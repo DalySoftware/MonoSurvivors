@@ -14,10 +14,8 @@ public class VolumeControl
     private const float VolumeStep = 0.05f;
 
     private readonly Vector2 _centre;
-    private readonly Button _decreaseButton;
     private readonly SpriteFont _font;
     private readonly Func<float> _getValue;
-    private readonly Button _increaseButton;
     private readonly string _label;
     private readonly Action<float> _setValue;
 
@@ -37,19 +35,21 @@ public class VolumeControl
 
         // Create buttons
         const int buttonRelativeX = 200;
-        _decreaseButton = new Button(content, primitiveRenderer, new Vector2(centre.X + buttonRelativeX, centre.Y), "-",
+        DecreaseButton = new Button(content, primitiveRenderer, new Vector2(centre.X + buttonRelativeX, centre.Y), "-",
             DecreaseVolume,
             true);
         const float valuePadding = 20f;
         var maxValueSize = _font.MeasureString("100%");
-        _increaseButton = new Button(content, primitiveRenderer,
-            new Vector2(_decreaseButton.Centre.X + _decreaseButton.Size.X + maxValueSize.X + valuePadding * 2,
+        IncreaseButton = new Button(content, primitiveRenderer,
+            new Vector2(DecreaseButton.Centre.X + DecreaseButton.Size.X + maxValueSize.X + valuePadding * 2,
                 centre.Y),
             "+",
             IncreaseVolume, true);
     }
 
-    internal IEnumerable<Button> Buttons => [_decreaseButton, _increaseButton];
+    internal IEnumerable<Button> Buttons => [DecreaseButton, IncreaseButton];
+    internal Button DecreaseButton { get; }
+    internal Button IncreaseButton { get; }
 
     private void DecreaseVolume()
     {
@@ -66,7 +66,7 @@ public class VolumeControl
     public void Draw(SpriteBatch spriteBatch)
     {
         // Center of the block between buttons
-        var blockCentre = (_decreaseButton.Centre + _increaseButton.Centre) * 0.5f;
+        var blockCentre = (DecreaseButton.Centre + IncreaseButton.Centre) * 0.5f;
 
         // Reserve max width for value
         var valueText = $"{(int)(_getValue() * 100)}%";
@@ -81,7 +81,7 @@ public class VolumeControl
         spriteBatch.DrawString(_font, _label, labelPosition, origin: labelOrigin, layerDepth: .4f);
 
         // --- Decrease button
-        _decreaseButton.Draw(spriteBatch);
+        DecreaseButton.Draw(spriteBatch);
 
         // --- Volume (right-aligned, vertically centered)
         var volumeSize = _font.MeasureString(valueText);
@@ -90,6 +90,6 @@ public class VolumeControl
         spriteBatch.DrawString(_font, valueText, volumePosition, origin: volumeOrigin, layerDepth: .5f);
 
         // --- Increase button
-        _increaseButton.Draw(spriteBatch);
+        IncreaseButton.Draw(spriteBatch);
     }
 }

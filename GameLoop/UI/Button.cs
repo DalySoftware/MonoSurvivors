@@ -19,6 +19,11 @@ internal class Button
     private bool _isHovered;
     private bool _isPressedVisual;
 
+
+    private readonly Color _baseColor;
+    private readonly Color _pressedColor;
+    private readonly Color _hoveredColor;
+
     internal Button(ContentManager content, PrimitiveRenderer primitiveRenderer, Vector2 centre, string text,
         Action onClick, bool rounded = false)
     {
@@ -29,6 +34,10 @@ internal class Button
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
         var panelRenderer = new PanelRenderer(content, primitiveRenderer);
         _panel = panelRenderer.Define(centre, PanelInteriorSize);
+
+        _baseColor = new OklchColor(0.77f, 0.074f, 235f).ToColor();
+        _pressedColor = _baseColor.ShiftLightness(-0.1f);
+        _hoveredColor = _baseColor.ShiftLightness(0.1f);
     }
 
     internal Vector2 Centre { get; }
@@ -56,6 +65,8 @@ internal class Button
         }
     }
 
+    internal void Focus() => _isHovered = true;
+    internal void Blur() => _isHovered = false;
     internal void Hover() => _isHovered = true;
     internal void Unhover() => _isHovered = false;
 
@@ -63,15 +74,12 @@ internal class Button
     internal void ReleaseVisual() => _isPressedVisual = false;
     internal void Activate() => _onClick();
 
-
     internal void Draw(SpriteBatch spriteBatch)
     {
-        var baseTint = new OklchColor(0.77f, 0.074f, 235f).ToColor();
-
         var color =
-            _isPressedVisual ? baseTint.ShiftLightness(-0.1f) :
-            _isHovered ? baseTint.ShiftLightness(0.1f) :
-            baseTint;
+            _isPressedVisual ? _pressedColor :
+            _isHovered ? _hoveredColor :
+            _baseColor;
 
         // Draw panel background    
         _panel.Draw(spriteBatch, color, color.ShiftChroma(-0.04f).ShiftLightness(-.3f));

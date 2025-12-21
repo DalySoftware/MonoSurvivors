@@ -57,6 +57,7 @@ internal class PauseUi
                 "Sound FX Volume", GetSoundEffectVolume, SetSoundEffectVolume),
         ];
 
+        // Order of this is currently used in navigation
         _menuButtons =
         [
             new Button(content, primitiveRenderer, new Vector2(centerX, startY + 360), "Resume", OnResume),
