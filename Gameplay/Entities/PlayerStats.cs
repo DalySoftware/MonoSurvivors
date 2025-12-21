@@ -10,6 +10,7 @@ public class PlayerStats
     private float _speedMultiplier = 1f;
 
     public float DodgeChance { get; private set; } = 0f;
+    public float GridVisionMultiplier { get; private set; } = 1f;
     public float HealthRegen { get; private set; } = 0f;
     public float ExperienceMultiplier { get; private set; } = 1f;
     public int EnemyDeathExplosionBullets { get; private set; } = 0;

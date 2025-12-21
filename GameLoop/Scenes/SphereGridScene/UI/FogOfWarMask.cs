@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Gameplay.Entities;
 using Gameplay.Levelling.SphereGrid.UI;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
@@ -19,7 +21,7 @@ internal sealed class FogOfWarMask
 
     private readonly GraphicsDevice _graphics;
     private readonly RenderTarget2D _fogTarget;
-    private readonly Texture2D _circle;
+    private Texture2D _circle;
     private readonly SpriteBatch _spriteBatch;
     private readonly int _baseVisionRadius;
     private readonly ISphereGridCamera _camera;
@@ -27,26 +29,35 @@ internal sealed class FogOfWarMask
 
     private List<Vector2> _visibleCentres = [];
 
-    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius, ISphereGridCamera camera)
+    private readonly PlayerStats _playerStats;
+    private float _visionRadiusMultiplier = 1f;
+
+
+    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius, ISphereGridCamera camera,
+        PlayerStats playerStats)
     {
         _graphics = graphics;
-        _baseVisionRadius = baseVisionRadius;
         _camera = camera;
         _layerDepth = Layers.Fog;
         _spriteBatch = new SpriteBatch(graphics);
+        _baseVisionRadius = baseVisionRadius;
+        _playerStats = playerStats;
 
         var vp = graphics.Viewport;
         _fogTarget = new RenderTarget2D(
             graphics, vp.Width, vp.Height,
             false, SurfaceFormat.Color, DepthFormat.None);
 
-        _circle = PrimitiveRenderer.CreateSoftCircle(graphics, baseVisionRadius,
+        _circle = PrimitiveRenderer.CreateSoftCircle(graphics, VisionRadius,
             PrimitiveRenderer.SoftCircleMaskType.InsideTransparent);
     }
+
+    private int VisionRadius => (int)(_baseVisionRadius * _visionRadiusMultiplier);
 
     public void Rebuild(IEnumerable<Vector2> visibleCentres)
     {
         _visibleCentres = visibleCentres.ToList();
+        RebuildCircleIfNeeded();
 
         _graphics.SetRenderTarget(_fogTarget);
         _graphics.Clear(Color.DarkSlateGray);
@@ -64,6 +75,15 @@ internal sealed class FogOfWarMask
 
         _spriteBatch.End();
         _graphics.SetRenderTarget(null);
+    }
+
+    private void RebuildCircleIfNeeded()
+    {
+        if (Math.Abs(_playerStats.GridVisionMultiplier - _visionRadiusMultiplier) < 0.001f) return;
+
+        _visionRadiusMultiplier = _playerStats.GridVisionMultiplier;
+        _circle = PrimitiveRenderer.CreateSoftCircle(_graphics, VisionRadius,
+            PrimitiveRenderer.SoftCircleMaskType.InsideTransparent);
     }
 
     public void Draw(SpriteBatch spriteBatch) =>
