@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ContentLibrary;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat.Weapons.OnHitEffects;
@@ -11,10 +12,8 @@ namespace Gameplay.Combat.Weapons.Projectile;
 
 public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
 {
-    private readonly HashSet<EnemyBase> _hitEnemies = [];
     private readonly HashSet<EnemyBase> _immuneEnemies;
-    private readonly IEnumerable<IOnHitEffect> _onHits;
-    private readonly int _pierce;
+    private int _piercesLeft;
 
     private float _distanceTraveled = 0f;
 
@@ -25,8 +24,8 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
     {
         Owner = owner;
         MaxRange = maxRange;
-        _pierce = pierceEnemies;
-        _onHits = onHits ?? [];
+        _piercesLeft = pierceEnemies;
+        OnHitEffects = onHits ?? [];
         _immuneEnemies = immuneEnemies ?? [];
 
         Velocity = velocity;
@@ -48,7 +47,9 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
 
     internal PlayerCharacter Owner { get; }
     internal float MaxRange { get; }
-    public float Damage { get; }
+    internal float RemainingRange => MaxRange - _distanceTraveled;
+    internal IEnumerable<IOnHitEffect> OnHitEffects { get; }
+    public float Damage { get; private set; }
     public ICollider Collider => new CircleCollider(this, 16f);
 
     public void OnHit(EnemyBase enemy)
@@ -56,15 +57,13 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         if (_immuneEnemies.Contains(enemy)) return;
 
         enemy.TakeDamage(Owner, Damage);
-        _hitEnemies.Add(enemy);
-        if (_hitEnemies.Count > _pierce)
-            MarkedForDeletion = true;
-
-        foreach (var onHit in _onHits)
+        foreach (var onHit in OnHitEffects.OrderBy(o => o.Priority))
         {
             var context = new BulletHitContext(Owner, enemy, this);
             onHit.Apply(context);
         }
+
+        if (_piercesLeft-- > 0) MarkedForDeletion = true;
     }
 
     public float Layer => Layers.Projectiles;
@@ -80,7 +79,17 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         base.Update(gameTime);
 
         _distanceTraveled += Vector2.Distance(previousPosition, Position);
-        if (_distanceTraveled >= MaxRange)
+        if (RemainingRange <= 0)
             MarkedForDeletion = true;
+    }
+
+    internal void BounceOnEnemy(Vector2 newVelocity, EnemyBase enemy, float damageMultiplier = 1f)
+    {
+        Velocity = newVelocity;
+        Damage *= damageMultiplier;
+
+        // If we already hit the same enemy, delete the bullet
+        // If we didn't, ensure it doesn't get deleted for exhausting pierces
+        MarkedForDeletion = !_immuneEnemies.Add(enemy);
     }
 }

@@ -18,6 +18,8 @@ public sealed class ChainLightningOnHit(
     private const int MaxChains = 3;
     private const float BaseDamage = 8f;
 
+    public int Priority => 1;
+
     public void Apply(IHitContext context)
     {
         var owner = context.Owner;

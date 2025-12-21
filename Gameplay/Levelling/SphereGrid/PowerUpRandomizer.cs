@@ -57,6 +57,7 @@ internal class PowerUpRandomizer
                 NodeFactory.ShotgunUnlock,
                 NodeFactory.SniperRifleUnlock,
                 NodeFactory.DamageAuraUnlock,
+                NodeFactory.BouncingGunUnlock,
             ],
         };
     private readonly Random _random = new();

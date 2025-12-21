@@ -6,6 +6,7 @@ namespace Gameplay.Combat.Weapons.OnHitEffects;
 
 public interface IOnHitEffect
 {
+    int Priority { get; }
     void Apply(IHitContext context);
 }
 

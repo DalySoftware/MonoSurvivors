@@ -56,7 +56,6 @@ internal static class NodeFactory
     internal static Node ChainLightningUp(NodeRarity rarity) => CreateNode(rarity, s => new ChainLightningUp(s * 0.1f));
     internal static Node CritChanceUp(NodeRarity rarity) => CreateNode(rarity, s => new CritChanceUp(s * 0.05f));
     internal static Node CritDamageUp(NodeRarity rarity) => CreateNode(rarity, s => new CritDamageUp(s * 0.1f));
-    internal static Node DamageAuraUnlock(NodeRarity rarity) => new(new WeaponUnlock<DamageAura>(), rarity);
     internal static Node DamageUp(NodeRarity rarity) => CreateNode(rarity, s => new DamageUp(s * 0.25f));
     internal static Node DodgeChanceUp(NodeRarity rarity) => CreateNode(rarity, s => new DodgeChanceUp(s * 0.03f));
     internal static Node ExperienceUp(NodeRarity rarity) => CreateNode(rarity, s => new ExperienceUp(s * 0.2f));
@@ -71,9 +70,12 @@ internal static class NodeFactory
         CreateNode(rarity, s => new ProjectileSpeedUp(s * 0.2f));
     internal static Node RangeUp(NodeRarity rarity) => CreateNode(rarity, s => new RangeUp(s * 0.3f));
     internal static Node ShotCountUp(NodeRarity rarity) => CreateNode(rarity, s => new ShotCountUp((int)s));
+    internal static Node SpeedUp(NodeRarity rarity) => CreateNode(rarity, s => new SpeedUp(s * 0.05f));
+
+    internal static Node BouncingGunUnlock(NodeRarity rarity) => new(new WeaponUnlock<BouncingGun>(), rarity);
+    internal static Node DamageAuraUnlock(NodeRarity rarity) => new(new WeaponUnlock<DamageAura>(), rarity);
     internal static Node ShotgunUnlock(NodeRarity rarity) => new(new WeaponUnlock<Shotgun>(), rarity);
     internal static Node SniperRifleUnlock(NodeRarity rarity) => new(new WeaponUnlock<SniperRifle>(), rarity);
-    internal static Node SpeedUp(NodeRarity rarity) => CreateNode(rarity, s => new SpeedUp(s * 0.05f));
 
     public record Scaling(int Cost, int ScaleFactor);
 }

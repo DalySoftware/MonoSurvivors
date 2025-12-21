@@ -17,6 +17,8 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity) : IOnHitEffect
     /// </summary>
     private const float DamageRatio = 0.3f;
 
+    public int Priority => 0;
+
     public void Apply(IHitContext hitContext)
     {
         if (hitContext is not BulletHitContext(_, var enemy, var bullet)) return;
