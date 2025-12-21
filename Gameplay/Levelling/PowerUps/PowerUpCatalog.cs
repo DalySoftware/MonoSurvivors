@@ -35,12 +35,12 @@ public static class PowerUpCatalog
         // Speed
         [typeof(SpeedUp)] = PowerUpCategory.Speed,
         [typeof(DodgeChanceUp)] = PowerUpCategory.Speed,
+        [typeof(ProjectileSpeedUp)] = PowerUpCategory.Utility,
 
         // Utility
         [typeof(PickupRadiusUp)] = PowerUpCategory.Utility,
         [typeof(ExperienceUp)] = PowerUpCategory.Utility,
         [typeof(RangeUp)] = PowerUpCategory.Utility,
-        [typeof(ProjectileSpeedUp)] = PowerUpCategory.Utility,
 
         // Crit
         [typeof(CritChanceUp)] = PowerUpCategory.Crit,
