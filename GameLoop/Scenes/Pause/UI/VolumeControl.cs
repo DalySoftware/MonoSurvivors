@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using ContentLibrary;
 using GameLoop.UI;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Pause.UI;
 
@@ -49,6 +49,8 @@ public class VolumeControl
             IncreaseVolume, true);
     }
 
+    internal IEnumerable<Button> Buttons => [_decreaseButton, _increaseButton];
+
     private void DecreaseVolume()
     {
         var newValue = Math.Max(0f, _getValue() - VolumeStep);
@@ -59,12 +61,6 @@ public class VolumeControl
     {
         var newValue = Math.Min(1f, _getValue() + VolumeStep);
         _setValue(newValue);
-    }
-
-    public void Update(MouseState mouseState)
-    {
-        _decreaseButton.Update(mouseState);
-        _increaseButton.Update(mouseState);
     }
 
     public void Draw(SpriteBatch spriteBatch)

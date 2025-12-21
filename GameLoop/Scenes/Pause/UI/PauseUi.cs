@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using ContentLibrary;
 using GameLoop.UI;
@@ -10,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Pause.UI;
 
@@ -23,10 +23,10 @@ internal class PauseUi
     private readonly AudioSettings _audioSettings;
 
     private readonly VolumeControl[] _volumeControls;
-    private readonly Button[] _buttons;
     private readonly SpriteFont _font;
     private readonly Action _onResume;
     private readonly Action _onReturnToTitle;
+    private readonly Button[] _menuButtons;
     public PauseUi(SpriteBatch spriteBatch, Viewport viewport, ContentManager content,
         PrimitiveRenderer primitiveRenderer,
         IConfiguration configuration, IOptions<AudioSettings> audioSettings, IGlobalCommands globalCommands)
@@ -57,7 +57,7 @@ internal class PauseUi
                 "Sound FX Volume", GetSoundEffectVolume, SetSoundEffectVolume),
         ];
 
-        _buttons =
+        _menuButtons =
         [
             new Button(content, primitiveRenderer, new Vector2(centerX, startY + 360), "Resume", OnResume),
 
@@ -65,13 +65,19 @@ internal class PauseUi
         ];
     }
 
-    internal void Update()
+    internal IEnumerable<Button> Buttons
     {
-        var mouseState = Mouse.GetState();
+        get
+        {
+            foreach (var button in _menuButtons)
+                yield return button;
 
-        foreach (var control in _volumeControls) control.Update(mouseState);
-        foreach (var button in _buttons) button.Update(mouseState);
+            foreach (var vc in _volumeControls)
+            foreach (var b in vc.Buttons)
+                yield return b;
+        }
     }
+
 
     internal void Draw()
     {
@@ -92,7 +98,7 @@ internal class PauseUi
 
         foreach (var control in _volumeControls) control.Draw(_spriteBatch);
 
-        foreach (var button in _buttons) button.Draw(_spriteBatch);
+        foreach (var button in Buttons) button.Draw(_spriteBatch);
         _spriteBatch.End();
     }
 

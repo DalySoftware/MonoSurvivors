@@ -6,11 +6,7 @@ namespace GameLoop.Scenes.Pause;
 
 internal class PauseMenuScene(PauseInputManager input, PauseUi ui) : IScene
 {
-    public void Update(GameTime gameTime)
-    {
-        input.Update(gameTime);
-        ui.Update();
-    }
+    public void Update(GameTime gameTime) => input.Update(gameTime);
 
     public void Draw(GameTime gameTime) => ui.Draw();
 
