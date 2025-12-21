@@ -55,7 +55,7 @@ internal class MainGameScene(
 
         entityRenderer.Draw(entityManager.Entities);
         healthBar.Draw(spriteBatch);
-        experienceBar.Draw(spriteBatch, Color.CadetBlue, Color.GreenYellow);
+        experienceBar.Draw(spriteBatch, gameTime, Color.CadetBlue, Color.GreenYellow);
     }
 
     private void DrawBackground()

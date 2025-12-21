@@ -61,6 +61,7 @@ internal class ExperienceBar(
     /// </summary>
     internal void Draw(
         SpriteBatch spriteBatch,
+        GameTime gameTime,
         Color frameColor,
         Color fillColor)
     {
@@ -77,24 +78,45 @@ internal class ExperienceBar(
         // We set layer depths to ensure our filled parts are above the background but below the frame
         barPanel.Draw(spriteBatch, frameColor, Color.SlateGray);
 
-        DrawPointsBox(spriteBatch);
+        DrawPointsBox(spriteBatch, gameTime);
 
 
         spriteBatch.End();
     }
-    private void DrawPointsBox(SpriteBatch spriteBatch)
+
+    private void DrawPointsBox(SpriteBatch spriteBatch, GameTime gameTime)
     {
-        var boxColor = Color.SlateBlue;
+        var boxColor = PointsBoxTint(gameTime);
+
         pointsBoxPanel.Draw(spriteBatch, boxColor, boxColor.ShiftChroma(-0.08f));
 
         var text = Points.ToString();
         var textSize = font.MeasureString(text);
+        var textScale = PointsTextScale(gameTime);
+        var scaledSize = textSize * textScale;
 
         var panelCentre = pointsBoxPanel.Centre;
-        var textPosition = panelCentre - textSize * 0.5f;
+        var textPosition = panelCentre - scaledSize * 0.5f;
 
         var textLayer = (pointsBoxPanel.InteriorLayerDepth + pointsBoxPanel.Frame.LayerDepth) * 0.5f;
-        spriteBatch.DrawString(font, text, textPosition, Color.White, layerDepth: textLayer);
+        spriteBatch.DrawString(font, text, textPosition, Color.White, layerDepth: textLayer,
+            scale: Vector2.One * textScale);
+    }
+
+    private Color PointsBoxTint(GameTime gameTime)
+    {
+        var baseColor = Color.SlateBlue;
+        if (Points <= 3) return baseColor;
+
+        var pulse = 0.5f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
+        return Color.Lerp(baseColor, Color.Gold, pulse);
+    }
+
+    private float PointsTextScale(GameTime gameTime)
+    {
+        if (Points <= 3) return 1f;
+
+        return 1.3f + 0.1f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
     }
 
     private void DrawCorners(SpriteBatch spriteBatch, Color fillColor, Frame frame, int filledWidth,
