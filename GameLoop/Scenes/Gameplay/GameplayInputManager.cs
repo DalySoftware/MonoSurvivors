@@ -7,8 +7,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Gameplay;
 
-internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands globalCommands)
-    : BaseInputManager(globalCommands)
+internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands globalCommands, GameFocusState focusState)
+    : BaseInputManager(globalCommands, focusState)
 {
     internal override void Update(GameTime gameTime)
     {

@@ -5,7 +5,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.GameOver;
 
-internal class GameOverInputManager(IGlobalCommands globalCommands) : BaseInputManager(globalCommands)
+internal class GameOverInputManager(IGlobalCommands globalCommands, GameFocusState focusState)
+    : BaseInputManager(globalCommands, focusState)
 {
     internal override void Update(GameTime gameTime)
     {

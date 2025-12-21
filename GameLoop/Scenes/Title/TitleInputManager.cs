@@ -6,7 +6,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Title;
 
-internal class TitleInputManager(IGlobalCommands globalCommands) : BaseInputManager(globalCommands)
+internal class TitleInputManager(IGlobalCommands globalCommands, GameFocusState focusState)
+    : BaseInputManager(globalCommands, focusState)
 {
     internal Action OnStartGame { get; init; } = () => { };
 

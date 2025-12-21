@@ -9,35 +9,18 @@ namespace GameLoop.Input;
 /// <summary>
 ///     Contains any global input logic, eg exit
 /// </summary>
-internal abstract class BaseInputManager(IGlobalCommands commands)
+internal abstract class BaseInputManager(IGlobalCommands commands, GameFocusState focusState)
 {
-    protected IGlobalCommands GlobalCommands { get; } = commands;
-
-    internal static bool GameHasFocus
-    {
-        get;
-        set
-        {
-            var gainedFocus = value && !field;
-            if (gainedFocus)
-            {
-                // reset mouse state
-                MouseState = Mouse.GetState();
-                PreviousMouseState = MouseState;
-            }
-
-            field = value;
-        }
-    }
-
     internal InputMethod CurrentInputMethod { get; private set; } = InputMethod.KeyboardMouse;
 
-    protected static KeyboardState KeyboardState { get; private set; } = Keyboard.GetState();
-    protected static KeyboardState PreviousKeyboardState { get; private set; } = Keyboard.GetState();
-    protected static GamePadState GamePadState { get; private set; } = GamePad.GetState(0);
-    protected static GamePadState PreviousGamePadState { get; set; }
-    protected static MouseState MouseState { get; private set; } = Mouse.GetState();
-    protected static MouseState PreviousMouseState { get; private set; } = Mouse.GetState();
+    protected IGlobalCommands GlobalCommands { get; } = commands;
+
+    protected KeyboardState KeyboardState { get; private set; } = Keyboard.GetState();
+    protected KeyboardState PreviousKeyboardState { get; private set; } = Keyboard.GetState();
+    protected GamePadState GamePadState { get; private set; } = GamePad.GetState(0);
+    protected GamePadState PreviousGamePadState { get; set; }
+    protected MouseState MouseState { get; private set; } = Mouse.GetState();
+    protected MouseState PreviousMouseState { get; private set; } = Mouse.GetState();
 
     internal virtual void Update(GameTime gameTime)
     {
@@ -46,7 +29,7 @@ internal abstract class BaseInputManager(IGlobalCommands commands)
         PreviousGamePadState = GamePadState;
         GamePadState = GamePad.GetState(0);
 
-        if (GameHasFocus)
+        if (focusState.HasFocus)
         {
             PreviousMouseState = MouseState;
             MouseState = Mouse.GetState();
@@ -71,10 +54,10 @@ internal abstract class BaseInputManager(IGlobalCommands commands)
         }
     }
 
-    protected static bool WasPressedThisFrame(Keys key) =>
+    protected bool WasPressedThisFrame(Keys key) =>
         KeyboardState.IsKeyDown(key) && PreviousKeyboardState.IsKeyUp(key);
 
-    protected static bool WasPressedThisFrame(Buttons button) =>
+    protected bool WasPressedThisFrame(Buttons button) =>
         GamePadState.IsButtonDown(button) && PreviousGamePadState.IsButtonUp(button);
 
     private bool IsAnyButtonPressed(GamePadState state)

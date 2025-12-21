@@ -26,6 +26,7 @@ public class CoreGame : Game, IGlobalCommands
 
     private ILifetimeScope _contentScope = null!;
     private ILifetimeScope _gameplayScope = null!;
+    private GameFocusState _focusState = null!;
 
     public CoreGame()
     {
@@ -131,7 +132,12 @@ public class CoreGame : Game, IGlobalCommands
 
             builder.RegisterType<TitleInputManager>().SingleInstance();
             builder.RegisterType<TitleScene>().InstancePerDependency();
+
+            builder.RegisterType<GameFocusState>().SingleInstance();
         });
+
+        _focusState = _contentScope.Resolve<GameFocusState>();
+
 
         ReturnToTitle();
 
@@ -141,8 +147,7 @@ public class CoreGame : Game, IGlobalCommands
     protected override void Update(GameTime gameTime)
     {
         Scene.Update(gameTime);
-        BaseInputManager.GameHasFocus = IsActive;
-
+        _focusState.HasFocus = IsActive;
         base.Update(gameTime);
     }
 
