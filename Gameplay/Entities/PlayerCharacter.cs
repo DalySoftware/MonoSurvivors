@@ -108,8 +108,8 @@ public class PlayerCharacter(
                 unlock.Apply(this);
                 break;
             case MaxHealthUp maxHealthUp:
-                Health += maxHealthUp.Value;
                 Stats.AddPowerUp(maxHealthUp);
+                Health += maxHealthUp.Value;
                 break;
             case IPlayerPowerUp playerPowerUp:
                 Stats.AddPowerUp(playerPowerUp);
