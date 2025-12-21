@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Pause;
 
-internal class PauseInputManager(IGlobalCommands globalCommands, PauseUi ui) : BaseInputManager
+internal class PauseInputManager(IGlobalCommands globalCommands, PauseUi ui) : BaseInputManager(globalCommands)
 {
     private readonly Action _onResume = globalCommands.ResumeGame;
 

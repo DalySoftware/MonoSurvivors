@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Title;
 
-internal class TitleInputManager(IGlobalCommands globalCommands) : BaseInputManager
+internal class TitleInputManager(IGlobalCommands globalCommands) : BaseInputManager(globalCommands)
 {
     internal Action OnStartGame { get; init; } = () => { };
 
@@ -15,8 +15,8 @@ internal class TitleInputManager(IGlobalCommands globalCommands) : BaseInputMana
         base.Update(gameTime);
 
         if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Back) || WasPressedThisFrame(Buttons.B))
-            globalCommands.Exit();
+            GlobalCommands.Exit();
         if (WasPressedThisFrame(Keys.Enter) || WasPressedThisFrame(Buttons.Start))
-            globalCommands.StartGame();
+            GlobalCommands.StartGame();
     }
 }

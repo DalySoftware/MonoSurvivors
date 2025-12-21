@@ -10,4 +10,6 @@ public interface IGlobalCommands
     void Exit();
     void StartGame();
     void CloseSphereGrid();
+    void ShowMouse();
+    void HideMouse();
 }

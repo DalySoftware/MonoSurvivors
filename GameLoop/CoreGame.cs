@@ -108,6 +108,9 @@ public class CoreGame : Game, IGlobalCommands
         _gameplayScope.Resolve<MusicPlayer>().RestoreBackgroundMusic();
     }
 
+    public void ShowMouse() => IsMouseVisible = true;
+    public void HideMouse() => IsMouseVisible = false;
+
     protected override void LoadContent()
     {
         Content.RootDirectory = "ContentLibrary";

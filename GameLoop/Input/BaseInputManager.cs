@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Gameplay;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -8,8 +9,10 @@ namespace GameLoop.Input;
 /// <summary>
 ///     Contains any global input logic, eg exit
 /// </summary>
-internal abstract class BaseInputManager
+internal abstract class BaseInputManager(IGlobalCommands commands)
 {
+    protected IGlobalCommands GlobalCommands { get; } = commands;
+
     internal static bool GameHasFocus
     {
         get;
@@ -57,11 +60,15 @@ internal abstract class BaseInputManager
         if (GamePadState.IsConnected && IsAnyButtonPressed(GamePadState))
         {
             CurrentInputMethod = InputMethod.Gamepad;
+            GlobalCommands.HideMouse();
             return;
         }
 
         if (Vector2.DistanceSquared(MouseState.Position.ToVector2(), PreviousMouseState.Position.ToVector2()) > 1f)
+        {
             CurrentInputMethod = InputMethod.KeyboardMouse;
+            GlobalCommands.ShowMouse();
+        }
     }
 
     protected static bool WasPressedThisFrame(Keys key) =>

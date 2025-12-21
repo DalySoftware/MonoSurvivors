@@ -7,7 +7,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Gameplay;
 
-internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands globalCommands) : BaseInputManager
+internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands globalCommands)
+    : BaseInputManager(globalCommands)
 {
     internal override void Update(GameTime gameTime)
     {
@@ -15,13 +16,13 @@ internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands glob
 
         if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Start))
         {
-            globalCommands.ShowPauseMenu();
+            GlobalCommands.ShowPauseMenu();
             return;
         }
 
         if (WasPressedThisFrame(Keys.Tab) || WasPressedThisFrame(Buttons.Back))
         {
-            globalCommands.ShowSphereGrid();
+            GlobalCommands.ShowSphereGrid();
             return;
         }
 

@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 namespace GameLoop.Scenes.SphereGridScene;
 
 internal class SphereGridInputManager(IGlobalCommands globalCommands, SphereGridUi ui)
-    : BaseInputManager
+    : BaseInputManager(globalCommands)
 {
     private readonly TimeSpan _thumbstickNavigationCooldown = TimeSpan.FromMilliseconds(150);
     private TimeSpan _currentThumbstickNavigationCooldown = TimeSpan.Zero;
@@ -22,7 +22,7 @@ internal class SphereGridInputManager(IGlobalCommands globalCommands, SphereGrid
         if (WasPressedThisFrame(Keys.Escape) ||
             WasPressedThisFrame(Keys.Tab) ||
             WasPressedThisFrame(Buttons.Back) ||
-            WasPressedThisFrame(Buttons.B)) globalCommands.CloseSphereGrid();
+            WasPressedThisFrame(Buttons.B)) GlobalCommands.CloseSphereGrid();
 
         _isPanning = MouseState.MiddleButton == ButtonState.Pressed;
         if (_isPanning)
