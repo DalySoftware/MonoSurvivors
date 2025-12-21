@@ -97,7 +97,7 @@ internal class MainGameScene(
         builder.RegisterType<ExperienceSpawner>().SingleInstance();
         builder.RegisterType<EnemySpawner>().SingleInstance();
 
-        builder.RegisterInstance(new LevelCalculator(10, 1.26f));
+        builder.RegisterInstance(new LevelCalculator(10, 1.25f));
         builder.RegisterType<LevelManager>().SingleInstance();
 
         builder.RegisterType<EntityRenderer>().SingleInstance();
