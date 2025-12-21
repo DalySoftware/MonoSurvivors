@@ -52,6 +52,9 @@ internal class SphereGridUi
 
         Camera = camera;
         FocusedNode = grid.Root;
+
+        // Ensure the fog is rendered to prevent flicker
+        RebuildFog();
     }
 
     private Panel TitlePanel => _panelRenderer.Define(TitleCentre, TitleSize);
@@ -96,12 +99,13 @@ internal class SphereGridUi
 
     internal void Update(GameTime gameTime)
     {
-        _fog.Rebuild(
-            _grid.UnlockedNodes.Select(n => NodePositions[n]));
+        RebuildFog();
 
         if (!HideFocus)
             Camera.Update(gameTime);
     }
+
+    private void RebuildFog() => _fog.Rebuild(_grid.UnlockedNodes.Select(n => NodePositions[n]));
 
     internal bool IsVisible(Vector2 gridPosition) => _fog.IsVisible(gridPosition);
 
