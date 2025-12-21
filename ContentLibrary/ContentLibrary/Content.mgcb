@@ -218,18 +218,6 @@
 /processorParam:TextureFormat=Color
 /build:Images/Placeholder-Bullet.png
 
-#begin Images/Placeholder-Enemy.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Placeholder-Enemy.png
-
 #begin Images/Placeholder-Player.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -397,6 +385,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/PowerUpIcons/Speed.png
+
+#begin Images/Scorcher.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Scorcher.png
 
 #begin Images/Sheets/BasicEnemy.png
 /importer:TextureImporter

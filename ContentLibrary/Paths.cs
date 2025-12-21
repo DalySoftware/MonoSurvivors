@@ -9,6 +9,7 @@ public static class Paths
         public const string BackgroundTile = @"Images\Placeholder-BackgroundTile";
         public const string Player = @"Images\Placeholder-Player";
         public const string Bullet = @"Images\Placeholder-Bullet";
+        public const string Scorcher = @"Images\Scorcher";
         public const string Experience = @"Images\Experience";
         public const string Experience2 = @"Images\Experience-2";
         public const string PanelNineSlice = @"Images\PanelNineSlice";

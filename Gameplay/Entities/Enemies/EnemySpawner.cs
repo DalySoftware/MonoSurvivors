@@ -45,7 +45,7 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 10 },
-                    { enemyFactory.Hulker, 1 },
+                    { enemyFactory.Scorcher, 1 },
                 },
             },
             new SpawnPhase
@@ -55,7 +55,8 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 10 },
-                    { enemyFactory.Hulker, 2 },
+                    { enemyFactory.Scorcher, 2 },
+                    { enemyFactory.Hulker, 1 },
                 },
             },
             new SpawnPhase
@@ -65,7 +66,8 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 5 },
-                    { enemyFactory.Hulker, 5 },
+                    { enemyFactory.Scorcher, 4 },
+                    { enemyFactory.Hulker, 4 },
                 },
             },
             new SpawnPhase
@@ -75,7 +77,29 @@ public class EnemySpawner : IEntity
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
                     { enemyFactory.BasicEnemy, 5 },
+                    { enemyFactory.Scorcher, 8 },
+                    { enemyFactory.Hulker, 6 },
+                },
+            },
+            new SpawnPhase
+            {
+                StartTime = TimeSpan.FromMinutes(10),
+                WaveCooldown = TimeSpan.FromSeconds(1),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.BasicEnemy, 2 },
+                    { enemyFactory.Scorcher, 12 },
                     { enemyFactory.Hulker, 10 },
+                },
+            },
+            new SpawnPhase
+            {
+                StartTime = TimeSpan.FromMinutes(12),
+                WaveCooldown = TimeSpan.FromSeconds(1),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.Scorcher, 12 },
+                    { enemyFactory.Hulker, 20 },
                 },
             },
         ];
