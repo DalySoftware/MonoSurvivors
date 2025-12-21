@@ -44,7 +44,7 @@ internal class SphereGridInputManager(IGlobalCommands globalCommands, SphereGrid
         // Handle panning with gamepad right thumbstick
         var thumbstickInput = GamePadState.ThumbSticks.Right;
         if (thumbstickInput.LengthSquared() > 0.02f)
-            ui.Camera.Position -= new Vector2(-thumbstickInput.X, thumbstickInput.Y) * 8f;
+            ui.Camera.Position -= new Vector2(-thumbstickInput.X, thumbstickInput.Y) * 32f;
 
         ui.HideFocus = CurrentInputMethod is InputMethod.KeyboardMouse;
 
