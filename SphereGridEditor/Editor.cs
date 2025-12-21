@@ -710,6 +710,12 @@ public class Editor : Game
         var template = BuildTemplate(); // convert _grid + _nodeMetadata → GridTemplate
 
         var sb = new StringBuilder();
+        sb.AppendLine("using System.Collections.Generic;");
+        sb.AppendLine("using Gameplay.Levelling.PowerUps;");
+        sb.AppendLine("// ReSharper disable RedundantEmptyObjectOrCollectionInitializer");
+        sb.AppendLine("namespace Gameplay.Levelling.SphereGrid;");
+        sb.AppendLine("public static class TemplateFactory {");
+
         sb.AppendLine("internal static GridTemplate CreateTemplate() => new()");
         sb.AppendLine("{");
         sb.AppendLine($"    RootId = {template.RootId},");
@@ -733,6 +739,8 @@ public class Editor : Game
 
         sb.AppendLine("    ],");
         sb.AppendLine("};");
+
+        sb.AppendLine("}");
 
         ClipboardHelper.Copy(sb.ToString());
         Console.WriteLine("C# GridTemplate copied to clipboard!");
