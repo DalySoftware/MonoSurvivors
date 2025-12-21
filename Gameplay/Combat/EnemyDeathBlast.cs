@@ -14,10 +14,11 @@ public static class EnemyDeathBlast
     {
         var bulletDirections = ArcSpreader.EvenlySpace(ArcSpreader.RandomDirection(), bullets, MathF.Tau);
         var damage = BaseDamage * damageMultiplier;
+        var range = 100f * owner.WeaponBelt.Stats.RangeMultiplier;
 
         foreach (var direction in bulletDirections)
         {
-            var bullet = new Bullet(owner, position, position + direction, damage, 100f, speed: 1f);
+            var bullet = new Bullet(owner, position, position + direction, damage, range, speed: 1f);
             entityManager.Spawn(bullet);
         }
     }
