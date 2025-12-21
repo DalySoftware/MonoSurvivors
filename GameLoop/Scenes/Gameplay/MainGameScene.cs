@@ -3,6 +3,7 @@ using ContentLibrary;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay;
 using Gameplay.Behaviour;
+using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
 using Gameplay.Combat.Weapons.AreaOfEffect;
 using Gameplay.Combat.Weapons.OnHitEffects;
@@ -74,11 +75,15 @@ internal class MainGameScene(
         builder.RegisterType<BulletSplitOnHit>();
         builder.RegisterType<ChainLightningOnHit>();
 
+
         builder.RegisterType<BasicGun>();
         builder.RegisterType<Shotgun>();
         builder.RegisterType<SniperRifle>();
         builder.RegisterType<DamageAura>();
 
+        builder.RegisterType<DamageAuraEffect>().OnActivated(a => a.Context.Resolve<EntityManager>().Spawn(a.Instance));
+
+        builder.RegisterType<WeaponFactory>();
         builder.RegisterType<WeaponBelt>()
             .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
             .SingleInstance();
@@ -90,7 +95,6 @@ internal class MainGameScene(
             .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
             .OnActivated(a => a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance));
 
-        builder.RegisterType<DamageAuraEffect>().OnActivated(a => a.Context.Resolve<EntityManager>().Spawn(a.Instance));
 
         builder.RegisterType<EffectManager>().SingleInstance();
         builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();

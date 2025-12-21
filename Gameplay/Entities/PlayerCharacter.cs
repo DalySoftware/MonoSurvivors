@@ -5,7 +5,6 @@ using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
-using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities.Enemies;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
@@ -25,7 +24,8 @@ public class PlayerCharacter(
     IGlobalCommands globalCommands,
     WeaponBelt weaponBelt,
     HealthRegenManager healthRegen,
-    PlayerStats stats)
+    PlayerStats stats,
+    WeaponFactory weaponFactory)
     : MovableEntity(position), IDamageablePlayer, ISpriteVisual
 {
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
@@ -34,6 +34,7 @@ public class PlayerCharacter(
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
     private int _killsSinceLastLifeSteal = 0;
 
+    public WeaponFactory WeaponFactory { get; } = weaponFactory;
     public WeaponBelt WeaponBelt { get; } = weaponBelt;
 
     public float Experience { get; private set; }
@@ -103,9 +104,8 @@ public class PlayerCharacter(
     {
         switch (powerUp)
         {
-            case WeaponUnlock<Shotgun>:
-                var shotgun = new Shotgun(this, entityManager, entityManager, audio);
-                WeaponBelt.AddWeapon(shotgun);
+            case WeaponUnlock unlock:
+                unlock.Apply(this);
                 break;
             case MaxHealthUp maxHealthUp:
                 Health += maxHealthUp.Value;
