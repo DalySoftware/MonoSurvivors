@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Utilities;
 
-internal class ScreenPositioner(GraphicsDevice graphics, float buffer)
+public class ScreenPositioner(GraphicsDevice graphics, float buffer)
 {
     /// <summary>
     ///     Get a random position off-screen from the player.

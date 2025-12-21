@@ -16,6 +16,7 @@ using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects;
+using Gameplay.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -99,6 +100,8 @@ internal class MainGameScene(
         builder.RegisterType<EffectManager>().SingleInstance();
         builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();
         builder.RegisterType<ExperienceSpawner>().SingleInstance();
+        builder.RegisterType<ScreenPositioner>().WithParameter(new NamedParameter("buffer", 0.3f));
+        builder.RegisterType<EnemyFactory>();
         builder.RegisterType<EnemySpawner>().SingleInstance();
 
         builder.RegisterInstance(new LevelCalculator(10, 1.25f));
