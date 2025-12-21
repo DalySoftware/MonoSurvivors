@@ -10,7 +10,7 @@ public class SniperRifle(
     IEntityFinder entityFinder,
     IAudioPlayer audio) : GunBase(owner.WeaponBelt.Stats)
 {
-    protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(3);
+    protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(2.8);
     protected override void Shoot()
     {
         var target = entityFinder.NearestEnemyTo(owner);
