@@ -21,7 +21,6 @@ namespace GameLoop;
 
 public class CoreGame : Game, IGlobalCommands
 {
-    private readonly SceneManager _sceneManager = new(null);
     private readonly GameContainer _container;
 
     private ILifetimeScope _contentScope = null!;
@@ -40,30 +39,33 @@ public class CoreGame : Game, IGlobalCommands
         _container = new GameContainer(this);
     }
 
-    private IScene Scene => _sceneManager.Current!;
+    private SceneManager SceneManager => _contentScope.Resolve<SceneManager>();
 
     public void ShowGameOver()
     {
         var scope = _gameplayScope.BeginLifetimeScope(GameOverScene.ConfigureServices);
 
         var gameOverScene = scope.Resolve<GameOverScene>();
-        _sceneManager.Push(gameOverScene);
+        SceneManager.Push(gameOverScene);
     }
 
     public void ReturnToTitle()
     {
         var title = _contentScope.Resolve<TitleScene>();
-        _sceneManager.Push(title);
+        SceneManager.Push(title);
     }
 
 
     public void ShowSphereGrid()
     {
+        if (SceneManager.Current is SphereGridScene)
+            return; // Already open, ignore
+
         var scope = _gameplayScope.BeginLifetimeScope();
 
         // Resolve the scene from the scope
         var scene = scope.Resolve<SphereGridScene>();
-        _sceneManager.Push(scene);
+        SceneManager.Push(scene);
 
         // Duck the music while the scene is active
         var music = scope.Resolve<MusicPlayer>();
@@ -76,10 +78,10 @@ public class CoreGame : Game, IGlobalCommands
         var scope = _gameplayScope.BeginLifetimeScope(PauseMenuScene.ConfigureServices);
 
         var scene = scope.Resolve<PauseMenuScene>();
-        _sceneManager.Push(scene);
+        SceneManager.Push(scene);
     }
 
-    public void ResumeGame() => _sceneManager.Pop();
+    public void ResumeGame() => SceneManager.Pop();
 
     public void StartGame()
     {
@@ -96,7 +98,7 @@ public class CoreGame : Game, IGlobalCommands
 
         // Resolve and push the scene
         var mainScene = _gameplayScope.Resolve<MainGameScene>();
-        _sceneManager.Push(mainScene);
+        SceneManager.Push(mainScene);
 
         // Play background music
         var music = _gameplayScope.Resolve<MusicPlayer>();
@@ -105,9 +107,13 @@ public class CoreGame : Game, IGlobalCommands
 
     public void CloseSphereGrid()
     {
-        _sceneManager.Pop();
+        if (SceneManager.Current is not SphereGridScene)
+            return;
+
+        SceneManager.Pop();
         _gameplayScope.Resolve<MusicPlayer>().RestoreBackgroundMusic();
     }
+
 
     public void ShowMouse() => IsMouseVisible = true;
     public void HideMouse() => IsMouseVisible = false;
@@ -127,7 +133,6 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterType<ToolTipRenderer>().SingleInstance();
             builder.RegisterType<MusicPlayer>().SingleInstance();
 
-            builder.RegisterType<SceneManager>().SingleInstance();
             builder.RegisterType<SoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
 
             builder.RegisterType<TitleInputManager>().SingleInstance();
@@ -138,7 +143,6 @@ public class CoreGame : Game, IGlobalCommands
 
         _focusState = _contentScope.Resolve<GameFocusState>();
 
-
         ReturnToTitle();
 
         base.LoadContent();
@@ -146,7 +150,7 @@ public class CoreGame : Game, IGlobalCommands
 
     protected override void Update(GameTime gameTime)
     {
-        Scene.Update(gameTime);
+        SceneManager.Current?.Update(gameTime);
         _focusState.HasFocus = IsActive;
         base.Update(gameTime);
     }
@@ -156,7 +160,7 @@ public class CoreGame : Game, IGlobalCommands
     {
         GraphicsDevice.Clear(Color.DarkSlateGray);
 
-        Scene.Draw(gameTime);
+        SceneManager.Current?.Draw(gameTime);
 
         base.Draw(gameTime);
     }
@@ -164,8 +168,6 @@ public class CoreGame : Game, IGlobalCommands
     protected override void Dispose(bool disposing)
     {
         _container.Root.Dispose();
-        Scene.Dispose();
-        _sceneManager.Dispose();
         base.Dispose(disposing);
     }
 }

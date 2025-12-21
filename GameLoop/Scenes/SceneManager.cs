@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 namespace GameLoop.Scenes;
 
-internal class SceneManager(IScene? initial) : IDisposable
+internal class SceneManager : IDisposable
 {
     private readonly Stack<IScene> _sceneStack = new();
 
-    internal IScene? Current { get; private set; } = initial;
+    internal IScene? Current { get; private set; }
+    internal int InputFramesToSkip { get; set; }
 
     public void Dispose()
     {
@@ -21,6 +22,8 @@ internal class SceneManager(IScene? initial) : IDisposable
         if (Current != null)
             _sceneStack.Push(Current);
         Current = scene;
+
+        InputFramesToSkip = 1; // Prevents within-frame race conditions with other input managers
     }
 
     internal void Pop()
@@ -28,5 +31,7 @@ internal class SceneManager(IScene? initial) : IDisposable
         Current?.Dispose();
         if (_sceneStack.Count > 0)
             Current = _sceneStack.Pop();
+
+        InputFramesToSkip = 1; // Prevents within-frame race conditions with other input managers
     }
 }

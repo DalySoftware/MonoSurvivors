@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using GameLoop.Scenes;
 using Gameplay;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -9,7 +10,10 @@ namespace GameLoop.Input;
 /// <summary>
 ///     Contains any global input logic, eg exit
 /// </summary>
-internal abstract class BaseInputManager(IGlobalCommands commands, GameFocusState focusState)
+internal abstract class BaseInputManager(
+    IGlobalCommands commands,
+    GameFocusState focusState,
+    SceneManager sceneManager)
 {
     internal InputMethod CurrentInputMethod { get; private set; } = InputMethod.KeyboardMouse;
 
@@ -21,6 +25,14 @@ internal abstract class BaseInputManager(IGlobalCommands commands, GameFocusStat
     protected GamePadState PreviousGamePadState { get; set; }
     protected MouseState MouseState { get; private set; } = Mouse.GetState();
     protected MouseState PreviousMouseState { get; private set; } = Mouse.GetState();
+
+    protected bool ShouldSkipInput()
+    {
+        if (sceneManager.InputFramesToSkip <= 0) return false;
+
+        sceneManager.InputFramesToSkip--;
+        return true;
+    }
 
     internal virtual void Update(GameTime gameTime)
     {

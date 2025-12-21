@@ -9,8 +9,12 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Pause;
 
-internal class PauseInputManager(IGlobalCommands globalCommands, GameFocusState focusState, PauseUi ui)
-    : BaseInputManager(globalCommands, focusState)
+internal class PauseInputManager(
+    IGlobalCommands globalCommands,
+    GameFocusState focusState,
+    PauseUi ui,
+    SceneManager sceneManager)
+    : BaseInputManager(globalCommands, focusState, sceneManager)
 {
     private readonly Action _onResume = globalCommands.ResumeGame;
 
@@ -24,6 +28,7 @@ internal class PauseInputManager(IGlobalCommands globalCommands, GameFocusState 
     internal override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        if (ShouldSkipInput()) return;
 
         if (CurrentInputMethod != _lastInputMethod)
         {

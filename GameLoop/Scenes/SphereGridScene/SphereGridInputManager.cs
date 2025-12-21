@@ -8,8 +8,12 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.SphereGridScene;
 
- internal class SphereGridInputManager(IGlobalCommands globalCommands, GameFocusState focusState, SphereGridUi ui)
-    : BaseInputManager(globalCommands, focusState)
+internal class SphereGridInputManager(
+    IGlobalCommands globalCommands,
+    GameFocusState focusState,
+    SphereGridUi ui,
+    SceneManager sceneManager)
+    : BaseInputManager(globalCommands, focusState, sceneManager)
 {
     private readonly TimeSpan _thumbstickNavigationCooldown = TimeSpan.FromMilliseconds(150);
     private TimeSpan _currentThumbstickNavigationCooldown = TimeSpan.Zero;
@@ -18,6 +22,7 @@ namespace GameLoop.Scenes.SphereGridScene;
     internal override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        if (ShouldSkipInput()) return;
 
         if (WasPressedThisFrame(Keys.Escape) ||
             WasPressedThisFrame(Keys.Tab) ||

@@ -51,8 +51,9 @@ public class LevelManager
         if (_playTime.TimeSinceRunStart > TimeSpan.FromMinutes(5)) return; // stop auto opening
 
         var unlockables = _sphereGrid.Unlockable.ToHashSet();
-        var anythingHasChanged = !unlockables.SetEquals(_lastSeenUnlockables);
-        if (unlockables.Count > 0 && anythingHasChanged)
+        var anythingIsNew = unlockables.Except(_lastSeenUnlockables).Any();
+
+        if (unlockables.Count > 0 && anythingIsNew)
             _globalCommands.ShowSphereGrid();
 
         _lastSeenUnlockables = unlockables;

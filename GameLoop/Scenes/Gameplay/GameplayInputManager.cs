@@ -7,12 +7,17 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Gameplay;
 
-internal class GameplayInputManager(PlayerCharacter player, IGlobalCommands globalCommands, GameFocusState focusState)
-    : BaseInputManager(globalCommands, focusState)
+internal class GameplayInputManager(
+    PlayerCharacter player,
+    IGlobalCommands globalCommands,
+    GameFocusState focusState,
+    SceneManager sceneManager)
+    : BaseInputManager(globalCommands, focusState, sceneManager)
 {
     internal override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        if (ShouldSkipInput()) return;
 
         if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Start))
         {
