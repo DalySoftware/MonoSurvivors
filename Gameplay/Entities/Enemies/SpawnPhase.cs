@@ -8,7 +8,7 @@ namespace Gameplay.Entities.Enemies;
 
 public class SpawnPhase
 {
-    public required TimeSpan StartTime { get; init; }
+    public required TimeSpan Duration { get; init; }
     public required TimeSpan WaveCooldown { get; init; }
 
     /// <summary>

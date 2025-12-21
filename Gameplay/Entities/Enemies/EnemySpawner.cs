@@ -31,7 +31,7 @@ public class EnemySpawner : IEntity
         [
             new SpawnPhase
             {
-                StartTime = TimeSpan.Zero,
+                Duration = TimeSpan.FromMinutes(1),
                 WaveCooldown = TimeSpan.FromSeconds(4),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
@@ -40,7 +40,16 @@ public class EnemySpawner : IEntity
             },
             new SpawnPhase
             {
-                StartTime = TimeSpan.FromMinutes(2),
+                Duration = TimeSpan.FromMinutes(1),
+                WaveCooldown = TimeSpan.FromSeconds(3),
+                EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
+                {
+                    { enemyFactory.BasicEnemy, 8 },
+                },
+            },
+            new SpawnPhase
+            {
+                Duration = TimeSpan.FromMinutes(2),
                 WaveCooldown = TimeSpan.FromSeconds(3),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
@@ -50,7 +59,7 @@ public class EnemySpawner : IEntity
             },
             new SpawnPhase
             {
-                StartTime = TimeSpan.FromMinutes(4),
+                Duration = TimeSpan.FromMinutes(2),
                 WaveCooldown = TimeSpan.FromSeconds(3),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
@@ -61,7 +70,7 @@ public class EnemySpawner : IEntity
             },
             new SpawnPhase
             {
-                StartTime = TimeSpan.FromMinutes(6),
+                Duration = TimeSpan.FromMinutes(2),
                 WaveCooldown = TimeSpan.FromSeconds(2),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
@@ -72,7 +81,7 @@ public class EnemySpawner : IEntity
             },
             new SpawnPhase
             {
-                StartTime = TimeSpan.FromMinutes(8),
+                Duration = TimeSpan.FromMinutes(2),
                 WaveCooldown = TimeSpan.FromSeconds(1),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
@@ -83,7 +92,7 @@ public class EnemySpawner : IEntity
             },
             new SpawnPhase
             {
-                StartTime = TimeSpan.FromMinutes(10),
+                Duration = TimeSpan.FromMinutes(2),
                 WaveCooldown = TimeSpan.FromSeconds(1),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
@@ -94,7 +103,7 @@ public class EnemySpawner : IEntity
             },
             new SpawnPhase
             {
-                StartTime = TimeSpan.FromMinutes(12),
+                Duration = TimeSpan.FromMinutes(2),
                 WaveCooldown = TimeSpan.FromSeconds(1),
                 EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
                 {
@@ -105,7 +114,6 @@ public class EnemySpawner : IEntity
         ];
     }
 
-    private SpawnPhase CurrentPhase => _waves.Last(w => _elapsedTime >= w.StartTime);
 
     public bool MarkedForDeletion => false;
 
@@ -117,12 +125,25 @@ public class EnemySpawner : IEntity
         if (_cooldown > TimeSpan.Zero)
             return;
 
-        var wave = CurrentPhase;
+        var wave = CurrentPhase();
         _cooldown = wave.WaveCooldown;
 
         foreach (var enemyFactory in wave.GetEnemies().Shuffle())
-            _entityManager.Spawn(
-                enemyFactory(_screenPositioner.GetRandomOffScreenPosition(_player.Position))
-            );
+            _entityManager.Spawn(enemyFactory(_screenPositioner.GetRandomOffScreenPosition(_player.Position)));
+    }
+
+    private SpawnPhase CurrentPhase()
+    {
+        var timeToFill = _elapsedTime;
+        foreach (var wave in _waves)
+        {
+            if (timeToFill < wave.Duration)
+                return wave;
+
+            timeToFill -= wave.Duration;
+        }
+
+        // If we run past all durations, stick on the last phase
+        return _waves[^1];
     }
 }
