@@ -83,6 +83,7 @@ public static class PowerUpCatalog
             SpeedUp => "Increase Speed",
             WeaponUnlock<Shotgun> => "Unlock the Shotgun",
             WeaponUnlock<SniperRifle> => "Unlock the Sniper Rifle",
+            WeaponUnlock<BouncingGun> => "Unlock the Bouncer",
             WeaponUnlock<DamageAura> => "Unlock a damaging aura",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
@@ -110,6 +111,7 @@ public static class PowerUpCatalog
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
             WeaponUnlock<Shotgun> => "Unlock an extra weapon. The shotgun fires bullets in a spread",
             WeaponUnlock<SniperRifle> => "Unlock an extra weapon. The sniper rifle fires high damage shots",
+            WeaponUnlock<BouncingGun> => "Unlock an extra weapon. The bouncer's bullets ricochet off enemies",
             WeaponUnlock<DamageAura> => "Unlock an extra weapon. You emit an aura which damages all nearby enemies",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
