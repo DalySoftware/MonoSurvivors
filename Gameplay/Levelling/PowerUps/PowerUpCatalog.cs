@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ContentLibrary;
 using Gameplay.Combat.Weapons.AreaOfEffect;
 using Gameplay.Combat.Weapons.Projectile;
@@ -14,43 +15,48 @@ namespace Gameplay.Levelling.PowerUps;
 
 public static class PowerUpCatalog
 {
-    internal readonly static Dictionary<Type, PowerUpCategory> Categories = new()
-    {
+    internal readonly static PowerUpMetaData[] PowerUpDefinitions =
+    [
         // Damage
-        [typeof(DamageUp)] = PowerUpCategory.Damage,
-        [typeof(AttackSpeedUp)] = PowerUpCategory.Damage,
+        new(PowerUpCategory.Damage, typeof(DamageUp), NodeFactory.DamageUp),
+        new(PowerUpCategory.Damage, typeof(AttackSpeedUp), NodeFactory.AttackSpeedUp),
 
-        // DamageEffects
-        [typeof(ShotCountUp)] = PowerUpCategory.DamageEffects,
-        [typeof(PierceUp)] = PowerUpCategory.DamageEffects,
-        [typeof(BulletSplitUp)] = PowerUpCategory.DamageEffects,
-        [typeof(ExplodeOnKillUp)] = PowerUpCategory.DamageEffects,
-        [typeof(ChainLightningUp)] = PowerUpCategory.DamageEffects,
+        // Damage Effects
+        new(PowerUpCategory.DamageEffects, typeof(ShotCountUp), NodeFactory.ShotCountUp),
+        new(PowerUpCategory.DamageEffects, typeof(PierceUp), NodeFactory.PierceUp),
+        new(PowerUpCategory.DamageEffects, typeof(BulletSplitUp), NodeFactory.BulletSplitUp),
+        new(PowerUpCategory.DamageEffects, typeof(ExplodeOnKillUp), NodeFactory.ExplodeOnKillUp),
+        new(PowerUpCategory.DamageEffects, typeof(ChainLightningUp), NodeFactory.ChainLightningUp),
 
         // Health
-        [typeof(MaxHealthUp)] = PowerUpCategory.Health,
-        [typeof(HealthRegenUp)] = PowerUpCategory.Health,
-        [typeof(LifeStealUp)] = PowerUpCategory.Health,
+        new(PowerUpCategory.Health, typeof(MaxHealthUp), NodeFactory.MaxHealthUp),
+        new(PowerUpCategory.Health, typeof(HealthRegenUp), NodeFactory.HealthRegenUp),
+        new(PowerUpCategory.Health, typeof(LifeStealUp), NodeFactory.LifeStealUp),
 
         // Speed
-        [typeof(SpeedUp)] = PowerUpCategory.Speed,
-        [typeof(DodgeChanceUp)] = PowerUpCategory.Speed,
-        [typeof(ProjectileSpeedUp)] = PowerUpCategory.Utility,
+        new(PowerUpCategory.Speed, typeof(SpeedUp), NodeFactory.SpeedUp),
+        new(PowerUpCategory.Speed, typeof(DodgeChanceUp), NodeFactory.DodgeChanceUp),
+        new(PowerUpCategory.Utility, typeof(ProjectileSpeedUp), NodeFactory.ProjectileSpeedUp),
 
         // Utility
-        [typeof(PickupRadiusUp)] = PowerUpCategory.Utility,
-        [typeof(ExperienceUp)] = PowerUpCategory.Utility,
-        [typeof(RangeUp)] = PowerUpCategory.Utility,
+        new(PowerUpCategory.Utility, typeof(PickupRadiusUp), NodeFactory.PickupRadiusUp),
+        new(PowerUpCategory.Utility, typeof(ExperienceUp), NodeFactory.ExperienceUp),
+        new(PowerUpCategory.Utility, typeof(RangeUp), NodeFactory.RangeUp),
+        new(PowerUpCategory.Utility, typeof(GridVisionUp), NodeFactory.GridVisionUp),
 
         // Crit
-        [typeof(CritChanceUp)] = PowerUpCategory.Crit,
-        [typeof(CritDamageUp)] = PowerUpCategory.Crit,
+        new(PowerUpCategory.Crit, typeof(CritChanceUp), NodeFactory.CritChanceUp),
+        new(PowerUpCategory.Crit, typeof(CritDamageUp), NodeFactory.CritDamageUp),
 
-        // WeaponUnlock
-        [typeof(WeaponUnlock<Shotgun>)] = PowerUpCategory.WeaponUnlock,
-        [typeof(WeaponUnlock<SniperRifle>)] = PowerUpCategory.WeaponUnlock,
-        [typeof(WeaponUnlock<DamageAura>)] = PowerUpCategory.WeaponUnlock,
-    };
+        // Weapon unlocks (unique)
+        new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<Shotgun>), NodeFactory.ShotgunUnlock),
+        new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<SniperRifle>), NodeFactory.SniperRifleUnlock),
+        new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<DamageAura>), NodeFactory.DamageAuraUnlock),
+        new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<BouncingGun>), NodeFactory.BouncingGunUnlock),
+    ];
+
+    internal static Dictionary<Type, PowerUpCategory> Categories { get; } =
+        PowerUpDefinitions.ToDictionary(d => d.PowerUpType, d => d.Category);
 
     extension(IPowerUp powerUp)
     {
@@ -196,11 +202,17 @@ public class PowerUpIcons(ContentManager content)
         WeaponUnlock<Shotgun> => _shotCount,
         WeaponUnlock<DamageAura> => _shotCount,
         WeaponUnlock<SniperRifle> => _shotCount,
-
+        WeaponUnlock<BouncingGun> => _shotCount,
         null => null,
         _ => throw new ArgumentOutOfRangeException(nameof(node)),
     };
 }
+
+internal readonly record struct PowerUpMetaData(
+    PowerUpCategory Category,
+    Type PowerUpType,
+    Func<NodeRarity, Node> Factory
+);
 
 internal static class Pluralization
 {

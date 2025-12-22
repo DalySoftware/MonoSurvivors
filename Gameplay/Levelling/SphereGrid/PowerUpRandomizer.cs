@@ -1,67 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gameplay.Levelling.PowerUps;
+using Gameplay.Levelling.PowerUps.Player;
 
 namespace Gameplay.Levelling.SphereGrid;
 
 internal class PowerUpRandomizer
 {
-    internal readonly static Dictionary<PowerUpCategory, Func<NodeRarity, Node>[]> Factories =
-        new()
-        {
-            [PowerUpCategory.Damage] =
-            [
-                NodeFactory.DamageUp,
-                NodeFactory.AttackSpeedUp,
-            ],
-
-            [PowerUpCategory.DamageEffects] =
-            [
-                NodeFactory.ShotCountUp,
-                NodeFactory.PierceUp,
-                NodeFactory.BulletSplitUp,
-                NodeFactory.ExplodeOnKillUp,
-                NodeFactory.ChainLightningUp,
-            ],
-
-            [PowerUpCategory.Health] =
-            [
-                NodeFactory.MaxHealthUp,
-                NodeFactory.HealthRegenUp,
-                NodeFactory.LifeStealUp,
-            ],
-
-            [PowerUpCategory.Speed] =
-            [
-                NodeFactory.SpeedUp,
-                NodeFactory.DodgeChanceUp,
-            ],
-
-            [PowerUpCategory.Utility] =
-            [
-                NodeFactory.PickupRadiusUp,
-                NodeFactory.ExperienceUp,
-                NodeFactory.RangeUp,
-                NodeFactory.ProjectileSpeedUp,
-                NodeFactory.GridVisionUp,
-            ],
-
-            [PowerUpCategory.Crit] =
-            [
-                NodeFactory.CritChanceUp,
-                NodeFactory.CritDamageUp,
-            ],
-
-            [PowerUpCategory.WeaponUnlock] =
-            [
-                NodeFactory.ShotgunUnlock,
-                NodeFactory.SniperRifleUnlock,
-                NodeFactory.DamageAuraUnlock,
-                NodeFactory.BouncingGunUnlock,
-            ],
-        };
     private readonly Random _random = new();
-    private readonly List<Func<NodeRarity, Node>> _remainingWeaponUnlocks = [..Factories[PowerUpCategory.WeaponUnlock]];
+
+    private readonly List<PowerUpMetaData> _remainingWeaponUnlocks = PowerUpCatalog.PowerUpDefinitions
+        .Where(d => d.PowerUpType.IsGenericType && d.PowerUpType.GetGenericTypeDefinition() == typeof(WeaponUnlock<>))
+        .ToList();
+
+    internal static Dictionary<PowerUpCategory, List<PowerUpMetaData>> ByCategory { get; } =
+        PowerUpCatalog.PowerUpDefinitions
+            .GroupBy(d => d.Category)
+            .ToDictionary(g => g.Key, g => g.ToList());
 
     public Node Pick(PowerUpCategory category, NodeRarity rarity)
     {
@@ -71,15 +27,15 @@ internal class PowerUpRandomizer
                 throw new InvalidOperationException("All weapon unlocks already used.");
 
             var index = _random.Next(_remainingWeaponUnlocks.Count);
-            var factory = _remainingWeaponUnlocks[index];
+            var factory = _remainingWeaponUnlocks[index].Factory;
             _remainingWeaponUnlocks.RemoveAt(index);
 
             return factory(rarity);
         }
 
-        if (!Factories.TryGetValue(category, out var options) || options.Length == 0)
+        if (!ByCategory.TryGetValue(category, out var options) || options.Count == 0)
             throw new InvalidOperationException($"No power-ups registered for category {category}");
 
-        return options[_random.Next(options.Length)](rarity);
+        return options[_random.Next(options.Count)].Factory(rarity);
     }
 }
