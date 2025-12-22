@@ -21,7 +21,9 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity) : IOnHitEffect
 
     public void Apply(IHitContext hitContext)
     {
-        if (hitContext is not BulletHitContext(_, var enemy, var bullet)) return;
+        if (hitContext is not BulletHitContext context) return;
+        var bullet = context.Bullet;
+        var enemy = context.Enemy;
 
         var stats = bullet.Owner.WeaponBelt.Stats;
         if (stats.BulletSplit <= 0)

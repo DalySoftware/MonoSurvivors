@@ -8,8 +8,11 @@ public class BounceOnHit : IOnHitEffect
 
     public void Apply(IHitContext context)
     {
-        if (context is not BulletHitContext(_, var enemy, var bullet))
+        if (context is not BulletHitContext bulletContext)
             return;
+
+        var bullet = bulletContext.Bullet;
+        var enemy = bulletContext.Enemy;
 
         // Reflection
         var normal = Vector2.Normalize(bullet.Position - enemy.Position);
@@ -21,6 +24,6 @@ public class BounceOnHit : IOnHitEffect
 
         velocity = Vector2.Transform(velocity, Matrix.CreateRotationZ(angleOffset));
 
-        bullet.BounceOnEnemy(velocity, enemy, 0.6f);
+        bulletContext.RequestBounce(velocity, 0.6f);
     }
 }

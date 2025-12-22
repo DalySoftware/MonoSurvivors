@@ -57,18 +57,38 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         if (_immuneEnemies.Contains(enemy)) return;
 
         enemy.TakeDamage(Owner, Damage);
-        foreach (var onHit in OnHitEffects.OrderBy(o => o.Priority))
-        {
-            var context = new BulletHitContext(Owner, enemy, this);
-            onHit.Apply(context);
-        }
 
-        if (_piercesLeft-- > 0) MarkedForDeletion = true;
+        var context = new BulletHitContext(Owner, enemy, this);
+
+        foreach (var onHit in OnHitEffects.OrderBy(o => o.Priority))
+            onHit.Apply(context);
+
+        Resolve(context);
     }
 
     public float Layer => Layers.Projectiles;
 
     public string TexturePath => Paths.Images.Bullet;
+
+    private void Resolve(BulletHitContext ctx)
+    {
+        if (ctx.Delete)
+        {
+            MarkedForDeletion = true;
+            return;
+        }
+
+        if (ctx is { Bounce: true, BounceVelocity: { } velocity, BounceDamageMultiplier: var multiplier })
+        {
+            Velocity = velocity;
+            Damage *= multiplier;
+            _immuneEnemies.Add(ctx.Enemy);
+            return;
+        }
+
+        if (ctx.ConsumePierce && _piercesLeft-- <= 0) // NB: 0 pierce is allowed to hit 1 enemy
+            MarkedForDeletion = true;
+    }
 
     private static Vector2 CalculateVelocity(Vector2 initialPosition, Vector2 target, float speed) =>
         (Vector2)new UnitVector2(target - initialPosition) * speed;
@@ -81,15 +101,5 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         _distanceTraveled += Vector2.Distance(previousPosition, Position);
         if (RemainingRange <= 0)
             MarkedForDeletion = true;
-    }
-
-    internal void BounceOnEnemy(Vector2 newVelocity, EnemyBase enemy, float damageMultiplier = 1f)
-    {
-        Velocity = newVelocity;
-        Damage *= damageMultiplier;
-
-        // If we already hit the same enemy, delete the bullet
-        // If we didn't, ensure it doesn't get deleted for exhausting pierces
-        MarkedForDeletion = !_immuneEnemies.Add(enemy);
     }
 }
