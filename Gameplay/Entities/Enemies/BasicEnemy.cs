@@ -22,6 +22,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 
     public override float Experience => 1f;
     public ISpriteSheet SpriteSheet { get; } = new BasicEnemySpriteSheet();
+    public Color? OutlineColor => null;
 
     public IFrame CurrentFrame { get; private set; } = new BasicEnemySpriteSheet.LookDirectionFrame(Vector2.Zero);
 

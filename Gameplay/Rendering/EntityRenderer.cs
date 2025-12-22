@@ -13,7 +13,8 @@ public class EntityRenderer(
     SpriteBatch spriteBatch,
     ChaseCamera camera,
     EffectManager effectManager,
-    PrimitiveRenderer primitiveRenderer)
+    PrimitiveRenderer primitiveRenderer,
+    OutlineRenderer outlineRenderer)
 {
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
     private readonly Dictionary<string, Texture2D> _textureCache = [];
@@ -62,6 +63,10 @@ public class EntityRenderer(
         var texture = visual.SpriteSheet.Texture(content);
         var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
         var origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
+
+        if (visual.OutlineColor is { } outlineColor)
+            outlineRenderer.DrawOutline(spriteBatch, texture, visual.Position, sourceRect, origin,
+                visual.Layer - 0.001f, outlineColor);
         spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect, origin: origin,
             layerDepth: visual.Layer);
     }
@@ -70,6 +75,7 @@ public class EntityRenderer(
     {
         var texture = GetTexture(visual.TexturePath);
         var origin = new Vector2(texture.Width / 2f, texture.Height / 2f);
+
         spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: visual.Layer);
     }
 

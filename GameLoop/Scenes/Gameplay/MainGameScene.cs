@@ -109,6 +109,7 @@ internal class MainGameScene(
         builder.RegisterType<LevelManager>().SingleInstance();
 
         builder.RegisterType<EntityRenderer>().SingleInstance();
+        builder.RegisterType<OutlineRenderer>().SingleInstance();
 
         builder.RegisterType<ChaseCamera>()
             .WithParameter((pi, _) => pi.Name == "target", (_, ctx) => ctx.Resolve<PlayerCharacter>())

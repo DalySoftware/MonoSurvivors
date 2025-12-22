@@ -23,6 +23,7 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
 
     public ISpriteSheet SpriteSheet { get; } = new HulkerSpriteSheet();
     public IFrame CurrentFrame { get; private set; } = new HulkerSpriteSheet.LookDirectionFrame(Vector2.Zero);
+    public Color? OutlineColor => null;
 
     public override void Update(GameTime gameTime)
     {
