@@ -7,20 +7,19 @@ using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
 
-public abstract class EnemyBase(Vector2 position, int damage)
+public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     : MovableEntity(position), IDamagesPlayer, ICreatesExperienceOnDeath
 {
     private int _isDead; // Marker for concurrency
 
-    internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
+    public float Health { get; private set; } = stats.MaxHealth;
+    public EnemyStats Stats { get; } = stats;
     public float Layer => Layers.Enemies;
-
-    public float Health { get; protected set; }
-
-    public abstract float Experience { get; }
-
-    public int Damage { get; } = damage;
+    internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
+    public float Experience => Stats.Experience;
+    public int Damage => Stats.Damage;
     public required ICollider Collider { get; init; }
+
     public void TakeDamage(PlayerCharacter damager, float amount)
     {
         Health -= amount;
@@ -33,3 +32,5 @@ public abstract class EnemyBase(Vector2 position, int damage)
         damager.OnKill(this);
     }
 }
+
+public record EnemyStats(float MaxHealth, float Experience, int Damage);

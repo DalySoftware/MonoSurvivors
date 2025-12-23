@@ -10,7 +10,7 @@ using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Effects;
-using Gameplay.Entities.Enemies;
+using Gameplay.Entities.Enemies.Spawning;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Rendering;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Utilities;
 
-namespace Gameplay.Entities.Enemies;
+namespace Gameplay.Entities.Enemies.Spawning;
 
 public class EnemySpawner(
     EntityManager entityManager,

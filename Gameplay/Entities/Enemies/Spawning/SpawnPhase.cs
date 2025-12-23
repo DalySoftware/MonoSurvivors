@@ -4,7 +4,7 @@ using System.Linq;
 using CreateEnemy = System.Func<Microsoft.Xna.Framework.Vector2, Gameplay.Entities.Enemies.EnemyBase>;
 using NumberToSpawn = int;
 
-namespace Gameplay.Entities.Enemies;
+namespace Gameplay.Entities.Enemies.Spawning;
 
 public class SpawnPhase
 {

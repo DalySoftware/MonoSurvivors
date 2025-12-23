@@ -4,7 +4,7 @@ using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 
-namespace Gameplay.Entities.Enemies;
+namespace Gameplay.Entities.Enemies.Types;
 
 public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 {
@@ -13,18 +13,18 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     private TimeSpan _animationCooldown = TimeSpan.Zero;
 
     [SetsRequiredMembers]
-    public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition, 1)
+    public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition, BasicEnemyStats())
     {
         _followEntity = new FollowEntity(this, target, 0.07f);
         Collider = new CircleCollider(this, 32f);
-        Health = 20f;
     }
 
-    public override float Experience => 1f;
     public ISpriteSheet SpriteSheet { get; } = new BasicEnemySpriteSheet();
     public Color? OutlineColor => null;
 
     public IFrame CurrentFrame { get; private set; } = new BasicEnemySpriteSheet.LookDirectionFrame(Vector2.Zero);
+
+    private static EnemyStats BasicEnemyStats() => new(20f, 1f, 1);
 
     public override void Update(GameTime gameTime)
     {

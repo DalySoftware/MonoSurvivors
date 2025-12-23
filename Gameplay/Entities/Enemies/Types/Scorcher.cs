@@ -4,22 +4,22 @@ using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 
-namespace Gameplay.Entities.Enemies;
+namespace Gameplay.Entities.Enemies.Types;
 
 public class Scorcher : EnemyBase, ISpriteVisual
 {
     private readonly FollowEntity _followEntity;
 
     [SetsRequiredMembers]
-    public Scorcher(Vector2 position, IHasPosition target) : base(position, 1)
+    public Scorcher(Vector2 position, IHasPosition target) : base(position, ScorcherStats())
     {
         _followEntity = new FollowEntity(this, target, 0.13f);
         Collider = new RectangleCollider(this, 96f, 96f);
-        Health = 12f;
     }
 
-    public override float Experience => 2f;
     public string TexturePath => Paths.Images.Scorcher;
+
+    private static EnemyStats ScorcherStats() => new(12f, 2f, 1);
 
     public override void Update(GameTime gameTime)
     {

@@ -4,7 +4,7 @@ using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 
-namespace Gameplay.Entities.Enemies;
+namespace Gameplay.Entities.Enemies.Types;
 
 public class Hulker : EnemyBase, ISpriteSheetVisual
 {
@@ -12,18 +12,17 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
     private TimeSpan _animationCooldown;
 
     [SetsRequiredMembers]
-    public Hulker(Vector2 position, IHasPosition target) : base(position, 1)
+    public Hulker(Vector2 position, IHasPosition target) : base(position, HulkerStats())
     {
         _followEntity = new FollowEntity(this, target, 0.04f);
         Collider = new RectangleCollider(this, 128f, 128f);
-        Health = 120f;
     }
-
-    public override float Experience => 6f;
 
     public ISpriteSheet SpriteSheet { get; } = new HulkerSpriteSheet();
     public IFrame CurrentFrame { get; private set; } = new HulkerSpriteSheet.LookDirectionFrame(Vector2.Zero);
     public Color? OutlineColor => null;
+
+    private static EnemyStats HulkerStats() => new(120f, 6f, 1);
 
     public override void Update(GameTime gameTime)
     {

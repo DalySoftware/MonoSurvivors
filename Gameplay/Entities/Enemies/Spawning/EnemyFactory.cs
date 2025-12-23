@@ -1,4 +1,6 @@
-﻿namespace Gameplay.Entities.Enemies;
+﻿using Gameplay.Entities.Enemies.Types;
+
+namespace Gameplay.Entities.Enemies.Spawning;
 
 public class EnemyFactory(PlayerCharacter player)
 {
