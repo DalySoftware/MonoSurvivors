@@ -20,6 +20,10 @@ public static class ColorOperations
 
         public float Hue => OklchColor.FromColor(color).Hue;
 
+        public Color WithLightness(float delta) => (OklchColor.FromColor(color) with { Lightness = delta }).ToColor();
+        public Color WithChroma(float delta) => (OklchColor.FromColor(color) with { Chroma = delta }).ToColor();
+        public Color WithHue(float delta) => (OklchColor.FromColor(color) with { Hue = delta }).ToColor();
+
         public Color ShiftLightness(float delta) =>
             (OklchColor.FromColor(color) with { Lightness = color.Lightness + delta }).ToColor();
 

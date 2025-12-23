@@ -37,19 +37,33 @@ public static class Paths
 
         public static class PowerUpIcons
         {
-            public const string Speed = @"Images\PowerUpIcons\Speed";
-            public const string MaxHealth = @"Images\PowerUpIcons\MaxHealth";
             public const string AttackSpeed = @"Images\PowerUpIcons\AttackSpeed";
-            public const string Damage = @"Images\PowerUpIcons\Damage";
-            public const string PickupRadius = @"Images\PowerUpIcons\PickupRadius";
-            public const string Range = @"Images\PowerUpIcons\Range";
-            public const string LifeSteal = @"Images\PowerUpIcons\LifeSteal";
-            public const string Experience = @"Images\PowerUpIcons\Experience";
+            public const string BulletSplit = @"Images\PowerUpIcons\BulletSplit";
+            public const string ChainLightning = @"Images\PowerUpIcons\ChainLightning";
             public const string CritChance = @"Images\PowerUpIcons\CritChance";
             public const string CritDamage = @"Images\PowerUpIcons\CritDamage";
+            public const string Damage = @"Images\PowerUpIcons\Damage";
+            public const string Dodge = @"Images\PowerUpIcons\Dodge";
+            public const string Experience = @"Images\PowerUpIcons\Experience";
+            public const string ExplodeOnKill = @"Images\PowerUpIcons\ExplodeOnKill";
+            public const string GridVision = @"Images\PowerUpIcons\GridVision";
+            public const string HealthRegen = @"Images\PowerUpIcons\HealthRegen";
+            public const string LifeSteal = @"Images\PowerUpIcons\LifeSteal";
+            public const string MaxHealth = @"Images\PowerUpIcons\MaxHealth";
+            public const string PickupRadius = @"Images\PowerUpIcons\PickupRadius";
             public const string Pierce = @"Images\PowerUpIcons\Pierce";
             public const string ProjectileSpeed = @"Images\PowerUpIcons\ProjectileSpeed";
+            public const string Range = @"Images\PowerUpIcons\Range";
             public const string ShotCount = @"Images\PowerUpIcons\ShotCount";
+            public const string Speed = @"Images\PowerUpIcons\Speed";
+
+            public static class Weapons
+            {
+                public const string BouncingGun = @"Images\PowerUpIcons\WeaponBouncingGun";
+                public const string DamageAura = @"Images\PowerUpIcons\WeaponDamageAura";
+                public const string Shotgun = @"Images\PowerUpIcons\WeaponShotgun";
+                public const string SniperRifle = @"Images\PowerUpIcons\WeaponSniper";
+            }
         }
     }
 

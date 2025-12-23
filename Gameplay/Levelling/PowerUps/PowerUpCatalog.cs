@@ -166,11 +166,17 @@ public enum PowerUpCategory
 public class PowerUpIcons(ContentManager content)
 {
     private readonly Texture2D _attackSpeed = content.Load<Texture2D>(Paths.Images.PowerUpIcons.AttackSpeed);
+    private readonly Texture2D _bulletSplit = content.Load<Texture2D>(Paths.Images.PowerUpIcons.BulletSplit);
+    private readonly Texture2D _chainLightning = content.Load<Texture2D>(Paths.Images.PowerUpIcons.ChainLightning);
     private readonly Texture2D _critChance = content.Load<Texture2D>(Paths.Images.PowerUpIcons.CritChance);
     private readonly Texture2D _critDamage = content.Load<Texture2D>(Paths.Images.PowerUpIcons.CritDamage);
     private readonly Texture2D _damage = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Damage);
+    private readonly Texture2D _dodge = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Dodge);
     private readonly Texture2D _experience = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Experience);
+    private readonly Texture2D _explodeOnKill = content.Load<Texture2D>(Paths.Images.PowerUpIcons.ExplodeOnKill);
+    private readonly Texture2D _gridVision = content.Load<Texture2D>(Paths.Images.PowerUpIcons.GridVision);
     private readonly Texture2D _lifeSteal = content.Load<Texture2D>(Paths.Images.PowerUpIcons.LifeSteal);
+    private readonly Texture2D _healthRegen = content.Load<Texture2D>(Paths.Images.PowerUpIcons.HealthRegen);
     private readonly Texture2D _maxHealth = content.Load<Texture2D>(Paths.Images.PowerUpIcons.MaxHealth);
     private readonly Texture2D _pickupRadius = content.Load<Texture2D>(Paths.Images.PowerUpIcons.PickupRadius);
     private readonly Texture2D _pierce = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Pierce);
@@ -179,14 +185,24 @@ public class PowerUpIcons(ContentManager content)
     private readonly Texture2D _shotCount = content.Load<Texture2D>(Paths.Images.PowerUpIcons.ShotCount);
     private readonly Texture2D _speed = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Speed);
 
+    private readonly Texture2D _bouncingGun = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.BouncingGun);
+    private readonly Texture2D _damageAura = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.DamageAura);
+    private readonly Texture2D _shotgun = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.Shotgun);
+    private readonly Texture2D _sniperRifle = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.SniperRifle);
+
     public Texture2D? IconFor(Node node) => node.PowerUp switch
     {
         AttackSpeedUp => _attackSpeed,
+        BulletSplitUp => _bulletSplit,
+        ChainLightningUp => _chainLightning,
         CritChanceUp => _critChance,
         CritDamageUp => _critDamage,
         DamageUp => _damage,
-
+        DodgeChanceUp => _dodge,
         ExperienceUp => _experience,
+        ExplodeOnKillUp => _explodeOnKill,
+        GridVisionUp => _gridVision,
+        HealthRegenUp => _healthRegen,
         LifeStealUp => _lifeSteal,
         MaxHealthUp => _maxHealth,
         PickupRadiusUp => _pickupRadius,
@@ -195,16 +211,12 @@ public class PowerUpIcons(ContentManager content)
         RangeUp => _range,
         ShotCountUp => _shotCount,
         SpeedUp => _speed,
-        BulletSplitUp => _shotCount, // todo icons for all below
-        ChainLightningUp => _shotCount,
-        DodgeChanceUp => _shotCount,
-        ExplodeOnKillUp => _shotCount,
-        GridVisionUp => _shotCount,
-        HealthRegenUp => _shotCount,
-        WeaponUnlock<Shotgun> => _shotCount,
-        WeaponUnlock<DamageAura> => _shotCount,
-        WeaponUnlock<SniperRifle> => _shotCount,
-        WeaponUnlock<BouncingGun> => _shotCount,
+
+        WeaponUnlock<Shotgun> => _shotgun,
+        WeaponUnlock<DamageAura> => _damageAura,
+        WeaponUnlock<BouncingGun> => _bouncingGun,
+        WeaponUnlock<SniperRifle> => _sniperRifle,
+
         null => null,
         _ => throw new ArgumentOutOfRangeException(nameof(node)),
     };
