@@ -119,7 +119,7 @@ internal class MainGameScene(
         {
             var player = ctx.Resolve<PlayerCharacter>();
             return GridFactory.CreateRandom(player.AddPowerUp);
-        }).SingleInstance();
+        }).InstancePerLifetimeScope();
 
         builder.RegisterType<ExperienceBarFactory>().SingleInstance();
         builder.Register<ExperienceBar>(ctx => ctx.Resolve<ExperienceBarFactory>().Create());
