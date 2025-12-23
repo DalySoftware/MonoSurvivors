@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Gameplay.Levelling.PowerUps;
 
-namespace Gameplay.Levelling.SphereGrid;
+namespace Gameplay.Levelling.SphereGrid.Generation;
 
 public sealed class GridTemplate
 {

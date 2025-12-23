@@ -6,6 +6,7 @@ using ContentLibrary;
 using GameLoop.Scenes.SphereGridScene.UI;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.SphereGrid;
+using Gameplay.Levelling.SphereGrid.Generation;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
@@ -713,7 +714,7 @@ public class Editor : Game
         sb.AppendLine("using System.Collections.Generic;");
         sb.AppendLine("using Gameplay.Levelling.PowerUps;");
         sb.AppendLine("// ReSharper disable RedundantEmptyObjectOrCollectionInitializer");
-        sb.AppendLine("namespace Gameplay.Levelling.SphereGrid;");
+        sb.AppendLine("namespace Gameplay.Levelling.SphereGrid.Generation;");
         sb.AppendLine("public static class TemplateFactory {");
 
         sb.AppendLine("internal static GridTemplate CreateTemplate() => new()");

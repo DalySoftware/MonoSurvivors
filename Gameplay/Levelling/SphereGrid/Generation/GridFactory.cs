@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Levelling.PowerUps;
 
-namespace Gameplay.Levelling.SphereGrid;
+namespace Gameplay.Levelling.SphereGrid.Generation;
 
 public static class GridFactory
 {
@@ -11,9 +11,12 @@ public static class GridFactory
         GridTemplate template,
         Action<IPowerUp> onUnlock)
     {
-        var nodeMap = CreateNodes(template);
-        WireEdges(template, nodeMap);
-        return new SphereGrid(nodeMap[template.RootId])
+        var rotation = Random.Shared.Next(0, 6);
+        var rotatedTemplate = GridTemplateRotation.Rotate(template, rotation);
+
+        var nodeMap = CreateNodes(rotatedTemplate);
+        WireEdges(rotatedTemplate, nodeMap);
+        return new SphereGrid(nodeMap[rotatedTemplate.RootId])
         {
             OnUnlock = onUnlock,
         };

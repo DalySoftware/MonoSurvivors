@@ -17,7 +17,11 @@ public static class EdgeDirectionExtensions
     extension(EdgeDirection direction)
     {
         public EdgeDirection Opposite() => (EdgeDirection)(((int)direction + Count / 2) % Count);
-        public EdgeDirection RotateClockwiseOnce() => (EdgeDirection)(((int)direction + 1) % Count);
-        public EdgeDirection RotateAntiClockwiseOnce() => (EdgeDirection)(((int)direction + Count - 1) % Count);
+        public EdgeDirection RotateClockwise(int steps)
+        {
+            // Normalise steps so negatives and large values work
+            var normalized = (steps % Count + Count) % Count;
+            return (EdgeDirection)(((int)direction + normalized) % Count);
+        }
     }
 }

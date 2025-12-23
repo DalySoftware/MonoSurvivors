@@ -4,7 +4,7 @@ using System.Linq;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 
-namespace Gameplay.Levelling.SphereGrid;
+namespace Gameplay.Levelling.SphereGrid.Generation;
 
 internal class PowerUpRandomizer
 {

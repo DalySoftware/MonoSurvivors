@@ -1,6 +1,6 @@
 ﻿using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
-using Gameplay.Levelling.SphereGrid;
+using Gameplay.Levelling.SphereGrid.Generation;
 
 namespace Tests;
 
