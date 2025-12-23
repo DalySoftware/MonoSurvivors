@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameLoop.UI;
@@ -181,19 +180,23 @@ internal class SphereGridUi
             var isUnlocked = _grid.IsUnlocked(node);
             var canUnlock = _grid.CanUnlock(node);
 
-            var baseColor = node.PowerUp.BaseColor();
-            var color =
-                isFocussed || isHovered ? baseColor.ShiftHue(MathF.PI) :
-                isUnlocked ? baseColor.ShiftLightness(-0.25f) :
-                canUnlock ? baseColor.ShiftChroma(-0f).ShiftLightness(0.3f) :
-                baseColor.ShiftChroma(-0.12f);
+            var baseColor = node.PowerUp.BaseColor().ShiftChroma(-0.1f);
+            var nodeColor =
+                isUnlocked ? baseColor.ShiftLightness(-0.08f) :
+                canUnlock ? baseColor.ShiftLightness(0.05f) :
+                baseColor.WithChroma(0.01f).ShiftLightness(-0.1f);
+            var iconColor =
+                !isUnlocked && !canUnlock ? ColorPalette.White.ShiftLightness(-0.10f) : ColorPalette.White;
+
+            if (isFocussed || isHovered)
+                nodeColor = nodeColor.ShiftLightness(0.4f);
 
             var texture = NodeTexture(node);
-            DrawNode(spriteBatch, texture, nodePos, color);
+            DrawNode(spriteBatch, texture, nodePos, nodeColor);
 
             var iconTexture = _content.PowerUpIcons.IconFor(node);
             if (iconTexture != null)
-                spriteBatch.Draw(iconTexture, nodePos, origin: iconTexture.Centre, color: color,
+                spriteBatch.Draw(iconTexture, nodePos, origin: iconTexture.Centre, color: iconColor,
                     layerDepth: Layers.Nodes + 0.01f);
         }
     }

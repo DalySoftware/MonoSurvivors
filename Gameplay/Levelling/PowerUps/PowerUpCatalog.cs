@@ -119,13 +119,13 @@ public static class PowerUpCatalog
 
     private static class Colors
     {
-        private readonly static Color Health = new OklchColor(0.7f, 0.16f, 23).ToColor();
-        private readonly static Color Speed = new OklchColor(0.7f, 0.16f, 80).ToColor();
-        private readonly static Color Utility = new OklchColor(0.7f, 0.16f, 160).ToColor();
-        private readonly static Color Special = new OklchColor(0.7f, 0.16f, 215).ToColor();
-        private readonly static Color Damage = new OklchColor(0.7f, 0.16f, 295).ToColor();
-        private readonly static Color Crit = new OklchColor(0.7f, 0.16f, 340).ToColor();
-        private readonly static Color DamageEffects = new OklchColor(0.8f, 0.20f, 125).ToColor();
+        private readonly static Color Health = ColorPalette.Red;
+        private readonly static Color Speed = ColorPalette.Green;
+        private readonly static Color Utility = ColorPalette.Royal;
+        private readonly static Color Weapons = ColorPalette.Yellow;
+        private readonly static Color Damage = ColorPalette.Pink;
+        private readonly static Color Crit = ColorPalette.Orange;
+        private readonly static Color DamageEffects = ColorPalette.Violet;
 
         internal readonly static IReadOnlyDictionary<PowerUpCategory, Color> ByCategory =
             new Dictionary<PowerUpCategory, Color>
@@ -136,7 +136,7 @@ public static class PowerUpCatalog
                 { PowerUpCategory.Speed, Speed },
                 { PowerUpCategory.Utility, Utility },
                 { PowerUpCategory.Crit, Crit },
-                { PowerUpCategory.WeaponUnlock, Special },
+                { PowerUpCategory.WeaponUnlock, Weapons },
             };
     }
 
