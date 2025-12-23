@@ -4,7 +4,8 @@ namespace Gameplay.Entities.Enemies.Spawning;
 
 public class EnemyFactory(PlayerCharacter player)
 {
-    public BasicEnemy BasicEnemy(Vector2 position) => new(position, player);
+    public BasicEnemy BasicEnemy(Vector2 position) => new(position, player, false);
+    public BasicEnemy EliteBasicEnemy(Vector2 position) => new(position, player, true);
 
     public Hulker Hulker(Vector2 position) => new(position, player);
 

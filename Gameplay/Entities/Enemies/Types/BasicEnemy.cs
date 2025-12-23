@@ -13,18 +13,23 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     private TimeSpan _animationCooldown = TimeSpan.Zero;
 
     [SetsRequiredMembers]
-    public BasicEnemy(Vector2 initialPosition, IHasPosition target) : base(initialPosition, BasicEnemyStats())
+    public BasicEnemy(Vector2 initialPosition, IHasPosition target, bool elite)
+        : base(initialPosition, BasicEnemyStats(elite))
     {
         _followEntity = new FollowEntity(this, target, 0.07f);
         Collider = new CircleCollider(this, 32f);
+        OutlineColor = elite ? Color.Cyan : null;
     }
 
     public ISpriteSheet SpriteSheet { get; } = new BasicEnemySpriteSheet();
-    public Color? OutlineColor => null;
+    public Color? OutlineColor { get; }
 
     public IFrame CurrentFrame { get; private set; } = new BasicEnemySpriteSheet.LookDirectionFrame(Vector2.Zero);
 
-    private static EnemyStats BasicEnemyStats() => new(20f, 1f, 1);
+    private static EnemyStats BasicEnemyStats(bool elite) =>
+        elite
+            ? new EnemyStats(30f, 2f, 1)
+            : new EnemyStats(20f, 1f, 1);
 
     public override void Update(GameTime gameTime)
     {

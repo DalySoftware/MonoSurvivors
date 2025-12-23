@@ -29,7 +29,8 @@ public class EnemySpawner(
             WaveCooldown = TimeSpan.FromSeconds(3),
             EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
             {
-                { enemyFactory.BasicEnemy, 8 },
+                { enemyFactory.BasicEnemy, 7 },
+                { enemyFactory.EliteBasicEnemy, 1 },
             },
         },
         new()
@@ -38,7 +39,8 @@ public class EnemySpawner(
             WaveCooldown = TimeSpan.FromSeconds(3),
             EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
             {
-                { enemyFactory.BasicEnemy, 10 },
+                { enemyFactory.BasicEnemy, 9 },
+                { enemyFactory.EliteBasicEnemy, 1 },
                 { enemyFactory.Scorcher, 1 },
             },
         },
@@ -48,7 +50,8 @@ public class EnemySpawner(
             WaveCooldown = TimeSpan.FromSeconds(3),
             EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
             {
-                { enemyFactory.BasicEnemy, 10 },
+                { enemyFactory.BasicEnemy, 8 },
+                { enemyFactory.EliteBasicEnemy, 2 },
                 { enemyFactory.Scorcher, 2 },
                 { enemyFactory.Hulker, 1 },
             },
@@ -59,7 +62,8 @@ public class EnemySpawner(
             WaveCooldown = TimeSpan.FromSeconds(2),
             EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
             {
-                { enemyFactory.BasicEnemy, 5 },
+                { enemyFactory.BasicEnemy, 4 },
+                { enemyFactory.EliteBasicEnemy, 2 },
                 { enemyFactory.Scorcher, 4 },
                 { enemyFactory.Hulker, 4 },
             },
@@ -70,7 +74,8 @@ public class EnemySpawner(
             WaveCooldown = TimeSpan.FromSeconds(1),
             EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
             {
-                { enemyFactory.BasicEnemy, 5 },
+                { enemyFactory.BasicEnemy, 4 },
+                { enemyFactory.EliteBasicEnemy, 2 },
                 { enemyFactory.Scorcher, 8 },
                 { enemyFactory.Hulker, 6 },
             },
@@ -81,7 +86,7 @@ public class EnemySpawner(
             WaveCooldown = TimeSpan.FromSeconds(1),
             EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
             {
-                { enemyFactory.BasicEnemy, 2 },
+                { enemyFactory.EliteBasicEnemy, 2 },
                 { enemyFactory.Scorcher, 12 },
                 { enemyFactory.Hulker, 10 },
             },
