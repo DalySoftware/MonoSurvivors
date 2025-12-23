@@ -11,8 +11,7 @@ public static class GridFactory
         GridTemplate template,
         Action<IPowerUp> onUnlock)
     {
-        var rotation = Random.Shared.Next(0, 6);
-        var rotatedTemplate = GridTemplateRotation.Rotate(template, rotation);
+        var rotatedTemplate = RandomizeTemplate(template);
 
         var nodeMap = CreateNodes(rotatedTemplate);
         WireEdges(rotatedTemplate, nodeMap);
@@ -20,6 +19,15 @@ public static class GridFactory
         {
             OnUnlock = onUnlock,
         };
+    }
+    private static GridTemplate RandomizeTemplate(GridTemplate template)
+    {
+        // 12 possible variants with mirror and rotations
+        var mirroredTemplate = Random.Shared.Next(2) == 0 ? template : GridTemplateMirror.Mirror(template);
+
+        var rotation = Random.Shared.Next(0, 6);
+        var rotatedTemplate = GridTemplateRotation.Rotate(mirroredTemplate, rotation);
+        return rotatedTemplate;
     }
 
     private static Dictionary<int, Node> CreateNodes(GridTemplate template)

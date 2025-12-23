@@ -2,9 +2,9 @@
 
 namespace Gameplay.Levelling.SphereGrid.Generation;
 
-public static class GridTemplateRotation
+internal static class GridTemplateRotation
 {
-    public static GridTemplate Rotate(GridTemplate template, int clockwiseSteps)
+    internal static GridTemplate Rotate(GridTemplate template, int clockwiseSteps)
     {
         if (clockwiseSteps % 6 == 0)
             return template;
