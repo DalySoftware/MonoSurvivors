@@ -182,9 +182,9 @@ internal class SphereGridUi
 
             var baseColor = node.PowerUp.BaseColor().ShiftChroma(-0.1f);
             var nodeColor =
-                isUnlocked ? baseColor.ShiftLightness(-0.08f) :
-                canUnlock ? baseColor.ShiftLightness(0.05f) :
-                baseColor.WithChroma(0.01f).ShiftLightness(-0.1f);
+                isUnlocked ? baseColor.ShiftLightness(-0.04f) :
+                canUnlock ? baseColor.ShiftLightness(0.05f).WithChroma(0.10f) :
+                baseColor.WithChroma(0.05f);
             var iconColor =
                 !isUnlocked && !canUnlock ? ColorPalette.White.ShiftLightness(-0.10f) : ColorPalette.White;
 
