@@ -13,6 +13,11 @@ public class SoundEffectPlayer(
     MusicPlayer musicPlayer)
     : IAudioPlayer
 {
+    private readonly static SoundEffectTypes[] DucksMusic =
+    [
+        SoundEffectTypes.BasicShoot, SoundEffectTypes.BouncerShoot, SoundEffectTypes.SniperShoot,
+        SoundEffectTypes.ShotgunShoot,
+    ];
     private readonly SoundEffectContent _effects = new(content);
 
     private readonly Random _random = new();
@@ -22,17 +27,20 @@ public class SoundEffectPlayer(
         EffectsFor(effectType).PickRandom(_random).Play(effectType, settingsMonitor.CurrentValue);
 
         // Duck music briefly when firing
-        if (effectType is SoundEffectTypes.Shoot)
+        if (DucksMusic.Contains(effectType))
             _ = musicPlayer.DuckFor(TimeSpan.FromMilliseconds(40), 0.5f); // fire-and-forget async
     }
 
     private SoundEffect[] EffectsFor(SoundEffectTypes effectType) => effectType switch
     {
-        SoundEffectTypes.Shoot => _effects.Shoot,
+        SoundEffectTypes.BasicShoot => _effects.Shoot,
+        SoundEffectTypes.BouncerShoot => _effects.BouncerShoot,
+        SoundEffectTypes.SniperShoot => _effects.SniperShoot,
+        SoundEffectTypes.ShotgunShoot => _effects.ShotgunShoot,
         SoundEffectTypes.ExperiencePickup => _effects.ExperienceUp,
         SoundEffectTypes.EnemyDeath => _effects.EnemyDeath,
         SoundEffectTypes.PlayerHurt => _effects.PlayerHurt,
-        _ => throw new ArgumentException("Unknown sound effect type")
+        _ => throw new ArgumentException("Unknown sound effect type"),
     };
 }
 

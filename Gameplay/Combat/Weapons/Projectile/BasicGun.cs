@@ -21,6 +21,6 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,
             bulletSpeed * Stats.SpeedMultiplier, owner.WeaponBelt.OnHitEffects);
         spawnEntity.Spawn(bullet);
-        audio.Play(SoundEffectTypes.Shoot);
+        audio.Play(SoundEffectTypes.BasicShoot);
     }
 }

@@ -32,6 +32,6 @@ public class Shotgun(
             spawnEntity.Spawn(bullet);
         }
 
-        audio.Play(SoundEffectTypes.Shoot); // todo
+        audio.Play(SoundEffectTypes.ShotgunShoot);
     }
 }

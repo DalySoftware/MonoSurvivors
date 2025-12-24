@@ -13,7 +13,7 @@ internal class SoundEffectContent(ContentManager content)
         content.Load<SoundEffect>(Paths.SoundEffects.ExperienceUp2),
         content.Load<SoundEffect>(Paths.SoundEffects.ExperienceUp3),
         content.Load<SoundEffect>(Paths.SoundEffects.ExperienceUp4),
-        content.Load<SoundEffect>(Paths.SoundEffects.ExperienceUp5)
+        content.Load<SoundEffect>(Paths.SoundEffects.ExperienceUp5),
     ];
 
     internal SoundEffect[] Shoot { get; } =
@@ -22,20 +22,41 @@ internal class SoundEffectContent(ContentManager content)
         content.Load<SoundEffect>(Paths.SoundEffects.Shoot2),
         content.Load<SoundEffect>(Paths.SoundEffects.Shoot3),
         content.Load<SoundEffect>(Paths.SoundEffects.Shoot4),
-        content.Load<SoundEffect>(Paths.SoundEffects.Shoot5)
+        content.Load<SoundEffect>(Paths.SoundEffects.Shoot5),
+    ];
+
+    internal SoundEffect[] BouncerShoot { get; } =
+    [
+        content.Load<SoundEffect>(Paths.SoundEffects.BouncerShoot1),
+        content.Load<SoundEffect>(Paths.SoundEffects.BouncerShoot2),
+        content.Load<SoundEffect>(Paths.SoundEffects.BouncerShoot3),
+    ];
+
+    internal SoundEffect[] SniperShoot { get; } =
+    [
+        content.Load<SoundEffect>(Paths.SoundEffects.SniperShoot1),
+        content.Load<SoundEffect>(Paths.SoundEffects.SniperShoot2),
+        content.Load<SoundEffect>(Paths.SoundEffects.SniperShoot3),
+    ];
+
+    internal SoundEffect[] ShotgunShoot { get; } =
+    [
+        content.Load<SoundEffect>(Paths.SoundEffects.ShotgunShoot1),
+        content.Load<SoundEffect>(Paths.SoundEffects.ShotgunShoot2),
+        content.Load<SoundEffect>(Paths.SoundEffects.ShotgunShoot3),
     ];
 
     internal SoundEffect[] EnemyDeath { get; } =
     [
         content.Load<SoundEffect>(Paths.SoundEffects.EnemyDeath1),
         content.Load<SoundEffect>(Paths.SoundEffects.EnemyDeath2),
-        content.Load<SoundEffect>(Paths.SoundEffects.EnemyDeath3)
+        content.Load<SoundEffect>(Paths.SoundEffects.EnemyDeath3),
     ];
 
     internal SoundEffect[] PlayerHurt { get; } =
     [
         content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt1),
         content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt2),
-        content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt3)
+        content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt3),
     ];
 }

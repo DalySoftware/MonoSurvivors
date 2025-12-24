@@ -97,6 +97,18 @@ public static class Paths
         public const string Shoot4 = @"SoundEffects\Shoot4";
         public const string Shoot5 = @"SoundEffects\Shoot5";
 
+        public const string BouncerShoot1 = @"SoundEffects\BouncerShoot1";
+        public const string BouncerShoot2 = @"SoundEffects\BouncerShoot2";
+        public const string BouncerShoot3 = @"SoundEffects\BouncerShoot3";
+
+        public const string SniperShoot1 = @"SoundEffects\SniperShoot1";
+        public const string SniperShoot2 = @"SoundEffects\SniperShoot2";
+        public const string SniperShoot3 = @"SoundEffects\SniperShoot3";
+
+        public const string ShotgunShoot1 = @"SoundEffects\ShotgunShoot1";
+        public const string ShotgunShoot2 = @"SoundEffects\ShotgunShoot2";
+        public const string ShotgunShoot3 = @"SoundEffects\ShotgunShoot3";
+
         public const string ExperienceUp1 = @"SoundEffects\ExperienceUp1";
         public const string ExperienceUp2 = @"SoundEffects\ExperienceUp2";
         public const string ExperienceUp3 = @"SoundEffects\ExperienceUp3";

@@ -27,6 +27,6 @@ public class BouncingGun(
         var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,
             bulletSpeed * Stats.SpeedMultiplier, [bounceOnHit, ..owner.WeaponBelt.OnHitEffects]);
         spawnEntity.Spawn(bullet);
-        audio.Play(SoundEffectTypes.Shoot);
+        audio.Play(SoundEffectTypes.BouncerShoot);
     }
 }
