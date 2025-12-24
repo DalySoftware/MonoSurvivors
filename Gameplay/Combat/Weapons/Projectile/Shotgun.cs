@@ -1,5 +1,6 @@
 ﻿using System;
 using Gameplay.Audio;
+using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
 using Gameplay.Utilities;
 
@@ -12,6 +13,8 @@ public class Shotgun(
     IAudioPlayer audio)
     : GunBase(owner.WeaponBelt.Stats)
 {
+    private readonly static KnockbackOnHit KnockbackOnHit = new(0.15f);
+
     protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(1);
     protected override void Shoot()
     {
@@ -28,7 +31,7 @@ public class Shotgun(
         {
             var velocity = direction * bulletSpeed * owner.WeaponBelt.Stats.ProjectileSpeedMultiplier;
             var bullet = new Bullet(owner, owner.Position, velocity, damage, range, Stats.Pierce,
-                owner.WeaponBelt.OnHitEffects);
+                [KnockbackOnHit, ..owner.WeaponBelt.OnHitEffects]);
             spawnEntity.Spawn(bullet);
         }
 

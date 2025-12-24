@@ -33,13 +33,20 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
         damager.OnKill(this);
     }
 
+    public void ApplyKnockback(Vector2 impulse)
+    {
+        if (Stats.KnockbackMultiplier <= 0)
+            return;
+
+        ExternalVelocity += impulse * Stats.KnockbackMultiplier;
+    }
+
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
 
-        const float knockbackDamping = 0.05f;
+        const float knockbackDamping = 0.005f;
 
-        // Smooth decay so it feels weighty, not jittery
         ExternalVelocity = Vector2.Lerp(
             ExternalVelocity,
             Vector2.Zero,

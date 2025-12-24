@@ -22,7 +22,7 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
     public IFrame CurrentFrame { get; private set; } = new HulkerSpriteSheet.LookDirectionFrame(Vector2.Zero);
     public Color? OutlineColor => null;
 
-    private static EnemyStats HulkerStats() => new(120f, 6f, 1);
+    private static EnemyStats HulkerStats() => new(120f, 6f, 1, 0.3f);
 
     public override void Update(GameTime gameTime)
     {

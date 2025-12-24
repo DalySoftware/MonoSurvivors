@@ -9,10 +9,11 @@ public class BouncingGun(
     PlayerCharacter owner,
     ISpawnEntity spawnEntity,
     IEntityFinder entityFinder,
-    IAudioPlayer audio,
-    BounceOnHit bounceOnHit)
+    IAudioPlayer audio)
     : GunBase(owner.WeaponBelt.Stats)
 {
+    private readonly static BounceOnHit BounceOnHit = new();
+
     protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(1);
     protected override void Shoot()
     {
@@ -25,7 +26,7 @@ public class BouncingGun(
         var range = 600f * Stats.RangeMultiplier;
 
         var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,
-            bulletSpeed * Stats.SpeedMultiplier, [bounceOnHit, ..owner.WeaponBelt.OnHitEffects]);
+            bulletSpeed * Stats.SpeedMultiplier, [BounceOnHit, ..owner.WeaponBelt.OnHitEffects]);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.BouncerShoot);
     }

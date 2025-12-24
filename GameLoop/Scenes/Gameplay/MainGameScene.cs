@@ -76,7 +76,6 @@ internal class MainGameScene(
 
         builder.RegisterType<BulletSplitOnHit>();
         builder.RegisterType<ChainLightningOnHit>();
-        builder.RegisterType<BounceOnHit>();
 
         builder.RegisterType<BasicGun>();
         builder.RegisterType<Shotgun>();

@@ -19,7 +19,7 @@ public class Scorcher : EnemyBase, ISpriteVisual
 
     public string TexturePath => Paths.Images.Scorcher;
 
-    private static EnemyStats ScorcherStats() => new(12f, 2f, 1);
+    private static EnemyStats ScorcherStats() => new(12f, 2f, 1, 2f);
 
     public override void Update(GameTime gameTime)
     {
