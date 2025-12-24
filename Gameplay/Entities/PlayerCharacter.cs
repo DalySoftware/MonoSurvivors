@@ -79,7 +79,7 @@ public class PlayerCharacter(
         OnExperienceGain(this, this);
     }
 
-    public void DirectionInput(UnitVector2 input) => Velocity = (Vector2)input * Stats.Speed;
+    public void DirectionInput(UnitVector2 input) => IntentVelocity = (Vector2)input * Stats.Speed;
 
     public override void Update(GameTime gameTime)
     {

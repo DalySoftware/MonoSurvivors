@@ -38,7 +38,7 @@ public class Experience : MovableEntity, IPickup, ISpriteVisual
     public void AddVelocity(Vector2 velocity)
     {
         const float damping = 0.99f; // 0 = no momentum, 1 = full momentum
-        Velocity *= damping; // decay old velocity
-        Velocity += velocity; // add new pull
+        IntentVelocity *= damping; // decay old velocity
+        IntentVelocity += velocity; // add new pull
     }
 }

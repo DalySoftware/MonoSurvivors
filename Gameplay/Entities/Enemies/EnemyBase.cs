@@ -16,6 +16,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     public EnemyStats Stats { get; } = stats;
     public float Layer => Layers.Enemies;
     internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
+
     public float Experience => Stats.Experience;
     public int Damage => Stats.Damage;
     public required ICollider Collider { get; init; }
@@ -31,6 +32,20 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
         MarkedForDeletion = true;
         damager.OnKill(this);
     }
+
+    public override void Update(GameTime gameTime)
+    {
+        base.Update(gameTime);
+
+        const float knockbackDamping = 0.05f;
+
+        // Smooth decay so it feels weighty, not jittery
+        ExternalVelocity = Vector2.Lerp(
+            ExternalVelocity,
+            Vector2.Zero,
+            knockbackDamping * (float)gameTime.ElapsedGameTime.TotalMilliseconds
+        );
+    }
 }
 
-public record EnemyStats(float MaxHealth, float Experience, int Damage);
+public record EnemyStats(float MaxHealth, float Experience, int Damage, float KnockbackMultiplier = 1f);

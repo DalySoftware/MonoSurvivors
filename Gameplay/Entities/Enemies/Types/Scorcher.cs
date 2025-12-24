@@ -25,6 +25,6 @@ public class Scorcher : EnemyBase, ISpriteVisual
     {
         base.Update(gameTime);
 
-        Velocity = _followEntity.CalculateVelocity(NearbyEnemies);
+        IntentVelocity = _followEntity.CalculateVelocity(NearbyEnemies);
     }
 }

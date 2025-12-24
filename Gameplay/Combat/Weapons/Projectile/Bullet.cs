@@ -28,7 +28,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         OnHitEffects = onHits ?? [];
         _immuneEnemies = immuneEnemies ?? [];
 
-        Velocity = velocity;
+        IntentVelocity = velocity;
         Damage = damage;
     }
 
@@ -80,7 +80,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
 
         if (ctx is { Bounce: true, BounceVelocity: { } velocity, BounceDamageMultiplier: var multiplier })
         {
-            Velocity = velocity;
+            IntentVelocity = velocity;
             Damage *= multiplier;
             _immuneEnemies.Add(ctx.Enemy);
             return;

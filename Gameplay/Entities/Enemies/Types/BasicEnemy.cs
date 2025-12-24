@@ -34,7 +34,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        Velocity = _followEntity.CalculateVelocity(NearbyEnemies);
+        IntentVelocity = _followEntity.CalculateVelocity(NearbyEnemies);
 
         if (_animationCooldown <= TimeSpan.Zero)
         {
