@@ -1,11 +1,11 @@
 ﻿using System;
-using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
+using Gameplay.Entities.Pooling;
 using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.OnHitEffects;
 
-public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity) : IOnHitEffect
+public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity, BulletPool pool) : IOnHitEffect
 {
     /// <summary>
     ///     How wide an arc should be covered, in radians.
@@ -38,10 +38,10 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity) : IOnHitEffect
         {
             var speed = bullet.Velocity.Length();
 
-            var splitBullet = new Bullet(
+            var splitBullet = pool.Get(
                 bullet.Owner,
                 spawnPoint,
-                velocity: direction * speed,
+                direction * speed,
                 bullet.Damage * DamageRatio,
                 range,
                 immuneEnemies: [enemy]);

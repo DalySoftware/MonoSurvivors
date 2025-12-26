@@ -1,10 +1,16 @@
 ﻿using System;
 using Gameplay.Audio;
 using Gameplay.Entities;
+using Gameplay.Entities.Pooling;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
-public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFinder entityFinder, IAudioPlayer audio)
+public class BasicGun(
+    PlayerCharacter owner,
+    ISpawnEntity spawnEntity,
+    IEntityFinder entityFinder,
+    IAudioPlayer audio,
+    BulletPool pool)
     : GunBase(owner.WeaponBelt.Stats)
 {
     protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(.9);
@@ -18,8 +24,8 @@ public class BasicGun(PlayerCharacter owner, ISpawnEntity spawnEntity, IEntityFi
         var damage = CritCalculator.CalculateCrit(baseDamage, Stats);
         var range = 300f * Stats.RangeMultiplier;
 
-        var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,
-            bulletSpeed * Stats.SpeedMultiplier, owner.WeaponBelt.OnHitEffects);
+        var bullet = pool.Get(owner, owner.Position, target.Position, bulletSpeed * Stats.SpeedMultiplier, damage,
+            range, Stats.Pierce, owner.WeaponBelt.OnHitEffects);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.BasicShoot);
     }

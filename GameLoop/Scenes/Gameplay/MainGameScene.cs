@@ -11,6 +11,7 @@ using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies.Spawning;
+using Gameplay.Entities.Pooling;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.Generation;
@@ -90,6 +91,8 @@ internal class MainGameScene(
             .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
             .SingleInstance();
 
+        builder.RegisterType<BulletPool>().SingleInstance();
+        builder.RegisterType<EnemyDeathBlast>().SingleInstance();
         builder.RegisterType<HealthRegenManager>().SingleInstance();
 
         builder.RegisterType<PlayerStats>().SingleInstance();

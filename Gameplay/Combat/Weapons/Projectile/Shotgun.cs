@@ -2,6 +2,7 @@
 using Gameplay.Audio;
 using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
+using Gameplay.Entities.Pooling;
 using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
@@ -10,7 +11,8 @@ public class Shotgun(
     PlayerCharacter owner,
     ISpawnEntity spawnEntity,
     IEntityFinder entityFinder,
-    IAudioPlayer audio)
+    IAudioPlayer audio,
+    BulletPool pool)
     : GunBase(owner.WeaponBelt.Stats)
 {
     private readonly static KnockbackOnHit KnockbackOnHit = new(0.15f);
@@ -30,8 +32,8 @@ public class Shotgun(
         foreach (var direction in ArcSpreader.Arc(targetDirection, 5, MathF.PI / 6))
         {
             var velocity = direction * bulletSpeed * owner.WeaponBelt.Stats.ProjectileSpeedMultiplier;
-            var bullet = new Bullet(owner, owner.Position, velocity, damage, range, Stats.Pierce,
-                [KnockbackOnHit, ..owner.WeaponBelt.OnHitEffects]);
+            var bullet = pool.Get(owner, owner.Position, velocity, damage, range, Stats.Pierce,
+                onHits: [KnockbackOnHit, ..owner.WeaponBelt.OnHitEffects]);
             spawnEntity.Spawn(bullet);
         }
 

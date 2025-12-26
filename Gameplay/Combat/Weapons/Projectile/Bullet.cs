@@ -5,25 +5,26 @@ using Gameplay.CollisionDetection;
 using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
+using Gameplay.Entities.Pooling;
 using Gameplay.Rendering;
-using Gameplay.Utilities;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
-public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
+public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEntity
 {
-    private readonly HashSet<EnemyBase> _immuneEnemies;
+    private HashSet<EnemyBase> _immuneEnemies;
+    private readonly BulletPool _pool;
     private int _piercesLeft;
 
     private float _distanceTraveled = 0f;
 
-    public Bullet(PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage, float maxRange,
-        int pierceEnemies = 0, IEnumerable<IOnHitEffect>? onHits = null,
-        HashSet<EnemyBase>? immuneEnemies = null) : base(
-        initialPosition)
+    public Bullet(BulletPool pool, PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage,
+        float maxRange, int pierceEnemies = 0, IEnumerable<IOnHitEffect>? onHits = null,
+        HashSet<EnemyBase>? immuneEnemies = null) : base(initialPosition)
     {
         Owner = owner;
         MaxRange = maxRange;
+        _pool = pool;
         _piercesLeft = pierceEnemies;
         OnHitEffects = onHits ?? [];
         _immuneEnemies = immuneEnemies ?? [];
@@ -32,23 +33,10 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         Damage = damage;
     }
 
-    /// <param name="initialPosition">Spawn the bullet here</param>
-    /// <param name="target">Aim at this</param>
-    /// <param name="damage">Deal this much damage on hit</param>
-    /// <param name="maxRange">Expire after travelling this many pixels</param>
-    /// <param name="pierceEnemies">Pierce this many enemies</param>
-    /// <param name="onHit">Applied on hitting an enemy</param>
-    public Bullet(PlayerCharacter owner, Vector2 initialPosition, Vector2 target, float damage, float maxRange,
-        int pierceEnemies = 0, float speed = 1f, IEnumerable<IOnHitEffect>? onHits = null,
-        HashSet<EnemyBase>? immuneEnemies = null) :
-        this(owner, initialPosition, CalculateVelocity(initialPosition, target, speed), damage, maxRange, pierceEnemies,
-            onHits, immuneEnemies) { }
-
-
-    internal PlayerCharacter Owner { get; }
-    internal float MaxRange { get; }
+    internal PlayerCharacter Owner { get; private set; }
+    internal float MaxRange { get; private set; }
     internal float RemainingRange => MaxRange - _distanceTraveled;
-    internal IEnumerable<IOnHitEffect> OnHitEffects { get; }
+    internal IEnumerable<IOnHitEffect> OnHitEffects { get; private set; }
     public float Damage { get; private set; }
     public ICollider Collider => new CircleCollider(this, 16f);
 
@@ -66,9 +54,38 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         Resolve(context);
     }
 
+    public void OnDespawned() => _pool.Return(this);
+
     public float Layer => Layers.Projectiles;
 
     public string TexturePath => Paths.Images.Bullet;
+
+    public Bullet Reinitialize(
+        PlayerCharacter owner,
+        Vector2 position,
+        Vector2 velocity,
+        float damage,
+        float maxRange,
+        int pierceEnemies,
+        IEnumerable<IOnHitEffect>? onHits = null,
+        HashSet<EnemyBase>? immuneEnemies = null)
+    {
+        Owner = owner;
+        Position = position;
+        IntentVelocity = velocity;
+
+        Damage = damage;
+        MaxRange = maxRange;
+        _piercesLeft = pierceEnemies;
+
+        _distanceTraveled = 0f;
+        MarkedForDeletion = false;
+
+        _immuneEnemies = immuneEnemies ?? [];
+        OnHitEffects = onHits ?? [];
+
+        return this;
+    }
 
     private void Resolve(BulletHitContext ctx)
     {
@@ -89,9 +106,6 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual
         if (ctx.ConsumePierce && _piercesLeft-- <= 0) // NB: 0 pierce is allowed to hit 1 enemy
             MarkedForDeletion = true;
     }
-
-    private static Vector2 CalculateVelocity(Vector2 initialPosition, Vector2 target, float speed) =>
-        (Vector2)new UnitVector2(target - initialPosition) * speed;
 
     public override void Update(GameTime gameTime)
     {

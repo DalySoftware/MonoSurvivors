@@ -13,5 +13,5 @@ public abstract class MovableEntity(Vector2 position) : IEntity, IHasPosition
         Position += Velocity * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
     public bool MarkedForDeletion { get; protected set; }
-    public Vector2 Position { get; private set; } = position;
+    public Vector2 Position { get; protected set; } = position;
 }

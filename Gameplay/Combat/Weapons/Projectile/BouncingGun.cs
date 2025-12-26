@@ -2,6 +2,7 @@
 using Gameplay.Audio;
 using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
+using Gameplay.Entities.Pooling;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
@@ -9,7 +10,8 @@ public class BouncingGun(
     PlayerCharacter owner,
     ISpawnEntity spawnEntity,
     IEntityFinder entityFinder,
-    IAudioPlayer audio)
+    IAudioPlayer audio,
+    BulletPool pool)
     : GunBase(owner.WeaponBelt.Stats)
 {
     private readonly static BounceOnHit BounceOnHit = new();
@@ -25,8 +27,8 @@ public class BouncingGun(
         var damage = CritCalculator.CalculateCrit(baseDamage, Stats);
         var range = 600f * Stats.RangeMultiplier;
 
-        var bullet = new Bullet(owner, owner.Position, target.Position, damage, range, Stats.Pierce,
-            bulletSpeed * Stats.SpeedMultiplier, [BounceOnHit, ..owner.WeaponBelt.OnHitEffects]);
+        var bullet = pool.Get(owner, owner.Position, target.Position, bulletSpeed * Stats.SpeedMultiplier, damage,
+            range, Stats.Pierce, [BounceOnHit, ..owner.WeaponBelt.OnHitEffects]);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.BouncerShoot);
     }

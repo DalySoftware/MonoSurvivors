@@ -19,13 +19,13 @@ public class PlayerCharacter(
     Vector2 position,
     EffectManager effectManager,
     IAudioPlayer audio,
-    EntityManager entityManager,
     ExperienceSpawner experienceSpawner,
     IGlobalCommands globalCommands,
     WeaponBelt weaponBelt,
     HealthRegenManager healthRegen,
     PlayerStats stats,
-    WeaponFactory weaponFactory)
+    WeaponFactory weaponFactory,
+    EnemyDeathBlast deathBlast)
     : MovableEntity(position), IDamageablePlayer, ISpriteVisual
 {
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
@@ -125,7 +125,6 @@ public class PlayerCharacter(
         experienceSpawner.SpawnExperienceFor(enemy, this);
         audio.Play(SoundEffectTypes.EnemyDeath);
         TrackKills(1);
-        EnemyDeathBlast.Explode(entityManager, this, enemy.Position, Stats.EnemyDeathExplosionBullets,
-            WeaponBelt.Stats.DamageMultiplier);
+        deathBlast.Explode(this, enemy.Position, Stats.EnemyDeathExplosionBullets, WeaponBelt.Stats.DamageMultiplier);
     }
 }

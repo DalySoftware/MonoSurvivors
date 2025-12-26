@@ -4,6 +4,7 @@ using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Entities.Enemies;
+using Gameplay.Entities.Pooling;
 using Gameplay.Levelling;
 
 namespace Gameplay.Entities;
@@ -48,7 +49,14 @@ public class EntityManager : ISpawnEntity, IEntityFinder
         AddPendingEntities();
     }
 
-    private void RemoveEntities() => Entities.RemoveAll(e => e.MarkedForDeletion);
+    private void RemoveEntities()
+    {
+        foreach (var entity in Entities)
+            if (entity.MarkedForDeletion && entity is IPoolableEntity poolable)
+                poolable.OnDespawned();
+
+        Entities.RemoveAll(e => e.MarkedForDeletion);
+    }
 
     private void AddPendingEntities()
     {

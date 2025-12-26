@@ -1,16 +1,15 @@
 ﻿using System;
-using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
+using Gameplay.Entities.Pooling;
 using Gameplay.Utilities;
 
 namespace Gameplay.Combat;
 
-public static class EnemyDeathBlast
+public class EnemyDeathBlast(BulletPool pool, EntityManager entityManager)
 {
     private const float BaseDamage = 4f;
 
-    public static void Explode(EntityManager entityManager, PlayerCharacter owner, Vector2 position, int bullets,
-        float damageMultiplier)
+    public void Explode(PlayerCharacter owner, Vector2 position, int bullets, float damageMultiplier)
     {
         var bulletDirections = ArcSpreader.EvenlySpace(ArcSpreader.RandomDirection(), bullets, MathF.Tau);
         var damage = BaseDamage * damageMultiplier;
@@ -18,7 +17,7 @@ public static class EnemyDeathBlast
 
         foreach (var direction in bulletDirections)
         {
-            var bullet = new Bullet(owner, position, position + direction, damage, range, speed: 1f);
+            var bullet = pool.Get(owner, position, position + direction, 1f, damage, range);
             entityManager.Spawn(bullet);
         }
     }
