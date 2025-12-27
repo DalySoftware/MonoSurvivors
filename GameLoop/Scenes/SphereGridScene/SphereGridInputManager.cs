@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GameLoop.Input;
 using GameLoop.Scenes.SphereGridScene.UI;
 using Gameplay;
@@ -60,17 +61,13 @@ internal class SphereGridInputManager(
 
     private void UpdateFocussedNode(GameTime gameTime)
     {
-        var inputDirection = GamePadState.ThumbSticks.Left;
-        inputDirection.Y *= -1f; // Flip Y to match screen coordinates
-
-        if (inputDirection.LengthSquared() < 0.02f) return;
-
-        _currentThumbstickNavigationCooldown -= gameTime.ElapsedGameTime;
-        if (_currentThumbstickNavigationCooldown > TimeSpan.Zero) return;
+        var inputDirection = GetInputDirection(gameTime);
+        if (inputDirection == Vector2.Zero)
+            return;
 
         var currentPosition = ui.NodePositions[ui.FocusedNode];
 
-        Node? best = null;
+        Node? bestCandidate = null;
         var bestScore = float.MinValue;
 
         var inputDirNormalized = Vector2.Normalize(inputDirection);
@@ -78,14 +75,11 @@ internal class SphereGridInputManager(
         const float minAngleCos = 0.5f; // ~60° cone (more forgiving)
         const float distanceBias = 1.5f; // strongly favour closer nodes
 
-        foreach (var (node, position) in ui.NodePositions)
+        var candidates = ui.NodePositions
+            .Where(kvp => kvp.Key != ui.FocusedNode && ui.IsVisible(kvp.Value));
+
+        foreach (var (candidate, position) in candidates)
         {
-            if (node == ui.FocusedNode)
-                continue;
-
-            if (!ui.IsVisible(position))
-                continue;
-
             var toNode = position - currentPosition;
             var distance = toNode.Length();
 
@@ -99,7 +93,6 @@ internal class SphereGridInputManager(
             if (alignment < minAngleCos)
                 continue;
 
-
             // Alignment matters, but distance dominates
             var distanceScore = 1f / MathF.Pow(distance, distanceBias);
             var score = alignment * distanceScore;
@@ -107,14 +100,43 @@ internal class SphereGridInputManager(
             if (score > bestScore)
             {
                 bestScore = score;
-                best = node;
+                bestCandidate = candidate;
             }
         }
 
-        if (best == null) return;
+        if (bestCandidate == null) return;
 
-        ui.FocusedNode = best;
+        ui.FocusedNode = bestCandidate;
         ui.HideFocus = false;
         _currentThumbstickNavigationCooldown = _thumbstickNavigationCooldown;
+    }
+
+    private Vector2 GetInputDirection(GameTime gameTime)
+    {
+        // Thumbstick
+        var stick = GamePadState.ThumbSticks.Left;
+        stick.Y *= -1f;
+
+        if (stick.LengthSquared() >= 0.02f)
+        {
+            _currentThumbstickNavigationCooldown -= gameTime.ElapsedGameTime;
+            if (_currentThumbstickNavigationCooldown > TimeSpan.Zero) return Vector2.Zero;
+
+            _currentThumbstickNavigationCooldown = _thumbstickNavigationCooldown;
+            return stick;
+        }
+
+        // Reset cooldown when stick released
+        _currentThumbstickNavigationCooldown = TimeSpan.Zero;
+
+        // D-pad (edge-triggered)
+        var direction = Vector2.Zero;
+
+        if (WasPressedThisFrame(Buttons.DPadUp)) direction += Vector2.UnitY * -1f;
+        if (WasPressedThisFrame(Buttons.DPadDown)) direction += Vector2.UnitY;
+        if (WasPressedThisFrame(Buttons.DPadLeft)) direction += Vector2.UnitX * -1f;
+        if (WasPressedThisFrame(Buttons.DPadRight)) direction += Vector2.UnitX;
+
+        return direction;
     }
 }
