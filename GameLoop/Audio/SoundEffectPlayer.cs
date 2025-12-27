@@ -62,6 +62,9 @@ internal static class Extensions
             case SoundEffectTypes.Lightning:
                 effect.Play(volume * 0.15f, 0f, 0f);
                 break;
+            case SoundEffectTypes.SniperShoot:
+                effect.Play(volume, .2f, 0f);
+                break;
             default:
                 effect.Play(volume, 0f, 0f);
                 break;
