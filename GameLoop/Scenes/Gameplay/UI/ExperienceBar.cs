@@ -50,6 +50,7 @@ internal class ExperienceBar(
     internal const float InteriorHeight = 20f;
 
     private readonly float _fillLayerDepth = (barPanel.InteriorLayerDepth + barPanel.Frame.LayerDepth) * 0.5f;
+    private bool _provideFeedbackToSpendPoints;
     private int Points => sphereGrid.AvailablePoints;
 
     private float Progress => MathHelper.Clamp(
@@ -59,15 +60,17 @@ internal class ExperienceBar(
     /// <summary>
     ///     Draws an experience bar with a filled portion according to <paramref name="progress" /> (0..1).
     /// </summary>
-    internal void Draw(
-        SpriteBatch spriteBatch,
-        GameTime gameTime,
-        Color frameColor,
-        Color fillColor)
+    internal void Draw(SpriteBatch spriteBatch, GameTime gameTime)
     {
-        spriteBatch.Begin(SpriteSortMode.FrontToBack);
-        var frame = barPanel.Frame;
+        _provideFeedbackToSpendPoints =
+            Points >= 3 || (Points >= 1 && gameTime.ElapsedGameTime <= TimeSpan.FromMinutes(3));
 
+        var frameColor = ColorPalette.Agave;
+        var fillColor = ColorPalette.Green;
+
+        spriteBatch.Begin(SpriteSortMode.FrontToBack);
+
+        var frame = barPanel.Frame;
         var interiorRect = frame.InteriorRectangle;
         var filledWidth = (int)(interiorRect.Width * Progress);
 
@@ -75,13 +78,34 @@ internal class ExperienceBar(
         DrawEdges(spriteBatch, fillColor, frame, filledWidth, interiorRect);
         DrawCorners(spriteBatch, fillColor, frame, filledWidth, interiorRect);
 
-        // We set layer depths to ensure our filled parts are above the background but below the frame
+        // Draw the bar panel itself (background + frame)
         barPanel.Draw(spriteBatch, frameColor, Color.SlateGray);
 
+        // Draw points box
         DrawPointsBox(spriteBatch, gameTime);
 
+        DrawSpendPrompt(spriteBatch, interiorRect);
 
         spriteBatch.End();
+    }
+
+    private void DrawSpendPrompt(SpriteBatch spriteBatch, Rectangle interiorRect)
+    {
+        // Draw feedback text if applicable
+        if (!_provideFeedbackToSpendPoints) return;
+
+        const string spendPrompt = "Press SPACE to spend your points!";
+        var textSize = font.MeasureString(spendPrompt);
+
+        // Centre the text horizontally in the bar
+        var textPosition = new Vector2(
+            interiorRect.X + interiorRect.Width * 0.5f - textSize.X * 0.5f,
+            interiorRect.Y + interiorRect.Height * 0.5f - textSize.Y * 0.5f
+        );
+
+        // Draw slightly above the bar fill layer
+        var textLayer = _fillLayerDepth + 0.01f;
+        spriteBatch.DrawString(font, spendPrompt, textPosition, Color.White, layerDepth: textLayer);
     }
 
     private void DrawPointsBox(SpriteBatch spriteBatch, GameTime gameTime)
@@ -106,7 +130,7 @@ internal class ExperienceBar(
     private Color PointsBoxTint(GameTime gameTime)
     {
         var baseColor = Color.SlateBlue;
-        if (Points <= 3) return baseColor;
+        if (!_provideFeedbackToSpendPoints) return baseColor;
 
         var pulse = 0.5f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
         return Color.Lerp(baseColor, Color.Gold, pulse);
@@ -114,7 +138,7 @@ internal class ExperienceBar(
 
     private float PointsTextScale(GameTime gameTime)
     {
-        if (Points <= 3) return 1f;
+        if (!_provideFeedbackToSpendPoints) return 1f;
 
         return 1.3f + 0.1f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
     }

@@ -1,7 +1,6 @@
 using Autofac;
 using ContentLibrary;
 using GameLoop.Scenes.Gameplay.UI;
-using Gameplay;
 using Gameplay.Behaviour;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
@@ -35,8 +34,7 @@ internal class MainGameScene(
     ExperienceBar experienceBar,
     EntityRenderer entityRenderer,
     GameplayInputManager input,
-    HealthBar healthBar,
-    PlayTime playTime)
+    HealthBar healthBar)
     : IScene
 {
     private readonly Texture2D _backgroundTile = content.Load<Texture2D>(Paths.Images.BackgroundTile);
@@ -50,7 +48,6 @@ internal class MainGameScene(
         entityManager.Update(gameTime);
         camera.Update(gameTime);
         spawner.Update(gameTime);
-        playTime.Update(gameTime);
     }
 
     public void Draw(GameTime gameTime)
@@ -59,7 +56,7 @@ internal class MainGameScene(
 
         entityRenderer.Draw(entityManager.Entities);
         healthBar.Draw(spriteBatch);
-        experienceBar.Draw(spriteBatch, gameTime, Color.CadetBlue, Color.GreenYellow);
+        experienceBar.Draw(spriteBatch, gameTime);
     }
 
     private void DrawBackground()
@@ -130,7 +127,6 @@ internal class MainGameScene(
         builder.RegisterType<HealthBar>()
             .WithProperty(h => h.Position, new Vector2(10, 10));
 
-        builder.RegisterType<PlayTime>().AsSelf().As<IPlayTime>().SingleInstance();
         builder.RegisterType<GameplayInputManager>()
             .SingleInstance();
 

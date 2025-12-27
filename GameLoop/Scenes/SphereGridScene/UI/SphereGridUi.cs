@@ -222,7 +222,7 @@ internal class SphereGridUi
         spriteBatch.DrawString(_content.FontLarge, titleText, titleCenter, Color.White,
             origin: titleSize / 2f, layerDepth: TitlePanel.InteriorLayerDepth + 0.01f);
 
-        const string helpText = "Click nodes to unlock | Tab to close";
+        const string helpText = "Click nodes to unlock | Space to close";
         var helpSize = _content.FontMedium.MeasureString(helpText);
         spriteBatch.DrawString(_content.FontMedium, helpText,
             new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40),
