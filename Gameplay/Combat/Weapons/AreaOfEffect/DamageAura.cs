@@ -61,5 +61,7 @@ public class DamageAura(PlayerCharacter owner, IEntityFinder entityFinder, Damag
                 onHit.Apply(context);
             }
         }
+
+        auraEffect.SpawnRipple();
     }
 }
