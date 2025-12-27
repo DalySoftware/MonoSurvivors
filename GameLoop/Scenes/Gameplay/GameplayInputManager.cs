@@ -25,7 +25,7 @@ internal class GameplayInputManager(
             return;
         }
 
-        if (WasPressedThisFrame(Keys.Tab) || WasPressedThisFrame(Buttons.Back))
+        if (WasPressedThisFrame(Keys.Space) || WasPressedThisFrame(Keys.Tab) || WasPressedThisFrame(Buttons.Back))
         {
             GlobalCommands.ShowSphereGrid();
             return;

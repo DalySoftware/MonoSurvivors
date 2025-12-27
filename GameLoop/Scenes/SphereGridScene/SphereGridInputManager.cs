@@ -25,6 +25,7 @@ internal class SphereGridInputManager(
         if (ShouldSkipInput()) return;
 
         if (WasPressedThisFrame(Keys.Escape) ||
+            WasPressedThisFrame(Keys.Space) ||
             WasPressedThisFrame(Keys.Tab) ||
             WasPressedThisFrame(Buttons.Back) ||
             WasPressedThisFrame(Buttons.B)) GlobalCommands.CloseSphereGrid();
