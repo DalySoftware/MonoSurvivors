@@ -46,6 +46,14 @@ internal class SoundEffectContent(ContentManager content)
         content.Load<SoundEffect>(Paths.SoundEffects.ShotgunShoot3),
     ];
 
+    internal SoundEffect[] Lightning { get; } =
+    [
+        content.Load<SoundEffect>(Paths.SoundEffects.Lightning1),
+        content.Load<SoundEffect>(Paths.SoundEffects.Lightning2),
+        content.Load<SoundEffect>(Paths.SoundEffects.Lightning3),
+        content.Load<SoundEffect>(Paths.SoundEffects.Lightning4),
+    ];
+
     internal SoundEffect[] EnemyDeath { get; } =
     [
         content.Load<SoundEffect>(Paths.SoundEffects.EnemyDeath1),

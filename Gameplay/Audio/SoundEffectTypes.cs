@@ -9,4 +9,5 @@ public enum SoundEffectTypes
     ExperiencePickup,
     EnemyDeath,
     PlayerHurt,
+    Lightning,
 }

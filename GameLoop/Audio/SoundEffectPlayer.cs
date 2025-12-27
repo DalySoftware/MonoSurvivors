@@ -40,6 +40,7 @@ public class SoundEffectPlayer(
         SoundEffectTypes.ExperiencePickup => _effects.ExperienceUp,
         SoundEffectTypes.EnemyDeath => _effects.EnemyDeath,
         SoundEffectTypes.PlayerHurt => _effects.PlayerHurt,
+        SoundEffectTypes.Lightning => _effects.Lightning,
         _ => throw new ArgumentException("Unknown sound effect type"),
     };
 }
@@ -57,7 +58,10 @@ internal static class Extensions
         {
             case SoundEffectTypes.ExperiencePickup:
                 effect.Play(volume * 0.2f, 0f, 0f);
-                return;
+                break;
+            case SoundEffectTypes.Lightning:
+                effect.Play(volume * 0.15f, 0f, 0f);
+                break;
             default:
                 effect.Play(volume, 0f, 0f);
                 break;

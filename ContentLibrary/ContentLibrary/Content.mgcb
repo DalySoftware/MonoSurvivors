@@ -692,6 +692,30 @@
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp5.wav
 
+#begin SoundEffects/Lightning1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Lightning1.wav
+
+#begin SoundEffects/Lightning2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Lightning2.wav
+
+#begin SoundEffects/Lightning3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Lightning3.wav
+
+#begin SoundEffects/Lightning4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Lightning4.wav
+
 #begin SoundEffects/PlayerHurt1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

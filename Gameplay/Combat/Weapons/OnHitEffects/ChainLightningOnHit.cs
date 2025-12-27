@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies;
@@ -9,7 +10,8 @@ namespace Gameplay.Combat.Weapons.OnHitEffects;
 
 public sealed class ChainLightningOnHit(
     IEntityFinder entityFinder,
-    ISpawnEntity spawnEntity)
+    ISpawnEntity spawnEntity,
+    IAudioPlayer audio)
     : IOnHitEffect
 {
     private const float DamageFalloff = 0.6f;
@@ -49,6 +51,7 @@ public sealed class ChainLightningOnHit(
                 break;
 
             SpawnVisual(currentEnemy.Position, next.Position);
+            PlayAudio();
             next.TakeDamage(owner, damage);
 
             hitEnemies.Add(next);
@@ -57,4 +60,6 @@ public sealed class ChainLightningOnHit(
         }
     }
     private void SpawnVisual(Vector2 from, Vector2 to) => spawnEntity.Spawn(new LightningArc(from, to));
+
+    private void PlayAudio() => audio.Play(SoundEffectTypes.Lightning);
 }
