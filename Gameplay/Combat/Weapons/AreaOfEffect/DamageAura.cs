@@ -12,11 +12,11 @@ namespace Gameplay.Combat.Weapons.AreaOfEffect;
 public class DamageAura(PlayerCharacter owner, IEntityFinder entityFinder, DamageAuraEffect auraEffect)
     : IWeapon, IHasCollider
 {
-    private const float BaseDamage = 5f;
+    private const float BaseDamage = 10f;
     private const float BaseRange = 150f;
     private readonly static SlowOnHit SlowOnHit =
-        new(new MovementSlowdown(0.3f, TimeSpan.FromSeconds(0.5)));
-    private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(0.5);
+        new(new MovementSlowdown(0.3f, TimeSpan.FromSeconds(1)));
+    private readonly TimeSpan _cooldown = TimeSpan.FromSeconds(1);
 
     private readonly CircleCollider _collider = new(owner, BaseRange);
 
