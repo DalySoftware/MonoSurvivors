@@ -74,20 +74,40 @@ internal class SphereGridInputManager(
         var bestScore = float.MinValue;
 
         var inputDirNormalized = Vector2.Normalize(inputDirection);
-        const float maxAngleCos = 0.766f; // 40 degrees each way
 
-        foreach (var (_, neighbour) in ui.FocusedNode.Neighbours)
+        const float minAngleCos = 0.5f; // ~60° cone (more forgiving)
+        const float distanceBias = 1.5f; // strongly favour closer nodes
+
+        foreach (var (node, position) in ui.NodePositions)
         {
-            var neighbourPosition = ui.NodePositions[neighbour];
-            if (!ui.IsVisible(neighbourPosition)) continue;
+            if (node == ui.FocusedNode)
+                continue;
 
-            var dir = Vector2.Normalize(neighbourPosition - currentPosition);
-            var score = Vector2.Dot(dir, inputDirNormalized);
+            if (!ui.IsVisible(position))
+                continue;
 
-            if (score > bestScore && score >= maxAngleCos)
+            var toNode = position - currentPosition;
+            var distance = toNode.Length();
+
+            if (distance <= 0.0001f)
+                continue;
+
+            var dir = toNode / distance;
+            var alignment = Vector2.Dot(dir, inputDirNormalized);
+
+            // Reject nodes too far off-axis
+            if (alignment < minAngleCos)
+                continue;
+
+
+            // Alignment matters, but distance dominates
+            var distanceScore = 1f / MathF.Pow(distance, distanceBias);
+            var score = alignment * distanceScore;
+
+            if (score > bestScore)
             {
                 bestScore = score;
-                best = neighbour;
+                best = node;
             }
         }
 
@@ -95,10 +115,6 @@ internal class SphereGridInputManager(
 
         ui.FocusedNode = best;
         ui.HideFocus = false;
-
-        // // Keep focus roughly centered
-        // _cameraOffset = -focusPos;
-
         _currentThumbstickNavigationCooldown = _thumbstickNavigationCooldown;
     }
 }
