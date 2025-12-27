@@ -13,7 +13,7 @@ internal class DamageProcessor
 {
     private readonly SpatialCollisionChecker _collisionChecker = new();
 
-    internal void ApplyDamage(IReadOnlyCollection<IEntity> entities)
+    internal void ApplyDamage(GameTime gameTime, IReadOnlyCollection<IEntity> entities)
     {
         var playerDamagers = entities.OfType<IDamagesPlayer>();
         var players = entities
@@ -27,6 +27,6 @@ internal class DamageProcessor
         var enemies = entities.OfType<EnemyBase>();
 
         foreach (var (enemy, damager) in _collisionChecker.FindOverlaps(enemies, enemyDamagers))
-            damager.OnHit(enemy);
+            damager.OnHit(gameTime, enemy);
     }
 }

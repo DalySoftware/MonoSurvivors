@@ -6,5 +6,5 @@ namespace Gameplay.Combat;
 internal interface IDamagesEnemies : IHasCollider
 {
     public float Damage { get; }
-    public void OnHit(EnemyBase enemy);
+    public void OnHit(GameTime gameTime, EnemyBase enemy);
 }

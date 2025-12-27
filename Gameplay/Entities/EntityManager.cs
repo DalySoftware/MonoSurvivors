@@ -43,7 +43,7 @@ public class EntityManager : ISpawnEntity, IEntityFinder
         foreach (var entity in Entities)
             entity.Update(gameTime);
 
-        _damageProcessor.ApplyDamage(Entities);
+        _damageProcessor.ApplyDamage(gameTime, Entities);
         _pickupProcessor.ProcessPickups(Entities);
         RemoveEntities();
         AddPendingEntities();

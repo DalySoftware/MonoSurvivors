@@ -12,13 +12,15 @@ public interface IOnHitEffect
 
 public interface IHitContext
 {
+    GameTime GameTime { get; }
     PlayerCharacter Owner { get; }
     EnemyBase Enemy { get; }
 }
 
-public sealed record HitContext(PlayerCharacter Owner, EnemyBase Enemy) : IHitContext;
+public sealed record HitContext(GameTime GameTime, PlayerCharacter Owner, EnemyBase Enemy) : IHitContext;
 
-public sealed class BulletHitContext(PlayerCharacter owner, EnemyBase enemy, Bullet bullet) : IHitContext
+public sealed class BulletHitContext(GameTime gameTime, PlayerCharacter owner, EnemyBase enemy, Bullet bullet)
+    : IHitContext
 {
     public Bullet Bullet { get; } = bullet;
 
@@ -30,6 +32,7 @@ public sealed class BulletHitContext(PlayerCharacter owner, EnemyBase enemy, Bul
     internal float BounceDamageMultiplier { get; private set; } = 1f;
     public PlayerCharacter Owner { get; } = owner;
     public EnemyBase Enemy { get; } = enemy;
+    public GameTime GameTime { get; } = gameTime;
 
     public void RequestBounce(Vector2 newVelocity, float damageMultiplier = 1f)
     {

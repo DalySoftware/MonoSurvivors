@@ -40,13 +40,13 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     public float Damage { get; private set; }
     public ICollider Collider => new CircleCollider(this, 16f);
 
-    public void OnHit(EnemyBase enemy)
+    public void OnHit(GameTime gameTime, EnemyBase enemy)
     {
         if (_immuneEnemies.Contains(enemy)) return;
 
         enemy.TakeDamage(Owner, Damage);
 
-        var context = new BulletHitContext(Owner, enemy, this);
+        var context = new BulletHitContext(gameTime, Owner, enemy, this);
 
         foreach (var onHit in OnHitEffects.OrderBy(o => o.Priority))
             onHit.Apply(context);
