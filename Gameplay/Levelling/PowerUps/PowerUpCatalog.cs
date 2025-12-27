@@ -25,7 +25,7 @@ public static class PowerUpCatalog
         new(PowerUpCategory.DamageEffects, typeof(ShotCountUp), NodeFactory.ShotCountUp),
         new(PowerUpCategory.DamageEffects, typeof(PierceUp), NodeFactory.PierceUp),
         new(PowerUpCategory.DamageEffects, typeof(BulletSplitUp), NodeFactory.BulletSplitUp),
-        new(PowerUpCategory.DamageEffects, typeof(ExplodeOnKillUp), NodeFactory.ExplodeOnKillUp),
+        new(PowerUpCategory.DamageEffects, typeof(ExplodeOnKillChanceUp), NodeFactory.ExplodeOnKillUp),
         new(PowerUpCategory.DamageEffects, typeof(ChainLightningUp), NodeFactory.ChainLightningUp),
 
         // Health
@@ -70,7 +70,7 @@ public static class PowerUpCatalog
             DamageUp => "Increase Damage",
             DodgeChanceUp => "Increase DodgeChance",
             ExperienceUp => "Increase Experience Multiplier",
-            ExplodeOnKillUp => "Increase on kill explosion",
+            ExplodeOnKillChanceUp => "Increase Explode On Kill Chance",
             GridVisionUp => "Increase Grid Vision",
             HealthRegenUp => "Increase Health Regen",
             LifeStealUp => "Increase Life Steal",
@@ -98,7 +98,8 @@ public static class PowerUpCatalog
             DamageUp damageUp => $"Increase Damage by {damageUp.Value:P0}",
             DodgeChanceUp dodgeChangeUp => $"Increase Dodge Chance by {dodgeChangeUp.Value:P0}",
             ExperienceUp experienceUp => $"Increase Experience Multiplier by {experienceUp.Value:P0}",
-            ExplodeOnKillUp => "Increase explosion size on kill",
+            ExplodeOnKillChanceUp explodeChanceUp =>
+                $"Increase chance to trigger explosion on kill by {explodeChanceUp.Value:P0}",
             GridVisionUp gridVisionUp => $"Increase sphere grid vision range by {gridVisionUp.Value:P0}",
             HealthRegenUp => "Increase Health Regen",
             LifeStealUp => "Increase Life Steal",
@@ -200,7 +201,7 @@ public class PowerUpIcons(ContentManager content)
         DamageUp => _damage,
         DodgeChanceUp => _dodge,
         ExperienceUp => _experience,
-        ExplodeOnKillUp => _explodeOnKill,
+        ExplodeOnKillChanceUp => _explodeOnKill,
         GridVisionUp => _gridVision,
         HealthRegenUp => _healthRegen,
         LifeStealUp => _lifeSteal,

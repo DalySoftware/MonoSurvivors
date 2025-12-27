@@ -125,6 +125,29 @@ public class PlayerCharacter(
         experienceSpawner.SpawnExperienceFor(enemy, this);
         audio.Play(SoundEffectTypes.EnemyDeath);
         TrackKills(1);
-        deathBlast.Explode(this, enemy.Position, Stats.EnemyDeathExplosionBullets, WeaponBelt.Stats.DamageMultiplier);
+
+        MaybeExplodeOnDeath(enemy);
+    }
+    private void MaybeExplodeOnDeath(EnemyBase enemy)
+    {
+        const int baseBullets = 4;
+        var chance = Stats.EnemyDeathExplosionChance;
+
+        if (chance <= 0f)
+            return;
+
+        var guaranteedExplosions = (int)MathF.Floor(chance);
+        var remainderChance = chance - guaranteedExplosions;
+
+        var explosionCount = guaranteedExplosions;
+
+        if (Random.Shared.NextSingle() < remainderChance)
+            explosionCount++;
+
+        if (explosionCount <= 0)
+            return;
+
+        var bullets = baseBullets * explosionCount;
+        deathBlast.Explode(this, enemy.Position, bullets, WeaponBelt.Stats.DamageMultiplier);
     }
 }

@@ -13,7 +13,7 @@ public class PlayerStats
     public float GridVisionMultiplier { get; private set; } = 1f;
     public float HealthRegen { get; private set; } = 0f;
     public float ExperienceMultiplier { get; private set; } = 1f;
-    public int EnemyDeathExplosionBullets { get; private set; } = 0;
+    public float EnemyDeathExplosionChance { get; private set; } = 0f;
     public int KillsPerHeal => _lifeSteal == 0 ? int.MaxValue : 100 / _lifeSteal;
     public int MaxHealth { get; private set; } = BaseHealth;
     public float PickupRadiusMultiplier { get; private set; } = 1f;
@@ -29,8 +29,8 @@ public class PlayerStats
             case ExperienceUp experienceUp:
                 ExperienceMultiplier += experienceUp.Value;
                 break;
-            case ExplodeOnKillUp explodeOnKillUp:
-                EnemyDeathExplosionBullets += explodeOnKillUp.Bullets;
+            case ExplodeOnKillChanceUp explodeOnKillChanceUp:
+                EnemyDeathExplosionChance += explodeOnKillChanceUp.Value;
                 break;
             case GridVisionUp gridVisionUp:
                 GridVisionMultiplier += gridVisionUp.Value;
