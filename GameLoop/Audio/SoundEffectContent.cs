@@ -75,4 +75,12 @@ internal class SoundEffectContent(ContentManager content)
         content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt2),
         content.Load<SoundEffect>(Paths.SoundEffects.PlayerHurt3),
     ];
+
+    public SoundEffect[] Explosion { get; } =
+    [
+        content.Load<SoundEffect>(Paths.SoundEffects.Explosion1),
+        content.Load<SoundEffect>(Paths.SoundEffects.Explosion2),
+        content.Load<SoundEffect>(Paths.SoundEffects.Explosion3),
+        content.Load<SoundEffect>(Paths.SoundEffects.Explosion4),
+    ];
 }

@@ -129,6 +129,11 @@ public static class Paths
         public const string EnemyDeath2 = @"SoundEffects\EnemyDeath2";
         public const string EnemyDeath3 = @"SoundEffects\EnemyDeath3";
 
+        public const string Explosion1 = @"SoundEffects\Explosion1";
+        public const string Explosion2 = @"SoundEffects\Explosion2";
+        public const string Explosion3 = @"SoundEffects\Explosion3";
+        public const string Explosion4 = @"SoundEffects\Explosion4";
+
         public const string PlayerHurt1 = @"SoundEffects\PlayerHurt1";
         public const string PlayerHurt2 = @"SoundEffects\PlayerHurt2";
         public const string PlayerHurt3 = @"SoundEffects\PlayerHurt3";

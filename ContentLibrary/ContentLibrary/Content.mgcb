@@ -626,6 +626,30 @@
 /processorParam:Quality=Best
 /build:SoundEffects/ExperienceUp5.wav
 
+#begin SoundEffects/Explosion1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Explosion1.wav
+
+#begin SoundEffects/Explosion2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Explosion2.wav
+
+#begin SoundEffects/Explosion3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Explosion3.wav
+
+#begin SoundEffects/Explosion4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Explosion4.wav
+
 #begin SoundEffects/IceDamage1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

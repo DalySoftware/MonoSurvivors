@@ -149,5 +149,6 @@ public class PlayerCharacter(
 
         var bullets = baseBullets * explosionCount;
         deathBlast.Explode(this, enemy.Position, bullets, WeaponBelt.Stats.DamageMultiplier);
+        audio.Play(SoundEffectTypes.EnemyExplode);
     }
 }

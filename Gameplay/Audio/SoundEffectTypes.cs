@@ -8,6 +8,7 @@ public enum SoundEffectTypes
     ShotgunShoot,
     ExperiencePickup,
     EnemyDeath,
+    EnemyExplode,
     PlayerHurt,
     Lightning,
     IceAura,
