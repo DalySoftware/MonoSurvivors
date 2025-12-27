@@ -114,6 +114,11 @@ public static class Paths
         public const string Lightning3 = @"SoundEffects\Lightning3";
         public const string Lightning4 = @"SoundEffects\Lightning4";
 
+        public const string IceDamage1 = @"SoundEffects\IceDamage1";
+        public const string IceDamage2 = @"SoundEffects\IceDamage2";
+        public const string IceDamage3 = @"SoundEffects\IceDamage3";
+        public const string IceDamage4 = @"SoundEffects\IceDamage4";
+
         public const string ExperienceUp1 = @"SoundEffects\ExperienceUp1";
         public const string ExperienceUp2 = @"SoundEffects\ExperienceUp2";
         public const string ExperienceUp3 = @"SoundEffects\ExperienceUp3";

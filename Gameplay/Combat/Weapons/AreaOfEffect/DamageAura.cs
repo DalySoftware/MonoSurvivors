@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gameplay.Audio;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat.Weapons.OnHitEffects;
@@ -9,7 +10,11 @@ using Gameplay.Entities.Effects;
 
 namespace Gameplay.Combat.Weapons.AreaOfEffect;
 
-public class DamageAura(PlayerCharacter owner, IEntityFinder entityFinder, DamageAuraEffect auraEffect)
+public class DamageAura(
+    PlayerCharacter owner,
+    IEntityFinder entityFinder,
+    DamageAuraEffect auraEffect,
+    IAudioPlayer audio)
     : IWeapon, IHasCollider
 {
     private const float BaseDamage = 10f;
@@ -63,5 +68,6 @@ public class DamageAura(PlayerCharacter owner, IEntityFinder entityFinder, Damag
         }
 
         auraEffect.SpawnRipple();
+        audio.Play(SoundEffectTypes.DamageAura);
     }
 }

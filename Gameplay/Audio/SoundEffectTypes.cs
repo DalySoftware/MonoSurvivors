@@ -10,4 +10,5 @@ public enum SoundEffectTypes
     EnemyDeath,
     PlayerHurt,
     Lightning,
+    DamageAura,
 }
