@@ -125,6 +125,11 @@ public static class Paths
         public const string ExperienceUp4 = @"SoundEffects\ExperienceUp4";
         public const string ExperienceUp5 = @"SoundEffects\ExperienceUp5";
 
+        public const string LevelUp1 = @"SoundEffects\LevelUp1";
+        public const string LevelUp2 = @"SoundEffects\LevelUp2";
+        public const string LevelUp3 = @"SoundEffects\LevelUp3";
+        public const string LevelUp4 = @"SoundEffects\LevelUp4";
+
         public const string EnemyDeath1 = @"SoundEffects\EnemyDeath1";
         public const string EnemyDeath2 = @"SoundEffects\EnemyDeath2";
         public const string EnemyDeath3 = @"SoundEffects\EnemyDeath3";

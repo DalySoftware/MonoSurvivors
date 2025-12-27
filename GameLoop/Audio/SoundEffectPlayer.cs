@@ -38,6 +38,7 @@ public class SoundEffectPlayer(
         SoundEffectTypes.SniperShoot => _effects.SniperShoot,
         SoundEffectTypes.ShotgunShoot => _effects.ShotgunShoot,
         SoundEffectTypes.ExperiencePickup => _effects.ExperienceUp,
+        SoundEffectTypes.LevelUp => _effects.LevelUp,
         SoundEffectTypes.EnemyDeath => _effects.EnemyDeath,
         SoundEffectTypes.EnemyExplode => _effects.Explosion,
         SoundEffectTypes.PlayerHurt => _effects.PlayerHurt,
@@ -58,14 +59,14 @@ internal static class Extensions
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (type)
         {
+            case SoundEffectTypes.IceAura or SoundEffectTypes.LevelUp:
+                effect.Play(volume * 0.7f, 0f, 0f);
+                break;
             case SoundEffectTypes.ExperiencePickup or SoundEffectTypes.EnemyExplode:
                 effect.Play(volume * 0.2f, 0f, 0f);
                 break;
             case SoundEffectTypes.Lightning:
                 effect.Play(volume * 0.15f, 0f, 0f);
-                break;
-            case SoundEffectTypes.IceAura:
-                effect.Play(volume * 0.7f, 0f, 0f);
                 break;
             case SoundEffectTypes.SniperShoot:
                 effect.Play(volume, .2f, 0f);

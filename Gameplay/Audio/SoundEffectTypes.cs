@@ -7,6 +7,7 @@ public enum SoundEffectTypes
     SniperShoot,
     ShotgunShoot,
     ExperiencePickup,
+    LevelUp,
     EnemyDeath,
     EnemyExplode,
     PlayerHurt,

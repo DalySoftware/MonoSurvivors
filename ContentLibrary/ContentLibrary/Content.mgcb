@@ -674,6 +674,30 @@
 /processorParam:Quality=Best
 /build:SoundEffects/IceDamage4.wav
 
+#begin SoundEffects/LevelUp1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/LevelUp1.wav
+
+#begin SoundEffects/LevelUp2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/LevelUp2.wav
+
+#begin SoundEffects/LevelUp3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/LevelUp3.wav
+
+#begin SoundEffects/LevelUp4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/LevelUp4.wav
+
 #begin SoundEffects/Lightning1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
