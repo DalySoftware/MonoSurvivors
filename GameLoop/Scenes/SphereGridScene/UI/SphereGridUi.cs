@@ -108,9 +108,15 @@ internal class SphereGridUi
 
     internal bool IsVisible(Vector2 gridPosition) => _fog.IsVisible(gridPosition);
 
-    internal void UpdateHoveredNode(Vector2 mouseScreenPos)
+    internal void UpdateHoveredNode(Vector2? mouseScreenPos)
     {
-        var mouseWorldPos = Camera.ScreenToWorld(mouseScreenPos);
+        if (mouseScreenPos is not { } screenPosition)
+        {
+            _hoveredNode = null;
+            return;
+        }
+
+        var mouseWorldPos = Camera.ScreenToWorld(screenPosition);
 
         if (!_fog.IsVisible(mouseWorldPos))
         {

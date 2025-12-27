@@ -55,9 +55,12 @@ internal class SphereGridInputManager(
 
         ui.HideFocus = CurrentInputMethod is InputMethod.KeyboardMouse;
 
-        ui.UpdateHoveredNode(MouseState.Position.ToVector2());
+        UpdateHoveredNode();
         UpdateFocussedNode(gameTime);
     }
+
+    private void UpdateHoveredNode() =>
+        ui.UpdateHoveredNode(CurrentInputMethod == InputMethod.KeyboardMouse ? MouseState.Position.ToVector2() : null);
 
     private void UpdateFocussedNode(GameTime gameTime)
     {
