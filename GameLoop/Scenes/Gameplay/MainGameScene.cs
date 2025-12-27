@@ -78,10 +78,10 @@ internal class MainGameScene(
         builder.RegisterType<BasicGun>();
         builder.RegisterType<Shotgun>();
         builder.RegisterType<SniperRifle>();
-        builder.RegisterType<DamageAura>();
+        builder.RegisterType<IceAura>();
         builder.RegisterType<BouncingGun>();
 
-        builder.RegisterType<DamageAuraEffect>().OnActivated(a => a.Context.Resolve<EntityManager>().Spawn(a.Instance));
+        builder.RegisterType<IceAuraEffect>().OnActivated(a => a.Context.Resolve<EntityManager>().Spawn(a.Instance));
 
         builder.RegisterType<WeaponFactory>();
         builder.RegisterType<WeaponBelt>()

@@ -59,7 +59,7 @@ internal static class NodeFactory
     internal static Node DamageUp(NodeRarity rarity) => CreateNode(rarity, s => new DamageUp(s * 0.25f));
     internal static Node DodgeChanceUp(NodeRarity rarity) => CreateNode(rarity, s => new DodgeChanceUp(s * 0.03f));
     internal static Node ExperienceUp(NodeRarity rarity) => CreateNode(rarity, s => new ExperienceUp(s * 0.2f));
-     internal static Node ExplodeOnKillUp(NodeRarity rarity) =>
+    internal static Node ExplodeOnKillUp(NodeRarity rarity) =>
         CreateNode(rarity, s => new ExplodeOnKillChanceUp(s * 0.2f));
     internal static Node GridVisionUp(NodeRarity rarity) => CreateNode(rarity, s => new GridVisionUp(s * 0.1f));
     internal static Node HealthRegenUp(NodeRarity rarity) => CreateNode(rarity, s => new HealthRegenUp((int)s));
@@ -74,7 +74,7 @@ internal static class NodeFactory
     internal static Node SpeedUp(NodeRarity rarity) => CreateNode(rarity, s => new SpeedUp(s * 0.05f));
 
     internal static Node BouncingGunUnlock(NodeRarity rarity) => new(new WeaponUnlock<BouncingGun>(), rarity);
-    internal static Node DamageAuraUnlock(NodeRarity rarity) => new(new WeaponUnlock<DamageAura>(), rarity);
+    internal static Node IceAuraUnlock(NodeRarity rarity) => new(new WeaponUnlock<IceAura>(), rarity);
     internal static Node ShotgunUnlock(NodeRarity rarity) => new(new WeaponUnlock<Shotgun>(), rarity);
     internal static Node SniperRifleUnlock(NodeRarity rarity) => new(new WeaponUnlock<SniperRifle>(), rarity);
 

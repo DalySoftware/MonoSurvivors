@@ -60,7 +60,7 @@ public static class Paths
             public static class Weapons
             {
                 public const string BouncingGun = @"Images\PowerUpIcons\WeaponBouncingGun";
-                public const string DamageAura = @"Images\PowerUpIcons\WeaponDamageAura";
+                public const string IceAura = @"Images\PowerUpIcons\WeaponDamageAura";
                 public const string Shotgun = @"Images\PowerUpIcons\WeaponShotgun";
                 public const string SniperRifle = @"Images\PowerUpIcons\WeaponSniper";
             }

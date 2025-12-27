@@ -10,10 +10,10 @@ using Gameplay.Entities.Effects;
 
 namespace Gameplay.Combat.Weapons.AreaOfEffect;
 
-public class DamageAura(
+public class IceAura(
     PlayerCharacter owner,
     IEntityFinder entityFinder,
-    DamageAuraEffect auraEffect,
+    IceAuraEffect auraEffect,
     IAudioPlayer audio)
     : IWeapon, IHasCollider
 {
@@ -68,6 +68,6 @@ public class DamageAura(
         }
 
         auraEffect.SpawnRipple();
-        audio.Play(SoundEffectTypes.DamageAura);
+        audio.Play(SoundEffectTypes.IceAura);
     }
 }

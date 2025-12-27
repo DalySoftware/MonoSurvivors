@@ -51,7 +51,7 @@ public static class PowerUpCatalog
         // Weapon unlocks (unique)
         new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<Shotgun>), NodeFactory.ShotgunUnlock),
         new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<SniperRifle>), NodeFactory.SniperRifleUnlock),
-        new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<DamageAura>), NodeFactory.DamageAuraUnlock),
+        new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<IceAura>), NodeFactory.IceAuraUnlock),
         new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<BouncingGun>), NodeFactory.BouncingGunUnlock),
     ];
 
@@ -84,7 +84,7 @@ public static class PowerUpCatalog
             WeaponUnlock<Shotgun> => "Shotgun",
             WeaponUnlock<SniperRifle> => "Sniper Rifle",
             WeaponUnlock<BouncingGun> => "Bouncer",
-            WeaponUnlock<DamageAura> => "Ice Aura",
+            WeaponUnlock<IceAura> => "Ice Aura",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
 
@@ -110,10 +110,11 @@ public static class PowerUpCatalog
             RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
             ShotCountUp shotCountUp => $"Fire {shotCountUp.ExtraShots} extra shots",
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
-            WeaponUnlock<Shotgun> => "Unlock an extra weapon. The shotgun fires bullets in a spread",
-            WeaponUnlock<SniperRifle> => "Unlock an extra weapon. The sniper rifle fires high damage shots",
-            WeaponUnlock<BouncingGun> => "Unlock an extra weapon. The bouncer's bullets ricochet off enemies",
-            WeaponUnlock<DamageAura> => "Unlock an extra weapon. You emit an aura which damages all nearby enemies",
+            WeaponUnlock<Shotgun> => "Unlock an extra weapon! The shotgun fires bullets in a spread",
+            WeaponUnlock<SniperRifle> => "Unlock an extra weapon! The sniper rifle fires high damage shots",
+            WeaponUnlock<BouncingGun> => "Unlock an extra weapon! The bouncer's bullets ricochet off enemies",
+            WeaponUnlock<IceAura> =>
+                "Unlock an extra weapon! You emit an ice aura which damages and slows all nearby enemies",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
     }
@@ -187,7 +188,7 @@ public class PowerUpIcons(ContentManager content)
     private readonly Texture2D _speed = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Speed);
 
     private readonly Texture2D _bouncingGun = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.BouncingGun);
-    private readonly Texture2D _damageAura = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.DamageAura);
+    private readonly Texture2D _iceAura = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.IceAura);
     private readonly Texture2D _shotgun = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.Shotgun);
     private readonly Texture2D _sniperRifle = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.SniperRifle);
 
@@ -214,7 +215,7 @@ public class PowerUpIcons(ContentManager content)
         SpeedUp => _speed,
 
         WeaponUnlock<Shotgun> => _shotgun,
-        WeaponUnlock<DamageAura> => _damageAura,
+        WeaponUnlock<IceAura> => _iceAura,
         WeaponUnlock<BouncingGun> => _bouncingGun,
         WeaponUnlock<SniperRifle> => _sniperRifle,
 

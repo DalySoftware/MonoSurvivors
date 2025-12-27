@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Effects;
 
-public class DamageAuraEffect(PlayerCharacter owner, GraphicsDevice graphicsDevice) : IEntity, IGenericVisual
+public class IceAuraEffect(PlayerCharacter owner, GraphicsDevice graphicsDevice) : IEntity, IGenericVisual
 {
     private Texture2D? _circleTexture;
 

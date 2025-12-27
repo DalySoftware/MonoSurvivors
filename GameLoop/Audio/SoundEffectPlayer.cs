@@ -41,7 +41,7 @@ public class SoundEffectPlayer(
         SoundEffectTypes.EnemyDeath => _effects.EnemyDeath,
         SoundEffectTypes.PlayerHurt => _effects.PlayerHurt,
         SoundEffectTypes.Lightning => _effects.Lightning,
-        SoundEffectTypes.DamageAura => _effects.IceDamage,
+        SoundEffectTypes.IceAura => _effects.IceDamage,
         _ => throw new ArgumentException("Unknown sound effect type"),
     };
 }
@@ -63,7 +63,7 @@ internal static class Extensions
             case SoundEffectTypes.Lightning:
                 effect.Play(volume * 0.15f, 0f, 0f);
                 break;
-            case SoundEffectTypes.DamageAura:
+            case SoundEffectTypes.IceAura:
                 effect.Play(volume * 0.7f, 0f, 0f);
                 break;
             case SoundEffectTypes.SniperShoot:
