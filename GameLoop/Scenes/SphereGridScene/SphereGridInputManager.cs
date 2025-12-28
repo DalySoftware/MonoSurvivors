@@ -47,7 +47,7 @@ internal class SphereGridInputManager(
         if (WasPressedThisFrame(Buttons.A))
             ui.UnlockFocussedNode();
 
-        if (WasPressedThisFrame(Buttons.Y) || WasPressedThisFrame(Keys.T))
+        if (WasPressedThisFrame(Keys.T))
             ui.Camera.Position = Vector2.Zero;
 
         // Handle panning with gamepad right thumbstick

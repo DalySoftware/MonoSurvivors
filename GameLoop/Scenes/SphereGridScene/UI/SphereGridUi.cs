@@ -247,7 +247,7 @@ internal class SphereGridUi
     private string HelpText() => InputMethod switch
     {
         InputMethod.KeyboardMouse => "Click nodes to unlock | SPACE to close | T to recenter",
-        InputMethod.Gamepad => "[A] to unlock | [Back] to close | [Y] to recenter",
+        InputMethod.Gamepad => "[A] to unlock | [Back] to close",
         _ => throw new ArgumentOutOfRangeException(nameof(InputMethod)),
     };
 
