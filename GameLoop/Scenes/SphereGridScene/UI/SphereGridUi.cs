@@ -91,13 +91,13 @@ internal class SphereGridUi
 
     private void UpdateCameraFollow()
     {
-        if (HideFocus || FocusedNode is not { } node || NodePositions is not { } positions)
+        if (HideFocus || FocusedNode is not { } node)
         {
             Camera.Target = null;
             return;
         }
 
-        Camera.Target = new NodePositionWrapper(node, positions);
+        Camera.Target = new NodePositionWrapper(node, NodePositions);
     }
 
     private static string TitleText(int points) => $"You have {points} Skill Points to spend";
