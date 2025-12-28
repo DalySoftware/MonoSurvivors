@@ -41,27 +41,6 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/KarmaticArcade-Large.spritefont
 
-#begin Fonts/Terminal-Grotesque-Open-Large.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/Terminal-Grotesque-Open-Large.spritefont
-
-#begin Fonts/Terminal-Grotesque-Open-Medium.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/Terminal-Grotesque-Open-Medium.spritefont
-
-#begin Fonts/Terminal-Grotesque-Open-Small.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/Terminal-Grotesque-Open-Small.spritefont
-
 #begin Images/Experience-2.png
 /importer:TextureImporter
 /processor:TextureProcessor
