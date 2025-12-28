@@ -51,12 +51,12 @@ internal static class NodeFactory
         return new Node(constructor(scaleFactor), rarity);
     }
 
-    internal static Node AttackSpeedUp(NodeRarity rarity) => CreateNode(rarity, s => new AttackSpeedUp(s * 0.2f));
+    internal static Node AttackSpeedUp(NodeRarity rarity) => CreateNode(rarity, s => new AttackSpeedUp(s * 0.08f));
     internal static Node BulletSplitUp(NodeRarity rarity) => CreateNode(rarity, s => new BulletSplitUp((int)s * 2));
     internal static Node ChainLightningUp(NodeRarity rarity) => CreateNode(rarity, s => new ChainLightningUp(s * 0.1f));
     internal static Node CritChanceUp(NodeRarity rarity) => CreateNode(rarity, s => new CritChanceUp(s * 0.05f));
     internal static Node CritDamageUp(NodeRarity rarity) => CreateNode(rarity, s => new CritDamageUp(s * 0.1f));
-    internal static Node DamageUp(NodeRarity rarity) => CreateNode(rarity, s => new DamageUp(s * 0.25f));
+    internal static Node DamageUp(NodeRarity rarity) => CreateNode(rarity, s => new DamageUp(s * 0.1f));
     internal static Node DodgeChanceUp(NodeRarity rarity) => CreateNode(rarity, s => new DodgeChanceUp(s * 0.03f));
     internal static Node ExperienceUp(NodeRarity rarity) => CreateNode(rarity, s => new ExperienceUp(s * 0.2f));
     internal static Node ExplodeOnKillUp(NodeRarity rarity) =>
