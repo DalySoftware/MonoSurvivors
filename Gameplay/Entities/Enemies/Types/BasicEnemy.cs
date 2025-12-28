@@ -28,7 +28,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 
     private static EnemyStats BasicEnemyStats(bool elite) =>
         elite
-            ? new EnemyStats(30f, 2f, 1)
+            ? new EnemyStats(40f, 2f, 1)
             : new EnemyStats(20f, 1f, 1);
 
     public override void Update(GameTime gameTime)

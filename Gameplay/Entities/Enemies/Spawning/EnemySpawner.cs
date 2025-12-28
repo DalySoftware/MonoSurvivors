@@ -5,136 +5,127 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Entities.Enemies.Spawning;
 
-public class EnemySpawner(
+public sealed class EnemySpawner(
     EntityManager entityManager,
     PlayerCharacter player,
     EnemyFactory enemyFactory,
-    ScreenPositioner screenPositioner)
-    : IEntity
+    ScreenPositioner screenPositioner) : IEntity
 {
-    private readonly List<SpawnPhase> _waves =
+    private const float BaseBudgetPerSecond = 0.5f;
+    private readonly SpawnBudgeter _budgeter = new();
+
+    private readonly List<SpawnPhase> _phases =
     [
         new()
         {
-            Duration = TimeSpan.FromMinutes(1),
-            WaveCooldown = TimeSpan.FromSeconds(4),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.BasicEnemy, 4 },
-            },
-        },
-        new()
-        {
-            Duration = TimeSpan.FromMinutes(1),
-            WaveCooldown = TimeSpan.FromSeconds(3),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.BasicEnemy, 7 },
-                { enemyFactory.EliteBasicEnemy, 1 },
-            },
+            Duration = TimeSpan.FromMinutes(2),
+            BudgetMultiplier = 0.8f,
+            Enemies =
+            [
+                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+            ],
         },
         new()
         {
             Duration = TimeSpan.FromMinutes(2),
-            WaveCooldown = TimeSpan.FromSeconds(3),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.BasicEnemy, 9 },
-                { enemyFactory.EliteBasicEnemy, 1 },
-                { enemyFactory.Scorcher, 1 },
-            },
+            BudgetMultiplier = 0.8f,
+            Enemies =
+            [
+                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.05f),
+            ],
         },
         new()
         {
-            Duration = TimeSpan.FromMinutes(2),
-            WaveCooldown = TimeSpan.FromSeconds(3),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.BasicEnemy, 8 },
-                { enemyFactory.EliteBasicEnemy, 2 },
-                { enemyFactory.Scorcher, 2 },
-                { enemyFactory.Hulker, 1 },
-            },
+            Duration = TimeSpan.FromMinutes(3),
+            BudgetMultiplier = 1.0f,
+            Enemies =
+            [
+                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.1f),
+                new SpawnEntry(enemyFactory.Scorcher, 3f),
+            ],
         },
         new()
         {
-            Duration = TimeSpan.FromMinutes(2),
-            WaveCooldown = TimeSpan.FromSeconds(2),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.BasicEnemy, 4 },
-                { enemyFactory.EliteBasicEnemy, 2 },
-                { enemyFactory.Scorcher, 4 },
-                { enemyFactory.Hulker, 4 },
-            },
+            Duration = TimeSpan.FromMinutes(4),
+            BudgetMultiplier = 1.2f,
+            Enemies =
+            [
+                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.2f),
+                new SpawnEntry(enemyFactory.Scorcher, 3f),
+                new SpawnEntry(enemyFactory.Hulker, 6f, 0.4f),
+            ],
         },
         new()
         {
-            Duration = TimeSpan.FromMinutes(2),
-            WaveCooldown = TimeSpan.FromSeconds(1),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.BasicEnemy, 4 },
-                { enemyFactory.EliteBasicEnemy, 2 },
-                { enemyFactory.Scorcher, 8 },
-                { enemyFactory.Hulker, 6 },
-            },
-        },
-        new()
-        {
-            Duration = TimeSpan.FromMinutes(2),
-            WaveCooldown = TimeSpan.FromSeconds(1),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.EliteBasicEnemy, 2 },
-                { enemyFactory.Scorcher, 12 },
-                { enemyFactory.Hulker, 10 },
-            },
-        },
-        new()
-        {
-            Duration = TimeSpan.FromMinutes(2),
-            WaveCooldown = TimeSpan.FromSeconds(1),
-            EnemyWave = new Dictionary<Func<Vector2, EnemyBase>, int>
-            {
-                { enemyFactory.Scorcher, 12 },
-                { enemyFactory.Hulker, 20 },
-            },
+            Duration = TimeSpan.FromMinutes(4),
+            BudgetMultiplier = 1.4f,
+            Enemies =
+            [
+                new SpawnEntry(enemyFactory.BasicEnemy, 1f, 0.8f),
+                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.4f),
+                new SpawnEntry(enemyFactory.Scorcher, 3f),
+                new SpawnEntry(enemyFactory.Hulker, 6f, 1.5f),
+            ],
         },
     ];
 
-    private TimeSpan _cooldown;
-    private TimeSpan _elapsedTime;
+    private TimeSpan _elapsed;
 
     public bool MarkedForDeletion => false;
 
     public void Update(GameTime gameTime)
     {
-        _elapsedTime += gameTime.ElapsedGameTime;
-        _cooldown -= gameTime.ElapsedGameTime;
+        _elapsed += gameTime.ElapsedGameTime;
 
-        if (_cooldown > TimeSpan.Zero)
-            return;
+        var phase = CurrentPhase();
+        var growth = GrowthFactor(_elapsed);
 
-        var wave = CurrentPhase();
-        _cooldown = wave.WaveCooldown;
+        var budgetPerSecond = BaseBudgetPerSecond * growth * phase.BudgetMultiplier;
 
-        foreach (var enemyFactory in wave.GetEnemies().Shuffle())
-            entityManager.Spawn(enemyFactory(screenPositioner.GetRandomOffScreenPosition(player.Position)));
+        _budgeter.AddBudget(budgetPerSecond * (float)gameTime.ElapsedGameTime.TotalSeconds);
+
+        var mostExpensiveEnemy = phase.Enemies.Max(e => e.Cost);
+        var triggerBudget = 2f * mostExpensiveEnemy;
+
+        if (!(_budgeter.Budget >= triggerBudget)) return;
+
+        foreach (var entry in _budgeter.Spend(phase.Enemies))
+        {
+            var enemy = entry.Factory(screenPositioner.GetRandomOffScreenPosition(player.Position));
+            entityManager.Spawn(enemy);
+        }
     }
 
     private SpawnPhase CurrentPhase()
     {
-        var timeToFill = _elapsedTime;
-        foreach (var wave in _waves)
-        {
-            if (timeToFill < wave.Duration)
-                return wave;
+        var t = _elapsed;
 
-            timeToFill -= wave.Duration;
+        foreach (var phase in _phases)
+        {
+            if (t < phase.Duration)
+                return phase;
+
+            t -= phase.Duration;
         }
 
-        // If we run past all durations, stick on the last phase
-        return _waves[^1];
+        return _phases[^1];
+    }
+
+    private static float GrowthFactor(TimeSpan elapsed)
+    {
+        var minutes = (float)elapsed.TotalMinutes;
+
+        const float linearFactor = 0.5f;
+        const float linearEndInMinutes = 4f;
+
+        if (minutes < linearEndInMinutes)
+            return 1f + linearFactor * minutes;
+
+        const float finalLinearFactor = 1f + linearFactor * linearEndInMinutes;
+        const float exponentialBase = 1.3f;
+        return finalLinearFactor * MathF.Pow(exponentialBase, minutes - linearEndInMinutes);
     }
 }

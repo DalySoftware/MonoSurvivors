@@ -1,25 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CreateEnemy = System.Func<Microsoft.Xna.Framework.Vector2, Gameplay.Entities.Enemies.EnemyBase>;
-using NumberToSpawn = int;
 
 namespace Gameplay.Entities.Enemies.Spawning;
 
-public class SpawnPhase
+public sealed class SpawnPhase
 {
     public required TimeSpan Duration { get; init; }
-    public required TimeSpan WaveCooldown { get; init; }
-
-    /// <summary>
-    ///     What to spawn each wave
-    /// </summary>
-    public required Dictionary<CreateEnemy, NumberToSpawn> EnemyWave { get; init; }
-
-    public IEnumerable<CreateEnemy> GetEnemies()
-    {
-        foreach (var (enemyFunc, count) in EnemyWave)
-        foreach (var func in Enumerable.Repeat(enemyFunc, count))
-            yield return func;
-    }
+    public required float BudgetMultiplier { get; init; } = 1f;
+    public required IReadOnlyList<SpawnEntry> Enemies { get; init; }
 }
+
+public sealed record SpawnEntry(CreateEnemy Factory, float Cost, float Weight = 1f);
