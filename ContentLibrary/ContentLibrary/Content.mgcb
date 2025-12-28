@@ -470,7 +470,7 @@
 /processorParam:TextureFormat=Color
 /build:Images/PowerUpIcons/WeaponBouncingGun.png;Images/PowerUpIcons/WeaponBouncingGun
 
-#begin Images/PowerUpIcons/WeaponDamageAura.png
+#begin Images/PowerUpIcons/WeaponIceAura.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -480,7 +480,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Images/PowerUpIcons/WeaponDamageAura.png;Images/PowerUpIcons/WeaponDamageAura
+/build:Images/PowerUpIcons/WeaponIceAura.png;Images/PowerUpIcons/WeaponIceAura
 
 #begin Images/PowerUpIcons/WeaponShotgun.png
 /importer:TextureImporter
