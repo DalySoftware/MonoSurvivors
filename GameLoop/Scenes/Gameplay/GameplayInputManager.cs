@@ -10,13 +10,12 @@ namespace GameLoop.Scenes.Gameplay;
 internal class GameplayInputManager(
     PlayerCharacter player,
     IGlobalCommands globalCommands,
-    GameFocusState focusState,
+    GameInputState inputState,
     SceneManager sceneManager)
-    : BaseInputManager(globalCommands, focusState, sceneManager)
+    : BaseInputManager(globalCommands, inputState, sceneManager)
 {
-    internal override void Update(GameTime gameTime)
+    internal void Update(GameTime gameTime)
     {
-        base.Update(gameTime);
         if (ShouldSkipInput()) return;
 
         if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Start))
@@ -35,15 +34,15 @@ internal class GameplayInputManager(
         var y = 0f;
 
         // Keyboard input
-        if (KeyboardState.IsKeyDown(Keys.S)) x -= 1f;
-        if (KeyboardState.IsKeyDown(Keys.F)) x += 1f;
-        if (KeyboardState.IsKeyDown(Keys.E)) y -= 1f;
-        if (KeyboardState.IsKeyDown(Keys.D)) y += 1f;
+        if (InputState.KeyboardState.IsKeyDown(Keys.S)) x -= 1f;
+        if (InputState.KeyboardState.IsKeyDown(Keys.F)) x += 1f;
+        if (InputState.KeyboardState.IsKeyDown(Keys.E)) y -= 1f;
+        if (InputState.KeyboardState.IsKeyDown(Keys.D)) y += 1f;
 
         // GamePad input (left thumbstick)
-        if (GamePadState.IsConnected)
+        if (InputState.GamePadState.IsConnected)
         {
-            var thumbStick = GamePadState.ThumbSticks.Left;
+            var thumbStick = InputState.GamePadState.ThumbSticks.Left;
             x += thumbStick.X;
             y -= thumbStick.Y; // Y is inverted on thumbsticks
         }
@@ -54,7 +53,7 @@ internal class GameplayInputManager(
             player.DirectionInput(new UnitVector2(0f, 0f));
 
 #if DEBUG
-        if (KeyboardState.IsKeyDown(Keys.LeftControl) && WasPressedThisFrame(Keys.OemPlus))
+        if (InputState.KeyboardState.IsKeyDown(Keys.LeftControl) && WasPressedThisFrame(Keys.OemPlus))
             player.GainExperience(100f);
 #endif
     }

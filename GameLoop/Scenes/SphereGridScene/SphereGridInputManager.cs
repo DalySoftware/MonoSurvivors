@@ -11,18 +11,17 @@ namespace GameLoop.Scenes.SphereGridScene;
 
 internal class SphereGridInputManager(
     IGlobalCommands globalCommands,
-    GameFocusState focusState,
+    GameInputState inputState,
     SphereGridUi ui,
     SceneManager sceneManager)
-    : BaseInputManager(globalCommands, focusState, sceneManager)
+    : BaseInputManager(globalCommands, inputState, sceneManager)
 {
     private readonly TimeSpan _thumbstickNavigationCooldown = TimeSpan.FromMilliseconds(150);
     private TimeSpan _currentThumbstickNavigationCooldown = TimeSpan.Zero;
     private bool _isPanning;
 
-    internal override void Update(GameTime gameTime)
+    internal void Update(GameTime gameTime)
     {
-        base.Update(gameTime);
         if (ShouldSkipInput()) return;
 
         if (WasPressedThisFrame(Keys.Escape) ||
@@ -31,25 +30,25 @@ internal class SphereGridInputManager(
             WasPressedThisFrame(Buttons.Back) ||
             WasPressedThisFrame(Buttons.B)) GlobalCommands.CloseSphereGrid();
 
-        _isPanning = MouseState.MiddleButton == ButtonState.Pressed;
+        _isPanning = InputState.MouseState.MiddleButton == ButtonState.Pressed;
         if (_isPanning)
         {
             var mouseDelta = new Vector2(
-                MouseState.X - PreviousMouseState.X,
-                MouseState.Y - PreviousMouseState.Y
+                InputState.MouseState.X - InputState.PreviousMouseState.X,
+                InputState.MouseState.Y - InputState.PreviousMouseState.Y
             );
             ui.Camera.Position -= mouseDelta;
         }
 
-        if (MouseState.LeftButton == ButtonState.Pressed &&
-            PreviousMouseState.LeftButton == ButtonState.Released)
+        if (InputState.MouseState.LeftButton == ButtonState.Pressed &&
+            InputState.PreviousMouseState.LeftButton == ButtonState.Released)
             ui.UnlockHoveredNode();
 
         if (WasPressedThisFrame(Buttons.A))
             ui.UnlockFocussedNode();
 
         // Handle panning with gamepad right thumbstick
-        var thumbstickInput = GamePadState.ThumbSticks.Right;
+        var thumbstickInput = InputState.GamePadState.ThumbSticks.Right;
         if (thumbstickInput.LengthSquared() > 0.02f)
             ui.Camera.Position -= new Vector2(-thumbstickInput.X, thumbstickInput.Y) * 32f;
 
@@ -60,7 +59,9 @@ internal class SphereGridInputManager(
     }
 
     private void UpdateHoveredNode() =>
-        ui.UpdateHoveredNode(CurrentInputMethod == InputMethod.KeyboardMouse ? MouseState.Position.ToVector2() : null);
+        ui.UpdateHoveredNode(CurrentInputMethod == InputMethod.KeyboardMouse
+            ? InputState.MouseState.Position.ToVector2()
+            : null);
 
     private void UpdateFocussedNode(GameTime gameTime)
     {
@@ -117,7 +118,7 @@ internal class SphereGridInputManager(
     private Vector2 GetInputDirection(GameTime gameTime)
     {
         // Thumbstick
-        var stick = GamePadState.ThumbSticks.Left;
+        var stick = InputState.GamePadState.ThumbSticks.Left;
         stick.Y *= -1f;
 
         if (stick.LengthSquared() >= 0.02f)

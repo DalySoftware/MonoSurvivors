@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ContentLibrary;
+using GameLoop.Input;
 using GameLoop.UI;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
@@ -18,7 +19,8 @@ internal sealed class ExperienceBarFactory(
     PanelRenderer panelRenderer,
     PrimitiveRenderer primitiveRenderer,
     LevelManager levelManager,
-    SphereGrid sphereGrid
+    SphereGrid sphereGrid,
+    GameInputState inputState
 )
 {
     internal ExperienceBar Create()
@@ -35,7 +37,7 @@ internal sealed class ExperienceBarFactory(
         var pointsBoxSize = new Vector2(interiorSize.Y, interiorSize.Y);
         var pointsBox =
             panelRenderer.Define(barPanel.Frame.MiddleRight, pointsBoxSize, barPanel.Frame.LayerDepth + 0.05f);
-        return new ExperienceBar(font, barPanel, pointsBox, primitiveRenderer, levelManager, sphereGrid);
+        return new ExperienceBar(font, barPanel, pointsBox, primitiveRenderer, levelManager, sphereGrid, inputState);
     }
 }
 
@@ -45,7 +47,8 @@ internal class ExperienceBar(
     Panel pointsBoxPanel,
     PrimitiveRenderer primitiveRenderer,
     LevelManager levelManager,
-    SphereGrid sphereGrid)
+    SphereGrid sphereGrid,
+    GameInputState inputState)
 {
     internal const float InteriorHeight = 20f;
 
@@ -94,7 +97,8 @@ internal class ExperienceBar(
         // Draw feedback text if applicable
         if (!_provideFeedbackToSpendPoints) return;
 
-        const string spendPrompt = "Press SPACE to spend your points!";
+        var button = inputState.CurrentInputMethod is InputMethod.KeyboardMouse ? "SPACE" : "[Back]";
+        var spendPrompt = $"Press {button} to spend your points!";
         var textSize = font.MeasureString(spendPrompt);
 
         // Centre the text horizontally in the bar

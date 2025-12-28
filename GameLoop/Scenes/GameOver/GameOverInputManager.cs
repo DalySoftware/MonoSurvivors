@@ -7,17 +7,16 @@ namespace GameLoop.Scenes.GameOver;
 
 internal class GameOverInputManager(
     IGlobalCommands globalCommands,
-    GameFocusState focusState,
+    GameInputState inputState,
     SceneManager sceneManager)
-    : BaseInputManager(globalCommands, focusState, sceneManager)
+    : BaseInputManager(globalCommands, inputState, sceneManager)
 {
-    internal override void Update(GameTime gameTime)
+    internal void Update(GameTime gameTime)
     {
-        base.Update(gameTime);
         if (ShouldSkipInput()) return;
 
         if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Back)) GlobalCommands.Exit();
-        if (KeyboardState.IsKeyDown(Keys.Space) || WasPressedThisFrame(Buttons.Start))
+        if (InputState.KeyboardState.IsKeyDown(Keys.Space) || WasPressedThisFrame(Buttons.Start))
             GlobalCommands.StartGame();
     }
 }

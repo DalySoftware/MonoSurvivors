@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameLoop.Input;
 using GameLoop.UI;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.SphereGrid;
@@ -25,6 +27,7 @@ internal class SphereGridUi
     private readonly PanelRenderer _panelRenderer;
     private readonly SphereGridContent _content;
     private readonly FogOfWarMask _fog;
+    private readonly GameInputState _inputState;
 
     /// <summary>
     ///     UI overlay for the sphere grid levelling system
@@ -38,7 +41,8 @@ internal class SphereGridUi
         SphereGridContent content,
         FogOfWarMask fog,
         NodePositionMap nodePositions,
-        ISphereGridCamera camera)
+        ISphereGridCamera camera,
+        GameInputState inputState)
     {
         _graphicsDevice = graphicsDevice;
         _grid = grid;
@@ -47,6 +51,7 @@ internal class SphereGridUi
         _panelRenderer = panelRenderer;
         _content = content;
         _fog = fog;
+        _inputState = inputState;
         NodePositions = nodePositions.Positions;
 
         Camera = camera;
@@ -59,6 +64,7 @@ internal class SphereGridUi
     private Panel TitlePanel => _panelRenderer.Define(TitleCentre, TitleSize);
     private Vector2 TitleSize => _content.FontLarge.MeasureString(TitleText(100));
     private Vector2 TitleCentre => new(_graphicsDevice.Viewport.Width / 2f, 80);
+    private InputMethod InputMethod => _inputState.CurrentInputMethod;
 
     internal ISphereGridCamera Camera { get; }
     internal IReadOnlyDictionary<Node, Vector2> NodePositions { get; }
@@ -228,15 +234,22 @@ internal class SphereGridUi
         spriteBatch.DrawString(_content.FontLarge, titleText, titleCenter, Color.White,
             origin: titleSize / 2f, layerDepth: TitlePanel.InteriorLayerDepth + 0.01f);
 
-        const string helpText = "Click nodes to unlock | Space to close";
+        var helpText = HelpText();
         var helpSize = _content.FontMedium.MeasureString(helpText);
         spriteBatch.DrawString(_content.FontMedium, helpText,
-            new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40),
-            Color.Gray, layerDepth: Layers.HelpText);
+            new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40), Color.Gray,
+            layerDepth: Layers.HelpText);
 
         DrawTooltips(spriteBatch);
         _fog.Draw(spriteBatch);
     }
+
+    private string HelpText() => InputMethod switch
+    {
+        InputMethod.KeyboardMouse => "Click nodes to unlock | Space to close",
+        InputMethod.Gamepad => "[A] to unlock | [Back] to close",
+        _ => throw new ArgumentOutOfRangeException(nameof(InputMethod)),
+    };
 
     private Texture2D NodeTexture(Node node) => node.Rarity switch
     {
@@ -272,15 +285,17 @@ internal class SphereGridUi
         [
             new(powerUp.Description()),
             new($"Cost: {node.Cost} SP"),
-            UnlockTextFor(node),
+            UnlockLineFor(node),
         ];
 
         return new ToolTip(title, body);
     }
 
-
-    private ToolTipBodyLine UnlockTextFor(Node node) =>
+    private ToolTipBodyLine UnlockLineFor(Node node) =>
         _grid.IsUnlocked(node) ? new ToolTipBodyLine("[Unlocked]", Color.LawnGreen) :
-        _grid.CanUnlock(node) ? new ToolTipBodyLine("[Click to unlock]", Color.Turquoise) :
+        _grid.CanUnlock(node) ? new ToolTipBodyLine(UnlockText(), Color.Turquoise) :
         new ToolTipBodyLine("[Cannot unlock]", Color.DimGray);
+
+    private string UnlockText() =>
+        InputMethod is InputMethod.KeyboardMouse ? "[Click to unlock]" : "[Press A to unlock]";
 }

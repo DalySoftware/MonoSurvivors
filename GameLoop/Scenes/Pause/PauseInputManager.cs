@@ -11,10 +11,10 @@ namespace GameLoop.Scenes.Pause;
 
 internal class PauseInputManager(
     IGlobalCommands globalCommands,
-    GameFocusState focusState,
+    GameInputState inputState,
     PauseUi ui,
     SceneManager sceneManager)
-    : BaseInputManager(globalCommands, focusState, sceneManager)
+    : BaseInputManager(globalCommands, inputState, sceneManager)
 {
     private readonly Action _onResume = globalCommands.ResumeGame;
 
@@ -25,9 +25,8 @@ internal class PauseInputManager(
     private TimeSpan _navCooldown = TimeSpan.Zero;
     private InputMethod _lastInputMethod;
 
-    internal override void Update(GameTime gameTime)
+    internal void Update(GameTime gameTime)
     {
-        base.Update(gameTime);
         if (ShouldSkipInput()) return;
 
         if (CurrentInputMethod != _lastInputMethod)
@@ -112,8 +111,8 @@ internal class PauseInputManager(
         if (_navCooldown > TimeSpan.Zero)
             return null;
 
-        var x = GamePadState.ThumbSticks.Left.X;
-        var y = GamePadState.ThumbSticks.Left.Y;
+        var x = InputState.GamePadState.ThumbSticks.Left.X;
+        var y = InputState.GamePadState.ThumbSticks.Left.Y;
 
         Direction? direction = (x, y) switch
         {
@@ -133,8 +132,8 @@ internal class PauseInputManager(
 
     private void HandleMouseNavigation()
     {
-        var pointerPos = MouseState.Position;
-        var down = MouseState.LeftButton == ButtonState.Pressed;
+        var pointerPos = InputState.MouseState.Position;
+        var down = InputState.MouseState.LeftButton == ButtonState.Pressed;
         var pressedThisFrame = down && WasLeftMousePressedThisFrame();
         var releasedThisFrame = !down && WasLeftMouseReleasedThisFrame();
 
@@ -164,8 +163,8 @@ internal class PauseInputManager(
         }
     }
 
-    private bool WasLeftMouseReleasedThisFrame() => MouseState.LeftButton == ButtonState.Released &&
-                                                    PreviousMouseState.LeftButton == ButtonState.Pressed;
-    private bool WasLeftMousePressedThisFrame() => MouseState.LeftButton == ButtonState.Pressed &&
-                                                   PreviousMouseState.LeftButton == ButtonState.Released;
+    private bool WasLeftMouseReleasedThisFrame() => InputState.MouseState.LeftButton == ButtonState.Released &&
+                                                    InputState.PreviousMouseState.LeftButton == ButtonState.Pressed;
+    private bool WasLeftMousePressedThisFrame() => InputState.MouseState.LeftButton == ButtonState.Pressed &&
+                                                   InputState.PreviousMouseState.LeftButton == ButtonState.Released;
 }
