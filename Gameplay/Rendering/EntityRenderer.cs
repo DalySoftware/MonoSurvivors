@@ -29,7 +29,8 @@ public class EntityRenderer(
                 e => e,
                 e => effectManager.GetEffects(e).ToList());
 
-        spriteBatch.Begin(transformMatrix: camera.Transform, sortMode: SpriteSortMode.FrontToBack);
+        spriteBatch.Begin(transformMatrix: camera.Transform, sortMode: SpriteSortMode.FrontToBack,
+            samplerState: SamplerState.PointClamp);
         foreach (var (entity, _) in effectsLookup.Where(pair => pair.Value.Count == 0))
             Draw(entity);
         spriteBatch.End();

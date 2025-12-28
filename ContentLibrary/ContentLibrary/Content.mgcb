@@ -506,18 +506,6 @@
 /processorParam:TextureFormat=Color
 /build:Images/PowerUpIcons/WeaponSniper.png;Images/PowerUpIcons/WeaponSniper
 
-#begin Images/Scorcher.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Scorcher.png
-
 #begin Images/Sheets/BasicEnemy.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -541,6 +529,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/Sheets/Hulker.png;Images/Sheets/Hulker
+
+#begin Images/Sheets/Scorcher.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Sheets/Scorcher.png;Images/Sheets/Scorcher
 
 #begin Music/AppleStrudel.wav
 /importer:WavImporter
