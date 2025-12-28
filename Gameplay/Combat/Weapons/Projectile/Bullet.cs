@@ -42,7 +42,8 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
     public void OnHit(GameTime gameTime, EnemyBase enemy)
     {
-        if (_immuneEnemies.Contains(enemy)) return;
+        if (!_immuneEnemies.Add(enemy))
+            return;
 
         enemy.TakeDamage(Owner, Damage);
 
