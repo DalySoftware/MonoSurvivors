@@ -35,7 +35,7 @@ public class WeaponBelt(BulletSplitOnHit bulletSplit, ChainLightningOnHit chainL
         Stats.AttackSpeedMultiplier = _powerUps.OfType<AttackSpeedUp>().Sum(p => p.Value) + 1f;
         Stats.DamageMultiplier = _powerUps.OfType<DamageUp>().Sum(p => p.Value) + 1f;
         Stats.RangeMultiplier = _powerUps.OfType<RangeUp>().Sum(p => p.Value) + 1f;
-        Stats.ExtraShots = _powerUps.OfType<ShotCountUp>().Sum(p => p.ExtraShots);
+        Stats.ExtraShotChance = _powerUps.OfType<ExtraShotChanceUp>().Sum(p => p.Value);
         Stats.Pierce = _powerUps.OfType<PierceUp>().Sum(p => p.Value);
         Stats.ProjectileSpeedMultiplier = _powerUps.OfType<ProjectileSpeedUp>().Sum(p => p.Value) + 1f;
         Stats.CritChance = _powerUps.OfType<CritChanceUp>().Sum(p => p.Value);
@@ -54,7 +54,7 @@ public class WeaponBeltStats
     public float ProjectileSpeedMultiplier { get; set; } = 1f;
     public float DamageMultiplier { get; set; } = 1f;
     public float RangeMultiplier { get; set; } = 1f;
-    public int ExtraShots { get; set; } = 0;
+    public float ExtraShotChance { get; set; } = 0f;
     public int Pierce { get; set; } = 0;
     public float SpeedMultiplier { get; set; } = 1f;
     public float CritChance { get; set; } = 0f;

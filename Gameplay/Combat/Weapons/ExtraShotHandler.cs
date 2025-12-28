@@ -21,7 +21,17 @@ internal class ExtraShotHandler(WeaponBeltStats stats)
         return ExtraShotResult.Fired;
     }
 
-    internal void QueueFire() => _remainingShots = stats.ExtraShots;
+    internal void QueueFire()
+    {
+        var chance = Math.Max(0f, stats.ExtraShotChance);
+
+        var guaranteedShots = (int)MathF.Floor(chance);
+        var fractionalChance = chance - guaranteedShots;
+
+        var extraFromFraction = Random.Shared.NextSingle() < fractionalChance ? 1 : 0;
+
+        _remainingShots = guaranteedShots + extraFromFraction;
+    }
 }
 
 internal enum ExtraShotResult

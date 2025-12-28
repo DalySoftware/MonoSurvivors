@@ -70,7 +70,8 @@ internal static class NodeFactory
     internal static Node ProjectileSpeedUp(NodeRarity rarity) =>
         CreateNode(rarity, s => new ProjectileSpeedUp(s * 0.4f));
     internal static Node RangeUp(NodeRarity rarity) => CreateNode(rarity, s => new RangeUp(s * 0.3f));
-    internal static Node ShotCountUp(NodeRarity rarity) => CreateNode(rarity, s => new ShotCountUp((int)s));
+    internal static Node ExtraShotChanceUp(NodeRarity rarity) =>
+        CreateNode(rarity, s => new ExtraShotChanceUp(s * 0.2f));
     internal static Node SpeedUp(NodeRarity rarity) => CreateNode(rarity, s => new SpeedUp(s * 0.15f));
 
     internal static Node BouncingGunUnlock(NodeRarity rarity) => new(new WeaponUnlock<BouncingGun>(), rarity);

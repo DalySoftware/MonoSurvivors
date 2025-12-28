@@ -22,7 +22,7 @@ public static class PowerUpCatalog
         new(PowerUpCategory.Damage, typeof(AttackSpeedUp), NodeFactory.AttackSpeedUp),
 
         // Damage Effects
-        new(PowerUpCategory.DamageEffects, typeof(ShotCountUp), NodeFactory.ShotCountUp),
+        new(PowerUpCategory.DamageEffects, typeof(ExtraShotChanceUp), NodeFactory.ExtraShotChanceUp),
         new(PowerUpCategory.DamageEffects, typeof(PierceUp), NodeFactory.PierceUp),
         new(PowerUpCategory.DamageEffects, typeof(BulletSplitUp), NodeFactory.BulletSplitUp),
         new(PowerUpCategory.DamageEffects, typeof(ExplodeOnKillChanceUp), NodeFactory.ExplodeOnKillUp),
@@ -70,6 +70,7 @@ public static class PowerUpCatalog
             DamageUp => "Damage",
             DodgeChanceUp => "Dodge Chance",
             ExperienceUp => "Experience Multiplier",
+            ExtraShotChanceUp => "Extra Shot Chance",
             ExplodeOnKillChanceUp => "Explode On Kill",
             GridVisionUp => "Grid Vision",
             HealthRegenUp => "Increase Health Regen",
@@ -79,7 +80,6 @@ public static class PowerUpCatalog
             PierceUp => "Pierce",
             ProjectileSpeedUp => "Projectile Speed",
             RangeUp => "Range",
-            ShotCountUp => "Shot Count",
             SpeedUp => "Speed",
             WeaponUnlock<Shotgun> => "Shotgun",
             WeaponUnlock<SniperRifle> => "Sniper Rifle",
@@ -91,8 +91,9 @@ public static class PowerUpCatalog
         public string Description() => powerUp switch
         {
             AttackSpeedUp attackSpeedUp => $"Increase Attack Speed by {attackSpeedUp.Value:P0}",
-            BulletSplitUp => "Increase Bullet Split",
-            ChainLightningUp => "Increase chance to trigger chain lightning on hit",
+            BulletSplitUp bulletSplitUp => $"Bullets split into {bulletSplitUp.Bullets} on hit",
+            ChainLightningUp lightningUp =>
+                $"Increase chance to trigger chain lightning on hit by {lightningUp.Value:P0}",
             CritChanceUp critChanceUp => $"Increase Critical Hit Chance by {critChanceUp.Value:P0}",
             CritDamageUp critDamageUp => $"Increase Critical Hit Damage by {critDamageUp.Value:P0}",
             DamageUp damageUp => $"Increase Damage by {damageUp.Value:P0}",
@@ -100,6 +101,7 @@ public static class PowerUpCatalog
             ExperienceUp experienceUp => $"Increase Experience Multiplier by {experienceUp.Value:P0}",
             ExplodeOnKillChanceUp explodeChanceUp =>
                 $"Increase chance to trigger explosion on kill by {explodeChanceUp.Value:P0}",
+            ExtraShotChanceUp shotCountUp => $"Increase chance to fire an extra shot by {shotCountUp.Value:P0}",
             GridVisionUp gridVisionUp => $"Increase sphere grid vision range by {gridVisionUp.Value:P0}",
             HealthRegenUp => "Increase Health Regen",
             LifeStealUp => "Increase Life Steal",
@@ -108,7 +110,6 @@ public static class PowerUpCatalog
             PierceUp pierceUp => $"Projectiles pierce {pierceUp.Value} more {pierceUp.Value.EnemiesLabel()}",
             ProjectileSpeedUp projectileSpeedUp => $"Increase Projectile Speed by {projectileSpeedUp.Value:P0}",
             RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
-            ShotCountUp shotCountUp => $"Fire {shotCountUp.ExtraShots} extra shots",
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
             WeaponUnlock<Shotgun> => "Unlock an extra weapon! The shotgun fires bullets in a spread",
             WeaponUnlock<SniperRifle> => "Unlock an extra weapon! The sniper rifle fires high damage shots",
@@ -211,7 +212,7 @@ public class PowerUpIcons(ContentManager content)
         PierceUp => _pierce,
         ProjectileSpeedUp => _projectileSpeed,
         RangeUp => _range,
-        ShotCountUp => _shotCount,
+        ExtraShotChanceUp => _shotCount,
         SpeedUp => _speed,
 
         WeaponUnlock<Shotgun> => _shotgun,
