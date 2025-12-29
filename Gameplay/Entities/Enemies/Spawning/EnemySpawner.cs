@@ -9,7 +9,7 @@ public sealed class EnemySpawner(
     EntityManager entityManager,
     PlayerCharacter player,
     EnemyFactory enemyFactory,
-    ScreenPositioner screenPositioner) : IEntity
+    ScreenPositioner screenPositioner)
 {
     private const float BaseBudgetPerSecond = 0.5f;
     private readonly SpawnBudgeter _budgeter = new();
@@ -73,8 +73,6 @@ public sealed class EnemySpawner(
     ];
 
     private TimeSpan _elapsed;
-
-    public bool MarkedForDeletion => false;
 
     public void Update(GameTime gameTime)
     {
