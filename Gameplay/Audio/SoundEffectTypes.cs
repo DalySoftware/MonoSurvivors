@@ -13,4 +13,5 @@ public enum SoundEffectTypes
     PlayerHurt,
     Lightning,
     IceAura,
+    UnlockNode,
 }

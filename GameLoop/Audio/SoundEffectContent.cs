@@ -91,4 +91,9 @@ internal class SoundEffectContent(ContentManager content)
         content.Load<SoundEffect>(Paths.SoundEffects.LevelUp3),
         content.Load<SoundEffect>(Paths.SoundEffects.LevelUp4),
     ];
+
+    public SoundEffect[] UnlockNode { get; } =
+    [
+        content.Load<SoundEffect>(Paths.SoundEffects.UnlockNode),
+    ];
 }

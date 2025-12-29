@@ -31,6 +31,7 @@ internal class SphereGridUi
     private readonly SphereGridContent _content;
     private readonly FogOfWarMask _fog;
     private readonly GameInputState _inputState;
+    private readonly IAudioPlayer _audio;
 
     private readonly Dictionary<Node, NodeColorCache> _colorCache = [];
 
@@ -47,7 +48,8 @@ internal class SphereGridUi
         FogOfWarMask fog,
         NodePositionMap nodePositions,
         ISphereGridCamera camera,
-        GameInputState inputState)
+        GameInputState inputState,
+        IAudioPlayer audio)
     {
         _graphicsDevice = graphicsDevice;
         _grid = grid;
@@ -57,6 +59,7 @@ internal class SphereGridUi
         _content = content;
         _fog = fog;
         _inputState = inputState;
+        _audio = audio;
         NodePositions = nodePositions.Positions;
 
         Camera = camera;
@@ -167,10 +170,16 @@ internal class SphereGridUi
     {
         if (_hoveredNode == null) return;
 
-        _grid.Unlock(_hoveredNode);
+        Unlock(_hoveredNode);
     }
 
-    internal void UnlockFocussedNode() => _grid.Unlock(FocusedNode);
+    internal void UnlockFocussedNode() => Unlock(FocusedNode);
+
+    private void Unlock(Node node)
+    {
+        if (_grid.Unlock(node))
+            _audio.Play(SoundEffectTypes.UnlockNode);
+    }
 
     internal void Draw(SpriteBatch spriteBatch)
     {

@@ -44,6 +44,7 @@ public class SoundEffectPlayer(
         SoundEffectTypes.PlayerHurt => _effects.PlayerHurt,
         SoundEffectTypes.Lightning => _effects.Lightning,
         SoundEffectTypes.IceAura => _effects.IceDamage,
+        SoundEffectTypes.UnlockNode => _effects.UnlockNode,
         _ => throw new ArgumentException("Unknown sound effect type"),
     };
 }

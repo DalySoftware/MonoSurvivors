@@ -35,10 +35,10 @@ public class SphereGrid
 
     public bool IsUnlocked(Node node) => UnlockedNodes.Contains(node);
 
-    public void Unlock(Node node)
+    public bool Unlock(Node node)
     {
         if (!CanUnlock(node))
-            return;
+            return false;
 
         UnlockedNodes.Add(node);
         AvailablePoints -= node.Cost;
@@ -49,6 +49,8 @@ public class SphereGrid
 
         if (node.PowerUp is not null)
             OnUnlock(node.PowerUp);
+
+        return true;
     }
 
 

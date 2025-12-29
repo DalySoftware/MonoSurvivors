@@ -785,3 +785,9 @@
 /processorParam:Quality=Best
 /build:SoundEffects/SniperShoot3.wav
 
+#begin SoundEffects/UnlockNode.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/UnlockNode.wav
+
