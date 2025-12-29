@@ -112,7 +112,8 @@ public static class PowerUpCatalog
             RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
             WeaponUnlock<Shotgun> => "Unlock an extra weapon! The shotgun fires bullets in a spread",
-            WeaponUnlock<SniperRifle> => "Unlock an extra weapon! The sniper rifle is twice as likely to crit",
+            WeaponUnlock<SniperRifle> =>
+                "Unlock an extra weapon! The sniper rifle pierces and is twice as likely to crit",
             WeaponUnlock<BouncingGun> => "Unlock an extra weapon! The bouncer's bullets ricochet off enemies",
             WeaponUnlock<IceAura> =>
                 "Unlock an extra weapon! You emit an ice aura which damages and slows all nearby enemies",
