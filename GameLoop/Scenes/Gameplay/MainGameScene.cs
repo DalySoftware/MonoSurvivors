@@ -34,7 +34,8 @@ internal class MainGameScene(
     ExperienceBar experienceBar,
     EntityRenderer entityRenderer,
     GameplayInputManager input,
-    HealthBar healthBar)
+    HealthBar healthBar,
+    RunClock clock)
     : IScene
 {
     private readonly Texture2D _backgroundTile = content.Load<Texture2D>(Paths.Images.BackgroundTile);
@@ -57,6 +58,7 @@ internal class MainGameScene(
         entityRenderer.Draw(entityManager.Entities);
         healthBar.Draw(spriteBatch);
         experienceBar.Draw(spriteBatch, gameTime);
+        clock.Draw(spriteBatch);
     }
 
     private void DrawBackground()
@@ -126,6 +128,9 @@ internal class MainGameScene(
 
         builder.RegisterType<HealthBar>()
             .WithProperty(h => h.Position, new Vector2(10, 10));
+
+        builder.RegisterType<RunClockFactory>().SingleInstance();
+        builder.Register<RunClock>(ctx => ctx.Resolve<RunClockFactory>().Create());
 
         builder.RegisterType<GameplayInputManager>()
             .SingleInstance();

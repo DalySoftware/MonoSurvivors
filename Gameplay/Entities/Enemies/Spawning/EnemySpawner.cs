@@ -72,14 +72,14 @@ public sealed class EnemySpawner(
         },
     ];
 
-    private TimeSpan _elapsed;
+    public TimeSpan ElapsedTime { get; private set; }
 
     public void Update(GameTime gameTime)
     {
-        _elapsed += gameTime.ElapsedGameTime;
+        ElapsedTime += gameTime.ElapsedGameTime;
 
         var phase = CurrentPhase();
-        var growth = GrowthFactor(_elapsed);
+        var growth = GrowthFactor(ElapsedTime);
 
         var budgetPerSecond = BaseBudgetPerSecond * growth * phase.BudgetMultiplier;
 
@@ -99,7 +99,7 @@ public sealed class EnemySpawner(
 
     private SpawnPhase CurrentPhase()
     {
-        var t = _elapsed;
+        var t = ElapsedTime;
 
         foreach (var phase in _phases)
         {
