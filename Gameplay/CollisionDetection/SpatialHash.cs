@@ -7,6 +7,9 @@ internal class SpatialHash<T>(float cellSize)
 {
     private readonly Dictionary<(int, int), List<T>> _grid = [];
 
+    // We define a field to avoid allocating an object in each QueryNearby() call 
+    private readonly HashSet<T> _seenItems = [];
+
     internal float CellSize => cellSize;
 
     public void Insert(T item)
@@ -28,7 +31,7 @@ internal class SpatialHash<T>(float cellSize)
     public IEnumerable<T> QueryNearby(Vector2 position, int cellRadius = 1)
     {
         var centerCell = GetCell(position);
-        var seen = new HashSet<T>();
+        _seenItems.Clear();
 
         for (var x = -cellRadius; x <= cellRadius; x++)
         for (var y = -cellRadius; y <= cellRadius; y++)
@@ -38,7 +41,7 @@ internal class SpatialHash<T>(float cellSize)
                 continue;
 
             foreach (var item in items)
-                if (seen.Add(item))
+                if (_seenItems.Add(item))
                     yield return item;
         }
     }
