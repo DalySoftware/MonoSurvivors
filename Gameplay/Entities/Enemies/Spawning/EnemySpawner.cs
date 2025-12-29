@@ -43,7 +43,7 @@ public sealed class EnemySpawner(
             [
                 new SpawnEntry(enemyFactory.BasicEnemy, 1f),
                 new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.1f),
-                new SpawnEntry(enemyFactory.Scorcher, 3f),
+                new SpawnEntry(enemyFactory.Scorcher, 3f, 0.5f),
             ],
         },
         new()
@@ -54,7 +54,8 @@ public sealed class EnemySpawner(
             [
                 new SpawnEntry(enemyFactory.BasicEnemy, 1f),
                 new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.2f),
-                new SpawnEntry(enemyFactory.Scorcher, 3f),
+                new SpawnEntry(enemyFactory.Scorcher, 3f, 0.5f),
+                new SpawnEntry(enemyFactory.EliteScorcher, 9f, 0.05f),
                 new SpawnEntry(enemyFactory.Hulker, 6f, 0.4f),
             ],
         },
@@ -67,7 +68,9 @@ public sealed class EnemySpawner(
                 new SpawnEntry(enemyFactory.BasicEnemy, 1f, 0.8f),
                 new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.4f),
                 new SpawnEntry(enemyFactory.Scorcher, 3f),
+                new SpawnEntry(enemyFactory.EliteScorcher, 9f, 0.1f),
                 new SpawnEntry(enemyFactory.Hulker, 6f, 1.5f),
+                new SpawnEntry(enemyFactory.EliteHulker, 20f, 0.05f),
             ],
         },
     ];

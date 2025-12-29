@@ -2,6 +2,7 @@
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 
 namespace Gameplay.Entities.Enemies.Types;
 
@@ -11,17 +12,20 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
     private readonly ScorcherSpriteSheet _spriteSheet = new();
 
     [SetsRequiredMembers]
-    public Scorcher(Vector2 position, IHasPosition target) : base(position, ScorcherStats())
+    public Scorcher(Vector2 position, IHasPosition target, bool elite) : base(position, ScorcherStats(elite))
     {
         _followEntity = new FollowEntity(this, target, 0.12f);
         Collider = new RectangleCollider(this, 96f, 96f);
+        OutlineColor = elite ? ColorPalette.Cyan : null;
     }
 
     public ISpriteSheet SpriteSheet => _spriteSheet;
     public IFrame CurrentFrame { get; } = new ScorcherSpriteSheet.DummyFrame();
-    public Color? OutlineColor => null;
+    public Color? OutlineColor { get; }
 
-    private static EnemyStats ScorcherStats() => new(12f, 2f, 1, 2f);
+    private static EnemyStats ScorcherStats(bool elite) => elite
+        ? new EnemyStats(18f, 4f, 2, 2f)
+        : new EnemyStats(12f, 2f, 1, 2f);
 
     public override void Update(GameTime gameTime)
     {

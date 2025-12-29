@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 
 namespace Gameplay.Entities.Enemies.Types;
 
@@ -18,7 +19,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     {
         _followEntity = new FollowEntity(this, target, 0.07f);
         Collider = new CircleCollider(this, 32f);
-        OutlineColor = elite ? Color.Cyan : null;
+        OutlineColor = elite ? ColorPalette.Cyan : null;
     }
 
     public ISpriteSheet SpriteSheet { get; } = new BasicEnemySpriteSheet();
