@@ -119,7 +119,7 @@ public sealed class EnemySpawner(
     {
         var minutes = (float)elapsed.TotalMinutes;
 
-        const float linearFactor = 0.5f;
+        const float linearFactor = 0.3f;
         const float linearEndInMinutes = 4f;
 
         if (minutes < linearEndInMinutes)
