@@ -16,6 +16,9 @@ public class EntityRenderer(
     PrimitiveRenderer primitiveRenderer,
     OutlineRenderer outlineRenderer)
 {
+    // Used to slightly bias lower enemies towards front. Makes render roughly deterministic
+    private const float YSortScale = 0.00000000001f;
+
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
     private readonly Dictionary<string, Texture2D> _textureCache = [];
 
@@ -65,11 +68,14 @@ public class EntityRenderer(
         var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
         var origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
 
+
+        var layer = visual.Layer + visual.Position.Y * YSortScale;
+
         if (visual.OutlineColor is { } outlineColor)
             outlineRenderer.DrawOutline(spriteBatch, texture, visual.Position, sourceRect, origin,
-                visual.Layer - 0.001f, outlineColor);
+                layer - 0.001f, outlineColor);
         spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect, origin: origin,
-            layerDepth: visual.Layer);
+            layerDepth: layer);
     }
 
     private void DrawSimpleSprite(ISpriteVisual visual)
@@ -77,7 +83,8 @@ public class EntityRenderer(
         var texture = GetTexture(visual.TexturePath);
         var origin = new Vector2(texture.Width / 2f, texture.Height / 2f);
 
-        spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: visual.Layer);
+        var layer = visual.Layer + visual.Position.Y * YSortScale;
+        spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: layer);
     }
 
     private void DrawWithEffect(IVisual visual, VisualEffect effect)
