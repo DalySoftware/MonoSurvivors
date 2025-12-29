@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameLoop.Input;
 using GameLoop.UI;
+using Gameplay.Audio;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.UI;
@@ -19,6 +20,8 @@ namespace GameLoop.Scenes.SphereGridScene.UI;
 /// </summary>
 internal class SphereGridUi
 {
+    private readonly static Color IconLockedColor = ColorPalette.White.ShiftLightness(-0.10f);
+    private readonly static Color IconColor = ColorPalette.White;
     private Node? _hoveredNode;
     private readonly GraphicsDevice _graphicsDevice;
     private readonly SphereGrid _grid;
@@ -28,6 +31,8 @@ internal class SphereGridUi
     private readonly SphereGridContent _content;
     private readonly FogOfWarMask _fog;
     private readonly GameInputState _inputState;
+
+    private readonly Dictionary<Node, NodeColorCache> _colorCache = [];
 
     /// <summary>
     ///     UI overlay for the sphere grid levelling system
@@ -59,6 +64,7 @@ internal class SphereGridUi
 
         // Ensure the fog is rendered to prevent flicker
         RebuildFog();
+        BuildColorCache();
     }
 
     private Panel TitlePanel => _panelRenderer.Define(TitleCentre, TitleSize);
@@ -88,6 +94,25 @@ internal class SphereGridUi
             UpdateCameraFollow();
         }
     } = false;
+
+    private void BuildColorCache()
+    {
+        // This could actually be cached per category but doing it per node is completely sufficient
+
+        _colorCache.Clear();
+
+        foreach (var node in _grid.Nodes)
+        {
+            var baseColor = node.PowerUp.BaseColor().ShiftChroma(-0.1f);
+
+            _colorCache[node] = new NodeColorCache
+            {
+                Locked = baseColor.WithChroma(0.05f),
+                Unlockable = baseColor.ShiftLightness(0.05f).WithChroma(0.10f),
+                Unlocked = baseColor.ShiftLightness(-0.04f),
+            };
+        }
+    }
 
     private void UpdateCameraFollow()
     {
@@ -185,30 +210,33 @@ internal class SphereGridUi
     {
         foreach (var node in _grid.Nodes)
         {
-            if (!NodePositions.TryGetValue(node, out var nodePos)) continue;
+            if (!NodePositions.TryGetValue(node, out var nodePos))
+                continue;
 
-            var isFocussed = IsFocused(node);
-            var isHovered = IsHovered(node);
             var isUnlocked = _grid.IsUnlocked(node);
             var canUnlock = _grid.CanUnlock(node);
 
-            var baseColor = node.PowerUp.BaseColor().ShiftChroma(-0.1f);
-            var nodeColor =
-                isUnlocked ? baseColor.ShiftLightness(-0.04f) :
-                canUnlock ? baseColor.ShiftLightness(0.05f).WithChroma(0.10f) :
-                baseColor.WithChroma(0.05f);
-            var iconColor =
-                !isUnlocked && !canUnlock ? ColorPalette.White.ShiftLightness(-0.10f) : ColorPalette.White;
+            var colors = _colorCache[node];
 
-            if (isFocussed || isHovered)
-                nodeColor = nodeColor.ShiftLightness(0.4f);
+            var nodeColor = isUnlocked ? colors.Unlocked :
+                canUnlock ? colors.Unlockable :
+                colors.Locked;
+
+            var iconColor = !isUnlocked && !canUnlock ? IconLockedColor : IconColor;
+
+            if (IsFocused(node) || IsHovered(node))
+                nodeColor = nodeColor.ShiftLightness(0.4f); // small, unavoidable runtime tweak
 
             var texture = NodeTexture(node);
             DrawNode(spriteBatch, texture, nodePos, nodeColor);
 
             var iconTexture = _content.PowerUpIcons.IconFor(node);
             if (iconTexture != null)
-                spriteBatch.Draw(iconTexture, nodePos, origin: iconTexture.Centre, color: iconColor,
+                spriteBatch.Draw(
+                    iconTexture,
+                    nodePos,
+                    origin: iconTexture.Centre,
+                    color: iconColor,
                     layerDepth: Layers.Nodes + 0.01f);
         }
     }
@@ -298,4 +326,11 @@ internal class SphereGridUi
 
     private string UnlockText() =>
         InputMethod is InputMethod.KeyboardMouse ? "[Click to unlock]" : "[Press A to unlock]";
+
+    private sealed class NodeColorCache
+    {
+        public Color Locked;
+        public Color Unlockable;
+        public Color Unlocked;
+    }
 }

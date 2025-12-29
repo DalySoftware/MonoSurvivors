@@ -8,12 +8,16 @@ namespace Gameplay.Levelling.SphereGrid;
 public class SphereGrid
 {
     private readonly HashSet<Node> _nodes = [];
+    private readonly HashSet<Node> _unlockableFrontier = [];
 
     internal SphereGrid(Node root)
     {
         DiscoverAndAddNodes(root);
         Root = root;
+
         UnlockedNodes.Add(root);
+        foreach (var neighbour in root.Neighbours.Values)
+            _unlockableFrontier.Add(neighbour);
     }
     public HashSet<Node> UnlockedNodes { get; } = [];
 
@@ -22,14 +26,12 @@ public class SphereGrid
     public Action<IPowerUp> OnUnlock { get; init; } = _ => { };
     public int AvailablePoints { get; private set; } = 0;
 
-    public IEnumerable<Node> Unlockable => _nodes.Where(CanUnlock);
-
     public void AddSkillPoints(int points) => AvailablePoints += points;
 
     public bool CanUnlock(Node node) =>
         AvailablePoints >= node.Cost &&
         !IsUnlocked(node) &&
-        UnlockedNodes.Any(n => n.Neighbours.Values.Contains(node));
+        _unlockableFrontier.Contains(node);
 
     public bool IsUnlocked(Node node) => UnlockedNodes.Contains(node);
 
@@ -40,9 +42,15 @@ public class SphereGrid
 
         UnlockedNodes.Add(node);
         AvailablePoints -= node.Cost;
+
+        _unlockableFrontier.Remove(node);
+        foreach (var neighbour in node.Neighbours.Values.Where(n => !UnlockedNodes.Contains(n)))
+            _unlockableFrontier.Add(neighbour);
+
         if (node.PowerUp is not null)
             OnUnlock(node.PowerUp);
     }
+
 
     /// <summary>
     ///     Discovers all nodes in the graph. Adds them to <see cref="_nodes" />. Maps reverse edges.
