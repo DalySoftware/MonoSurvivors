@@ -36,7 +36,7 @@ public sealed class ChainLightningOnHit(
         var hitEnemies = new HashSet<EnemyBase> { context.Enemy };
 
         var currentEnemy = context.Enemy;
-        var damage = BaseDamage * stats.DamageMultiplier;
+        var damage = CritCalculator.CalculateCrit(BaseDamage * stats.DamageMultiplier, stats);
 
         while (remainingChains-- > 0)
         {
