@@ -5,24 +5,22 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class ScorcherSpriteSheet : ISpriteSheet
+public class ScorcherSpriteSheet(ContentManager content) : ISpriteSheet
 {
     private readonly static TimeSpan FrameDuration = TimeSpan.FromMilliseconds(100);
     private int _currentFrame;
     private TimeSpan _accumulator;
-    private Texture2D? _texture;
 
-    public Texture2D Texture(ContentManager content) =>
-        _texture ??= content.Load<Texture2D>(Paths.Images.Sheets.Scorcher);
+    public Texture2D Texture { get; } = content.Load<Texture2D>(Paths.Images.Sheets.Scorcher);
 
     public Rectangle GetFrameRectangle(IFrame _)
     {
-        if (_texture == null) throw new InvalidOperationException("Texture not loaded");
+        if (Texture == null) throw new InvalidOperationException("Texture not loaded");
 
         const int columns = 3;
         const int rows = 3;
-        var cellWidth = _texture.Width / columns;
-        var cellHeight = _texture.Height / rows;
+        var cellWidth = Texture.Width / columns;
+        var cellHeight = Texture.Height / rows;
 
         var column = _currentFrame % columns;
         var row = _currentFrame / columns;

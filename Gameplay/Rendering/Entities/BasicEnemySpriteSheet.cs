@@ -5,11 +5,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class BasicEnemySpriteSheet : ISpriteSheet
+public class BasicEnemySpriteSheet(ContentManager content) : ISpriteSheet
 {
     private readonly Vector2 _cellSize = new(64, 64);
 
-    public Texture2D Texture(ContentManager content) => content.Load<Texture2D>(Paths.Images.Sheets.BasicEnemy);
+    public Texture2D Texture { get; } = content.Load<Texture2D>(Paths.Images.Sheets.BasicEnemy);
 
     public Rectangle GetFrameRectangle(Rendering.IFrame frame)
     {

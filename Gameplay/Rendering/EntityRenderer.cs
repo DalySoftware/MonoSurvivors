@@ -64,7 +64,7 @@ public class EntityRenderer(
 
     private void DrawFromSpriteSheet(ISpriteSheetVisual visual)
     {
-        var texture = visual.SpriteSheet.Texture(content);
+        var texture = visual.SpriteSheet.Texture;
         var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
         var origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
 
