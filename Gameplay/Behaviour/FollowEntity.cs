@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Gameplay.Entities.Enemies;
 using Gameplay.Utilities;
 
@@ -9,23 +8,46 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
 {
     internal Vector2 CalculateVelocity(IEnumerable<EnemyBase>? nearbyEnemies = null)
     {
-        var direction = target.Position - owner.Position;
-        var velocity = (Vector2)new UnitVector2(direction) * speed;
+        var ownerPosition = owner.Position;
+
+        var directionToTarget = target.Position - ownerPosition;
+        if (directionToTarget.LengthSquared() < 0.0001f)
+            return Vector2.Zero;
+
+        var normalizedTargetDirection = (Vector2)new UnitVector2(directionToTarget);
+        var velocity = normalizedTargetDirection * speed;
+
 
         if (nearbyEnemies == null)
             return velocity;
 
-        // Simple separation from nearby enemies
+        var ownerRadius = ApproximateRadius(owner);
+        const float desiredGapMultiplier = 1.2f; // Keep ~20% gap between
+        const int maximumSeparationContributors = 8;
+
+        var contributingNeighbourCount = 0;
         var separationForce = Vector2.Zero;
 
-        foreach (var other in nearbyEnemies.Where(e => e != owner))
+        foreach (var other in nearbyEnemies)
         {
-            var offset = owner.Position - other.Position;
-            var distSq = offset.LengthSquared();
+            if (other == owner)
+                continue;
 
-            var collisionDistance = (ApproximateRadius(owner) + ApproximateRadius(other)) * 1.2f; // Aim for a small gap
-            if (distSq < collisionDistance * collisionDistance)
-                separationForce += offset / distSq; // Stronger push when closer
+            var offsetFromOther = ownerPosition - other.Position;
+            var distanceSquared = offsetFromOther.LengthSquared();
+
+            var collisionDistance = (ownerRadius + ApproximateRadius(other)) * desiredGapMultiplier;
+            var collisionDistanceSquared = collisionDistance * collisionDistance;
+
+            if (distanceSquared >= collisionDistanceSquared)
+                continue;
+
+            var inverseDistance = 1f / (distanceSquared + 0.0001f);
+            separationForce += offsetFromOther * inverseDistance;
+
+            contributingNeighbourCount++;
+            if (contributingNeighbourCount >= maximumSeparationContributors)
+                break;
         }
 
         const float scaleFactor = 40f;
