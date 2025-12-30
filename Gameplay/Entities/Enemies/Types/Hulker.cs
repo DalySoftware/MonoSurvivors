@@ -18,7 +18,7 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
         HulkerStats(elite))
     {
         _followEntity = new FollowEntity(this, target, 0.04f);
-        Collider = new RectangleCollider(this, 128f, 128f);
+        Colliders = [new RectangleCollider(this, 128f, 128f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         SpriteSheet = new HulkerSpriteSheet(content);
     }

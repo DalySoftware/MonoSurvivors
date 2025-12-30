@@ -19,7 +19,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
         : base(initialPosition, BasicEnemyStats(elite))
     {
         _followEntity = new FollowEntity(this, target, 0.07f);
-        Collider = new CircleCollider(this, 32f);
+        Colliders = [new CircleCollider(this, 32f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         SpriteSheet = new BasicEnemySpriteSheet(content);
     }

@@ -1,4 +1,5 @@
-﻿using Gameplay.Behaviour;
+﻿using System.Collections.Generic;
+using Gameplay.Behaviour;
 
 namespace Gameplay.CollisionDetection;
 
@@ -8,7 +9,7 @@ public interface ICollider : IHasPosition
     public float ApproximateRadius { get; }
 }
 
-public interface IHasCollider
+public interface IHasColliders
 {
-    ICollider Collider { get; }
+    IEnumerable<ICollider> Colliders { get; }
 }

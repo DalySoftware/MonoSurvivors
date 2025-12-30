@@ -13,6 +13,8 @@ public static class Paths
         public const string Experience2 = @"Images\Experience-2";
         public const string PanelNineSlice = @"Images\PanelNineSlice";
         public const string PanelTriangle = @"Images\PanelTriangle";
+        public const string SnakeHead = @"Images\Sheets\BossHead";
+        public const string SnakeBody = @"Images\BossBody";
 
         public static class Sheets
         {

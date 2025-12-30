@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Gameplay.CollisionDetection;
 
@@ -13,17 +14,24 @@ internal class SpatialCollisionChecker(float cellSize = 50f)
     public IEnumerable<(TTarget target, TSource source)> FindOverlaps<TTarget, TSource>(
         IEnumerable<TTarget> targets,
         IEnumerable<TSource> sources)
-        where TTarget : IHasCollider
-        where TSource : IHasCollider
+        where TTarget : IHasColliders
+        where TSource : IHasColliders
     {
         var spatialHash = new SpatialHash<TSource>(cellSize);
 
         foreach (var source in sources)
             spatialHash.Insert(source);
 
+        // For each target collider, query nearby sources and check overlap
         foreach (var target in targets)
-        foreach (var source in spatialHash.QueryNearby(target.Collider.Position))
-            if (CollisionChecker.HasOverlap(target.Collider, source.Collider))
-                yield return (target, source);
+        foreach (var targetCollider in target.Colliders)
+        {
+            var radius = targetCollider.ApproximateRadius;
+            var cellRadius = (int)(radius / spatialHash.CellSize) + 1;
+
+            foreach (var source in spatialHash.QueryNearby(targetCollider.Position, cellRadius))
+                if (source.Colliders.Any(c => CollisionChecker.HasOverlap(c, targetCollider)))
+                    yield return (target, source);
+        }
     }
 }

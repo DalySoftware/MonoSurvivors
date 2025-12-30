@@ -2,7 +2,7 @@
 
 namespace Gameplay.Rendering;
 
-internal class EyeDirectionHelper
+internal static class CardinalDirectionHelper
 {
     internal static (int x, int y) ToCardinalDirection(Vector2 direction)
     {

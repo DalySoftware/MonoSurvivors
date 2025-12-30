@@ -15,7 +15,7 @@ public class IceAura(
     IEntityFinder entityFinder,
     IceAuraEffect auraEffect,
     IAudioPlayer audio)
-    : IWeapon, IHasCollider
+    : IWeapon, IHasColliders
 {
     private const float BaseDamage = 10f;
     private const float BaseRange = 150f;
@@ -31,7 +31,7 @@ public class IceAura(
     private float Range => BaseRange * RangeMultiplier;
     private float RangeMultiplier { get; set; }
     private IEnumerable<IOnHitEffect> OnHitEffects => [SlowOnHit, ..owner.WeaponBelt.OnHitEffects];
-    public ICollider Collider => _collider;
+    public IEnumerable<ICollider> Colliders => [_collider];
 
     public void Update(GameTime gameTime)
     {
@@ -57,7 +57,7 @@ public class IceAura(
         var damage = CritCalculator.CalculateCrit(BaseDamage, Stats) * Stats.DamageMultiplier;
         var nearby = entityFinder.EnemiesCloseTo(owner.Position, Range * 1.5f);
 
-        foreach (var enemy in nearby.Where(e => CollisionChecker.HasOverlap(e.Collider, Collider)))
+        foreach (var enemy in nearby.Where(e => e.Colliders.Any(c => CollisionChecker.HasOverlap(c, _collider))))
         {
             enemy.TakeDamage(owner, damage);
             foreach (var onHit in OnHitEffects)

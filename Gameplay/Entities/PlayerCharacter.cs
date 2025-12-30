@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.Audio;
 using Gameplay.Behaviour;
@@ -41,7 +42,7 @@ public class PlayerCharacter(
 
     public PlayerStats Stats { get; } = stats;
 
-    public ICollider Collider => new CircleCollider(this, 32f);
+    public IEnumerable<ICollider> Colliders => [new CircleCollider(this, 32f)];
 
     public int Health
     {

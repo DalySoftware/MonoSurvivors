@@ -15,7 +15,7 @@ public class HulkerSpriteSheet(ContentManager content) : ISpriteSheet
     {
         if (frame is not LookDirectionFrame directionFrame) throw new InvalidOperationException();
 
-        var (x, y) = EyeDirectionHelper.ToCardinalDirection(directionFrame.Direction);
+        var (x, y) = CardinalDirectionHelper.ToCardinalDirection(directionFrame.Direction);
         return FromCellCoords(x, y);
     }
 

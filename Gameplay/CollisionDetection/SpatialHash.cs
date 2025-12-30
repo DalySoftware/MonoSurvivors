@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Gameplay.CollisionDetection;
 
 internal class SpatialHash<T>(float cellSize)
-    where T : IHasCollider
+    where T : IHasColliders
 {
     private readonly Dictionary<(int, int), List<T>> _grid = [];
 
@@ -50,7 +51,9 @@ internal class SpatialHash<T>(float cellSize)
 
     private (int x, int y) GetCell(Vector2 position) => ((int)(position.X / cellSize), (int)(position.Y / cellSize));
 
-    private IEnumerable<(int x, int y)> GetCells(T item) => item.Collider switch
+    private IEnumerable<(int x, int y)> GetCells(T item) => item.Colliders.SelectMany(GetCellsForCollider);
+
+    private IEnumerable<(int x, int y)> GetCellsForCollider(ICollider collider) => collider switch
     {
         CircleCollider circle => GetCircleCells(circle),
         RectangleCollider rect => GetRectangleCells(rect),

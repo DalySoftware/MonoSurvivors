@@ -41,6 +41,18 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/KarmaticArcade-Large.spritefont
 
+#begin Images/BossBody.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/BossBody.png
+
 #begin Images/Experience-2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -496,6 +508,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/Sheets/BasicEnemy.png;Images/Sheets/BasicEnemy
+
+#begin Images/Sheets/BossHead.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Sheets/BossHead.png;Images/Sheets/BossHead
 
 #begin Images/Sheets/Hulker.png
 /importer:TextureImporter

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Gameplay.Entities.Enemies;
 using Gameplay.Utilities;
 
@@ -54,5 +55,5 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
         return velocity + separationForce * scaleFactor * speed;
     }
 
-    private static float ApproximateRadius(EnemyBase enemy) => enemy.Collider.ApproximateRadius;
+    private static float ApproximateRadius(EnemyBase enemy) => enemy.Colliders.Max(c => c.ApproximateRadius);
 }
