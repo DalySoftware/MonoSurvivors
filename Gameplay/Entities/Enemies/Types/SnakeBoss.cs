@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ContentLibrary;
@@ -27,7 +28,7 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
 
     [SetsRequiredMembers]
-    public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target) :
+    public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action onDeath) :
         base(initialPosition, CreateStats())
     {
         _followEntity = new FollowEntity(this, target, 0.05f);
@@ -45,6 +46,8 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
         var headCollider = new CircleCollider(this, 96f);
         Colliders = [headCollider, .._segments.Select(s => s.Collider)];
+
+        OnDeath = onDeath;
     }
 
     public IEnumerable<ICollider> SecondaryColliders => _segments.Select(s => s.Collider);

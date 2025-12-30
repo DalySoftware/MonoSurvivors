@@ -5,6 +5,7 @@ using GameLoop.Input;
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
+using GameLoop.Scenes.GameWin;
 using GameLoop.Scenes.Pause;
 using GameLoop.Scenes.SphereGridScene;
 using GameLoop.Scenes.Title;
@@ -49,12 +50,19 @@ public class CoreGame : Game, IGlobalCommands
         SceneManager.Push(gameOverScene);
     }
 
+    public void ShowWinGame()
+    {
+        var scope = _gameplayScope.BeginLifetimeScope(WinScene.ConfigureServices);
+
+        var scene = scope.Resolve<WinScene>();
+        SceneManager.Push(scene);
+    }
+
     public void ReturnToTitle()
     {
         var title = _contentScope.Resolve<TitleScene>();
         SceneManager.Push(title);
     }
-
 
     public void ShowSphereGrid()
     {

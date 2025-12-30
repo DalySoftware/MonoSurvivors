@@ -22,6 +22,8 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     public float Layer => Layers.Enemies;
     internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
 
+    protected Action? OnDeath { get; init; } = null;
+
     public float Experience => Stats.Experience;
     public int Damage => Stats.Damage;
     public required IEnumerable<ICollider> Colliders { get; init; }
@@ -36,6 +38,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
 
         MarkedForDeletion = true;
         damager.OnKill(this);
+        OnDeath?.Invoke();
     }
 
     public void ApplyKnockback(Vector2 impulse)

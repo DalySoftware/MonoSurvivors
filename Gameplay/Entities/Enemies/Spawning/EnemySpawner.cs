@@ -9,11 +9,10 @@ public sealed class EnemySpawner(
     EntityManager entityManager,
     PlayerCharacter player,
     EnemyFactory enemyFactory,
-    ScreenPositioner screenPositioner)
+    ScreenPositioner screenPositioner,
+    IGlobalCommands globalCommands)
 {
     private const float BaseBudgetPerSecond = 0.5f;
-    private readonly SpawnBudgeter _budgeter = new();
-
     private readonly List<SpawnPhase> _phases =
     [
         new()
@@ -59,9 +58,9 @@ public sealed class EnemySpawner(
                 new SpawnEntry(enemyFactory.Hulker, 6f, 0.4f),
             ],
         },
-        new()
+        new() // boss wave
         {
-            Duration = TimeSpan.FromMinutes(4),
+            Duration = TimeSpan.FromMinutes(2),
             BudgetMultiplier = 1.4f,
             Enemies =
             [
@@ -72,8 +71,12 @@ public sealed class EnemySpawner(
                 new SpawnEntry(enemyFactory.Hulker, 6f, 1.5f),
                 new SpawnEntry(enemyFactory.EliteHulker, 20f, 0.05f),
             ],
+            BossFactory = enemyFactory.SnakeBoss,
         },
     ];
+
+    private readonly SpawnBudgeter _budgeter = new();
+    private SpawnPhase? _previousPhase;
 
     public TimeSpan ElapsedTime { get; private set; }
 
@@ -82,8 +85,13 @@ public sealed class EnemySpawner(
         ElapsedTime += gameTime.ElapsedGameTime;
 
         var phase = CurrentPhase();
-        var growth = GrowthFactor(ElapsedTime);
+        if (phase != _previousPhase)
+        {
+            OnPhaseEntered(phase);
+            _previousPhase = phase;
+        }
 
+        var growth = GrowthFactor(ElapsedTime);
         var budgetPerSecond = BaseBudgetPerSecond * growth * phase.BudgetMultiplier;
 
         _budgeter.AddBudget(budgetPerSecond * (float)gameTime.ElapsedGameTime.TotalSeconds);
@@ -91,7 +99,7 @@ public sealed class EnemySpawner(
         var mostExpensiveEnemy = phase.Enemies.Max(e => e.Cost);
         var triggerBudget = 2f * mostExpensiveEnemy;
 
-        if (!(_budgeter.Budget >= triggerBudget)) return;
+        if (_budgeter.Budget < triggerBudget) return;
 
         foreach (var entry in _budgeter.Spend(phase.Enemies))
         {
@@ -113,6 +121,18 @@ public sealed class EnemySpawner(
         }
 
         return _phases[^1];
+    }
+
+    private void OnPhaseEntered(SpawnPhase phase)
+    {
+        if (phase.BossFactory is null || phase.BossSpawned)
+            return;
+
+        var bossSpawnPosition = screenPositioner.GetRandomOffScreenPosition(player.Position);
+        var boss = phase.BossFactory(bossSpawnPosition, globalCommands.ShowWinGame);
+
+        entityManager.Spawn(boss);
+        phase.BossSpawned = true;
     }
 
     private static float GrowthFactor(TimeSpan elapsed)

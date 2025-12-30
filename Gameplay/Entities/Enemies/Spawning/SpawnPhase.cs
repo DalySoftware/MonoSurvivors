@@ -9,6 +9,10 @@ public sealed class SpawnPhase
     public required TimeSpan Duration { get; init; }
     public required float BudgetMultiplier { get; init; } = 1f;
     public required IReadOnlyList<SpawnEntry> Enemies { get; init; }
+
+    public Func<Vector2, Action, EnemyBase>? BossFactory { get; init; } = null;
+
+    internal bool BossSpawned { get; set; }
 }
 
 public sealed record SpawnEntry(CreateEnemy Factory, float Cost, float Weight = 1f);

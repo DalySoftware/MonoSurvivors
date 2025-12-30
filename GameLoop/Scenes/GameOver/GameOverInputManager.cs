@@ -1,6 +1,5 @@
 using GameLoop.Input;
 using Gameplay;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.GameOver;
@@ -11,7 +10,7 @@ internal class GameOverInputManager(
     SceneManager sceneManager)
     : BaseInputManager(globalCommands, inputState, sceneManager)
 {
-    internal void Update(GameTime gameTime)
+    internal void Update()
     {
         if (ShouldSkipInput()) return;
 
