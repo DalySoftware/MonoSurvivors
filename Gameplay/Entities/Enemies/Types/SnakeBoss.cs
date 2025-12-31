@@ -16,6 +16,8 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     private const float SegmentSpacing = 64f; // tune vs sprite size
     private const int SegmentCount = 12;
     private const int HistoryLimit = 2048;
+
+    private readonly static EnemyStats StatValues = new(4000f, 100f, 2, 0.05f);
     private readonly FollowEntity _followEntity;
 
     private readonly SnakeBossHeadSheet _headSpriteSheet;
@@ -29,9 +31,9 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
     [SetsRequiredMembers]
     public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action<EnemyBase> onDeath) :
-        base(initialPosition, CreateStats())
+        base(initialPosition, StatValues)
     {
-        _followEntity = new FollowEntity(this, target, 0.05f);
+        _followEntity = new FollowEntity(this, target, 0.08f);
         _headSpriteSheet = new SnakeBossHeadSheet(content);
         _bodyTexture = content.Load<Texture2D>(Paths.Images.SnakeBody);
 
@@ -70,8 +72,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
             layer -= 0.00001f;
         }
     }
-
-    private static EnemyStats CreateStats() => new(400f, 40f, 2, 0.05f); // todo later 
 
     public override void Update(GameTime gameTime)
     {
