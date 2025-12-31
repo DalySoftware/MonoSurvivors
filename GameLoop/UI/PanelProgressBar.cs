@@ -58,7 +58,7 @@ internal sealed class PanelProgressBar(
         // Only draw right edge once the fill reaches it
         var rightEdge = Frame.RightEdgeRectangle;
         var rightEdgeStartX = rightEdge.X - interiorRect.X;
-        if (filledWidth > rightEdgeStartX)
+        if (filledWidth >= rightEdgeStartX)
             primitiveRenderer.DrawRectangle(spriteBatch, rightEdge, fillColor, FillLayerDepth);
     }
 
@@ -69,7 +69,8 @@ internal sealed class PanelProgressBar(
         if (filledWidth > 0)
             toDraw.AddRange([Frame.TopLeftTriangle, Frame.BottomLeftTriangle]);
 
-        if (filledWidth >= interiorRect.X)
+        var rightEdgeStartX = Frame.RightEdgeRectangle.X - interiorRect.X;
+        if (filledWidth >= rightEdgeStartX)
             toDraw.AddRange([Frame.TopRightTriangle, Frame.BottomRightTriangle]);
 
         foreach (var (pos, rotation) in toDraw)
