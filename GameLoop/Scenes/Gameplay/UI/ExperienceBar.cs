@@ -26,11 +26,12 @@ internal sealed class ExperienceBarFactory(
     {
         var font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
 
+        const float interiorHeight = 20f;
         const float padding = 50f;
         var centre = new Vector2(viewport.Bounds.Center.ToVector2().X,
-            viewport.Bounds.Height - ExperienceBar.InteriorHeight - padding);
+            viewport.Bounds.Height - interiorHeight - padding);
         var width = viewport.Width * 0.7f;
-        var interiorSize = new Vector2(width, ExperienceBar.InteriorHeight);
+        var interiorSize = new Vector2(width, interiorHeight);
         var barPanel = panelRenderer.Define(centre, interiorSize, Layers.Ui + 0.05f);
 
         var progressBar = new PanelProgressBar(barPanel, primitiveRenderer, ColorPalette.Agave, Color.SlateGray,
@@ -51,8 +52,6 @@ internal class ExperienceBar(
     SphereGrid sphereGrid,
     GameInputState inputState)
 {
-    internal const float InteriorHeight = 20f;
-
     private bool _provideFeedbackToSpendPoints;
     private int Points => sphereGrid.AvailablePoints;
 

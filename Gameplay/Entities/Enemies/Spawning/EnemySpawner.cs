@@ -77,8 +77,10 @@ public sealed class EnemySpawner(
 
     private readonly SpawnBudgeter _budgeter = new();
     private SpawnPhase? _previousPhase;
+    private readonly List<EnemyBase> _activeBosses = [];
 
     public TimeSpan ElapsedTime { get; private set; }
+    public IReadOnlyCollection<EnemyBase> ActiveBosses => _activeBosses;
 
     public void Update(GameTime gameTime)
     {
@@ -133,9 +135,14 @@ public sealed class EnemySpawner(
 
         entityManager.Spawn(boss);
         phase.BossSpawned = true;
+        _activeBosses.Add(boss);
     }
 
-    private void OnBossKill(EnemyBase deadBoss) => globalCommands.ShowWinGame();
+    private void OnBossKill(EnemyBase deadBoss)
+    {
+        _activeBosses.Remove(deadBoss);
+        globalCommands.ShowWinGame();
+    }
 
     private static float GrowthFactor(TimeSpan elapsed)
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using ContentLibrary;
 using Gameplay.Entities.Enemies.Spawning;
+using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,23 +12,26 @@ internal class RunClockFactory(ContentManager content, Viewport viewport, EnemyS
 {
     internal RunClock Create()
     {
+        const float padding = 50f;
         var font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
-        var size = RunClock.Measure(font);
-        var x = viewport.Width - size.X - 10f;
-        var y = 10f;
-        var topLeft = new Vector2(x, y);
 
-        return new RunClock(font, spawner, topLeft);
+        var size = RunClock.Measure(font);
+        var middleRight = new Vector2(viewport.Width - padding, padding + size.Y * 0.5f);
+
+        return new RunClock(font, spawner, middleRight);
     }
 }
 
-internal class RunClock(SpriteFont font, EnemySpawner spawner, Vector2 topLeft)
+internal class RunClock(SpriteFont font, EnemySpawner spawner, Vector2 middleRight)
 {
     internal void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Begin();
         var text = Format(spawner.ElapsedTime);
-        spriteBatch.DrawString(font, text, topLeft, Color.White);
+        var size = font.MeasureString(text);
+        var origin = new Vector2(size.X, font.LineSpacing * .67f);
+
+        spriteBatch.DrawString(font, text, middleRight, Color.White, origin: origin);
         spriteBatch.End();
     }
 
