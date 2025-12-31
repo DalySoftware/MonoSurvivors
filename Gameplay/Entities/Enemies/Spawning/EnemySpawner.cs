@@ -129,11 +129,13 @@ public sealed class EnemySpawner(
             return;
 
         var bossSpawnPosition = screenPositioner.GetRandomOffScreenPosition(player.Position);
-        var boss = phase.BossFactory(bossSpawnPosition, globalCommands.ShowWinGame);
+        var boss = phase.BossFactory(bossSpawnPosition, OnBossKill);
 
         entityManager.Spawn(boss);
         phase.BossSpawned = true;
     }
+
+    private void OnBossKill(EnemyBase deadBoss) => globalCommands.ShowWinGame();
 
     private static float GrowthFactor(TimeSpan elapsed)
     {

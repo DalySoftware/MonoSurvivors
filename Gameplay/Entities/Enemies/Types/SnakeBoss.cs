@@ -28,7 +28,7 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
 
     [SetsRequiredMembers]
-    public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action onDeath) :
+    public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action<EnemyBase> onDeath) :
         base(initialPosition, CreateStats())
     {
         _followEntity = new FollowEntity(this, target, 0.05f);

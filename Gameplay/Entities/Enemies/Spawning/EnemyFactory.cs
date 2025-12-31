@@ -15,5 +15,5 @@ public class EnemyFactory(PlayerCharacter player, ContentManager content)
     public Scorcher Scorcher(Vector2 position) => new(content, position, player, false);
     public Scorcher EliteScorcher(Vector2 position) => new(content, position, player, true);
 
-    public SnakeBoss SnakeBoss(Vector2 position, Action onDeath) => new(content, position, player, onDeath);
+    public SnakeBoss SnakeBoss(Vector2 position, Action<EnemyBase> onDeath) => new(content, position, player, onDeath);
 }
