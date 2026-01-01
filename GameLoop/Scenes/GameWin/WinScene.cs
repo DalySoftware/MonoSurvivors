@@ -15,7 +15,8 @@ internal class WinScene(
     ContentManager content,
     SpriteBatch spriteBatch,
     GameWindow window,
-    WinSceneInputManager input)
+    WinSceneInputManager input,
+    GameInputState inputState)
     : IScene
 {
     private readonly SpriteFont _messageFont = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
@@ -45,7 +46,9 @@ internal class WinScene(
 
     private void DrawHelpText()
     {
-        const string instructionsText = "SPACE to play again | ESC to Exit";
+        var instructionsText = inputState.CurrentInputMethod is InputMethod.KeyboardMouse
+            ? "SPACE to Restart | ESC to Exit"
+            : "START to Restart | BACK to Exit";
         var instructionsSize = _messageFont.MeasureString(instructionsText);
         var instructionsPosition = new Vector2(window.Centre.X - instructionsSize.X / 2, window.Centre.Y + 50);
         spriteBatch.DrawString(_messageFont, instructionsText, instructionsPosition, ColorPalette.LightGray);

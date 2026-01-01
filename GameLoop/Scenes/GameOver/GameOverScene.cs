@@ -1,5 +1,6 @@
 using Autofac;
 using ContentLibrary;
+using GameLoop.Input;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -11,7 +12,8 @@ internal class GameOverScene(
     ContentManager content,
     SpriteBatch spriteBatch,
     GameWindow window,
-    GameOverInputManager input)
+    GameOverInputManager input,
+    GameInputState inputState)
     : IScene
 {
     private readonly SpriteFont _messageFont = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
@@ -32,7 +34,9 @@ internal class GameOverScene(
         spriteBatch.DrawString(_titleFont, titleText, titlePosition, Color.Firebrick);
 
         // Draw instructions
-        const string instructionsText = "SPACE to Restart | ESC to Exit";
+        var instructionsText = inputState.CurrentInputMethod is InputMethod.KeyboardMouse
+            ? "SPACE to Restart | ESC to Exit"
+            : "START to Restart | BACK to Exit";
         var instructionsSize = _messageFont.MeasureString(instructionsText);
         var instructionsPosition = new Vector2(
             window.Centre.X - instructionsSize.X / 2,
