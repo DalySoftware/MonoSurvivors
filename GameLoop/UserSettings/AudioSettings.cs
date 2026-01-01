@@ -8,19 +8,19 @@ public class AudioSettings
     {
         get;
         set => field = RoundVolume(value);
-    } = 0.7f;
+    } = 0.8f;
 
     public float MusicVolume
     {
         get;
         set => field = RoundVolume(value);
-    } = 0.7f;
+    } = 0.5f;
 
     public float SoundEffectVolume
     {
         get;
         set => field = RoundVolume(value);
-    } = 0.7f;
+    } = 0.8f;
 
     private static float RoundVolume(float value) => RoundToNearest(value, 0.05m);
 
