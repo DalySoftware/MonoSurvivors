@@ -9,87 +9,118 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.Pause.UI;
 
-public class VolumeControl
+public class VolumeControl : IUiElement
 {
-    private const float VolumeStep = 0.05f;
-
-    private readonly Vector2 _centre;
-    private readonly SpriteFont _font;
     private readonly Func<float> _getValue;
-    private readonly string _label;
     private readonly Action<float> _setValue;
 
-    public VolumeControl(
+    private readonly HorizontalStack _stack;
+    private readonly Label _valueLabel;
+
+    private VolumeControl(
         ContentManager content,
         PrimitiveRenderer primitiveRenderer,
-        Vector2 centre,
+        Vector2 center,
         string label,
         Func<float> getValue,
         Action<float> setValue)
     {
-        _centre = centre;
-        _label = label;
         _getValue = getValue;
         _setValue = setValue;
-        _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
 
-        // Create buttons
-        const int buttonRelativeX = 200;
-        DecreaseButton = new Button(content, primitiveRenderer, new Vector2(centre.X + buttonRelativeX, centre.Y), "-",
-            DecreaseVolume,
-            true);
-        const float valuePadding = 20f;
-        var maxValueSize = _font.MeasureString("100%");
-        IncreaseButton = new Button(content, primitiveRenderer,
-            new Vector2(DecreaseButton.Centre.X + DecreaseButton.Size.X + maxValueSize.X + valuePadding * 2,
-                centre.Y),
-            "+",
-            IncreaseVolume, true);
+        _stack = new HorizontalStack(center, 50);
+
+        // Fixed-width label column
+        _stack.AddChild(pos =>
+            new FixedSizeContainer(
+                pos,
+                new Vector2(300, 0), // width fixed, height irrelevant for horizontal stack
+                UiAnchor.CenterLeft,
+                labelPos =>
+                    new Label.Factory(content, Paths.Fonts.BoldPixels.Medium, label, layerDepth: 0.5f)
+                        .Create(labelPos, UiAnchor.CenterLeft)
+            ));
+
+        // Have to tell the compiler we're assigning these 
+        Label valueLabel = null!;
+        Button decreaseButton = null!;
+        Button increaseButton = null!;
+
+        // Controls stack on the right
+        _stack.AddChild(pos =>
+        {
+            var controlsStack = new HorizontalStack(pos, 10);
+
+            decreaseButton = controlsStack.AddChild(p =>
+                new Button.Factory(content, primitiveRenderer, "-", DecreaseVolume, true)
+                    .Create(p, UiAnchor.CenterLeft));
+
+            valueLabel = controlsStack.AddChild(p =>
+                new Label.Factory(content, Paths.Fonts.BoldPixels.Medium, GetValueText(),
+                        alignment: TextAlignment.Right,
+                        templateString: "100%",
+                        layerDepth: 0.5f)
+                    .Create(p, UiAnchor.CenterLeft));
+
+            increaseButton = controlsStack.AddChild(p =>
+                new Button.Factory(content, primitiveRenderer, "+", IncreaseVolume, true)
+                    .Create(p, UiAnchor.CenterLeft));
+
+            return controlsStack;
+        });
+
+        // Single, obvious assignment point
+        DecreaseButton = decreaseButton;
+        IncreaseButton = increaseButton;
+        _valueLabel = valueLabel;
     }
 
-    internal IEnumerable<Button> Buttons => [DecreaseButton, IncreaseButton];
+
     internal Button DecreaseButton { get; }
     internal Button IncreaseButton { get; }
 
+    /// <summary>Exposes the interactive buttons in order.</summary>
+    internal IEnumerable<Button> Buttons
+    {
+        get
+        {
+            yield return DecreaseButton;
+            yield return IncreaseButton;
+        }
+    }
+
+    public UiRectangle Rectangle => _stack.Rectangle;
+
+    public void Draw(SpriteBatch spriteBatch) => _stack.Draw(spriteBatch);
+
     private void DecreaseVolume()
     {
-        var newValue = Math.Max(0f, _getValue() - VolumeStep);
-        _setValue(newValue);
+        _setValue(Math.Max(0f, _getValue() - 0.05f));
+        _valueLabel.Text = GetValueText();
     }
 
     private void IncreaseVolume()
     {
-        var newValue = Math.Min(1f, _getValue() + VolumeStep);
-        _setValue(newValue);
+        _setValue(Math.Min(1f, _getValue() + 0.05f));
+        _valueLabel.Text = GetValueText();
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    private string GetValueText() => $"{(int)(_getValue() * 100)}%";
+
+    public sealed class Factory(
+        ContentManager content,
+        PrimitiveRenderer primitiveRenderer,
+        string label,
+        Func<float> getValue,
+        Action<float> setValue)
     {
-        // Center of the block between buttons
-        var blockCentre = (DecreaseButton.Centre + IncreaseButton.Centre) * 0.5f;
-
-        // Reserve max width for value
-        var valueText = $"{(int)(_getValue() * 100)}%";
-
-        // Compute positions
-        var blockLeftX = blockCentre.X - 400f;
-
-        // --- Label (left-aligned, vertically centered)
-        var labelSize = _font.MeasureString(_label);
-        var labelOrigin = new Vector2(0f, labelSize.Y * 0.5f); // left align
-        var labelPosition = new Vector2(blockLeftX, _centre.Y);
-        spriteBatch.DrawString(_font, _label, labelPosition, origin: labelOrigin, layerDepth: .4f);
-
-        // --- Decrease button
-        DecreaseButton.Draw(spriteBatch);
-
-        // --- Volume (right-aligned, vertically centered)
-        var volumeSize = _font.MeasureString(valueText);
-        var volumeOrigin = new Vector2(volumeSize.X, volumeSize.Y * 0.5f); // right align
-        var volumePosition = blockCentre + volumeSize * new Vector2(0.5f, 0);
-        spriteBatch.DrawString(_font, valueText, volumePosition, origin: volumeOrigin, layerDepth: .5f);
-
-        // --- Increase button
-        IncreaseButton.Draw(spriteBatch);
+        public VolumeControl Create(Vector2 center) => new(
+            content,
+            primitiveRenderer,
+            center,
+            label,
+            getValue,
+            setValue
+        );
     }
 }

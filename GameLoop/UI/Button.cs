@@ -8,61 +8,54 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.UI;
 
-internal class Button
+internal sealed class Button : IUiElement
 {
-    private readonly SpriteFont _font;
-    private readonly Action _onClick;
-    private readonly bool _rounded;
-    private readonly string _text;
     private readonly Panel _panel;
-
-    private bool _isHovered;
-    private bool _isPressedVisual;
-
+    private readonly SpriteFont _font;
+    private readonly string _text;
+    private readonly Action _onClick;
 
     private readonly Color _baseColor;
     private readonly Color _pressedColor;
     private readonly Color _hoveredColor;
 
-    internal Button(ContentManager content, PrimitiveRenderer primitiveRenderer, Vector2 centre, string text,
-        Action onClick, bool rounded = false)
+    private bool _isHovered;
+    private bool _isPressedVisual;
+
+    private Button(
+        ContentManager content,
+        Panel panel,
+        string text,
+        Action onClick)
     {
-        Centre = centre;
         _text = text;
         _onClick = onClick;
-        _rounded = rounded;
+
         _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
-        var panelRenderer = new PanelRenderer(content, primitiveRenderer);
-        _panel = panelRenderer.Define(centre, PanelInteriorSize);
+
+        _panel = panel;
+        Rectangle = _panel.Rectangle;
 
         _baseColor = new OklchColor(0.77f, 0.074f, 235f).ToColor();
         _pressedColor = _baseColor.ShiftLightness(-0.1f);
         _hoveredColor = _baseColor.ShiftLightness(0.1f);
     }
 
-    internal Vector2 Centre { get; }
-    internal Vector2 Size => PanelSize;
+    public UiRectangle Rectangle { get; }
 
-    internal Rectangle Bounds =>
-        new(
-            (int)(Centre.X - PanelSize.X * 0.5f),
-            (int)(Centre.Y - PanelSize.Y * 0.5f),
-            (int)PanelSize.X,
-            (int)PanelSize.Y);
-
-
-    private Vector2 PanelSize => _panel.ExteriorSize;
-
-    private Vector2 PanelInteriorSize
+    public void Draw(SpriteBatch spriteBatch)
     {
-        get
-        {
-            var naiveSize = _font.MeasureString(_text);
-            if (!_rounded) return naiveSize;
+        var color =
+            _isPressedVisual ? _pressedColor :
+            _isHovered ? _hoveredColor :
+            _baseColor;
 
-            var maxDimension = MathF.Max(naiveSize.X, naiveSize.Y);
-            return new Vector2(maxDimension, maxDimension);
-        }
+        _panel.Draw(spriteBatch, color, color.ShiftChroma(-0.04f).ShiftLightness(-0.3f));
+
+        var textSize = _font.MeasureString(_text);
+        var textPos = _panel.Interior.CreateAnchoredRectangle(UiAnchor.Centre, textSize).TopLeft;
+
+        spriteBatch.DrawString(_font, _text, textPos, layerDepth: _panel.InteriorLayerDepth + 0.01f);
     }
 
     internal void Focus() => _isHovered = true;
@@ -74,20 +67,34 @@ internal class Button
     internal void ReleaseVisual() => _isPressedVisual = false;
     internal void Activate() => _onClick();
 
-    internal void Draw(SpriteBatch spriteBatch)
+    public sealed class Factory(
+        ContentManager content,
+        PrimitiveRenderer primitiveRenderer,
+        string text,
+        Action onClick,
+        bool rounded = false,
+        Action<Button>? capture = null)
     {
-        var color =
-            _isPressedVisual ? _pressedColor :
-            _isHovered ? _hoveredColor :
-            _baseColor;
+        private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
 
-        // Draw panel background    
-        _panel.Draw(spriteBatch, color, color.ShiftChroma(-0.04f).ShiftLightness(-.3f));
+        public Button Create(Vector2 origin, UiAnchor anchor)
+        {
+            var size = Measure();
+            var interior = new UiRectangle(origin, size, anchor);
+            var panel = new Panel.Factory(content, primitiveRenderer).DefineByInterior(interior);
+            var button = new Button(content, panel, text, onClick);
+            capture?.Invoke(button);
+            return button;
+        }
 
-        // Draw text centered
-        var textSize = _font.MeasureString(_text);
-        var textPosition = _panel.Centre - textSize / 2;
+        public Vector2 Measure()
+        {
+            var textSize = _font.MeasureString(text);
+            var naive = new Vector2(textSize.X, textSize.Y);
+            if (!rounded) return naive;
 
-        spriteBatch.DrawString(_font, _text, textPosition, layerDepth: _panel.InteriorLayerDepth + 0.01f);
+            var maxDimension = MathF.Max(naive.X, naive.Y);
+            return new Vector2(maxDimension, maxDimension);
+        }
     }
 }

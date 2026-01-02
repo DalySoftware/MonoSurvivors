@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using ContentLibrary;
 using GameLoop.UI;
 using GameLoop.UserSettings;
@@ -14,108 +15,136 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.Pause.UI;
 
-internal class PauseUi
+internal sealed class PauseUi : IUiElement
 {
     private readonly SpriteBatch _spriteBatch;
-    private readonly Viewport _viewport;
     private readonly PrimitiveRenderer _primitiveRenderer;
+    private readonly Action _onResume;
+    private readonly Action _onReturnToTitle;
     private readonly IConfiguration _configuration;
     private readonly AudioSettings _audioSettings;
 
-    private readonly VolumeControl[] _volumeControls;
-    private readonly SpriteFont _font;
-    private readonly Action _onResume;
-    private readonly Action _onReturnToTitle;
-    private readonly Button[] _menuButtons;
-    public PauseUi(SpriteBatch spriteBatch, Viewport viewport, ContentManager content,
+    private readonly VerticalStack _mainStack;
+
+    // Track buttons and volume controls for input order
+    private readonly List<Button> _menuButtons = [];
+    private readonly List<VolumeControl> _volumeControls = [];
+    private readonly UiRectangle _viewPortRectangle;
+
+    public PauseUi(
+        SpriteBatch spriteBatch,
+        Viewport viewport,
+        ContentManager content,
         PrimitiveRenderer primitiveRenderer,
-        IConfiguration configuration, IOptions<AudioSettings> audioSettings, IGlobalCommands globalCommands)
+        IConfiguration configuration,
+        IOptions<AudioSettings> audioSettings,
+        IGlobalCommands globalCommands)
     {
-        _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
         _spriteBatch = spriteBatch;
-        _viewport = viewport;
         _primitiveRenderer = primitiveRenderer;
         _configuration = configuration;
         _audioSettings = audioSettings.Value;
         _onResume = globalCommands.ResumeGame;
         _onReturnToTitle = globalCommands.ReturnToTitle;
 
-        var screenWidth = viewport.Width;
-        var screenHeight = viewport.Height;
-        var centerX = screenWidth / 2f;
-        var centerY = screenHeight / 2f;
+        _viewPortRectangle = viewport.UiRectangle();
+        _mainStack = new VerticalStack(
+            _viewPortRectangle.AnchorForPoint(UiAnchor.TopCenter) + new Vector2(0f, 50f),
+            100
+        );
 
-        // Volume controls
-        var startY = centerY - 200;
-        _volumeControls =
-        [
-            new VolumeControl(content, primitiveRenderer, new Vector2(centerX - 150, startY),
-                "Master Volume", GetMasterVolume, SetMasterVolume),
-            new VolumeControl(content, primitiveRenderer, new Vector2(centerX - 150, startY + 120),
-                "Music Volume", GetMusicVolume, SetMusicVolume),
-            new VolumeControl(content, primitiveRenderer, new Vector2(centerX - 150, startY + 240),
-                "Sound FX Volume", GetSoundEffectVolume, SetSoundEffectVolume),
-        ];
+        // Title
+        _mainStack.AddChild(pos =>
+            new Label.Factory(content, Paths.Fonts.BoldPixels.Large, "PAUSED", layerDepth: 0.5f)
+                .Create(pos, UiAnchor.TopCenter));
 
-        // Order of this is currently used in navigation
-        _menuButtons =
-        [
-            new Button(content, primitiveRenderer, new Vector2(centerX, startY + 360), "Resume", OnResume),
+        // Volume controls stack
+        _mainStack.AddChild(pos =>
+        {
+            var offset = new Vector2(-300f, 50f); // We manually roughly centre these on the page
+            var volumeStack = new VerticalStack(pos + offset, 20);
 
-            new Button(content, primitiveRenderer, new Vector2(centerX, startY + 480), "Exit to Title", OnExitToTitle),
-        ];
+            _volumeControls.Add(volumeStack.AddChild(p =>
+                new VolumeControl.Factory(content, primitiveRenderer, "Master Volume", GetMasterVolume, SetMasterVolume)
+                    .Create(p)
+            ));
+
+            _volumeControls.Add(volumeStack.AddChild(p =>
+                new VolumeControl.Factory(content, primitiveRenderer, "Music Volume", GetMusicVolume, SetMusicVolume)
+                    .Create(p)
+            ));
+
+            _volumeControls.Add(volumeStack.AddChild(p =>
+                new VolumeControl.Factory(content, primitiveRenderer, "Sound FX Volume", GetSoundEffectVolume,
+                        SetSoundEffectVolume)
+                    .Create(p)
+            ));
+
+            return volumeStack;
+        });
+
+        // Menu buttons stack
+        _mainStack.AddChild(pos =>
+        {
+            var menuButtonStack = new VerticalStack(pos, 20);
+            menuButtonStack.AddChild(pos1 =>
+            {
+                var button = new Button.Factory(content, primitiveRenderer, "Resume", OnResume).Create(pos1,
+                    UiAnchor.TopCenter);
+                _menuButtons.Add(button);
+                return button;
+            });
+
+            menuButtonStack.AddChild(pos1 =>
+            {
+                var button = new Button.Factory(content, primitiveRenderer, "Exit to Title", OnExitToTitle).Create(pos1,
+                    UiAnchor.TopCenter);
+                _menuButtons.Add(button);
+                return button;
+            });
+            return menuButtonStack;
+        });
     }
 
+
+    /// <summary>All Buttons in the correct input order: menu buttons first, then volume control buttons.</summary>
     internal IEnumerable<Button> Buttons
     {
         get
         {
-            foreach (var button in _menuButtons)
-                yield return button;
+            foreach (var btn in _menuButtons)
+                yield return btn;
 
-            foreach (var vc in _volumeControls)
-            foreach (var b in vc.Buttons)
+            foreach (var b in _volumeControls.SelectMany(vc => vc.Buttons))
                 yield return b;
         }
     }
 
+    public UiRectangle Rectangle => _mainStack.Rectangle;
 
-    internal void Draw()
+    public void Draw(SpriteBatch spriteBatch)
     {
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
 
-        // Draw semi-transparent background
-        _primitiveRenderer.DrawRectangle(_spriteBatch,
-            new Rectangle(0, 0, _viewport.Width, _viewport.Height),
-            new Color(0, 0, 0, 180), 0.3f);
+        _primitiveRenderer.DrawRectangle(
+            _spriteBatch,
+            new Rectangle(_viewPortRectangle.TopLeft.ToPoint(), _viewPortRectangle.Size.ToPoint()),
+            new Color(0, 0, 0, 180),
+            0.3f);
 
-        // Draw title
-        const string title = "PAUSED";
-        var titleSize = _font.MeasureString(title);
-        var titlePosition = new Vector2(_viewport.Width / 2f - titleSize.X / 2, 100);
-        _spriteBatch.DrawString(_font, title, titlePosition, Color.White, 0f, Vector2.Zero, 1f,
-            SpriteEffects.None, 0.5f);
+        _mainStack.Draw(_spriteBatch);
 
-
-        foreach (var control in _volumeControls) control.Draw(_spriteBatch);
-
-        foreach (var button in Buttons) button.Draw(_spriteBatch);
         _spriteBatch.End();
     }
 
+    // --- Audio getters/setters ---
     private float GetMasterVolume() => _audioSettings.MasterVolume;
-    private float GetSoundEffectVolume() => _audioSettings.SoundEffectVolume;
     private float GetMusicVolume() => _audioSettings.MusicVolume;
+    private float GetSoundEffectVolume() => _audioSettings.SoundEffectVolume;
 
     private void SetMasterVolume(float value)
     {
         _audioSettings.MasterVolume = value;
-        SaveSettings();
-    }
-
-    private void SetSoundEffectVolume(float value)
-    {
-        _audioSettings.SoundEffectVolume = value;
         SaveSettings();
     }
 
@@ -125,9 +154,14 @@ internal class PauseUi
         SaveSettings();
     }
 
+    private void SetSoundEffectVolume(float value)
+    {
+        _audioSettings.SoundEffectVolume = value;
+        SaveSettings();
+    }
+
     private void SaveSettings()
     {
-        // Settings are bound to the configuration, so we need to write back through IConfiguration
         _configuration["Audio:MasterVolume"] = _audioSettings.MasterVolume.ToString(CultureInfo.InvariantCulture);
         _configuration["Audio:MusicVolume"] = _audioSettings.MusicVolume.ToString(CultureInfo.InvariantCulture);
         _configuration["Audio:SoundEffectVolume"] =

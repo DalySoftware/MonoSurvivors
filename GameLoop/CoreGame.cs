@@ -137,7 +137,7 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterType<SpriteBatch>().ExternallyOwned();
 
             builder.RegisterType<PrimitiveRenderer>().SingleInstance();
-            builder.RegisterType<PanelRenderer>().SingleInstance();
+            builder.RegisterType<Panel.Factory>().SingleInstance();
             builder.RegisterType<ToolTipRenderer>().SingleInstance();
             builder.RegisterType<MusicPlayer>().SingleInstance();
 

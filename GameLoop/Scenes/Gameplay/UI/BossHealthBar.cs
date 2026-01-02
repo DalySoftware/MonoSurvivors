@@ -14,7 +14,6 @@ namespace GameLoop.Scenes.Gameplay.UI;
 internal sealed class BossHealthBarFactory(
     ContentManager content,
     Viewport viewport,
-    PanelRenderer panelRenderer,
     PrimitiveRenderer primitiveRenderer,
     EnemySpawner enemySpawner)
 {
@@ -23,14 +22,26 @@ internal sealed class BossHealthBarFactory(
         var font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
 
         const float interiorHeight = 20f;
-        const float padding = 50f;
-        var centre = new Vector2(viewport.Bounds.Center.ToVector2().X, interiorHeight + padding);
+        var interiorSize = new Vector2(viewport.Width * 0.6f, interiorHeight);
 
-        var size = new Vector2(viewport.Width * 0.6f, interiorHeight);
-        var panel = panelRenderer.Define(centre, size, Layers.Ui + 0.05f);
+        // Root rectangle = full viewport
+        var panelSize = Panel.Factory.MeasureByInterior(interiorSize);
 
-        var progressBar = new PanelProgressBar(panel, primitiveRenderer, ColorPalette.Violet, ColorPalette.LightGray,
-            ColorPalette.Red);
+        const float topPadding = 50f;
+        var panelRect = viewport
+            .UiRectangle()
+            .CreateAnchoredRectangle(UiAnchor.TopCenter, panelSize, new Vector2(0f, topPadding));
+
+        var panel = new Panel.Factory(content, primitiveRenderer).DefineByExterior(panelRect, Layers.Ui + 0.05f);
+
+        var progressBar = new PanelProgressBar(
+            panel,
+            primitiveRenderer,
+            ColorPalette.Violet,
+            ColorPalette.LightGray,
+            ColorPalette.Red
+        );
+
         return new BossHealthBar(progressBar, enemySpawner, font);
     }
 }
@@ -46,7 +57,6 @@ internal sealed class BossHealthBar(
         if (boss is null)
             return;
 
-        // Update the progress
         progressBar.Progress = boss.Health / boss.Stats.MaxHealth;
 
         spriteBatch.Begin(SpriteSortMode.FrontToBack);
@@ -62,14 +72,9 @@ internal sealed class BossHealthBar(
         const string bossName = "JORGIE";
         var textSize = font.MeasureString(bossName);
 
-        // Centre the text horizontally in the bar
         var interiorRect = progressBar.InteriorRectangle;
-        var textPosition = new Vector2(
-            interiorRect.X + interiorRect.Width * 0.5f - textSize.X * 0.5f,
-            interiorRect.Y + interiorRect.Height * 0.5f - textSize.Y * 0.5f
-        );
+        var textPosition = interiorRect.TopLeft() + (interiorRect.Size.ToVector2() - textSize) * 0.5f;
 
-        // Draw slightly above the bar fill layer
         var textLayer = progressBar.FillLayerDepth + 0.01f;
         spriteBatch.DrawString(font, bossName, textPosition, ColorPalette.White, layerDepth: textLayer);
     }

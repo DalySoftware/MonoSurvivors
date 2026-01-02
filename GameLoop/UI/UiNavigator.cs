@@ -18,10 +18,10 @@ internal static class UiNavigator
 
         var validCandidates = (direction switch
         {
-            Direction.Up => candidates.Where(b => b.Centre.Y < current.Centre.Y),
-            Direction.Down => candidates.Where(b => b.Centre.Y > current.Centre.Y),
-            Direction.Left => candidates.Where(b => b.Centre.X < current.Centre.X),
-            Direction.Right => candidates.Where(b => b.Centre.X > current.Centre.X),
+            Direction.Up => candidates.Where(b => b.Rectangle.Centre.Y < current.Rectangle.Centre.Y),
+            Direction.Down => candidates.Where(b => b.Rectangle.Centre.Y > current.Rectangle.Centre.Y),
+            Direction.Left => candidates.Where(b => b.Rectangle.Centre.X < current.Rectangle.Centre.X),
+            Direction.Right => candidates.Where(b => b.Rectangle.Centre.X > current.Rectangle.Centre.X),
             _ => candidates,
         }).ToList();
 
@@ -32,12 +32,12 @@ internal static class UiNavigator
         {
             Direction.Up or Direction.Down =>
                 validCandidates
-                    .OrderBy(b => Math.Abs(b.Centre.Y - current.Centre.Y))
-                    .ThenBy(b => Math.Abs(b.Centre.X - current.Centre.X)),
+                    .OrderBy(b => Math.Abs(b.Rectangle.Centre.Y - current.Rectangle.Centre.Y))
+                    .ThenBy(b => Math.Abs(b.Rectangle.Centre.X - current.Rectangle.Centre.X)),
             Direction.Left or Direction.Right =>
                 validCandidates
-                    .OrderBy(b => Math.Abs(b.Centre.X - current.Centre.X))
-                    .ThenBy(b => Math.Abs(b.Centre.Y - current.Centre.Y)),
+                    .OrderBy(b => Math.Abs(b.Rectangle.Centre.X - current.Rectangle.Centre.X))
+                    .ThenBy(b => Math.Abs(b.Rectangle.Centre.Y - current.Rectangle.Centre.Y)),
             _ => validCandidates,
         };
 

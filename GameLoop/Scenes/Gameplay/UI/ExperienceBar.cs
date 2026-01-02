@@ -15,12 +15,10 @@ namespace GameLoop.Scenes.Gameplay.UI;
 internal sealed class ExperienceBarFactory(
     ContentManager content,
     Viewport viewport,
-    PanelRenderer panelRenderer,
     PrimitiveRenderer primitiveRenderer,
     LevelManager levelManager,
     SphereGrid sphereGrid,
-    GameInputState inputState
-)
+    GameInputState inputState)
 {
     internal ExperienceBar Create()
     {
@@ -28,19 +26,41 @@ internal sealed class ExperienceBarFactory(
 
         const float interiorHeight = 20f;
         const float padding = 50f;
-        var centre = new Vector2(viewport.Bounds.Center.ToVector2().X,
-            viewport.Bounds.Height - interiorHeight - padding);
-        var width = viewport.Width * 0.7f;
-        var interiorSize = new Vector2(width, interiorHeight);
-        var barPanel = panelRenderer.Define(centre, interiorSize, Layers.Ui + 0.05f);
 
-        var progressBar = new PanelProgressBar(barPanel, primitiveRenderer, ColorPalette.Agave, Color.SlateGray,
-            ColorPalette.Green);
-        var pointsBoxSize = new Vector2(interiorSize.Y, interiorSize.Y);
-        var pointsBox =
-            panelRenderer.Define(barPanel.Frame.MiddleRight, pointsBoxSize, barPanel.Frame.LayerDepth + 0.05f);
+        // Main bar
+        var interiorSize = new Vector2(viewport.Width * 0.7f, interiorHeight);
+        var barSize = Panel.Factory.MeasureByInterior(interiorSize);
 
-        return new ExperienceBar(font, progressBar, pointsBox, levelManager, sphereGrid, inputState);
+        var barRect = viewport
+            .UiRectangle()
+            .CreateAnchoredRectangle(UiAnchor.BottomCenter, barSize, new Vector2(0f, -padding));
+
+        var panelFactory = new Panel.Factory(content, primitiveRenderer);
+        var barPanel = panelFactory.DefineByExterior(barRect);
+
+        var progressBar = new PanelProgressBar(
+            barPanel,
+            primitiveRenderer,
+            ColorPalette.Agave,
+            Color.SlateGray,
+            ColorPalette.Green
+        );
+
+        // Points box
+        var pointsInteriorSize = new Vector2(interiorHeight, interiorHeight);
+        var pointsBoxSize = Panel.Factory.MeasureByInterior(pointsInteriorSize);
+
+        var pointsBoxRect = barRect.CreateAnchoredRectangle(UiAnchor.CenterRight, pointsBoxSize);
+        var pointsBox = panelFactory.DefineByExterior(pointsBoxRect, barPanel.Frame.LayerDepth + 0.05f);
+
+        return new ExperienceBar(
+            font,
+            progressBar,
+            pointsBox,
+            levelManager,
+            sphereGrid,
+            inputState
+        );
     }
 }
 
@@ -56,12 +76,8 @@ internal class ExperienceBar(
     private int Points => sphereGrid.AvailablePoints;
 
     private float Progress => MathHelper.Clamp(
-        levelManager.ExperienceSinceLastLevel / levelManager.ExperienceToNextLevel,
-        0f, 1f);
+        levelManager.ExperienceSinceLastLevel / levelManager.ExperienceToNextLevel, 0f, 1f);
 
-    /// <summary>
-    ///     Draws an experience bar with a filled portion according to <paramref name="progress" /> (0..1).
-    /// </summary>
     internal void Draw(SpriteBatch spriteBatch, GameTime gameTime)
     {
         _provideFeedbackToSpendPoints = sphereGrid.AvailablePoints >= 3 ||
@@ -90,12 +106,8 @@ internal class ExperienceBar(
 
         // Centre the text horizontally in the bar
         var interiorRect = progressBar.InteriorRectangle;
-        var textPosition = new Vector2(
-            interiorRect.X + interiorRect.Width * 0.5f - textSize.X * 0.5f,
-            interiorRect.Y + interiorRect.Height * 0.5f - textSize.Y * 0.5f
-        );
+        var textPosition = interiorRect.TopLeft() + (interiorRect.Size.ToVector2() - textSize) * 0.5f;
 
-        // Draw slightly above the bar fill layer
         var textLayer = progressBar.FillLayerDepth + 0.01f;
         spriteBatch.DrawString(font, spendPrompt, textPosition, Color.White, layerDepth: textLayer);
     }
@@ -109,14 +121,15 @@ internal class ExperienceBar(
         var text = Points.ToString();
         var textSize = font.MeasureString(text);
         var textScale = PointsTextScale(gameTime);
-        var scaledSize = textSize * textScale;
 
-        var panelCentre = pointsBoxPanel.Centre;
-        var textPosition = panelCentre - scaledSize * 0.5f;
-
+        // Anchor text to the panel center
+        var textOrigin = textSize * 0.5f; // center of the text
+        var textPosition = pointsBoxPanel.Interior.AnchorForPoint(UiAnchor.Centre);
         var textLayer = (pointsBoxPanel.InteriorLayerDepth + pointsBoxPanel.Frame.LayerDepth) * 0.5f;
-        spriteBatch.DrawString(font, text, textPosition, Color.White, layerDepth: textLayer,
-            scale: Vector2.One * textScale);
+
+        spriteBatch.DrawString(font, text, textPosition, origin: textOrigin, scale: Vector2.One * textScale,
+            layerDepth: textLayer
+        );
     }
 
     private Color PointsBoxTint(GameTime gameTime)

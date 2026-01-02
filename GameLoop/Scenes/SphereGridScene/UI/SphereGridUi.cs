@@ -27,13 +27,14 @@ internal class SphereGridUi
     private readonly SphereGrid _grid;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
-    private readonly PanelRenderer _panelRenderer;
     private readonly SphereGridContent _content;
     private readonly FogOfWarMask _fog;
     private readonly GameInputState _inputState;
     private readonly IAudioPlayer _audio;
 
     private readonly Dictionary<Node, NodeColorCache> _colorCache = [];
+
+    private readonly Panel _titlePanel;
 
     /// <summary>
     ///     UI overlay for the sphere grid levelling system
@@ -43,7 +44,7 @@ internal class SphereGridUi
         SphereGrid grid,
         PrimitiveRenderer primitiveRenderer,
         ToolTipRenderer toolTipRenderer,
-        PanelRenderer panelRenderer,
+        Panel.Factory panelFactory,
         SphereGridContent content,
         FogOfWarMask fog,
         NodePositionMap nodePositions,
@@ -55,7 +56,6 @@ internal class SphereGridUi
         _grid = grid;
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = toolTipRenderer;
-        _panelRenderer = panelRenderer;
         _content = content;
         _fog = fog;
         _inputState = inputState;
@@ -65,14 +65,17 @@ internal class SphereGridUi
         Camera = camera;
         FocusedNode = grid.Root;
 
+        var panelSize = Panel.Factory.MeasureByInterior(TitleSize);
+        var exterior = graphicsDevice.Viewport.UiRectangle()
+            .CreateAnchoredRectangle(UiAnchor.TopCenter, panelSize, new Vector2(0f, 50f));
+        _titlePanel = panelFactory.DefineByExterior(exterior);
+
         // Ensure the fog is rendered to prevent flicker
         RebuildFog();
         BuildColorCache();
     }
 
-    private Panel TitlePanel => _panelRenderer.Define(TitleCentre, TitleSize);
     private Vector2 TitleSize => _content.FontLarge.MeasureString(TitleText(100));
-    private Vector2 TitleCentre => new(_graphicsDevice.Viewport.Width / 2f, 80);
     private InputMethod InputMethod => _inputState.CurrentInputMethod;
 
     internal ISphereGridCamera Camera { get; }
@@ -261,20 +264,19 @@ internal class SphereGridUi
 
     private void DrawScreenspaceUi(SpriteBatch spriteBatch)
     {
-        var viewport = _graphicsDevice.Viewport;
+        _titlePanel.Draw(spriteBatch, Color.White, Color.SlateGray.ShiftLightness(-0.1f));
 
-        TitlePanel.Draw(spriteBatch, Color.White, Color.SlateGray.ShiftLightness(-0.1f));
-
-        var titleCenter = TitlePanel.Centre;
         var titleText = TitleText(_grid.AvailablePoints);
         var titleSize = _content.FontLarge.MeasureString(titleText);
-        spriteBatch.DrawString(_content.FontLarge, titleText, titleCenter, Color.White,
-            origin: titleSize / 2f, layerDepth: TitlePanel.InteriorLayerDepth + 0.01f);
+        var titlePosition = _titlePanel.Interior.CreateAnchoredRectangle(UiAnchor.Centre, titleSize).TopLeft;
+        spriteBatch.DrawString(_content.FontLarge, titleText, titlePosition, Color.White,
+            layerDepth: _titlePanel.InteriorLayerDepth + 0.01f);
 
         var helpText = HelpText();
         var helpSize = _content.FontMedium.MeasureString(helpText);
-        spriteBatch.DrawString(_content.FontMedium, helpText,
-            new Vector2(viewport.Width / 2f - helpSize.X / 2, viewport.Height - 40), Color.Gray,
+        var helpRectangle = _graphicsDevice.Viewport.UiRectangle()
+            .CreateAnchoredRectangle(UiAnchor.BottomCenter, helpSize, new Vector2(0f, -50f));
+        spriteBatch.DrawString(_content.FontMedium, helpText, helpRectangle.TopLeft, Color.Gray,
             layerDepth: Layers.HelpText);
 
         DrawTooltips(spriteBatch);

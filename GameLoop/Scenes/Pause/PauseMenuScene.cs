@@ -1,14 +1,15 @@
 using Autofac;
 using GameLoop.Scenes.Pause.UI;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.Pause;
 
-internal class PauseMenuScene(PauseInputManager input, PauseUi ui) : IScene
+internal class PauseMenuScene(PauseInputManager input, PauseUi ui, SpriteBatch spriteBatch) : IScene
 {
     public void Update(GameTime gameTime) => input.Update(gameTime);
 
-    public void Draw(GameTime gameTime) => ui.Draw();
+    public void Draw(GameTime gameTime) => ui.Draw(spriteBatch);
 
     public void Dispose() { }
 

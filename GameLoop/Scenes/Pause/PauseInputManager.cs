@@ -132,12 +132,12 @@ internal class PauseInputManager(
 
     private void HandleMouseNavigation()
     {
-        var pointerPos = InputState.MouseState.Position;
+        var pointerPos = InputState.MouseState.Position.ToVector2();
         var down = InputState.MouseState.LeftButton == ButtonState.Pressed;
         var pressedThisFrame = down && WasLeftMousePressedThisFrame();
         var releasedThisFrame = !down && WasLeftMouseReleasedThisFrame();
 
-        var hovered = ui.Buttons.FirstOrDefault(b => b.Bounds.Contains(pointerPos));
+        var hovered = ui.Buttons.FirstOrDefault(b => b.Rectangle.Contains(pointerPos));
 
         if (hovered != _hovered)
         {
