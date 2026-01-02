@@ -17,24 +17,18 @@ public sealed class ChainLightningOnHit(
     private const float DamageFalloff = 0.6f;
     private const float MaxJumpDistance = 200f;
 
-    private const int MaxChains = 3;
+    private const int ChainsPerProc = 3;
     private const float BaseDamage = 8f;
 
     public int Priority => 1;
 
     public void Apply(IHitContext context)
     {
-        var owner = context.Owner;
-        var stats = owner.WeaponBelt.Stats;
+        var stats = context.Owner.WeaponBelt.Stats;
 
-        var chance = MathF.Min(stats.ChainLightningChance, 1f);
-        if (Random.Shared.NextSingle() > chance)
-            return;
-
-        var remainingChains = MaxChains;
+        var remainingChains = ChainsPerProc * CalculateNumberOfProcs(stats);
 
         var hitEnemies = new HashSet<EnemyBase> { context.Enemy };
-
         var currentEnemy = context.Enemy;
         var damage = CritCalculator.CalculateCrit(BaseDamage * stats.DamageMultiplier, stats);
 
@@ -52,13 +46,26 @@ public sealed class ChainLightningOnHit(
 
             SpawnVisual(currentEnemy.Position, next.Position);
             PlayAudio();
-            next.TakeDamage(owner, damage);
+            next.TakeDamage(context.Owner, damage);
 
             hitEnemies.Add(next);
             currentEnemy = next;
             damage *= DamageFalloff;
         }
     }
+
+    private static int CalculateNumberOfProcs(WeaponBeltStats stats)
+    {
+        var chance = MathF.Max(0f, stats.ChainLightningChance);
+
+        var guaranteedProcs = (int)MathF.Floor(chance);
+
+        var fractionalChance = chance - guaranteedProcs;
+        var extraFromFraction = Random.Shared.NextSingle() < fractionalChance ? 1 : 0;
+        var procs = guaranteedProcs + extraFromFraction;
+        return procs;
+    }
+
     private void SpawnVisual(Vector2 from, Vector2 to) => spawnEntity.Spawn(new LightningArc(from, to));
 
     private void PlayAudio() => audio.Play(SoundEffectTypes.Lightning);
