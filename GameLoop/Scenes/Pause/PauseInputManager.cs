@@ -24,6 +24,8 @@ internal class PauseInputManager(
     private Button? _focused;
 
     private InputMethod _lastInputMethod;
+    
+    private InputMethod CurrentInputMethod => InputState.CurrentInputMethod;
 
     internal void Update(GameTime gameTime)
     {

@@ -36,7 +36,9 @@ internal class GameplayInputManager(
         player.DirectionInput(new UnitVector2(movement.X, movement.Y));
 
 #if DEBUG
-        if (InputState.KeyboardState.IsKeyDown(Keys.LeftControl) && WasPressedThisFrame(Keys.OemPlus))
+        if (InputState.KeyboardState.IsKeyDown(Keys.LeftControl) &&
+            InputState.KeyboardState.IsKeyDown(Keys.OemPlus) &&
+            InputState.PreviousKeyboardState.IsKeyDown(Keys.OemPlus))
             player.GainExperience(100f);
 #endif
     }

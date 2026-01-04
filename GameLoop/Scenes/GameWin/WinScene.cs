@@ -60,20 +60,12 @@ internal class WinScene(
     }
 }
 
-internal class WinSceneInputManager(
+internal sealed class WinSceneInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
     SceneManager sceneManager)
-    : BaseInputManager(globalCommands, inputState, sceneManager)
-{
-    private readonly WinActionInput _actions = new(inputState);
-
-    internal void Update()
-    {
-        if (ShouldSkipInput()) return;
-
-        if (_actions.WasPressed(WinAction.Exit)) GlobalCommands.Exit();
-
-        if (_actions.WasPressed(WinAction.StartGame)) GlobalCommands.StartGame();
-    }
-}
+    : SingleActionSceneInputManager(
+        globalCommands,
+        inputState,
+        sceneManager,
+        globalCommands.StartGame);
