@@ -5,7 +5,6 @@ using GameLoop.Scenes.SphereGridScene.UI;
 using Gameplay;
 using Gameplay.Levelling.SphereGrid;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.SphereGridScene;
 
@@ -16,44 +15,29 @@ internal class SphereGridInputManager(
     SceneManager sceneManager)
     : BaseInputManager(globalCommands, inputState, sceneManager)
 {
-    private readonly TimeSpan _thumbstickNavigationCooldown = TimeSpan.FromMilliseconds(150);
-    private TimeSpan _currentThumbstickNavigationCooldown = TimeSpan.Zero;
-    private bool _isPanning;
+    private readonly SphereGridActionInput _actions = new(inputState);
 
     internal void Update(GameTime gameTime)
     {
         if (ShouldSkipInput()) return;
 
-        if (WasPressedThisFrame(Keys.Escape) ||
-            WasPressedThisFrame(Keys.Space) ||
-            WasPressedThisFrame(Keys.Tab) ||
-            WasPressedThisFrame(Buttons.Back) ||
-            WasPressedThisFrame(Buttons.B)) GlobalCommands.CloseSphereGrid();
+        if (_actions.WasPressed(SphereGridAction.Close))
+            GlobalCommands.CloseSphereGrid();
 
-        _isPanning = InputState.MouseState.MiddleButton == ButtonState.Pressed;
-        if (_isPanning)
-        {
-            var mouseDelta = new Vector2(
-                InputState.MouseState.X - InputState.PreviousMouseState.X,
-                InputState.MouseState.Y - InputState.PreviousMouseState.Y
-            );
-            ui.Camera.Position -= mouseDelta;
-        }
+        if (_actions.IsMousePanning()) ui.Camera.Position -= _actions.GetMousePanDelta();
 
-        if (InputState.MouseState.LeftButton == ButtonState.Pressed &&
-            InputState.PreviousMouseState.LeftButton == ButtonState.Released)
+        if (_actions.WasPressed(SphereGridAction.UnlockHovered))
             ui.UnlockHoveredNode();
 
-        if (WasPressedThisFrame(Buttons.A))
+        if (_actions.WasPressed(SphereGridAction.UnlockFocused))
             ui.UnlockFocussedNode();
 
-        if (WasPressedThisFrame(Keys.T))
+        if (_actions.WasPressed(SphereGridAction.ResetCamera))
             ui.Camera.Position = Vector2.Zero;
 
-        // Handle panning with gamepad right thumbstick
-        var thumbstickInput = InputState.GamePadState.ThumbSticks.Right;
-        if (thumbstickInput.LengthSquared() > 0.02f)
-            ui.Camera.Position -= new Vector2(-thumbstickInput.X, thumbstickInput.Y) * 32f;
+        var pan = _actions.GetRightStickPan();
+        if (pan != Vector2.Zero)
+            ui.Camera.Position -= pan * 32f;
 
         ui.HideFocus = CurrentInputMethod is InputMethod.KeyboardMouse;
 
@@ -61,14 +45,11 @@ internal class SphereGridInputManager(
         UpdateFocussedNode(gameTime);
     }
 
-    private void UpdateHoveredNode() =>
-        ui.UpdateHoveredNode(CurrentInputMethod == InputMethod.KeyboardMouse
-            ? InputState.MouseState.Position.ToVector2()
-            : null);
+    private void UpdateHoveredNode() => ui.UpdateHoveredNode(_actions.GetMousePositionForHover());
 
     private void UpdateFocussedNode(GameTime gameTime)
     {
-        var inputDirection = GetInputDirection(gameTime);
+        var inputDirection = _actions.GetNavigationDirection(gameTime);
         if (inputDirection == Vector2.Zero)
             return;
 
@@ -115,35 +96,5 @@ internal class SphereGridInputManager(
 
         ui.FocusedNode = bestCandidate;
         ui.HideFocus = false;
-        _currentThumbstickNavigationCooldown = _thumbstickNavigationCooldown;
-    }
-
-    private Vector2 GetInputDirection(GameTime gameTime)
-    {
-        // Thumbstick
-        var stick = InputState.GamePadState.ThumbSticks.Left;
-        stick.Y *= -1f;
-
-        if (stick.LengthSquared() >= 0.02f)
-        {
-            _currentThumbstickNavigationCooldown -= gameTime.ElapsedGameTime;
-            if (_currentThumbstickNavigationCooldown > TimeSpan.Zero) return Vector2.Zero;
-
-            _currentThumbstickNavigationCooldown = _thumbstickNavigationCooldown;
-            return stick;
-        }
-
-        // Reset cooldown when stick released
-        _currentThumbstickNavigationCooldown = TimeSpan.Zero;
-
-        // D-pad (edge-triggered)
-        var direction = Vector2.Zero;
-
-        if (WasPressedThisFrame(Buttons.DPadUp)) direction += Vector2.UnitY * -1f;
-        if (WasPressedThisFrame(Buttons.DPadDown)) direction += Vector2.UnitY;
-        if (WasPressedThisFrame(Buttons.DPadLeft)) direction += Vector2.UnitX * -1f;
-        if (WasPressedThisFrame(Buttons.DPadRight)) direction += Vector2.UnitX;
-
-        return direction;
     }
 }

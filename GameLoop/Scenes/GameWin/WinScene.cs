@@ -7,7 +7,6 @@ using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.GameWin;
 
@@ -67,12 +66,14 @@ internal class WinSceneInputManager(
     SceneManager sceneManager)
     : BaseInputManager(globalCommands, inputState, sceneManager)
 {
+    private readonly WinActionInput _actions = new(inputState);
+
     internal void Update()
     {
         if (ShouldSkipInput()) return;
 
-        if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Back)) GlobalCommands.Exit();
-        if (InputState.KeyboardState.IsKeyDown(Keys.Space) || WasPressedThisFrame(Buttons.Start))
-            GlobalCommands.StartGame();
+        if (_actions.WasPressed(WinAction.Exit)) GlobalCommands.Exit();
+
+        if (_actions.WasPressed(WinAction.StartGame)) GlobalCommands.StartGame();
     }
 }

@@ -1,6 +1,5 @@
 using GameLoop.Input;
 using Gameplay;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.GameOver;
 
@@ -10,12 +9,14 @@ internal class GameOverInputManager(
     SceneManager sceneManager)
     : BaseInputManager(globalCommands, inputState, sceneManager)
 {
+    private readonly GameOverActionInput _actions = new(inputState);
+
     internal void Update()
     {
         if (ShouldSkipInput()) return;
 
-        if (WasPressedThisFrame(Keys.Escape) || WasPressedThisFrame(Buttons.Back)) GlobalCommands.Exit();
-        if (InputState.KeyboardState.IsKeyDown(Keys.Space) || WasPressedThisFrame(Buttons.Start))
-            GlobalCommands.StartGame();
+        if (_actions.WasPressed(GameOverAction.Exit)) GlobalCommands.Exit();
+
+        if (_actions.WasPressed(GameOverAction.StartGame)) GlobalCommands.StartGame();
     }
 }
