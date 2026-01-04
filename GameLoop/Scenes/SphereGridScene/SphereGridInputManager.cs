@@ -11,18 +11,14 @@ namespace GameLoop.Scenes.SphereGridScene;
 internal class SphereGridInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
-    SphereGridUi ui,
-    SceneManager sceneManager)
-    : BaseInputManager(globalCommands, inputState, sceneManager)
+    SphereGridUi ui)
 {
     private readonly SphereGridActionInput _actions = new(inputState);
 
     internal void Update(GameTime gameTime)
     {
-        if (ShouldSkipInput()) return;
-
         if (_actions.WasPressed(SphereGridAction.Close))
-            GlobalCommands.CloseSphereGrid();
+            globalCommands.CloseSphereGrid();
 
         if (_actions.IsMousePanning()) ui.Camera.Position -= _actions.GetMousePanDelta();
 
@@ -39,7 +35,7 @@ internal class SphereGridInputManager(
         if (pan != Vector2.Zero)
             ui.Camera.Position -= pan * 32f;
 
-        ui.HideFocus = InputState.CurrentInputMethod is InputMethod.KeyboardMouse;
+        ui.HideFocus = inputState.CurrentInputMethod is InputMethod.KeyboardMouse;
 
         UpdateHoveredNode();
         UpdateFocussedNode(gameTime);

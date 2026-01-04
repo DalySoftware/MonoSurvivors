@@ -1,4 +1,5 @@
 using Autofac;
+using GameLoop.Input;
 using GameLoop.Scenes.SphereGridScene.UI;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.UI;
@@ -11,12 +12,14 @@ namespace GameLoop.Scenes.SphereGridScene;
 internal class SphereGridScene(
     SpriteBatch spriteBatch,
     SphereGridUi sphereGridUi,
-    SphereGridInputManager inputManager)
+    SphereGridInputManager inputManager,
+    InputGate inputGate)
     : IScene
 {
     public void Update(GameTime gameTime)
     {
-        inputManager.Update(gameTime);
+        if (inputGate.ShouldProcessInput())
+            inputManager.Update(gameTime);
         sphereGridUi.Update(gameTime);
     }
 

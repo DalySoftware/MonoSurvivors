@@ -11,9 +11,7 @@ namespace GameLoop.Scenes.Pause;
 internal class PauseInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
-    PauseUi ui,
-    SceneManager sceneManager)
-    : BaseInputManager(globalCommands, inputState, sceneManager)
+    PauseUi ui)
 {
     private readonly PauseActionInput _actions = new(inputState);
 
@@ -24,13 +22,11 @@ internal class PauseInputManager(
     private Button? _focused;
 
     private InputMethod _lastInputMethod;
-    
-    private InputMethod CurrentInputMethod => InputState.CurrentInputMethod;
+
+    private InputMethod CurrentInputMethod => inputState.CurrentInputMethod;
 
     internal void Update(GameTime gameTime)
     {
-        if (ShouldSkipInput()) return;
-
         if (CurrentInputMethod != _lastInputMethod)
         {
             // Leaving mouse mode

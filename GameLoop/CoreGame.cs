@@ -148,6 +148,7 @@ public class CoreGame : Game, IGlobalCommands
 
             builder.RegisterType<GameInputState>().SingleInstance();
             builder.RegisterType<InputStateManager>().SingleInstance();
+            builder.RegisterType<InputGate>().SingleInstance();
         });
 
         _contentScope.Resolve<GameInputState>();

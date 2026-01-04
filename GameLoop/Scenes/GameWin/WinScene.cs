@@ -15,6 +15,7 @@ internal class WinScene(
     SpriteBatch spriteBatch,
     GameWindow window,
     WinSceneInputManager input,
+    InputGate inputGate,
     GameInputState inputState)
     : IScene
 {
@@ -23,7 +24,11 @@ internal class WinScene(
 
     public void Dispose() => spriteBatch.Dispose();
 
-    public void Update(GameTime gameTime) => input.Update();
+    public void Update(GameTime gameTime)
+    {
+        if (inputGate.ShouldProcessInput())
+            input.Update();
+    }
 
     public void Draw(GameTime gameTime)
     {
@@ -62,10 +67,8 @@ internal class WinScene(
 
 internal sealed class WinSceneInputManager(
     IGlobalCommands globalCommands,
-    GameInputState inputState,
-    SceneManager sceneManager)
+    GameInputState inputState)
     : SingleActionSceneInputManager(
         globalCommands,
         inputState,
-        sceneManager,
         globalCommands.StartGame);

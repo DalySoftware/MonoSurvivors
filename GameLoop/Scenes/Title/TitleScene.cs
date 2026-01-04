@@ -1,4 +1,5 @@
 ﻿using ContentLibrary;
+using GameLoop.Input;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -10,12 +11,17 @@ namespace GameLoop.Scenes.Title;
 internal class TitleScene(
     SpriteBatch spriteBatch,
     ContentManager content,
-    TitleInputManager input)
+    TitleInputManager input,
+    InputGate inputGate)
     : IScene
 {
     private readonly SpriteFont _titleFont = content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
 
-    public void Update(GameTime gameTime) => input.Update();
+    public void Update(GameTime gameTime)
+    {
+        if (inputGate.ShouldProcessInput())
+            input.Update();
+    }
 
     public void Draw(GameTime gameTime)
     {

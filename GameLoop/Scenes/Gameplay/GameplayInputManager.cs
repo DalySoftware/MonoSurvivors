@@ -2,7 +2,6 @@ using GameLoop.Input;
 using Gameplay;
 using Gameplay.Entities;
 using Gameplay.Utilities;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Scenes.Gameplay;
@@ -10,25 +9,21 @@ namespace GameLoop.Scenes.Gameplay;
 internal class GameplayInputManager(
     PlayerCharacter player,
     IGlobalCommands globalCommands,
-    GameInputState inputState,
-    SceneManager sceneManager)
-    : BaseInputManager(globalCommands, inputState, sceneManager)
+    GameInputState inputState)
 {
     private readonly GameplayActionInput _actions = new(inputState);
 
-    internal void Update(GameTime gameTime)
+    internal void Update()
     {
-        if (ShouldSkipInput()) return;
-
         if (_actions.WasPressed(GameplayAction.Pause))
         {
-            GlobalCommands.ShowPauseMenu();
+            globalCommands.ShowPauseMenu();
             return;
         }
 
         if (_actions.WasPressed(GameplayAction.OpenSphereGrid))
         {
-            GlobalCommands.ShowSphereGrid();
+            globalCommands.ShowSphereGrid();
             return;
         }
 
@@ -36,9 +31,9 @@ internal class GameplayInputManager(
         player.DirectionInput(new UnitVector2(movement.X, movement.Y));
 
 #if DEBUG
-        if (InputState.KeyboardState.IsKeyDown(Keys.LeftControl) &&
-            InputState.KeyboardState.IsKeyDown(Keys.OemPlus) &&
-            InputState.PreviousKeyboardState.IsKeyDown(Keys.OemPlus))
+        if (inputState.KeyboardState.IsKeyDown(Keys.LeftControl) &&
+            inputState.KeyboardState.IsKeyDown(Keys.OemPlus) &&
+            inputState.PreviousKeyboardState.IsKeyDown(Keys.OemPlus))
             player.GainExperience(100f);
 #endif
     }

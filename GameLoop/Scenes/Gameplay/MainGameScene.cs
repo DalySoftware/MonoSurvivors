@@ -1,5 +1,6 @@
 using Autofac;
 using ContentLibrary;
+using GameLoop.Input;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay.Behaviour;
 using Gameplay.Combat;
@@ -34,6 +35,7 @@ internal class MainGameScene(
     ExperienceBar experienceBar,
     EntityRenderer entityRenderer,
     GameplayInputManager input,
+    InputGate inputGate,
     HealthBar healthBar,
     RunClock clock,
     BossHealthBar bossHealthBar)
@@ -45,7 +47,8 @@ internal class MainGameScene(
 
     public void Update(GameTime gameTime)
     {
-        input.Update(gameTime);
+        if (inputGate.ShouldProcessInput())
+            input.Update();
         effectManager.Update(gameTime);
         entityManager.Update(gameTime);
         camera.Update(gameTime);
