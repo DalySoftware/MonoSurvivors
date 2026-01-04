@@ -1,4 +1,7 @@
+using GameLoop.Debug;
 using GameLoop.Input;
+using GameLoop.Persistence;
+using GameLoop.UserSettings;
 using Gameplay;
 using Gameplay.Entities;
 using Gameplay.Utilities;
@@ -9,9 +12,11 @@ namespace GameLoop.Scenes.Gameplay;
 internal class GameplayInputManager(
     PlayerCharacter player,
     IGlobalCommands globalCommands,
-    GameInputState inputState)
+    GameInputState inputState,
+    KeyBindingsSettings keyBindingsSettings,
+    ISettingsPersistence persistence)
 {
-    private readonly GameplayActionInput _actions = new(inputState);
+    private readonly GameplayActionInput _actions = new(inputState, keyBindingsSettings);
 
     internal void Update()
     {
@@ -34,7 +39,11 @@ internal class GameplayInputManager(
         if (inputState.KeyboardState.IsKeyDown(Keys.LeftControl) &&
             inputState.KeyboardState.IsKeyDown(Keys.OemPlus) &&
             inputState.PreviousKeyboardState.IsKeyDown(Keys.OemPlus))
-            player.GainExperience(100f);
+            DebugActions.GrantExperience(player);
+
+        if (inputState.KeyboardState.IsKeyDown(Keys.LeftControl) &&
+            inputState.KeyboardState.IsKeyDown(Keys.S))
+            DebugActions.SaveKeybinds(keyBindingsSettings, persistence);
 #endif
     }
 }

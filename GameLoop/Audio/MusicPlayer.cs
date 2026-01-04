@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ContentLibrary;
+using GameLoop.Persistence;
 using GameLoop.UserSettings;
-using Microsoft.Extensions.Options;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
@@ -10,32 +10,39 @@ namespace GameLoop.Audio;
 
 public sealed class MusicPlayer : IDisposable
 {
-    private readonly IDisposable? _optionsChangeListener;
+    private readonly ISettingsPersistence _settingsPersistence;
     private readonly SoundEffectInstance _soundEffect;
 
     private float _baseVolume; // store original volume
 
-    public MusicPlayer(ContentManager content, IOptionsMonitor<AudioSettings> settingsMonitor)
+    public MusicPlayer(ContentManager content, ISettingsPersistence settingsPersistence)
     {
+        _settingsPersistence = settingsPersistence;
         _soundEffect = content.Load<SoundEffect>(Paths.Music.Venezuela).CreateInstance();
         _soundEffect.IsLooped = true;
 
         // Set initial volume
-        UpdateVolume(settingsMonitor.CurrentValue);
+        UpdateVolume(settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings));
 
         // Subscribe to settings changes
-        _optionsChangeListener = settingsMonitor.OnChange(UpdateVolume);
+        settingsPersistence.OnChanged -= OnSettingsChange;
+        settingsPersistence.OnChanged += OnSettingsChange;
     }
 
     public void Dispose()
     {
-        _optionsChangeListener?.Dispose();
+        _settingsPersistence.OnChanged -= OnSettingsChange;
         _soundEffect.Dispose();
     }
 
-    private void UpdateVolume(AudioSettings? settings)
+    private void OnSettingsChange(Type type)
     {
-        settings ??= new AudioSettings();
+        if (type != typeof(AudioSettings)) return;
+        UpdateVolume(_settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings));
+    }
+
+    private void UpdateVolume(AudioSettings settings)
+    {
         _baseVolume = settings.MasterVolume * settings.MusicVolume;
         _soundEffect.Volume = _baseVolume;
     }

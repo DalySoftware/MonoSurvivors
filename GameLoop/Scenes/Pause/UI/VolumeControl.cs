@@ -93,6 +93,8 @@ public class VolumeControl : IUiElement
 
     public void Draw(SpriteBatch spriteBatch) => _stack.Draw(spriteBatch);
 
+    internal void RefreshLabel() => _valueLabel.Text = GetValueText();
+
     private void DecreaseVolume()
     {
         _setValue(Math.Max(0f, _getValue() - 0.05f));

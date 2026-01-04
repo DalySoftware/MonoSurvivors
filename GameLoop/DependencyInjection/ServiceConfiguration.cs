@@ -1,5 +1,4 @@
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using GameLoop.Audio;
 using GameLoop.Persistence;
 using GameLoop.UserSettings;
@@ -7,8 +6,6 @@ using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -44,19 +41,11 @@ internal static class ServiceConfiguration
 
         internal void ConfigureOptions()
         {
-            var persistence = new AppDataPersistence();
-            var configuration = new ConfigurationBuilder()
-                .AddPersistence(persistence, "GameSettings")
-                .Build();
-
-            var serviceCollection = new ServiceCollection()
-                .AddSingleton<IConfiguration>(configuration)
-                .AddOptions(); // adds IOptions/IOptionsMonitor support
-
-            serviceCollection.Configure<AudioSettings>(configuration.GetSection("Audio"));
-
-            // Populate the ServiceCollection into Autofac
-            builder.Populate(serviceCollection);
+            builder.RegisterType<AppDataPersistence>().As<ISettingsPersistence>().SingleInstance();
+            builder.Register<AudioSettings>(ctx =>
+                ctx.Resolve<ISettingsPersistence>().Load(PersistenceJsonContext.Default.AudioSettings));
+            builder.Register<KeyBindingsSettings>(ctx =>
+                ctx.Resolve<ISettingsPersistence>().Load(PersistenceJsonContext.Default.KeyBindingsSettings));
         }
     }
 }

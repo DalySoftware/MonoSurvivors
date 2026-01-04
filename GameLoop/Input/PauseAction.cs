@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Input;
 
-internal enum PauseAction
+public enum PauseAction
 {
     Resume,
     Activate,

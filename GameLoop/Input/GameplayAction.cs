@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
+using GameLoop.UserSettings;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Input;
 
-internal enum GameplayAction
+public enum GameplayAction
 {
     Pause,
     OpenSphereGrid,
@@ -14,29 +16,33 @@ internal enum GameplayAction
     MoveDown,
 }
 
-internal sealed class GameplayActionInput(GameInputState state)
+internal sealed class GameplayActionInput(GameInputState state, KeyBindingsSettings bindings)
 {
-    public bool WasPressed(GameplayAction action) => action switch
+    // Discrete actions, including discrete movement
+    public bool WasPressed(GameplayAction action)
     {
-        GameplayAction.Pause => IsPressed(Keys.Escape) || IsPressed(Buttons.Start),
-        GameplayAction.OpenSphereGrid => IsPressed(Keys.Space) || IsPressed(Keys.Tab) || IsPressed(Buttons.Back),
-        _ => false,
-    };
+        var kbKeys = bindings.GameplayActions.Keyboard[action];
+        var gpButtons = bindings.GameplayActions.Gamepad[action];
 
-    public bool IsDown(GameplayAction action) => action switch
-    {
-        GameplayAction.MoveLeft => state.KeyboardState.IsKeyDown(Keys.S),
-        GameplayAction.MoveRight => state.KeyboardState.IsKeyDown(Keys.F),
-        GameplayAction.MoveUp => state.KeyboardState.IsKeyDown(Keys.E),
-        GameplayAction.MoveDown => state.KeyboardState.IsKeyDown(Keys.D),
-        _ => false,
-    };
+        return kbKeys.Any(WasPressed) || gpButtons.Any(WasPressed);
+    }
 
-    private bool IsPressed(Keys key) =>
+    // Continuous check (for movement only)
+    public bool IsDown(GameplayAction action) =>
+        bindings
+            .GameplayActions
+            .Keyboard[action]
+            .Any(k => state.KeyboardState.IsKeyDown(k)) ||
+        bindings
+            .GameplayActions
+            .Gamepad[action]
+            .Any(b => state.GamePadState.IsButtonDown(b));
+
+    private bool WasPressed(Keys key) =>
         state.KeyboardState.IsKeyDown(key) &&
         state.PreviousKeyboardState.IsKeyUp(key);
 
-    private bool IsPressed(Buttons button) =>
+    private bool WasPressed(Buttons button) =>
         state.GamePadState.IsButtonDown(button) &&
         state.PreviousGamePadState.IsButtonUp(button);
 

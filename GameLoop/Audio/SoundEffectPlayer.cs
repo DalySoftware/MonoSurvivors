@@ -1,34 +1,63 @@
 ﻿using System;
+using GameLoop.Persistence;
 using GameLoop.UserSettings;
 using Gameplay.Audio;
-using Microsoft.Extensions.Options;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
 namespace GameLoop.Audio;
 
-public class SoundEffectPlayer(
-    ContentManager content,
-    IOptionsMonitor<AudioSettings> settingsMonitor,
-    MusicPlayer musicPlayer)
-    : IAudioPlayer
+public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
 {
     private readonly static SoundEffectTypes[] DucksMusic =
     [
-        SoundEffectTypes.BasicShoot, SoundEffectTypes.BouncerShoot, SoundEffectTypes.SniperShoot,
+        SoundEffectTypes.BasicShoot,
+        SoundEffectTypes.BouncerShoot,
+        SoundEffectTypes.SniperShoot,
         SoundEffectTypes.ShotgunShoot,
     ];
-    private readonly SoundEffectContent _effects = new(content);
 
+    private readonly SoundEffectContent _effects;
     private readonly Random _random = new();
+    private readonly ISettingsPersistence _settingsPersistence;
+    private readonly MusicPlayer _musicPlayer;
+
+    private AudioSettings _audioSettings;
+
+    public SoundEffectPlayer(
+        ContentManager content,
+        ISettingsPersistence settingsPersistence,
+        MusicPlayer musicPlayer)
+    {
+        _effects = new SoundEffectContent(content);
+        _settingsPersistence = settingsPersistence;
+        _musicPlayer = musicPlayer;
+
+        // Initial load
+        _audioSettings = settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
+
+        // Subscribe to changes
+        settingsPersistence.OnChanged -= OnSettingsChanged;
+        settingsPersistence.OnChanged += OnSettingsChanged;
+    }
 
     public void Play(SoundEffectTypes effectType)
     {
-        EffectsFor(effectType).PickRandom(_random).Play(effectType, settingsMonitor.CurrentValue);
+        EffectsFor(effectType)
+            .PickRandom(_random)
+            .Play(effectType, _audioSettings);
 
         // Duck music briefly when firing
         if (DucksMusic.Contains(effectType))
-            _ = musicPlayer.DuckFor(TimeSpan.FromMilliseconds(40), 0.5f); // fire-and-forget async
+            _ = _musicPlayer.DuckFor(TimeSpan.FromMilliseconds(40), 0.5f);
+    }
+
+    public void Dispose() => _settingsPersistence.OnChanged -= OnSettingsChanged;
+
+    private void OnSettingsChanged(Type changedType)
+    {
+        if (changedType == typeof(AudioSettings))
+            _audioSettings = _settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
     }
 
     private SoundEffect[] EffectsFor(SoundEffectTypes effectType) => effectType switch
@@ -45,7 +74,7 @@ public class SoundEffectPlayer(
         SoundEffectTypes.Lightning => _effects.Lightning,
         SoundEffectTypes.IceAura => _effects.IceDamage,
         SoundEffectTypes.UnlockNode => _effects.UnlockNode,
-        _ => throw new ArgumentException("Unknown sound effect type"),
+        _ => throw new ArgumentOutOfRangeException(nameof(effectType)),
     };
 }
 

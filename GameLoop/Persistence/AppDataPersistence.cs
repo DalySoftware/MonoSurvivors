@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using GameLoop.UserSettings;
+using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Persistence;
 
-public sealed class AppDataPersistence : IPersistence
+public sealed class AppDataPersistence : ISettingsPersistence
 {
     private static string SettingsFolder =>
         Path.Combine(
@@ -16,38 +17,43 @@ public sealed class AppDataPersistence : IPersistence
             "MonoSurvivors"
         );
 
-    public event Action<string>? OnChanged;
-
-    public T Load<T>(string storageKey, JsonTypeInfo<T> typeInfo)
-    {
-        var path = Path.Combine(SettingsFolder, SanitizeStorageKey(storageKey));
-        var json = File.ReadAllText(path);
-
-        return JsonSerializer.Deserialize(json, typeInfo) ??
-               throw new InvalidOperationException($"Failed to deserialize {storageKey}");
-    }
-
-    public void Save<T>(T data, string storageKey, JsonTypeInfo<T> typeInfo)
+    public void Save<T>(T data, JsonTypeInfo<T> typeInfo)
     {
         Directory.CreateDirectory(SettingsFolder);
 
+        var storageKey = GetStorageKey<T>();
         var fileName = SanitizeStorageKey(storageKey);
-        var json = JsonSerializer.Serialize(data, typeInfo);
         var path = Path.Combine(SettingsFolder, fileName);
+
+        var json = JsonSerializer.Serialize(data, typeInfo);
         File.WriteAllText(path, json);
 
-        OnChanged?.Invoke(storageKey);
+        OnChanged?.Invoke(typeof(T)); // <-- now type-based
     }
 
-    private static string SanitizeStorageKey(string storageKey) =>
-        storageKey.Replace(':', '_') + ".json";
+    public T Load<T>(JsonTypeInfo<T> typeInfo) where T : new()
+    {
+        var storageKey = GetStorageKey<T>();
+        var path = Path.Combine(SettingsFolder, SanitizeStorageKey(storageKey));
+
+        if (!File.Exists(path))
+            return new T();
+
+        var json = File.ReadAllText(path);
+        return JsonSerializer.Deserialize(json, typeInfo) ?? new T();
+    }
+
+    public event Action<Type>? OnChanged;
+
+    private static string GetStorageKey<T>() => (typeof(T).FullName ?? typeof(T).Name) + ".json";
+
+    private static string SanitizeStorageKey(string key) =>
+        Path.GetInvalidFileNameChars().Aggregate(key, (current, c) => current.Replace(c, '_'));
 }
 
-[JsonSerializable(typeof(GameSettings))]
-[JsonSerializable(typeof(PersistedConfiguration))]
+[JsonSourceGenerationOptions(
+    WriteIndented = true,
+    Converters = [typeof(JsonStringEnumConverter<Keys>), typeof(JsonStringEnumConverter<Buttons>)])]
+[JsonSerializable(typeof(AudioSettings))]
+[JsonSerializable(typeof(KeyBindingsSettings))]
 public partial class PersistenceJsonContext : JsonSerializerContext;
-
-public sealed class PersistedConfiguration
-{
-    public Dictionary<string, string?> Values { get; init; } = new(StringComparer.OrdinalIgnoreCase);
-}
