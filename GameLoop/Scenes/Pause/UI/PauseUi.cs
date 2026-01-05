@@ -17,8 +17,6 @@ internal sealed class PauseUi : IUiElement, IDisposable
 {
     private readonly SpriteBatch _spriteBatch;
     private readonly PrimitiveRenderer _primitiveRenderer;
-    private readonly Action _onResume;
-    private readonly Action _onReturnToTitle;
     private readonly ISettingsPersistence _settingsPersistence;
 
     private AudioSettings _audioSettings;
@@ -41,8 +39,6 @@ internal sealed class PauseUi : IUiElement, IDisposable
         _spriteBatch = spriteBatch;
         _primitiveRenderer = primitiveRenderer;
         _settingsPersistence = settingsPersistence;
-        _onResume = globalCommands.ResumeGame;
-        _onReturnToTitle = globalCommands.ReturnToTitle;
 
         _audioSettings = settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
         settingsPersistence.OnChanged += OnSettingsChanged;
@@ -101,7 +97,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
             menuButtonStack.AddChild(p =>
             {
-                var button = new Button.Factory(content, primitiveRenderer, "Resume", _onResume)
+                var button = new Button.Factory(content, primitiveRenderer, "Resume", globalCommands.ResumeGame)
                     .Create(p, UiAnchor.TopCenter);
                 _menuButtons.Add(button);
                 return button;
@@ -109,7 +105,8 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
             menuButtonStack.AddChild(p =>
             {
-                var button = new Button.Factory(content, primitiveRenderer, "Exit to Title", _onReturnToTitle)
+                var button = new Button.Factory(content, primitiveRenderer, "Exit to Title",
+                        globalCommands.ReturnToTitle)
                     .Create(p, UiAnchor.TopCenter);
                 _menuButtons.Add(button);
                 return button;
