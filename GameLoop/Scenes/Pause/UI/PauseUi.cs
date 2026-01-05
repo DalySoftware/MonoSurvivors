@@ -35,7 +35,8 @@ internal sealed class PauseUi : IUiElement, IDisposable
         PrimitiveRenderer primitiveRenderer,
         ISettingsPersistence settingsPersistence,
         IGlobalCommands globalCommands,
-        Button.Factory buttonFactory)
+        Button.Factory buttonFactory,
+        VolumeControl.Factory volumeControlFactory)
     {
         _spriteBatch = spriteBatch;
         _primitiveRenderer = primitiveRenderer;
@@ -62,31 +63,14 @@ internal sealed class PauseUi : IUiElement, IDisposable
             var volumeStack = new VerticalStack(pos + offset, 20);
 
             _volumeControls.Add(volumeStack.AddChild(p =>
-                new VolumeControl.Factory(
-                        content,
-                        buttonFactory,
-                        "Master Volume",
-                        () => _audioSettings.MasterVolume,
-                        SetMasterVolume)
-                    .Create(p)));
+                volumeControlFactory.Create("Master Volume", p, () => _audioSettings.MasterVolume, SetMasterVolume)));
 
             _volumeControls.Add(volumeStack.AddChild(p =>
-                new VolumeControl.Factory(
-                        content,
-                        buttonFactory,
-                        "Music Volume",
-                        () => _audioSettings.MusicVolume,
-                        SetMusicVolume)
-                    .Create(p)));
+                volumeControlFactory.Create("Music Volume", p, () => _audioSettings.MusicVolume, SetMusicVolume)));
 
             _volumeControls.Add(volumeStack.AddChild(p =>
-                new VolumeControl.Factory(
-                        content,
-                        buttonFactory,
-                        "Sound FX Volume",
-                        () => _audioSettings.SoundEffectVolume,
-                        SetSoundEffectVolume)
-                    .Create(p)));
+                volumeControlFactory.Create("Sound FX Volume", p, () => _audioSettings.SoundEffectVolume,
+                    SetSoundEffectVolume)));
 
             return volumeStack;
         });

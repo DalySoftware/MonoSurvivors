@@ -106,20 +106,16 @@ public class VolumeControl : IUiElement
 
     private string GetValueText() => $"{(int)(_getValue() * 100)}%";
 
-    internal sealed class Factory(
-        ContentManager content,
-        Button.Factory buttonFactory,
-        string label,
-        Func<float> getValue,
-        Action<float> setValue)
+    internal sealed class Factory(ContentManager content, Button.Factory buttonFactory)
     {
-        public VolumeControl Create(Vector2 center) => new(
-            content,
-            buttonFactory,
-            center,
-            label,
-            getValue,
-            setValue
-        );
+        public VolumeControl Create(string label, Vector2 center, Func<float> getValue, Action<float> setValue) =>
+            new(
+                content,
+                buttonFactory,
+                center,
+                label,
+                getValue,
+                setValue
+            );
     }
 }

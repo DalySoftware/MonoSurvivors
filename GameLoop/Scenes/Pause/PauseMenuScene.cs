@@ -23,6 +23,7 @@ internal class PauseMenuScene(PauseInputManager input, InputGate inputGate, Paus
     {
         builder.RegisterType<PauseInputManager>().SingleInstance();
         builder.RegisterType<PauseUi>().SingleInstance();
+        builder.RegisterType<VolumeControl.Factory>().SingleInstance();
 
         // Register the scene itself
         builder.RegisterType<PauseMenuScene>();
