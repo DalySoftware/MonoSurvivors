@@ -2,7 +2,7 @@
 
 namespace GameLoop.Input;
 
-internal enum SingleActionSceneAction
+public enum SingleActionSceneAction
 {
     Exit,
     PrimaryAction,
