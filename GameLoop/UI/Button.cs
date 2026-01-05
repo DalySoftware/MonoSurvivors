@@ -69,23 +69,20 @@ internal sealed class Button : IUiElement
 
     public sealed class Factory(
         ContentManager content,
-        PrimitiveRenderer primitiveRenderer,
-        string text,
-        Action onClick,
-        bool rounded = false)
+        PrimitiveRenderer primitiveRenderer)
     {
         private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
 
-        public Button Create(Vector2 origin, UiAnchor anchor)
+        public Button Create(string text, Action onClick, Vector2 origin, UiAnchor anchor, bool rounded = false)
         {
-            var size = Measure();
+            var size = Measure(text, rounded);
             var interior = new UiRectangle(origin, size, anchor);
             var panel = new Panel.Factory(content, primitiveRenderer).DefineByInterior(interior);
             var button = new Button(content, panel, text, onClick);
             return button;
         }
 
-        private Vector2 Measure()
+        private Vector2 Measure(string text, bool rounded)
         {
             var textSize = _font.MeasureString(text);
             var naive = new Vector2(textSize.X, textSize.Y);

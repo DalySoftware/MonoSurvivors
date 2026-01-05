@@ -52,8 +52,8 @@ public class VolumeControl : IUiElement
             var controlsStack = new HorizontalStack(pos, 10);
 
             decreaseButton = controlsStack.AddChild(p =>
-                new Button.Factory(content, primitiveRenderer, "-", DecreaseVolume, true)
-                    .Create(p, UiAnchor.CenterLeft));
+                new Button.Factory(content, primitiveRenderer)
+                    .Create("-", DecreaseVolume, p, UiAnchor.CenterLeft, true));
 
             valueLabel = controlsStack.AddChild(p =>
                 new Label.Factory(content, Paths.Fonts.BoldPixels.Medium, GetValueText(),
@@ -63,8 +63,8 @@ public class VolumeControl : IUiElement
                     .Create(p, UiAnchor.CenterLeft));
 
             increaseButton = controlsStack.AddChild(p =>
-                new Button.Factory(content, primitiveRenderer, "+", IncreaseVolume, true)
-                    .Create(p, UiAnchor.CenterLeft));
+                new Button.Factory(content, primitiveRenderer)
+                    .Create("+", IncreaseVolume, p, UiAnchor.CenterLeft, true));
 
             return controlsStack;
         });

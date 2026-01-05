@@ -97,17 +97,16 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
             menuButtonStack.AddChild(p =>
             {
-                var button = new Button.Factory(content, primitiveRenderer, "Resume", globalCommands.ResumeGame)
-                    .Create(p, UiAnchor.TopCenter);
+                var button = new Button.Factory(content, primitiveRenderer)
+                    .Create("Resume", globalCommands.ResumeGame, p, UiAnchor.TopCenter);
                 _menuButtons.Add(button);
                 return button;
             });
 
             menuButtonStack.AddChild(p =>
             {
-                var button = new Button.Factory(content, primitiveRenderer, "Exit to Title",
-                        globalCommands.ReturnToTitle)
-                    .Create(p, UiAnchor.TopCenter);
+                var button = new Button.Factory(content, primitiveRenderer)
+                    .Create("Exit to Title", globalCommands.ReturnToTitle, p, UiAnchor.TopCenter);
                 _menuButtons.Add(button);
                 return button;
             });
