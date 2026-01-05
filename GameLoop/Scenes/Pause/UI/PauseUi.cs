@@ -8,7 +8,6 @@ using GameLoop.UserSettings;
 using Gameplay;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.Pause.UI;
@@ -31,7 +30,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
     public PauseUi(
         SpriteBatch spriteBatch,
         Viewport viewport,
-        ContentManager content,
+        Label.Factory labelFactory,
         PrimitiveRenderer primitiveRenderer,
         ISettingsPersistence settingsPersistence,
         IGlobalCommands globalCommands,
@@ -53,8 +52,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
         // Title
         _mainStack.AddChild(pos =>
-            new Label.Factory(content, Paths.Fonts.BoldPixels.Large, "PAUSED", layerDepth: 0.5f)
-                .Create(pos, UiAnchor.TopCenter));
+            labelFactory.Create(Paths.Fonts.BoldPixels.Large, "PAUSED", pos, UiAnchor.TopCenter, layerDepth: 0.5f));
 
         // Volume controls stack
         _mainStack.AddChild(pos =>

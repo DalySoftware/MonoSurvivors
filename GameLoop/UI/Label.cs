@@ -84,21 +84,23 @@ internal sealed class Label : IUiElement
     }
 
 
-    public sealed class Factory(
-        ContentManager content,
-        string fontPath,
-        string text,
-        Color? color = null,
-        TextAlignment alignment = TextAlignment.Left,
-        string templateString = "", // Reserves at least the space for this
-        float layerDepth = 0f)
+    public sealed class Factory(ContentManager content)
     {
-        private readonly SpriteFont _font = content.Load<SpriteFont>(fontPath);
+        public Label Create(
+            string fontPath,
+            string text,
+            Vector2 origin,
+            UiAnchor anchor,
+            Color? color = null,
+            TextAlignment alignment = TextAlignment.Left,
+            string templateString = "",
+            float layerDepth = 0f)
+        {
+            var font = content.Load<SpriteFont>(fontPath);
+            var labelColor = color ?? Color.White;
 
-        private readonly Color _color = color ?? Color.White;
-
-        public Label Create(Vector2 origin, UiAnchor anchor) =>
-            new(_font, origin, anchor, text, _color, alignment, templateString, layerDepth);
+            return new Label(font, origin, anchor, text, labelColor, alignment, templateString, layerDepth);
+        }
     }
 }
 

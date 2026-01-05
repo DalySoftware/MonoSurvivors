@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ContentLibrary;
 using GameLoop.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.Pause.UI;
@@ -17,7 +16,7 @@ public class VolumeControl : IUiElement
     private readonly Label _valueLabel;
 
     private VolumeControl(
-        ContentManager content,
+        Label.Factory labelFactory,
         Button.Factory buttonFactory,
         Vector2 center,
         string label,
@@ -36,9 +35,8 @@ public class VolumeControl : IUiElement
                 new Vector2(300, 0), // width fixed, height irrelevant for horizontal stack
                 UiAnchor.CenterLeft,
                 labelPos =>
-                    new Label.Factory(content, Paths.Fonts.BoldPixels.Medium, label, layerDepth: 0.5f)
-                        .Create(labelPos, UiAnchor.CenterLeft)
-            ));
+                    labelFactory.Create(Paths.Fonts.BoldPixels.Medium, label, labelPos,
+                        UiAnchor.CenterLeft, layerDepth: 0.5f)));
 
         // Have to tell the compiler we're assigning these 
         Label valueLabel = null!;
@@ -54,11 +52,8 @@ public class VolumeControl : IUiElement
                 buttonFactory.Create("-", DecreaseVolume, p, UiAnchor.CenterLeft, true));
 
             valueLabel = controlsStack.AddChild(p =>
-                new Label.Factory(content, Paths.Fonts.BoldPixels.Medium, GetValueText(),
-                        alignment: TextAlignment.Right,
-                        templateString: "100%",
-                        layerDepth: 0.5f)
-                    .Create(p, UiAnchor.CenterLeft));
+                labelFactory.Create(Paths.Fonts.BoldPixels.Medium, GetValueText(), p, UiAnchor.CenterLeft,
+                    alignment: TextAlignment.Right, templateString: "100%", layerDepth: 0.5f));
 
             increaseButton = controlsStack.AddChild(p =>
                 buttonFactory.Create("+", IncreaseVolume, p, UiAnchor.CenterLeft, true));
@@ -106,16 +101,9 @@ public class VolumeControl : IUiElement
 
     private string GetValueText() => $"{(int)(_getValue() * 100)}%";
 
-    internal sealed class Factory(ContentManager content, Button.Factory buttonFactory)
+    internal sealed class Factory(Button.Factory buttonFactory, Label.Factory labelFactory)
     {
         public VolumeControl Create(string label, Vector2 center, Func<float> getValue, Action<float> setValue) =>
-            new(
-                content,
-                buttonFactory,
-                center,
-                label,
-                getValue,
-                setValue
-            );
+            new(labelFactory, buttonFactory, center, label, getValue, setValue);
     }
 }
