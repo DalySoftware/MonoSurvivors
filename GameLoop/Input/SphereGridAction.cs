@@ -1,69 +1,63 @@
 ﻿using System;
+using GameLoop.Input.Mapping;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Input;
 
-internal enum SphereGridAction
+public enum SphereGridAction
 {
     Close,
     UnlockHovered,
     UnlockFocused,
     ResetCamera,
+    NavigateUp,
+    NavigateDown,
+    NavigateLeft,
+    NavigateRight,
 }
 
-internal sealed class SphereGridActionInput(GameInputState state)
+internal sealed class SphereGridActionInput(GameInputState state, ActionKeyMap<SphereGridAction> map)
+    : ActionInputBase<SphereGridAction>(state, map)
 {
     private readonly TimeSpan _navigationCooldown = TimeSpan.FromMilliseconds(150);
     private TimeSpan _currentNavigationCooldown = TimeSpan.Zero;
 
-    public bool WasPressed(SphereGridAction action) => action switch
+    public bool IsActionTriggered(SphereGridAction action) => action switch
     {
-        SphereGridAction.Close =>
-            IsPressed(Keys.Escape) ||
-            IsPressed(Keys.Space) ||
-            IsPressed(Keys.Tab) ||
-            IsPressed(Buttons.Back) ||
-            IsPressed(Buttons.B),
+        // Mouse-only semantic
+        SphereGridAction.UnlockHovered
+            => WasLeftMousePressedThisFrame() &&
+               State.CurrentInputMethod == InputMethod.KeyboardMouse,
 
-        SphereGridAction.UnlockFocused =>
-            IsPressed(Buttons.A),
-
-        SphereGridAction.UnlockHovered =>
-            WasLeftMousePressedThisFrame() &&
-            state.CurrentInputMethod == InputMethod.KeyboardMouse, // optional guard
-
-        SphereGridAction.ResetCamera =>
-            IsPressed(Keys.T),
-
-        _ => false,
+        _ => WasPressed(action),
     };
 
     // --- Mouse semantics ---
     public bool IsMousePanning() =>
-        state.MouseState.MiddleButton == ButtonState.Pressed;
+        State.MouseState.MiddleButton == ButtonState.Pressed;
 
     public Vector2 GetMousePanDelta() =>
         new(
-            state.MouseState.X - state.PreviousMouseState.X,
-            state.MouseState.Y - state.PreviousMouseState.Y
+            State.MouseState.X - State.PreviousMouseState.X,
+            State.MouseState.Y - State.PreviousMouseState.Y
         );
 
     public Vector2? GetMousePositionForHover()
     {
-        if (state.CurrentInputMethod != InputMethod.KeyboardMouse)
+        if (State.CurrentInputMethod != InputMethod.KeyboardMouse)
             return null;
 
-        return state.MouseState.Position.ToVector2();
+        return State.MouseState.Position.ToVector2();
     }
 
-    public bool WasLeftMousePressedThisFrame() =>
-        state.MouseState.LeftButton == ButtonState.Pressed &&
-        state.PreviousMouseState.LeftButton == ButtonState.Released;
+    private bool WasLeftMousePressedThisFrame() =>
+        State.MouseState.LeftButton == ButtonState.Pressed &&
+        State.PreviousMouseState.LeftButton == ButtonState.Released;
 
     public Vector2 GetRightStickPan()
     {
-        var stick = state.GamePadState.ThumbSticks.Right;
+        var stick = State.GamePadState.ThumbSticks.Right;
         return stick.LengthSquared() > 0.02f
             ? new Vector2(-stick.X, stick.Y)
             : Vector2.Zero;
@@ -71,8 +65,8 @@ internal sealed class SphereGridActionInput(GameInputState state)
 
     public Vector2 GetNavigationDirection(GameTime gameTime)
     {
-        // Left thumbstick
-        var stick = state.GamePadState.ThumbSticks.Left;
+        // Left thumbstick (rate-limited)
+        var stick = State.GamePadState.ThumbSticks.Left;
         stick.Y *= -1f;
 
         if (stick.LengthSquared() >= 0.02f)
@@ -85,26 +79,16 @@ internal sealed class SphereGridActionInput(GameInputState state)
             return stick;
         }
 
-        // Reset cooldown when stick released
         _currentNavigationCooldown = TimeSpan.Zero;
 
         // D-pad (edge-triggered)
         var direction = Vector2.Zero;
 
-        if (IsPressed(Buttons.DPadUp)) direction += Vector2.UnitY * -1f;
-        if (IsPressed(Buttons.DPadDown)) direction += Vector2.UnitY;
-        if (IsPressed(Buttons.DPadLeft)) direction += Vector2.UnitX * -1f;
-        if (IsPressed(Buttons.DPadRight)) direction += Vector2.UnitX;
+        if (IsDown(SphereGridAction.NavigateUp)) direction += Vector2.UnitY * -1f;
+        if (IsDown(SphereGridAction.NavigateDown)) direction += Vector2.UnitY;
+        if (IsDown(SphereGridAction.NavigateLeft)) direction += Vector2.UnitX * -1f;
+        if (IsDown(SphereGridAction.NavigateRight)) direction += Vector2.UnitX;
 
         return direction;
     }
-
-
-    private bool IsPressed(Keys key) =>
-        state.KeyboardState.IsKeyDown(key) &&
-        state.PreviousKeyboardState.IsKeyUp(key);
-
-    private bool IsPressed(Buttons button) =>
-        state.GamePadState.IsButtonDown(button) &&
-        state.PreviousGamePadState.IsButtonUp(button);
 }

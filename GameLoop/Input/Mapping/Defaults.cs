@@ -43,4 +43,22 @@ public static class Defaults
             [PauseAction.Resume] = [Keys.Escape],
         },
     };
+
+    public static ActionKeyMap<SphereGridAction> SphereGrid { get; } = new()
+    {
+        Gamepad = new Dictionary<SphereGridAction, List<Buttons>>
+        {
+            [SphereGridAction.Close] = [Buttons.Back, Buttons.B],
+            [SphereGridAction.UnlockFocused] = [Buttons.A],
+            [SphereGridAction.NavigateUp] = [Buttons.DPadUp],
+            [SphereGridAction.NavigateDown] = [Buttons.DPadDown],
+            [SphereGridAction.NavigateLeft] = [Buttons.DPadLeft],
+            [SphereGridAction.NavigateRight] = [Buttons.DPadRight],
+        },
+        Keyboard = new Dictionary<SphereGridAction, List<Keys>>
+        {
+            [SphereGridAction.Close] = [Keys.Escape, Keys.Space, Keys.Tab],
+            [SphereGridAction.ResetCamera] = [Keys.T],
+        },
+    };
 }

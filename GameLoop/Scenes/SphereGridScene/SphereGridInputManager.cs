@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using GameLoop.Input;
+using GameLoop.Persistence;
 using GameLoop.Scenes.SphereGridScene.UI;
 using Gameplay;
 using Gameplay.Levelling.SphereGrid;
@@ -11,24 +12,26 @@ namespace GameLoop.Scenes.SphereGridScene;
 internal class SphereGridInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
+    ISettingsPersistence settingsPersistence,
     SphereGridUi ui)
 {
-    private readonly SphereGridActionInput _actions = new(inputState);
+    private readonly SphereGridActionInput _actions =
+        new(inputState, settingsPersistence.Load(PersistenceJsonContext.Default.KeyBindingsSettings).SphereGridActions);
 
     internal void Update(GameTime gameTime)
     {
-        if (_actions.WasPressed(SphereGridAction.Close))
+        if (_actions.IsActionTriggered(SphereGridAction.Close))
             globalCommands.CloseSphereGrid();
 
         if (_actions.IsMousePanning()) ui.Camera.Position -= _actions.GetMousePanDelta();
 
-        if (_actions.WasPressed(SphereGridAction.UnlockHovered))
+        if (_actions.IsActionTriggered(SphereGridAction.UnlockHovered))
             ui.UnlockHoveredNode();
 
-        if (_actions.WasPressed(SphereGridAction.UnlockFocused))
+        if (_actions.IsActionTriggered(SphereGridAction.UnlockFocused))
             ui.UnlockFocussedNode();
 
-        if (_actions.WasPressed(SphereGridAction.ResetCamera))
+        if (_actions.IsActionTriggered(SphereGridAction.ResetCamera))
             ui.Camera.Position = Vector2.Zero;
 
         var pan = _actions.GetRightStickPan();
