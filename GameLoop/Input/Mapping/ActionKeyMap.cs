@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using GameLoop.UserSettings;
 using Microsoft.Xna.Framework.Input;
 
@@ -19,14 +18,6 @@ public sealed class ActionKeyMap<TAction> : IMergeable<ActionKeyMap<TAction>> wh
         foreach (var (action, buttons) in overrides.Gamepad)
             Gamepad[action] = buttons;
     }
-
-    private static ActionKeyMap<T> Clone<T>(ActionKeyMap<T> source) where T : Enum => new()
-    {
-        Keyboard = source.Keyboard.ToDictionary(kvp => kvp.Key, kvp => new List<Keys>(kvp.Value)),
-
-        Gamepad = source.Gamepad.ToDictionary(kvp => kvp.Key, kvp => new List<Buttons>(kvp.Value)),
-    };
-
 
     public IReadOnlyList<Keys> GetKeys(TAction action) =>
         Keyboard.TryGetValue(action, out var keys) ? keys : [];
