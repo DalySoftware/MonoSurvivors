@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
+using GameLoop.Input.Mapping;
 using GameLoop.UI;
+using GameLoop.UserSettings;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,27 +12,24 @@ public enum PauseAction
 {
     Resume,
     Activate,
+    NavigateUp,
+    NavigateDown,
+    NavigateLeft,
+    NavigateRight,
 }
 
-internal sealed class PauseActionInput(GameInputState state)
+internal sealed class PauseActionInput(GameInputState state, KeyBindingsSettings bindings)
 {
     private readonly TimeSpan _navCooldown = TimeSpan.FromMilliseconds(150);
     private TimeSpan _currentNavCooldown = TimeSpan.Zero;
 
-    public bool WasPressed(PauseAction action) => action switch
-    {
-        PauseAction.Resume =>
-            IsPressed(Keys.Escape) || IsPressed(Buttons.Start) || IsPressed(Buttons.B),
+    private ActionKeyMap<PauseAction> Map => bindings.PauseMenuActions;
 
-        PauseAction.Activate => state.CurrentInputMethod switch
-        {
-            InputMethod.KeyboardMouse => IsLeftMouseClicked() || IsPressed(Keys.Enter),
-            InputMethod.Gamepad => IsPressed(Buttons.A),
-            _ => false,
-        },
+    public bool WasPressed(PauseAction action) =>
+        Map.GetKeys(action).Any(IsPressed) || Map.GetButtons(action).Any(IsPressed);
 
-        _ => false,
-    };
+    public bool IsDown(PauseAction action) => Map.GetKeys(action).Any(k => state.KeyboardState.IsKeyDown(k)) ||
+                                              Map.GetButtons(action).Any(b => state.GamePadState.IsButtonDown(b));
 
     public Direction? GetNavigationDirection(GameTime gameTime)
     {
@@ -53,10 +53,10 @@ internal sealed class PauseActionInput(GameInputState state)
         };
 
         // Edge-triggered D-pad
-        if (IsPressed(Buttons.DPadUp)) direction = Direction.Up;
-        if (IsPressed(Buttons.DPadDown)) direction = Direction.Down;
-        if (IsPressed(Buttons.DPadLeft)) direction = Direction.Left;
-        if (IsPressed(Buttons.DPadRight)) direction = Direction.Right;
+        if (IsDown(PauseAction.NavigateUp)) direction = Direction.Up;
+        if (IsDown(PauseAction.NavigateDown)) direction = Direction.Down;
+        if (IsDown(PauseAction.NavigateLeft)) direction = Direction.Left;
+        if (IsDown(PauseAction.NavigateRight)) direction = Direction.Right;
 
         if (direction != null)
             _currentNavCooldown = _navCooldown;
@@ -69,10 +69,6 @@ internal sealed class PauseActionInput(GameInputState state)
 
     private bool IsPressed(Buttons button) =>
         state.GamePadState.IsButtonDown(button) && state.PreviousGamePadState.IsButtonUp(button);
-
-    private bool IsLeftMouseClicked() =>
-        state.MouseState.LeftButton == ButtonState.Pressed &&
-        state.PreviousMouseState.LeftButton == ButtonState.Released;
 
     public bool WasLeftMousePressedThisFrame() =>
         state.MouseState.LeftButton == ButtonState.Pressed &&

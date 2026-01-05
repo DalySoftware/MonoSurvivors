@@ -31,6 +31,10 @@ public static class Defaults
     {
         Gamepad = new Dictionary<PauseAction, List<Buttons>>
         {
+            [PauseAction.NavigateUp] = [Buttons.DPadUp],
+            [PauseAction.NavigateDown] = [Buttons.DPadDown],
+            [PauseAction.NavigateLeft] = [Buttons.DPadLeft],
+            [PauseAction.NavigateRight] = [Buttons.DPadRight],
             [PauseAction.Activate] = [Buttons.A],
             [PauseAction.Resume] = [Buttons.Start, Buttons.B],
         },

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using GameLoop.Input.Mapping;
 using GameLoop.UserSettings;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -18,25 +19,15 @@ public enum GameplayAction
 
 internal sealed class GameplayActionInput(GameInputState state, KeyBindingsSettings bindings)
 {
-    // Discrete actions, including discrete movement
-    public bool WasPressed(GameplayAction action)
-    {
-        var kbKeys = bindings.GameplayActions.Keyboard[action];
-        var gpButtons = bindings.GameplayActions.Gamepad[action];
+    private ActionKeyMap<GameplayAction> Map => bindings.GameplayActions;
 
-        return kbKeys.Any(WasPressed) || gpButtons.Any(WasPressed);
-    }
+    // Discrete actions, including discrete movement
+    public bool WasPressed(GameplayAction action) =>
+        Map.GetKeys(action).Any(WasPressed) || Map.GetButtons(action).Any(WasPressed);
 
     // Continuous check (for movement only)
-    public bool IsDown(GameplayAction action) =>
-        bindings
-            .GameplayActions
-            .Keyboard[action]
-            .Any(k => state.KeyboardState.IsKeyDown(k)) ||
-        bindings
-            .GameplayActions
-            .Gamepad[action]
-            .Any(b => state.GamePadState.IsButtonDown(b));
+    public bool IsDown(GameplayAction action) => Map.GetKeys(action).Any(k => state.KeyboardState.IsKeyDown(k)) ||
+                                                 Map.GetButtons(action).Any(b => state.GamePadState.IsButtonDown(b));
 
     private bool WasPressed(Keys key) =>
         state.KeyboardState.IsKeyDown(key) &&

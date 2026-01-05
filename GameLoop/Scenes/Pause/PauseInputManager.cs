@@ -3,6 +3,7 @@ using System.Linq;
 using GameLoop.Input;
 using GameLoop.Scenes.Pause.UI;
 using GameLoop.UI;
+using GameLoop.UserSettings;
 using Gameplay;
 using Microsoft.Xna.Framework;
 
@@ -11,9 +12,10 @@ namespace GameLoop.Scenes.Pause;
 internal class PauseInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
+    KeyBindingsSettings bindings,
     PauseUi ui)
 {
-    private readonly PauseActionInput _actions = new(inputState);
+    private readonly PauseActionInput _actions = new(inputState, bindings);
 
     private readonly Action _onResume = globalCommands.ResumeGame;
 
