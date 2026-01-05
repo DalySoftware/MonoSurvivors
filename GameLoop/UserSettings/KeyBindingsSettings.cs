@@ -5,9 +5,10 @@ namespace GameLoop.UserSettings;
 
 public sealed class KeyBindingsSettings : IMergeable<KeyBindingsSettings>
 {
-    public ActionKeyMap<GameplayAction> GameplayActions { get; set; } = Defaults.Gameplay;
-    public ActionKeyMap<PauseAction> PauseMenuActions { get; set; } = Defaults.PauseMenu;
-    public ActionKeyMap<SphereGridAction> SphereGridActions { get; set; } = Defaults.SphereGrid;
+    internal ActionKeyMap<GameplayAction> GameplayActions { get; } = Defaults.Gameplay;
+    internal ActionKeyMap<PauseAction> PauseMenuActions { get; } = Defaults.PauseMenu;
+    internal ActionKeyMap<SphereGridAction> SphereGridActions { get; } = Defaults.SphereGrid;
+    internal ActionKeyMap<SingleActionSceneAction> SingleActionScenes { get; } = Defaults.SingleActionScenes;
 
     public void MergeFrom(KeyBindingsSettings overrides)
     {

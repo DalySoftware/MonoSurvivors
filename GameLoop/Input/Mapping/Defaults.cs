@@ -3,9 +3,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Input.Mapping;
 
-public static class Defaults
+internal static class Defaults
 {
-    public static ActionKeyMap<GameplayAction> Gameplay { get; } = new()
+    internal static ActionKeyMap<GameplayAction> Gameplay { get; } = new()
     {
         Gamepad = new Dictionary<GameplayAction, List<Buttons>>
         {
@@ -27,7 +27,7 @@ public static class Defaults
         },
     };
 
-    public static ActionKeyMap<PauseAction> PauseMenu { get; } = new()
+    internal static ActionKeyMap<PauseAction> PauseMenu { get; } = new()
     {
         Gamepad = new Dictionary<PauseAction, List<Buttons>>
         {
@@ -44,7 +44,7 @@ public static class Defaults
         },
     };
 
-    public static ActionKeyMap<SphereGridAction> SphereGrid { get; } = new()
+    internal static ActionKeyMap<SphereGridAction> SphereGrid { get; } = new()
     {
         Gamepad = new Dictionary<SphereGridAction, List<Buttons>>
         {
@@ -59,6 +59,20 @@ public static class Defaults
         {
             [SphereGridAction.Close] = [Keys.Escape, Keys.Space, Keys.Tab],
             [SphereGridAction.ResetCamera] = [Keys.T],
+        },
+    };
+
+    internal static ActionKeyMap<SingleActionSceneAction> SingleActionScenes { get; } = new()
+    {
+        Gamepad = new Dictionary<SingleActionSceneAction, List<Buttons>>
+        {
+            [SingleActionSceneAction.PrimaryAction] = [Buttons.A, Buttons.Start],
+            [SingleActionSceneAction.Exit] = [Buttons.B, Buttons.Back],
+        },
+        Keyboard = new Dictionary<SingleActionSceneAction, List<Keys>>
+        {
+            [SingleActionSceneAction.PrimaryAction] = [Keys.Enter, Keys.Space],
+            [SingleActionSceneAction.Exit] = [Keys.Escape, Keys.Q],
         },
     };
 }

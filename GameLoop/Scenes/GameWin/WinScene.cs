@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using ContentLibrary;
 using GameLoop.Input;
+using GameLoop.Persistence;
 using Gameplay;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
@@ -67,8 +68,10 @@ internal class WinScene(
 
 internal sealed class WinSceneInputManager(
     IGlobalCommands globalCommands,
-    GameInputState inputState)
+    GameInputState inputState,
+    ISettingsPersistence settingsPersistence)
     : SingleActionSceneInputManager(
         globalCommands,
         inputState,
+        settingsPersistence,
         globalCommands.StartGame);

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameLoop.Input;
 
-public enum GameplayAction
+internal enum GameplayAction
 {
     Pause,
     OpenSphereGrid,

@@ -1,9 +1,11 @@
 ﻿using GameLoop.Input;
+using GameLoop.Persistence;
 using Gameplay;
 
 namespace GameLoop.Scenes.Title;
 
 internal class TitleInputManager(
     IGlobalCommands globalCommands,
-    GameInputState inputState)
-    : SingleActionSceneInputManager(globalCommands, inputState, globalCommands.StartGame);
+    GameInputState inputState,
+    ISettingsPersistence settingsPersistence)
+    : SingleActionSceneInputManager(globalCommands, inputState, settingsPersistence, globalCommands.StartGame);

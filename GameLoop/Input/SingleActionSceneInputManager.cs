@@ -1,4 +1,5 @@
 ﻿using System;
+using GameLoop.Persistence;
 using Gameplay;
 
 namespace GameLoop.Input;
@@ -6,9 +7,12 @@ namespace GameLoop.Input;
 internal class SingleActionSceneInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
+    ISettingsPersistence settingsPersistence,
     Action primaryAction)
 {
-    private readonly SingleActionSceneActionInput _actions = new(inputState);
+    private readonly SingleActionSceneActionInput _actions =
+        new(inputState,
+            settingsPersistence.Load(PersistenceJsonContext.Default.KeyBindingsSettings).SingleActionScenes);
 
     internal void Update()
     {

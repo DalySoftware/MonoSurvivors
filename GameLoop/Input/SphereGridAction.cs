@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameLoop.Input;
 
-public enum SphereGridAction
+internal enum SphereGridAction
 {
     Close,
     UnlockHovered,
