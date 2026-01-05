@@ -67,9 +67,7 @@ public sealed class Button : IUiElement
     internal void ReleaseVisual() => _isPressedVisual = false;
     internal void Activate() => _onClick();
 
-    public sealed class Factory(
-        ContentManager content,
-        PrimitiveRenderer primitiveRenderer)
+    internal sealed class Factory(ContentManager content, Panel.Factory panelFactory)
     {
         private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
 
@@ -77,7 +75,7 @@ public sealed class Button : IUiElement
         {
             var size = Measure(text, rounded);
             var interior = new UiRectangle(origin, size, anchor);
-            var panel = new Panel.Factory(content, primitiveRenderer).DefineByInterior(interior);
+            var panel = panelFactory.DefineByInterior(interior);
             var button = new Button(content, panel, text, onClick);
             return button;
         }

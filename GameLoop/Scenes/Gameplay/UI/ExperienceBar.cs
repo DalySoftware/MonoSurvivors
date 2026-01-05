@@ -18,7 +18,8 @@ internal sealed class ExperienceBarFactory(
     PrimitiveRenderer primitiveRenderer,
     LevelManager levelManager,
     SphereGrid sphereGrid,
-    GameInputState inputState)
+    GameInputState inputState,
+    Panel.Factory panelFactory)
 {
     internal ExperienceBar Create()
     {
@@ -35,7 +36,6 @@ internal sealed class ExperienceBarFactory(
             .UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.BottomCenter, barSize, new Vector2(0f, -padding));
 
-        var panelFactory = new Panel.Factory(content, primitiveRenderer);
         var barPanel = panelFactory.DefineByExterior(barRect);
 
         var progressBar = new PanelProgressBar(

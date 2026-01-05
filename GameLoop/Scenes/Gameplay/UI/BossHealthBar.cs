@@ -15,7 +15,8 @@ internal sealed class BossHealthBarFactory(
     ContentManager content,
     Viewport viewport,
     PrimitiveRenderer primitiveRenderer,
-    EnemySpawner enemySpawner)
+    EnemySpawner enemySpawner,
+    Panel.Factory panelFactory)
 {
     internal BossHealthBar Create()
     {
@@ -32,7 +33,7 @@ internal sealed class BossHealthBarFactory(
             .UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.TopCenter, panelSize, new Vector2(0f, topPadding));
 
-        var panel = new Panel.Factory(content, primitiveRenderer).DefineByExterior(panelRect, Layers.Ui + 0.05f);
+        var panel = panelFactory.DefineByExterior(panelRect, Layers.Ui + 0.05f);
 
         var progressBar = new PanelProgressBar(
             panel,
