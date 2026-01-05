@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using GameLoop.Scenes;
-using GameLoop.Scenes.Title;
 using Gameplay;
 using Microsoft.Xna.Framework;
 
@@ -20,9 +19,7 @@ public sealed class GameContainer
         builder.RegisterInstance(game.Window)
             .SingleInstance();
 
-        builder.RegisterType<SceneManager>()
-            .WithParameter((pi, _) => pi.Name == "initial", (_, ctx) => ctx.Resolve<TitleScene>())
-            .SingleInstance();
+        builder.RegisterType<SceneManager>().SingleInstance();
 
         builder.ConfigureOptions();
 
