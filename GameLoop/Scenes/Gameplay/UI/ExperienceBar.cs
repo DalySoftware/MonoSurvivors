@@ -100,7 +100,7 @@ internal class ExperienceBar(
         // Draw feedback text if applicable
         if (!_provideFeedbackToSpendPoints) return;
 
-        var button = inputState.CurrentInputMethod is InputMethod.KeyboardMouse ? "SPACE" : "[Back]";
+        var button = inputState.CurrentInputMethod is InputMethod.KeyboardMouse ? "SPACE" : "[Y]";
         var spendPrompt = $"Press {button} to spend your points!";
         var textSize = font.MeasureString(spendPrompt);
 

@@ -13,7 +13,7 @@ internal static class Defaults
             [GameplayAction.MoveLeft] = [Buttons.DPadLeft],
             [GameplayAction.MoveRight] = [Buttons.DPadRight],
             [GameplayAction.MoveUp] = [Buttons.DPadUp],
-            [GameplayAction.OpenSphereGrid] = [Buttons.Back],
+            [GameplayAction.OpenSphereGrid] = [Buttons.Y, Buttons.Back],
             [GameplayAction.Pause] = [Buttons.Start],
         },
         Keyboard = new Dictionary<GameplayAction, List<Keys>>
