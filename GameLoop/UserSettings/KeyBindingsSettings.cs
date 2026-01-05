@@ -14,5 +14,7 @@ public sealed class KeyBindingsSettings : IMergeable<KeyBindingsSettings>
     {
         GameplayActions.MergeFrom(overrides.GameplayActions);
         PauseMenuActions.MergeFrom(overrides.PauseMenuActions);
+        SphereGridActions.MergeFrom(overrides.SphereGridActions);
+        SingleActionScenes.MergeFrom(overrides.SingleActionScenes);
     }
 }
