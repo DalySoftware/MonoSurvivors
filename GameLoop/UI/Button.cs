@@ -72,8 +72,7 @@ internal sealed class Button : IUiElement
         PrimitiveRenderer primitiveRenderer,
         string text,
         Action onClick,
-        bool rounded = false,
-        Action<Button>? capture = null)
+        bool rounded = false)
     {
         private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Medium);
 
@@ -83,11 +82,10 @@ internal sealed class Button : IUiElement
             var interior = new UiRectangle(origin, size, anchor);
             var panel = new Panel.Factory(content, primitiveRenderer).DefineByInterior(interior);
             var button = new Button(content, panel, text, onClick);
-            capture?.Invoke(button);
             return button;
         }
 
-        public Vector2 Measure()
+        private Vector2 Measure()
         {
             var textSize = _font.MeasureString(text);
             var naive = new Vector2(textSize.X, textSize.Y);
