@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using ContentLibrary;
 using GameLoop.UI;
-using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,7 +18,7 @@ public class VolumeControl : IUiElement
 
     private VolumeControl(
         ContentManager content,
-        PrimitiveRenderer primitiveRenderer,
+        Button.Factory buttonFactory,
         Vector2 center,
         string label,
         Func<float> getValue,
@@ -52,8 +51,7 @@ public class VolumeControl : IUiElement
             var controlsStack = new HorizontalStack(pos, 10);
 
             decreaseButton = controlsStack.AddChild(p =>
-                new Button.Factory(content, primitiveRenderer)
-                    .Create("-", DecreaseVolume, p, UiAnchor.CenterLeft, true));
+                buttonFactory.Create("-", DecreaseVolume, p, UiAnchor.CenterLeft, true));
 
             valueLabel = controlsStack.AddChild(p =>
                 new Label.Factory(content, Paths.Fonts.BoldPixels.Medium, GetValueText(),
@@ -63,8 +61,7 @@ public class VolumeControl : IUiElement
                     .Create(p, UiAnchor.CenterLeft));
 
             increaseButton = controlsStack.AddChild(p =>
-                new Button.Factory(content, primitiveRenderer)
-                    .Create("+", IncreaseVolume, p, UiAnchor.CenterLeft, true));
+                buttonFactory.Create("+", IncreaseVolume, p, UiAnchor.CenterLeft, true));
 
             return controlsStack;
         });
@@ -109,16 +106,16 @@ public class VolumeControl : IUiElement
 
     private string GetValueText() => $"{(int)(_getValue() * 100)}%";
 
-    public sealed class Factory(
+    internal sealed class Factory(
         ContentManager content,
-        PrimitiveRenderer primitiveRenderer,
+        Button.Factory buttonFactory,
         string label,
         Func<float> getValue,
         Action<float> setValue)
     {
         public VolumeControl Create(Vector2 center) => new(
             content,
-            primitiveRenderer,
+            buttonFactory,
             center,
             label,
             getValue,

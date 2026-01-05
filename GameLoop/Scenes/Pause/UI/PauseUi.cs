@@ -34,7 +34,8 @@ internal sealed class PauseUi : IUiElement, IDisposable
         ContentManager content,
         PrimitiveRenderer primitiveRenderer,
         ISettingsPersistence settingsPersistence,
-        IGlobalCommands globalCommands)
+        IGlobalCommands globalCommands,
+        Button.Factory buttonFactory)
     {
         _spriteBatch = spriteBatch;
         _primitiveRenderer = primitiveRenderer;
@@ -63,7 +64,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
             _volumeControls.Add(volumeStack.AddChild(p =>
                 new VolumeControl.Factory(
                         content,
-                        primitiveRenderer,
+                        buttonFactory,
                         "Master Volume",
                         () => _audioSettings.MasterVolume,
                         SetMasterVolume)
@@ -72,7 +73,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
             _volumeControls.Add(volumeStack.AddChild(p =>
                 new VolumeControl.Factory(
                         content,
-                        primitiveRenderer,
+                        buttonFactory,
                         "Music Volume",
                         () => _audioSettings.MusicVolume,
                         SetMusicVolume)
@@ -81,7 +82,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
             _volumeControls.Add(volumeStack.AddChild(p =>
                 new VolumeControl.Factory(
                         content,
-                        primitiveRenderer,
+                        buttonFactory,
                         "Sound FX Volume",
                         () => _audioSettings.SoundEffectVolume,
                         SetSoundEffectVolume)
@@ -97,16 +98,14 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
             menuButtonStack.AddChild(p =>
             {
-                var button = new Button.Factory(content, primitiveRenderer)
-                    .Create("Resume", globalCommands.ResumeGame, p, UiAnchor.TopCenter);
+                var button = buttonFactory.Create("Resume", globalCommands.ResumeGame, p, UiAnchor.TopCenter);
                 _menuButtons.Add(button);
                 return button;
             });
 
             menuButtonStack.AddChild(p =>
             {
-                var button = new Button.Factory(content, primitiveRenderer)
-                    .Create("Exit to Title", globalCommands.ReturnToTitle, p, UiAnchor.TopCenter);
+                var button = buttonFactory.Create("Exit to Title", globalCommands.ReturnToTitle, p, UiAnchor.TopCenter);
                 _menuButtons.Add(button);
                 return button;
             });

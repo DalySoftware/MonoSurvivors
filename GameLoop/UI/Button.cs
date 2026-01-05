@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.UI;
 
-internal sealed class Button : IUiElement
+public sealed class Button : IUiElement
 {
     private readonly Panel _panel;
     private readonly SpriteFont _font;

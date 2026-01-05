@@ -138,6 +138,7 @@ public class CoreGame : Game, IGlobalCommands
 
             builder.RegisterType<PrimitiveRenderer>().SingleInstance();
             builder.RegisterType<Panel.Factory>().SingleInstance();
+            builder.RegisterType<Button.Factory>().SingleInstance();
             builder.RegisterType<ToolTipRenderer>().SingleInstance();
             builder.RegisterType<MusicPlayer>().SingleInstance();
 
