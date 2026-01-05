@@ -11,7 +11,8 @@ namespace Gameplay.Combat.Weapons.OnHitEffects;
 public sealed class ChainLightningOnHit(
     IEntityFinder entityFinder,
     ISpawnEntity spawnEntity,
-    IAudioPlayer audio)
+    IAudioPlayer audio,
+    CritCalculator critCalculator)
     : IOnHitEffect
 {
     private const float DamageFalloff = 0.6f;
@@ -30,7 +31,7 @@ public sealed class ChainLightningOnHit(
 
         var hitEnemies = new HashSet<EnemyBase> { context.Enemy };
         var currentEnemy = context.Enemy;
-        var damage = CritCalculator.CalculateCrit(BaseDamage * stats.DamageMultiplier, stats);
+        var damage = critCalculator.CalculateCrit(BaseDamage * stats.DamageMultiplier, stats);
 
         while (remainingChains-- > 0)
         {

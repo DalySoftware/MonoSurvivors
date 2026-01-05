@@ -96,4 +96,11 @@ internal class SoundEffectContent(ContentManager content)
     [
         content.Load<SoundEffect>(Paths.SoundEffects.UnlockNode),
     ];
+
+    public SoundEffect[] Crit { get; } =
+    [
+        content.Load<SoundEffect>(Paths.SoundEffects.Crit1),
+        content.Load<SoundEffect>(Paths.SoundEffects.Crit2),
+        content.Load<SoundEffect>(Paths.SoundEffects.Crit3),
+    ];
 }

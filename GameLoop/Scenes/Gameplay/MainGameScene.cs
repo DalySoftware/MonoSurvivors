@@ -111,6 +111,7 @@ internal class MainGameScene(
         builder.RegisterType<ScreenPositioner>().WithParameter(new NamedParameter("buffer", 0.3f));
         builder.RegisterType<EnemyFactory>();
         builder.RegisterType<EnemySpawner>().SingleInstance();
+        builder.RegisterType<CritCalculator>().SingleInstance();
 
         builder.RegisterInstance(new LevelCalculator(4, 1.4f));
         builder.RegisterType<LevelManager>().SingleInstance();

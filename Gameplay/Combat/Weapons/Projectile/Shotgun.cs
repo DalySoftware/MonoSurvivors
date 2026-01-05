@@ -12,7 +12,8 @@ public class Shotgun(
     ISpawnEntity spawnEntity,
     IEntityFinder entityFinder,
     IAudioPlayer audio,
-    BulletPool pool)
+    BulletPool pool,
+    CritCalculator critCalculator)
     : GunBase(owner.WeaponBelt.Stats)
 {
     private readonly static KnockbackOnHit KnockbackOnHit = new(0.15f);
@@ -25,7 +26,7 @@ public class Shotgun(
 
         const float bulletSpeed = 1f;
         var baseDamage = 1f * Stats.DamageMultiplier;
-        var damage = CritCalculator.CalculateCrit(baseDamage, Stats);
+        var damage = critCalculator.CalculateCrit(baseDamage, Stats);
         var range = 300f * Stats.RangeMultiplier;
 
         var targetDirection = target.Position - owner.Position;
@@ -33,7 +34,7 @@ public class Shotgun(
         {
             var velocity = direction * bulletSpeed * owner.WeaponBelt.Stats.ProjectileSpeedMultiplier;
             var bullet = pool.Get(owner, owner.Position, velocity, damage, range, Stats.Pierce,
-                onHits: [KnockbackOnHit, ..owner.WeaponBelt.OnHitEffects]);
+                [KnockbackOnHit, ..owner.WeaponBelt.OnHitEffects]);
             spawnEntity.Spawn(bullet);
         }
 

@@ -581,6 +581,24 @@
 /processorParam:Quality=Best
 /build:SoundEffects/BouncerShoot3.wav
 
+#begin SoundEffects/Crit1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Crit1.wav
+
+#begin SoundEffects/Crit2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Crit2.wav
+
+#begin SoundEffects/Crit3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Crit3.wav
+
 #begin SoundEffects/EnemyDeath1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

@@ -10,7 +10,8 @@ public class BasicGun(
     ISpawnEntity spawnEntity,
     IEntityFinder entityFinder,
     IAudioPlayer audio,
-    BulletPool pool)
+    BulletPool pool,
+    CritCalculator critCalculator)
     : GunBase(owner.WeaponBelt.Stats)
 {
     protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(.9);
@@ -21,7 +22,7 @@ public class BasicGun(
 
         const float bulletSpeed = 1f;
         var baseDamage = 8f * Stats.DamageMultiplier;
-        var damage = CritCalculator.CalculateCrit(baseDamage, Stats);
+        var damage = critCalculator.CalculateCrit(baseDamage, Stats);
         var range = 300f * Stats.RangeMultiplier;
 
         var bullet = pool.Get(owner, owner.Position, target.Position, bulletSpeed * Stats.SpeedMultiplier, damage,

@@ -139,6 +139,10 @@ public static class Paths
         public const string PlayerHurt3 = @"SoundEffects\PlayerHurt3";
 
         public const string UnlockNode = @"SoundEffects\UnlockNode";
+
+        public const string Crit1 = @"SoundEffects\Crit1";
+        public const string Crit2 = @"SoundEffects\Crit2";
+        public const string Crit3 = @"SoundEffects\Crit3";
     }
 
     public static class ShaderEffects

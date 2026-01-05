@@ -11,7 +11,8 @@ public class BouncingGun(
     ISpawnEntity spawnEntity,
     IEntityFinder entityFinder,
     IAudioPlayer audio,
-    BulletPool pool)
+    BulletPool pool,
+    CritCalculator critCalculator)
     : GunBase(owner.WeaponBelt.Stats)
 {
     private readonly static BounceOnHit BounceOnHit = new();
@@ -24,7 +25,7 @@ public class BouncingGun(
 
         const float bulletSpeed = 0.6f;
         var baseDamage = 4f * Stats.DamageMultiplier;
-        var damage = CritCalculator.CalculateCrit(baseDamage, Stats);
+        var damage = critCalculator.CalculateCrit(baseDamage, Stats);
         var range = 600f * Stats.RangeMultiplier;
 
         var bullet = pool.Get(owner, owner.Position, target.Position, bulletSpeed * Stats.SpeedMultiplier, damage,

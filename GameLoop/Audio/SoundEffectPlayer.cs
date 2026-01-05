@@ -74,6 +74,7 @@ public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
         SoundEffectTypes.Lightning => _effects.Lightning,
         SoundEffectTypes.IceAura => _effects.IceDamage,
         SoundEffectTypes.UnlockNode => _effects.UnlockNode,
+        SoundEffectTypes.Crit => _effects.Crit,
         _ => throw new ArgumentOutOfRangeException(nameof(effectType)),
     };
 }
@@ -91,6 +92,9 @@ internal static class Extensions
         {
             case SoundEffectTypes.IceAura or SoundEffectTypes.LevelUp:
                 effect.Play(volume * 0.7f, 0f, 0f);
+                break;
+            case SoundEffectTypes.Crit:
+                effect.Play(volume * 0.5f, 0f, 0f);
                 break;
             case SoundEffectTypes.ExperiencePickup or SoundEffectTypes.EnemyExplode:
                 effect.Play(volume * 0.2f, 0f, 0f);

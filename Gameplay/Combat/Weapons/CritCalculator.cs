@@ -1,13 +1,14 @@
 ﻿using System;
+using Gameplay.Audio;
 
 namespace Gameplay.Combat.Weapons;
 
-internal static class CritCalculator
+public class CritCalculator(IAudioPlayer audio)
 {
     internal const float BaseCritDamageMultiplier = 2f;
     private readonly static Random Random = new();
 
-    internal static float CalculateCrit(
+    internal float CalculateCrit(
         float baseDamage,
         WeaponBeltStats stats,
         float critChanceMultiplier = 1f)
@@ -29,6 +30,7 @@ internal static class CritCalculator
 
         var finalMultiplier = 1f + totalCrits * bonusPerCrit;
 
+        audio.Play(SoundEffectTypes.Crit);
         return baseDamage * finalMultiplier;
     }
 }
