@@ -41,11 +41,19 @@ internal static class ServiceConfiguration
 
         internal void ConfigureOptions()
         {
-            builder.RegisterType<AppDataPersistence>().As<ISettingsPersistence>().SingleInstance();
-            builder.Register<AudioSettings>(ctx =>
-                ctx.Resolve<ISettingsPersistence>().Load(PersistenceJsonContext.Default.AudioSettings));
-            builder.Register<KeyBindingsSettings>(ctx =>
-                ctx.Resolve<ISettingsPersistence>().Load(PersistenceJsonContext.Default.KeyBindingsSettings));
+            builder.RegisterType<AppDataPersistence>()
+                .As<ISettingsPersistence>()
+                .SingleInstance();
+
+            builder.RegisterDecorator<MergingSettingsPersistence, ISettingsPersistence>();
+
+            builder.Register(ctx =>
+                ctx.Resolve<ISettingsPersistence>()
+                    .Load(PersistenceJsonContext.Default.AudioSettings));
+
+            builder.Register(ctx =>
+                ctx.Resolve<ISettingsPersistence>()
+                    .Load(PersistenceJsonContext.Default.KeyBindingsSettings));
         }
     }
 }

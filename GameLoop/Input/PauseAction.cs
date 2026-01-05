@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using GameLoop.Input.Mapping;
 using GameLoop.UI;
 using GameLoop.UserSettings;
 using Microsoft.Xna.Framework;
@@ -19,17 +17,10 @@ public enum PauseAction
 }
 
 internal sealed class PauseActionInput(GameInputState state, KeyBindingsSettings bindings)
+    : ActionInputBase<PauseAction>(state, bindings.PauseMenuActions)
 {
     private readonly TimeSpan _navCooldown = TimeSpan.FromMilliseconds(150);
     private TimeSpan _currentNavCooldown = TimeSpan.Zero;
-
-    private ActionKeyMap<PauseAction> Map => bindings.PauseMenuActions;
-
-    public bool WasPressed(PauseAction action) =>
-        Map.GetKeys(action).Any(IsPressed) || Map.GetButtons(action).Any(IsPressed);
-
-    public bool IsDown(PauseAction action) => Map.GetKeys(action).Any(k => state.KeyboardState.IsKeyDown(k)) ||
-                                              Map.GetButtons(action).Any(b => state.GamePadState.IsButtonDown(b));
 
     public Direction? GetNavigationDirection(GameTime gameTime)
     {
@@ -37,9 +28,9 @@ internal sealed class PauseActionInput(GameInputState state, KeyBindingsSettings
         if (_currentNavCooldown > TimeSpan.Zero)
             return null;
 
-        var stick = state.GamePadState.ThumbSticks.Left;
-
+        var stick = State.GamePadState.ThumbSticks.Left;
         const float deadzone = 0.2f;
+
         stick.X = MathF.Abs(stick.X) >= deadzone ? stick.X : 0f;
         stick.Y = MathF.Abs(stick.Y) >= deadzone ? stick.Y : 0f;
 
@@ -64,25 +55,19 @@ internal sealed class PauseActionInput(GameInputState state, KeyBindingsSettings
         return direction;
     }
 
-    private bool IsPressed(Keys key) =>
-        state.KeyboardState.IsKeyDown(key) && state.PreviousKeyboardState.IsKeyUp(key);
-
-    private bool IsPressed(Buttons button) =>
-        state.GamePadState.IsButtonDown(button) && state.PreviousGamePadState.IsButtonUp(button);
-
     public bool WasLeftMousePressedThisFrame() =>
-        state.MouseState.LeftButton == ButtonState.Pressed &&
-        state.PreviousMouseState.LeftButton == ButtonState.Released;
+        State.MouseState.LeftButton == ButtonState.Pressed &&
+        State.PreviousMouseState.LeftButton == ButtonState.Released;
 
     public bool WasLeftMouseReleasedThisFrame() =>
-        state.MouseState.LeftButton == ButtonState.Released &&
-        state.PreviousMouseState.LeftButton == ButtonState.Pressed;
+        State.MouseState.LeftButton == ButtonState.Released &&
+        State.PreviousMouseState.LeftButton == ButtonState.Pressed;
 
     public Vector2? GetPointerPosition()
     {
-        if (state.CurrentInputMethod != InputMethod.KeyboardMouse)
+        if (State.CurrentInputMethod != InputMethod.KeyboardMouse)
             return null;
 
-        return state.MouseState.Position.ToVector2();
+        return State.MouseState.Position.ToVector2();
     }
 }
