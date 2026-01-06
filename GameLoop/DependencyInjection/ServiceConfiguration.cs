@@ -1,6 +1,5 @@
 using Autofac;
 using GameLoop.Persistence;
-using GameLoop.UserSettings;
 
 namespace GameLoop.DependencyInjection;
 
@@ -13,8 +12,6 @@ internal static class ServiceConfiguration
             builder.RegisterType<AppDataPersistence>()
                 .As<ISettingsPersistence>()
                 .SingleInstance();
-
-            builder.RegisterDecorator<MergingSettingsPersistence, ISettingsPersistence>();
 
             builder.Register(ctx =>
                 ctx.Resolve<ISettingsPersistence>()
