@@ -38,7 +38,7 @@ internal class GameplayInputManager(
 #if DEBUG
         if (inputState.KeyboardState.IsKeyDown(Keys.LeftControl) &&
             inputState.KeyboardState.IsKeyDown(Keys.OemPlus) &&
-            inputState.PreviousKeyboardState.IsKeyDown(Keys.OemPlus))
+            inputState.PreviousKeyboardState.IsKeyUp(Keys.OemPlus))
             DebugActions.GrantExperience(player);
 
         if (inputState.KeyboardState.IsKeyDown(Keys.LeftControl) &&
