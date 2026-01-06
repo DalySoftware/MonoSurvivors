@@ -31,7 +31,9 @@ public sealed class ChainLightningOnHit(
 
         var hitEnemies = new HashSet<EnemyBase> { context.Enemy };
         var currentEnemy = context.Enemy;
-        var damage = critCalculator.CalculateCritDamage(BaseDamage * stats.DamageMultiplier, stats);
+
+        // Damage doesn't crit, proc count does
+        var damage = BaseDamage * stats.DamageMultiplier;
 
         while (remainingChains-- > 0)
         {
@@ -55,7 +57,7 @@ public sealed class ChainLightningOnHit(
         }
     }
 
-    private static int CalculateNumberOfProcs(WeaponBeltStats stats)
+    private int CalculateNumberOfProcs(WeaponBeltStats stats)
     {
         var chance = MathF.Max(0f, stats.ChainLightningChance);
 
@@ -63,8 +65,15 @@ public sealed class ChainLightningOnHit(
 
         var fractionalChance = chance - guaranteedProcs;
         var extraFromFraction = Random.Shared.NextSingle() < fractionalChance ? 1 : 0;
-        var procs = guaranteedProcs + extraFromFraction;
-        return procs;
+        var baseProcs = guaranteedProcs + extraFromFraction;
+
+        if (baseProcs == 0)
+            return 0;
+
+        var crits = critCalculator.CalculateCrits(stats);
+
+        // Each crit adds +100% more chains
+        return baseProcs * (1 + crits);
     }
 
     private void SpawnVisual(Vector2 from, Vector2 to) => spawnEntity.Spawn(new LightningArc(from, to));
