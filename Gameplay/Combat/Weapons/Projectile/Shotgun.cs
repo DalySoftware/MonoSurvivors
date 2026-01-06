@@ -26,7 +26,7 @@ public class Shotgun(
 
         const float bulletSpeed = 1f;
         var baseDamage = 1f * Stats.DamageMultiplier;
-        var damage = critCalculator.CalculateCrit(baseDamage, Stats);
+        var damage = critCalculator.CalculateCritDamage(baseDamage, Stats);
         var range = 300f * Stats.RangeMultiplier;
 
         var targetDirection = target.Position - owner.Position;

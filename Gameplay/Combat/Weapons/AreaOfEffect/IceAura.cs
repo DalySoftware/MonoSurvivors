@@ -55,7 +55,7 @@ public class IceAura(
 
     private void DealDamage(GameTime gameTime)
     {
-        var damage = critCalculator.CalculateCrit(BaseDamage, Stats) * Stats.DamageMultiplier;
+        var damage = critCalculator.CalculateCritDamage(BaseDamage, Stats) * Stats.DamageMultiplier;
         var nearby = entityFinder.EnemiesCloseTo(owner.Position, Range * 1.5f);
 
         foreach (var enemy in nearby.Where(e => e.Colliders.Any(c => CollisionChecker.HasOverlap(c, _collider))))

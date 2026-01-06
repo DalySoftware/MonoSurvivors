@@ -16,7 +16,7 @@ public class EnemyDeathBlast(
     public void Explode(PlayerCharacter owner, Vector2 position, int bullets, float damageMultiplier)
     {
         var bulletDirections = ArcSpreader.EvenlySpace(ArcSpreader.RandomDirection(), bullets, MathF.Tau);
-        var damage = critCalculator.CalculateCrit(BaseDamage * damageMultiplier, owner.WeaponBelt.Stats);
+        var damage = critCalculator.CalculateCritDamage(BaseDamage * damageMultiplier, owner.WeaponBelt.Stats);
         var range = 100f * owner.WeaponBelt.Stats.RangeMultiplier;
 
         foreach (var direction in bulletDirections)
