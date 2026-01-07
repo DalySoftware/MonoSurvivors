@@ -1,6 +1,5 @@
-﻿using ContentLibrary;
-using GameLoop.Input;
-using Gameplay.Rendering;
+﻿using GameLoop.Input;
+using GameLoop.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,48 +7,46 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameLoop.Scenes.Title;
 
-internal class TitleScene(
-    SpriteBatch spriteBatch,
-    ContentManager content,
-    TitleInputManager input,
-    InputGate inputGate)
-    : IScene
+internal class TitleScene : IScene
 {
-    private readonly SpriteFont _titleFont = content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
+    private readonly SpriteBatch _spriteBatch;
+    private readonly TitleInputManager _input;
+    private readonly InputGate _inputGate;
+    private readonly VerticalStack _stack;
+    public TitleScene(SpriteBatch spriteBatch,
+        ContentManager content,
+        TitleInputManager input,
+        InputGate inputGate)
+    {
+        _spriteBatch = spriteBatch;
+        _input = input;
+        _inputGate = inputGate;
+
+        var topCentre = _spriteBatch
+            .GraphicsDevice
+            .Viewport
+            .UiRectangle()
+            .AnchorForPoint(UiAnchor.TopCenter);
+
+        _stack = new VerticalStack(topCentre + new Vector2(0f, 100f), 100f);
+
+        var titleFactory = new Title.Factory(content);
+        _stack.AddChild(position => titleFactory.Create(position));
+    }
 
     public void Update(GameTime gameTime)
     {
-        if (inputGate.ShouldProcessInput())
-            input.Update();
+        if (_inputGate.ShouldProcessInput())
+            _input.Update();
     }
 
     public void Draw(GameTime gameTime)
     {
-        spriteBatch.Begin(SpriteSortMode.FrontToBack);
+        _spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
-        var windowCentre = spriteBatch.GraphicsDevice.Viewport.Bounds.Center.ToVector2();
-        var shadowOffset = new Vector2(5f, 5f);
+        _stack.Draw(_spriteBatch);
 
-        const float shadow = 0.4f;
-        const float front = 0.6f;
-
-        const string line1 = "Mono";
-        var line1Centre = _titleFont.MeasureString(line1) / 2;
-        var line1Position = windowCentre + new Vector2(0f, -75f);
-        spriteBatch.DrawString(_titleFont, line1, line1Position + shadowOffset, Color.DimGray,
-            origin: line1Centre, layerDepth: shadow);
-        spriteBatch.DrawString(_titleFont, line1, line1Position, Color.DarkOrange, origin: line1Centre,
-            layerDepth: front);
-
-        const string line2 = "Survivors";
-        var line2Centre = _titleFont.MeasureString(line2) / 2;
-        var line2Position = windowCentre + new Vector2(0f, 75f);
-        spriteBatch.DrawString(_titleFont, line2, line2Position + shadowOffset, Color.DimGray,
-            origin: line2Centre, layerDepth: shadow);
-        spriteBatch.DrawString(_titleFont, line2, line2Position, Color.DarkOrange, origin: line2Centre,
-            layerDepth: front);
-
-        spriteBatch.End();
+        _spriteBatch.End();
     }
 
     public void Dispose() { }
