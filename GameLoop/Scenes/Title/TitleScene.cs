@@ -1,7 +1,7 @@
-﻿using GameLoop.Input;
+﻿using Autofac;
+using GameLoop.Input;
 using GameLoop.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -14,9 +14,10 @@ internal class TitleScene : IScene
     private readonly InputGate _inputGate;
     private readonly VerticalStack _stack;
     public TitleScene(SpriteBatch spriteBatch,
-        ContentManager content,
         TitleInputManager input,
-        InputGate inputGate)
+        InputGate inputGate,
+        Title.Factory titleFactory,
+        HelpText.Factory helpTextFactory)
     {
         _spriteBatch = spriteBatch;
         _input = input;
@@ -30,8 +31,8 @@ internal class TitleScene : IScene
 
         _stack = new VerticalStack(topCentre + new Vector2(0f, 100f), 100f);
 
-        var titleFactory = new Title.Factory(content);
-        _stack.AddChild(position => titleFactory.Create(position));
+        _stack.AddChild(titleFactory.Create);
+        _stack.AddChild(helpTextFactory.Create);
     }
 
     public void Update(GameTime gameTime)
@@ -50,4 +51,10 @@ internal class TitleScene : IScene
     }
 
     public void Dispose() { }
+
+    internal static void ConfigureServices(ContainerBuilder builder)
+    {
+        builder.RegisterType<Title.Factory>();
+        builder.RegisterType<HelpText.Factory>();
+    }
 }

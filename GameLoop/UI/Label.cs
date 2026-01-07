@@ -101,6 +101,19 @@ internal sealed class Label : IUiElement
 
             return new Label(font, origin, anchor, text, labelColor, alignment, templateString, layerDepth);
         }
+
+        public Vector2 Measure(string fontPath, string text, string templateString = "")
+        {
+            var font = content.Load<SpriteFont>(fontPath);
+
+            var size = font.MeasureString(text);
+
+            if (string.IsNullOrEmpty(templateString)) return size;
+
+            var templateWidth = font.MeasureString(templateString).X;
+            size.X = MathF.Max(size.X, templateWidth);
+            return size;
+        }
     }
 }
 

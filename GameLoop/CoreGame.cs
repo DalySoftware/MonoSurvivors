@@ -147,6 +147,7 @@ public class CoreGame : Game, IGlobalCommands
 
             builder.RegisterType<TitleInputManager>().SingleInstance();
             builder.RegisterType<TitleScene>().InstancePerDependency();
+            TitleScene.ConfigureServices(builder);
 
             builder.RegisterType<GameInputState>().SingleInstance();
             builder.RegisterType<InputStateManager>().SingleInstance();
