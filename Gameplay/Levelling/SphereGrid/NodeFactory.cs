@@ -79,6 +79,7 @@ internal static class NodeFactory
     internal static Node IceAuraUnlock(NodeRarity rarity) => new(new WeaponUnlock<IceAura>(), rarity);
     internal static Node ShotgunUnlock(NodeRarity rarity) => new(new WeaponUnlock<Shotgun>(), rarity);
     internal static Node SniperRifleUnlock(NodeRarity rarity) => new(new WeaponUnlock<SniperRifle>(), rarity);
+    internal static Node BasicGunUnlock(NodeRarity rarity) => new(new WeaponUnlock<BasicGun>(), rarity);
 
     public record Scaling(int Cost, int ScaleFactor);
 }

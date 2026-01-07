@@ -53,6 +53,7 @@ public static class PowerUpCatalog
         new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<SniperRifle>), NodeFactory.SniperRifleUnlock),
         new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<IceAura>), NodeFactory.IceAuraUnlock),
         new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<BouncingGun>), NodeFactory.BouncingGunUnlock),
+        new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<BasicGun>), NodeFactory.BasicGunUnlock),
     ];
 
     internal static Dictionary<Type, PowerUpCategory> Categories { get; } =
@@ -85,6 +86,7 @@ public static class PowerUpCatalog
             WeaponUnlock<SniperRifle> => "Sniper Rifle",
             WeaponUnlock<BouncingGun> => "Bouncer",
             WeaponUnlock<IceAura> => "Ice Aura",
+            WeaponUnlock<BasicGun> => "Enforcer",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
 
@@ -117,6 +119,7 @@ public static class PowerUpCatalog
             WeaponUnlock<BouncingGun> => "Unlock an extra weapon! The bouncer's bullets ricochet off enemies",
             WeaponUnlock<IceAura> =>
                 "Unlock an extra weapon! You emit an ice aura which damages and slows all nearby enemies",
+            WeaponUnlock<BasicGun> => "Unlock an extra weapon! The enforcer is good all rounder",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
     }
@@ -220,6 +223,7 @@ public class PowerUpIcons(ContentManager content)
         WeaponUnlock<IceAura> => _iceAura,
         WeaponUnlock<BouncingGun> => _bouncingGun,
         WeaponUnlock<SniperRifle> => _sniperRifle,
+        WeaponUnlock<BasicGun> => _shotgun, // todo replace this
 
         null => null,
         _ => throw new ArgumentOutOfRangeException(nameof(node)),

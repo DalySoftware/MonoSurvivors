@@ -6,12 +6,15 @@ using Gameplay.Levelling.PowerUps.Player;
 
 namespace Gameplay.Levelling.SphereGrid.Generation;
 
-internal class PowerUpRandomizer
+internal class PowerUpRandomizer(Type startingWeapon)
 {
     private readonly Random _random = new();
 
     private readonly List<PowerUpMetaData> _remainingWeaponUnlocks = PowerUpCatalog.PowerUpDefinitions
-        .Where(d => d.PowerUpType.IsGenericType && d.PowerUpType.GetGenericTypeDefinition() == typeof(WeaponUnlock<>))
+        .Where(d =>
+            d.PowerUpType.IsGenericType &&
+            d.PowerUpType.GetGenericTypeDefinition() == typeof(WeaponUnlock<>) &&
+            d.PowerUpType.GetGenericArguments()[0] != startingWeapon)
         .ToList();
 
     internal static Dictionary<PowerUpCategory, List<PowerUpMetaData>> ByCategory { get; } =

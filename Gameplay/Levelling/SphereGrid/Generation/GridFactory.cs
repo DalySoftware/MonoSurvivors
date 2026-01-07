@@ -9,11 +9,12 @@ public static class GridFactory
 {
     private static SphereGrid CreateFromTemplate(
         GridTemplate template,
-        Action<IPowerUp> onUnlock)
+        Action<IPowerUp> onUnlock,
+        Type startingWeapon)
     {
         var rotatedTemplate = RandomizeTemplate(template);
 
-        var nodeMap = CreateNodes(rotatedTemplate);
+        var nodeMap = CreateNodes(rotatedTemplate, startingWeapon);
         WireEdges(rotatedTemplate, nodeMap);
         return new SphereGrid(nodeMap[rotatedTemplate.RootId])
         {
@@ -30,11 +31,11 @@ public static class GridFactory
         return rotatedTemplate;
     }
 
-    private static Dictionary<int, Node> CreateNodes(GridTemplate template)
+    private static Dictionary<int, Node> CreateNodes(GridTemplate template, Type startingWeapon)
     {
         var map = new Dictionary<int, Node>();
 
-        var randomizer = new PowerUpRandomizer();
+        var randomizer = new PowerUpRandomizer(startingWeapon);
         foreach (var nt in template.Nodes.Where(n => n.Id != template.RootId))
         {
             // Pick a concrete power-up for this node
@@ -70,6 +71,6 @@ public static class GridFactory
         }
     }
 
-    public static SphereGrid CreateRandom(Action<IPowerUp> onUnlock) =>
-        CreateFromTemplate(TemplateFactory.CreateTemplate(), onUnlock);
+    public static SphereGrid CreateRandom(Action<IPowerUp> onUnlock, Type startingWeapon) =>
+        CreateFromTemplate(TemplateFactory.CreateTemplate(), onUnlock, startingWeapon);
 }

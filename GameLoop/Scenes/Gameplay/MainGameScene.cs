@@ -1,3 +1,4 @@
+using System;
 using Autofac;
 using ContentLibrary;
 using GameLoop.Input;
@@ -92,8 +93,18 @@ internal class MainGameScene(
 
         builder.RegisterType<WeaponFactory>();
         builder.RegisterType<WeaponBelt>()
-            .OnActivated(a => a.Instance.AddWeapon(a.Context.Resolve<BasicGun>()))
+            .OnActivated(a =>
+            {
+                var weaponType = a.Context.ResolveKeyed<Type>("StartingWeapon");
+                var weapon = (IWeapon)a.Context.Resolve(weaponType);
+                a.Instance.AddWeapon(weapon);
+            })
             .SingleInstance();
+
+        builder.RegisterInstance(typeof(BasicGun))
+            .As<Type>()
+            .Keyed<Type>("StartingWeapon");
+
 
         builder.RegisterType<BulletPool>().SingleInstance();
         builder.RegisterType<EnemyDeathBlast>().SingleInstance();
@@ -126,7 +137,8 @@ internal class MainGameScene(
         builder.Register<SphereGrid>(ctx =>
         {
             var player = ctx.Resolve<PlayerCharacter>();
-            return GridFactory.CreateRandom(player.AddPowerUp);
+            var startingWeapon = ctx.ResolveKeyed<Type>("StartingWeapon");
+            return GridFactory.CreateRandom(player.AddPowerUp, startingWeapon);
         }).InstancePerLifetimeScope();
 
         builder.RegisterType<ExperienceBarFactory>().SingleInstance();
