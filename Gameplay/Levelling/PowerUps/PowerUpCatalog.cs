@@ -56,8 +56,27 @@ public static class PowerUpCatalog
         new(PowerUpCategory.WeaponUnlock, typeof(WeaponUnlock<BasicGun>), NodeFactory.BasicGunUnlock),
     ];
 
-    internal static Dictionary<Type, PowerUpCategory> Categories { get; } =
+    public readonly static IReadOnlyList<WeaponDescriptor> Weapons =
+    [
+        new("Enforcer", new WeaponUnlock<BasicGun>()),
+        new("Shotgun", new WeaponUnlock<Shotgun>()),
+        new("Sniper", new WeaponUnlock<SniperRifle>()),
+        new("Ice Aura", new WeaponUnlock<IceAura>()),
+        new("Bouncer", new WeaponUnlock<BouncingGun>()),
+    ];
+
+    public static Dictionary<Type, PowerUpCategory> Categories { get; } =
         PowerUpDefinitions.ToDictionary(d => d.PowerUpType, d => d.Category);
+
+    /// <summary>
+    ///     Calls <paramref name="func" /> for each weapon unlock type in the catalog and returns the results.
+    /// </summary>
+    public static IEnumerable<TResult> ApplyForEachWeapon<TResult>(Func<Type, TResult> func)
+    {
+        Type[] weaponTypes =
+            [typeof(Shotgun), typeof(SniperRifle), typeof(IceAura), typeof(BouncingGun), typeof(BasicGun)];
+        foreach (var weapon in weaponTypes) yield return func(weapon);
+    }
 
     extension(IPowerUp powerUp)
     {
@@ -82,11 +101,8 @@ public static class PowerUpCatalog
             ProjectileSpeedUp => "Projectile Speed",
             RangeUp => "Range",
             SpeedUp => "Speed",
-            WeaponUnlock<Shotgun> => "Shotgun",
-            WeaponUnlock<SniperRifle> => "Sniper Rifle",
-            WeaponUnlock<BouncingGun> => "Bouncer",
-            WeaponUnlock<IceAura> => "Ice Aura",
-            WeaponUnlock<BasicGun> => "Enforcer",
+            WeaponUnlock unlock when Weapons.FirstOrDefault(w => w.Unlock == unlock) is { } descriptor =>
+                descriptor.DisplayName,
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
 
@@ -129,7 +145,7 @@ public static class PowerUpCatalog
         private readonly static Color Health = ColorPalette.Red;
         private readonly static Color Speed = ColorPalette.Green;
         private readonly static Color Utility = ColorPalette.Royal;
-        private readonly static Color Weapons = ColorPalette.Yellow;
+        private readonly static Color Weapon = ColorPalette.Yellow;
         private readonly static Color Damage = ColorPalette.Pink;
         private readonly static Color Crit = ColorPalette.Orange;
         private readonly static Color DamageEffects = ColorPalette.Violet;
@@ -143,7 +159,7 @@ public static class PowerUpCatalog
                 { PowerUpCategory.Speed, Speed },
                 { PowerUpCategory.Utility, Utility },
                 { PowerUpCategory.Crit, Crit },
-                { PowerUpCategory.WeaponUnlock, Weapons },
+                { PowerUpCategory.WeaponUnlock, Weapon },
             };
     }
 
@@ -192,12 +208,13 @@ public class PowerUpIcons(ContentManager content)
     private readonly Texture2D _shotCount = content.Load<Texture2D>(Paths.Images.PowerUpIcons.ShotCount);
     private readonly Texture2D _speed = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Speed);
 
+    private readonly Texture2D _basicGun = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.BasicGun);
     private readonly Texture2D _bouncingGun = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.BouncingGun);
     private readonly Texture2D _iceAura = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.IceAura);
     private readonly Texture2D _shotgun = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.Shotgun);
     private readonly Texture2D _sniperRifle = content.Load<Texture2D>(Paths.Images.PowerUpIcons.Weapons.SniperRifle);
 
-    public Texture2D? IconFor(Node node) => node.PowerUp switch
+    public Texture2D? IconFor(IPowerUp? powerUp) => powerUp switch
     {
         AttackSpeedUp => _attackSpeed,
         BulletSplitUp => _bulletSplit,
@@ -219,14 +236,14 @@ public class PowerUpIcons(ContentManager content)
         ExtraShotChanceUp => _shotCount,
         SpeedUp => _speed,
 
-        WeaponUnlock<Shotgun> => _shotgun,
-        WeaponUnlock<IceAura> => _iceAura,
+        WeaponUnlock<BasicGun> => _basicGun,
         WeaponUnlock<BouncingGun> => _bouncingGun,
+        WeaponUnlock<IceAura> => _iceAura,
         WeaponUnlock<SniperRifle> => _sniperRifle,
-        WeaponUnlock<BasicGun> => _shotgun, // todo replace this
+        WeaponUnlock<Shotgun> => _shotgun,
 
         null => null,
-        _ => throw new ArgumentOutOfRangeException(nameof(node)),
+        _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
     };
 }
 
@@ -244,3 +261,5 @@ internal static class Pluralization
         internal string EnemiesLabel() => value == 1 ? "enemy" : "enemies";
     }
 }
+
+public sealed record WeaponDescriptor(string DisplayName, WeaponUnlock Unlock);

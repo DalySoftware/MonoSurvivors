@@ -242,7 +242,7 @@ internal class SphereGridUi
             var texture = NodeTexture(node);
             DrawNode(spriteBatch, texture, nodePos, nodeColor);
 
-            var iconTexture = _content.PowerUpIcons.IconFor(node);
+            var iconTexture = _content.PowerUpIcons.IconFor(node.PowerUp);
             if (iconTexture != null)
                 spriteBatch.Draw(
                     iconTexture,

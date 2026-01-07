@@ -74,4 +74,4 @@ internal sealed class WinSceneInputManager(
         globalCommands,
         inputState,
         settingsPersistence,
-        globalCommands.StartGame);
+        globalCommands.ReturnToTitle);

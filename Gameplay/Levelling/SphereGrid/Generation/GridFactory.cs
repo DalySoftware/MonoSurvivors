@@ -10,7 +10,7 @@ public static class GridFactory
     private static SphereGrid CreateFromTemplate(
         GridTemplate template,
         Action<IPowerUp> onUnlock,
-        Type startingWeapon)
+        WeaponDescriptor startingWeapon)
     {
         var rotatedTemplate = RandomizeTemplate(template);
 
@@ -31,7 +31,7 @@ public static class GridFactory
         return rotatedTemplate;
     }
 
-    private static Dictionary<int, Node> CreateNodes(GridTemplate template, Type startingWeapon)
+    private static Dictionary<int, Node> CreateNodes(GridTemplate template, WeaponDescriptor startingWeapon)
     {
         var map = new Dictionary<int, Node>();
 
@@ -71,6 +71,6 @@ public static class GridFactory
         }
     }
 
-    public static SphereGrid CreateRandom(Action<IPowerUp> onUnlock, Type startingWeapon) =>
+    public static SphereGrid CreateRandom(Action<IPowerUp> onUnlock, WeaponDescriptor startingWeapon) =>
         CreateFromTemplate(TemplateFactory.CreateTemplate(), onUnlock, startingWeapon);
 }

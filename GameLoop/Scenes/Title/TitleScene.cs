@@ -14,13 +14,13 @@ internal class TitleScene : IScene
     private readonly InputGate _inputGate;
     private readonly VerticalStack _stack;
     public TitleScene(SpriteBatch spriteBatch,
-        TitleInputManager input,
         InputGate inputGate,
         Title.Factory titleFactory,
-        HelpText.Factory helpTextFactory)
+        HelpText.Factory helpTextFactory,
+        WeaponSelect.Factory weaponSelectFactory,
+        TitleInputManager.Factory inputFactory)
     {
         _spriteBatch = spriteBatch;
-        _input = input;
         _inputGate = inputGate;
 
         var topCentre = _spriteBatch
@@ -32,13 +32,16 @@ internal class TitleScene : IScene
         _stack = new VerticalStack(topCentre + new Vector2(0f, 100f), 100f);
 
         _stack.AddChild(titleFactory.Create);
+        var weaponSelect = _stack.AddChild(weaponSelectFactory.Create);
         _stack.AddChild(helpTextFactory.Create);
+
+        _input = inputFactory.Create(weaponSelect);
     }
 
     public void Update(GameTime gameTime)
     {
         if (_inputGate.ShouldProcessInput())
-            _input.Update();
+            _input.Update(gameTime);
     }
 
     public void Draw(GameTime gameTime)
@@ -54,7 +57,12 @@ internal class TitleScene : IScene
 
     internal static void ConfigureServices(ContainerBuilder builder)
     {
+        builder.RegisterType<TitleScene>().InstancePerDependency();
+
         builder.RegisterType<Title.Factory>();
         builder.RegisterType<HelpText.Factory>();
+        builder.RegisterType<WeaponSelect.Factory>();
+        builder.RegisterType<WeaponPanelFactory>();
+        builder.RegisterType<TitleInputManager.Factory>();
     }
 }

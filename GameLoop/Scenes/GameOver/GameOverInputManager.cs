@@ -8,4 +8,4 @@ internal class GameOverInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
     ISettingsPersistence settingsPersistence)
-    : SingleActionSceneInputManager(globalCommands, inputState, settingsPersistence, globalCommands.StartGame);
+    : SingleActionSceneInputManager(globalCommands, inputState, settingsPersistence, globalCommands.ReturnToTitle);

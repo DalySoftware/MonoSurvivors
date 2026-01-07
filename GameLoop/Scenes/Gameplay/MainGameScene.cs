@@ -14,6 +14,7 @@ using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies.Spawning;
 using Gameplay.Entities.Pooling;
 using Gameplay.Levelling;
+using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.Generation;
 using Gameplay.Rendering;
@@ -92,14 +93,7 @@ internal class MainGameScene(
         builder.RegisterType<IceAuraEffect>().OnActivated(a => a.Context.Resolve<EntityManager>().Spawn(a.Instance));
 
         builder.RegisterType<WeaponFactory>();
-        builder.RegisterType<WeaponBelt>()
-            .OnActivated(a =>
-            {
-                var weaponType = a.Context.ResolveKeyed<Type>("StartingWeapon");
-                var weapon = (IWeapon)a.Context.Resolve(weaponType);
-                a.Instance.AddWeapon(weapon);
-            })
-            .SingleInstance();
+        builder.RegisterType<WeaponBelt>().SingleInstance();
 
         builder.RegisterInstance(typeof(BasicGun))
             .As<Type>()
@@ -113,7 +107,12 @@ internal class MainGameScene(
         builder.RegisterType<PlayerStats>().SingleInstance();
         builder.RegisterType<PlayerCharacter>().SingleInstance()
             .WithParameter((pi, _) => pi.Name == "position", (_, _) => new Vector2(0, 0))
-            .OnActivated(a => a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance));
+            .OnActivated(a =>
+            {
+                var startingWeapon = a.Context.ResolveKeyed<WeaponDescriptor>("StartingWeapon");
+                a.Instance.AddPowerUp(startingWeapon.Unlock);
+                a.Context.Resolve<ISpawnEntity>().Spawn(a.Instance);
+            });
 
 
         builder.RegisterType<EffectManager>().SingleInstance();
@@ -137,7 +136,7 @@ internal class MainGameScene(
         builder.Register<SphereGrid>(ctx =>
         {
             var player = ctx.Resolve<PlayerCharacter>();
-            var startingWeapon = ctx.ResolveKeyed<Type>("StartingWeapon");
+            var startingWeapon = ctx.ResolveKeyed<WeaponDescriptor>("StartingWeapon");
             return GridFactory.CreateRandom(player.AddPowerUp, startingWeapon);
         }).InstancePerLifetimeScope();
 

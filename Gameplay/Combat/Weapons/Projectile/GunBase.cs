@@ -10,6 +10,7 @@ public abstract class GunBase(WeaponBeltStats stats) : IWeapon
     protected abstract TimeSpan Cooldown { get; }
     protected WeaponBeltStats Stats => stats;
 
+    // public static string DisplayName { get; } = "Gun";
     public void Update(GameTime gameTime)
     {
         // Handle extra shots first

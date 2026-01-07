@@ -75,4 +75,20 @@ internal static class Defaults
             [SingleActionSceneAction.Exit] = [Keys.Escape, Keys.Q],
         },
     };
+
+    internal static ActionKeyMap<TitleAction> Title { get; } = new()
+    {
+        Gamepad = new Dictionary<TitleAction, List<Buttons>>
+        {
+            [TitleAction.StartGame] = [Buttons.A, Buttons.Start],
+            [TitleAction.Exit] = [Buttons.B, Buttons.Back],
+            [TitleAction.PreviousWeapon] = [Buttons.DPadLeft],
+            [TitleAction.NextWeapon] = [Buttons.DPadRight],
+        },
+        Keyboard = new Dictionary<TitleAction, List<Keys>>
+        {
+            [TitleAction.StartGame] = [Keys.Enter, Keys.Space],
+            [TitleAction.Exit] = [Keys.Escape, Keys.Q],
+        },
+    };
 }

@@ -34,6 +34,7 @@ public class IceAura(
     private IEnumerable<IOnHitEffect> OnHitEffects => [SlowOnHit, ..owner.WeaponBelt.OnHitEffects];
     public IEnumerable<ICollider> Colliders => [_collider];
 
+    public static string DisplayName { get; } = "Ice Aura";
     public void Update(GameTime gameTime)
     {
         if (Math.Abs(RangeMultiplier - Stats.RangeMultiplier) > 0.001f) OnRangeChange();

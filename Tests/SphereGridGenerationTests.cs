@@ -1,19 +1,18 @@
-﻿using Gameplay.Combat.Weapons.Projectile;
-using Gameplay.Levelling.PowerUps;
+﻿using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.SphereGrid.Generation;
 
 namespace Tests;
 
-[Arguments(typeof(BasicGun))]
-[Arguments(typeof(Shotgun))]
-public class SphereGridGenerationTests(Type startingWeapon)
+[MethodDataSource(nameof(WeaponDescriptors))]
+public class SphereGridGenerationTests(WeaponDescriptor startingWeapon)
 {
+    public static IEnumerable<WeaponDescriptor> WeaponDescriptors => PowerUpCatalog.Weapons;
     [Test]
     public async Task SphereGrid_HasEnoughWeaponUnlocks_ForPowerUpRandomizer()
     {
         var weaponUnlocks = PowerUpRandomizer.ByCategory[PowerUpCategory.WeaponUnlock]
-            .Where(t => t.PowerUpType.GetGenericArguments()[0] != startingWeapon)
+            .Where(t => t.PowerUpType != startingWeapon.Unlock.GetType())
             .ToList();
 
         var sphereGrid = GridFactory.CreateRandom(_ => { }, startingWeapon);
@@ -30,7 +29,7 @@ public class SphereGridGenerationTests(Type startingWeapon)
         var weapons = PowerUpCatalog.Categories
             .Where(kvp =>
                 kvp.Value == PowerUpCategory.WeaponUnlock &&
-                kvp.Key.GetGenericArguments()[0] != startingWeapon)
+                kvp.Key != startingWeapon.Unlock.GetType())
             .Select(kvp => kvp.Key);
 
         var grid = GridFactory.CreateRandom(_ => { }, startingWeapon);
@@ -44,9 +43,6 @@ public class SphereGridGenerationTests(Type startingWeapon)
     {
         var grid = GridFactory.CreateRandom(_ => { }, startingWeapon);
 
-        await Assert.That(grid.Nodes).DoesNotContain(n =>
-            n.PowerUp?.GetType().IsGenericType == true &&
-            n.PowerUp.GetType().GetGenericTypeDefinition() == typeof(WeaponUnlock<>) &&
-            n.PowerUp.GetType().GetGenericArguments()[0] == startingWeapon);
+        await Assert.That(grid.Nodes).DoesNotContain(n => n.PowerUp?.GetType() == startingWeapon.Unlock.GetType());
     }
 }

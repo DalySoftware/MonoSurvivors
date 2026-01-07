@@ -12,6 +12,7 @@ using GameLoop.Scenes.Title;
 using GameLoop.UI;
 using Gameplay;
 using Gameplay.Audio;
+using Gameplay.Levelling.PowerUps;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
@@ -91,28 +92,6 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ResumeGame() => SceneManager.Pop();
 
-    public void StartGame()
-    {
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        // Dispose previous gameplay scope if restarting
-        _gameplayScope?.Dispose();
-
-        _gameplayScope = _contentScope
-            .BeginLifetimeScope(builder =>
-            {
-                MainGameScene.ConfigureServices(builder);
-                SphereGridScene.ConfigureServices(builder); // sphere grid shares lifetime
-            });
-
-        // Resolve and push the scene
-        var mainScene = _gameplayScope.Resolve<MainGameScene>();
-        SceneManager.Push(mainScene);
-
-        // Play background music
-        var music = _gameplayScope.Resolve<MusicPlayer>();
-        music.PlayBackgroundMusic();
-    }
-
     public void CloseSphereGrid()
     {
         if (SceneManager.Current is not SphereGridScene)
@@ -125,6 +104,29 @@ public class CoreGame : Game, IGlobalCommands
 
     public void ShowMouse() => IsMouseVisible = true;
     public void HideMouse() => IsMouseVisible = false;
+
+    public void StartGame(WeaponDescriptor startingWeapon)
+    {
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        // Dispose previous gameplay scope if restarting
+        _gameplayScope?.Dispose();
+
+        _gameplayScope = _contentScope
+            .BeginLifetimeScope(builder =>
+            {
+                MainGameScene.ConfigureServices(builder);
+                SphereGridScene.ConfigureServices(builder); // sphere grid shares lifetime
+                builder.RegisterInstance(startingWeapon).Keyed<WeaponDescriptor>("StartingWeapon");
+            });
+
+        // Resolve and push the scene
+        var mainScene = _gameplayScope.Resolve<MainGameScene>();
+        SceneManager.Push(mainScene);
+
+        // Play background music
+        var music = _gameplayScope.Resolve<MusicPlayer>();
+        music.PlayBackgroundMusic();
+    }
 
     protected override void LoadContent()
     {
@@ -141,12 +143,11 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterType<Button.Factory>().SingleInstance();
             builder.RegisterType<Label.Factory>().SingleInstance();
             builder.RegisterType<ToolTipRenderer>().SingleInstance();
+            builder.RegisterType<PowerUpIcons>().SingleInstance();
             builder.RegisterType<MusicPlayer>().SingleInstance();
 
             builder.RegisterType<SoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
 
-            builder.RegisterType<TitleInputManager>().SingleInstance();
-            builder.RegisterType<TitleScene>().InstancePerDependency();
             TitleScene.ConfigureServices(builder);
 
             builder.RegisterType<GameInputState>().SingleInstance();

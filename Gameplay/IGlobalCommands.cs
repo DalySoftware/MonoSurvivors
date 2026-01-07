@@ -1,4 +1,6 @@
-﻿namespace Gameplay;
+﻿using Gameplay.Levelling.PowerUps;
+
+namespace Gameplay;
 
 public interface IGlobalCommands
 {
@@ -8,7 +10,7 @@ public interface IGlobalCommands
     void ShowPauseMenu();
     void ResumeGame();
     void Exit();
-    void StartGame();
+    void StartGame(WeaponDescriptor startingWeapon);
     void CloseSphereGrid();
     void ShowMouse();
     void HideMouse();
