@@ -74,12 +74,6 @@ public static class RenderingHelpers
         public Vector2 Centre => new Vector2(window.ClientBounds.Width, window.ClientBounds.Height) * 0.5f;
     }
 
-    extension(Vector2 vector)
-    {
-        public Vector2 XProjection => new(vector.X, 0);
-        public Vector2 YProjection => new(0, vector.Y);
-    }
-
     extension(Rectangle rectangle)
     {
         public Vector2 TopLeft() => new(rectangle.X, rectangle.Y);
