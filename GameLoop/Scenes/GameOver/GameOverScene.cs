@@ -2,6 +2,7 @@ using Autofac;
 using ContentLibrary;
 using GameLoop.Input;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -36,7 +37,7 @@ internal class GameOverScene(
         var titlePosition = new Vector2(
             window.Centre.X - titleSize.X / 2,
             window.Centre.Y - 100);
-        spriteBatch.DrawString(_titleFont, titleText, titlePosition, Color.Firebrick);
+        spriteBatch.DrawString(_titleFont, titleText, titlePosition, ColorPalette.Red);
 
         // Draw instructions
         var instructionsText = inputState.CurrentInputMethod is InputMethod.KeyboardMouse
@@ -46,7 +47,7 @@ internal class GameOverScene(
         var instructionsPosition = new Vector2(
             window.Centre.X - instructionsSize.X / 2,
             window.Centre.Y + 50);
-        spriteBatch.DrawString(_messageFont, instructionsText, instructionsPosition, Color.LightGray);
+        spriteBatch.DrawString(_messageFont, instructionsText, instructionsPosition, ColorPalette.LightGray);
 
         spriteBatch.End();
     }

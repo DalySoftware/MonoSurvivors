@@ -2,6 +2,7 @@
 using ContentLibrary;
 using GameLoop.UI;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,24 +14,26 @@ internal class Title(SpriteFont font, UiRectangle rectangle) : IUiElement
     private const string Line1 = "Mono";
     private const string Line2 = "Survivors";
     private const float Line2Offset = 150f; // This isn't a gap but TopLeft to TopLeft. Could be refactored further
+    private readonly static Color ForegroundColor = ColorPalette.Blue;
+    private readonly static Color ShadowColor = ColorPalette.Blue.ShiftChroma(-0.16f).ShiftLightness(-0.32f);
 
     public UiRectangle Rectangle { get; } = rectangle;
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        var shadowOffset = new Vector2(10f);
+        var shadowOffset = new Vector2(-10f, 10f);
 
         const string line1 = "Mono";
         var line1Rectangle = Rectangle.CreateAnchoredRectangle(UiAnchor.TopCenter, font.MeasureString(Line1));
-        spriteBatch.DrawString(font, line1, line1Rectangle.TopLeft, Color.DarkOrange, layerDepth: Layers.Front);
-        spriteBatch.DrawString(font, line1, line1Rectangle.TopLeft + shadowOffset, Color.DimGray,
+        spriteBatch.DrawString(font, line1, line1Rectangle.TopLeft, ForegroundColor, layerDepth: Layers.Front);
+        spriteBatch.DrawString(font, line1, line1Rectangle.TopLeft + shadowOffset, ShadowColor,
             layerDepth: Layers.Shadow);
 
         const string line2 = "Survivors";
         var line2Rectangle =
             Rectangle.CreateAnchoredRectangle(UiAnchor.BottomCenter, font.MeasureString(Line2));
-        spriteBatch.DrawString(font, line2, line2Rectangle.TopLeft, Color.DarkOrange, layerDepth: Layers.Front);
-        spriteBatch.DrawString(font, line2, line2Rectangle.TopLeft + shadowOffset, Color.DimGray,
+        spriteBatch.DrawString(font, line2, line2Rectangle.TopLeft, ForegroundColor, layerDepth: Layers.Front);
+        spriteBatch.DrawString(font, line2, line2Rectangle.TopLeft + shadowOffset, ShadowColor,
             layerDepth: Layers.Shadow);
     }
 

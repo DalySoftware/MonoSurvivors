@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Gameplay.Rendering.Colors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
@@ -18,7 +19,7 @@ public static class RenderingHelpers
             spriteBatch.Draw(texture,
                 position,
                 sourceRectangle,
-                color ?? Color.White,
+                color ?? ColorPalette.White,
                 rotation,
                 origin ?? Vector2.Zero,
                 scale ?? Vector2.One,
@@ -36,7 +37,7 @@ public static class RenderingHelpers
             spriteBatch.Draw(texture,
                 destinationRectangle,
                 sourceRectangle,
-                color ?? Color.White,
+                color ?? ColorPalette.White,
                 rotation,
                 origin ?? Vector2.Zero,
                 effects ?? SpriteEffects.None,
@@ -55,7 +56,7 @@ public static class RenderingHelpers
                 font,
                 text,
                 position,
-                color ?? Color.White,
+                color ?? ColorPalette.White,
                 rotation,
                 origin ?? Vector2.Zero,
                 scale ?? Vector2.One,

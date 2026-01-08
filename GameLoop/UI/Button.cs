@@ -36,7 +36,7 @@ public sealed class Button : IUiElement
         _panel = panel;
         Rectangle = _panel.Rectangle;
 
-        _baseColor = new OklchColor(0.77f, 0.074f, 235f).ToColor();
+        _baseColor = ColorPalette.Agave;
         _pressedColor = _baseColor.ShiftLightness(-0.1f);
         _hoveredColor = _baseColor.ShiftLightness(0.1f);
     }
@@ -50,7 +50,7 @@ public sealed class Button : IUiElement
             _isHovered ? _hoveredColor :
             _baseColor;
 
-        _panel.Draw(spriteBatch, color, color.ShiftChroma(-0.04f).ShiftLightness(-0.3f));
+        _panel.Draw(spriteBatch, color, color.ShiftChroma(-0.05f));
 
         var textSize = _font.MeasureString(_text);
         var textPos = _panel.Interior.CreateAnchoredRectangle(UiAnchor.Centre, textSize).TopLeft;

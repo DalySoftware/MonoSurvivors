@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
@@ -55,7 +56,7 @@ public class OutlineRenderer(GraphicsDevice graphics)
 
         for (var i = 0; i < data.Length; i++)
             if (data[i].A > 0)
-                data[i] = Color.White;
+                data[i] = ColorPalette.White;
             else
                 data[i] = Color.Transparent;
 

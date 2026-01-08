@@ -112,8 +112,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
         _primitiveRenderer.DrawRectangle(
             _spriteBatch,
-            new Rectangle(_viewPortRectangle.TopLeft.ToPoint(), _viewPortRectangle.Size.ToPoint()),
-            new Color(0, 0, 0, 180),
+            new Rectangle(_viewPortRectangle.TopLeft.ToPoint(), _viewPortRectangle.Size.ToPoint()), Color.Transparent,
             0.3f);
 
         _mainStack.Draw(_spriteBatch);

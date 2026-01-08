@@ -2,6 +2,7 @@
 using ContentLibrary;
 using Gameplay.Entities.Enemies.Spawning;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -31,7 +32,7 @@ internal class RunClock(SpriteFont font, EnemySpawner spawner, Vector2 middleRig
         var size = font.MeasureString(text);
         var origin = new Vector2(size.X, font.LineSpacing * .67f);
 
-        spriteBatch.DrawString(font, text, middleRight, Color.White, origin: origin);
+        spriteBatch.DrawString(font, text, middleRight, ColorPalette.White, origin: origin);
         spriteBatch.End();
     }
 

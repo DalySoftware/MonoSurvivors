@@ -6,6 +6,7 @@ using ContentLibrary;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -61,14 +62,15 @@ public class SnakeBoss : EnemyBase, IGenericVisual
         // Head
         var headFrame = new SnakeBossHeadSheet.HeadDirectionFrame(Velocity);
         var headRectangle = _headSpriteSheet.GetFrameRectangle(headFrame);
-        spriteBatch.Draw(_headSpriteSheet.Texture, Position, Color.White, headRectangle, origin: _headOrigin,
+        spriteBatch.Draw(_headSpriteSheet.Texture, Position, ColorPalette.White, headRectangle, origin: _headOrigin,
             layerDepth: layer);
 
         // Body
         layer -= 0.00001f;
         foreach (var segment in _segments)
         {
-            spriteBatch.Draw(_bodyTexture, segment.Position, Color.White, origin: _bodyOrigin, layerDepth: layer);
+            spriteBatch.Draw(_bodyTexture, segment.Position, ColorPalette.White, origin: _bodyOrigin,
+                layerDepth: layer);
             layer -= 0.00001f;
         }
     }

@@ -28,7 +28,7 @@ internal sealed class LightningArc(Vector2 from, Vector2 to) : IEntity, IPrimiti
     {
         var t = (float)(_lifetime.TotalMilliseconds / MaxLifetime.TotalMilliseconds);
         var thickness = MathHelper.Lerp(12f, 2f, 1f - t);
-        var baseColor = Color.DeepSkyBlue;
+        var baseColor = ColorPalette.Royal;
 
         renderer.DrawLine(spriteBatch, from + _jitter, to + _jitter,
             baseColor * 0.3f * t, thickness * 2f, Layer - 0.01f);

@@ -186,7 +186,7 @@ internal class SphereGridUi
 
     internal void Draw(SpriteBatch spriteBatch)
     {
-        _graphicsDevice.Clear(Color.DarkSlateGray);
+        _graphicsDevice.Clear(ColorPalette.Charcoal);
 
         // World space batch
         spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack,
@@ -212,7 +212,7 @@ internal class SphereGridUi
                 if (!NodePositions.TryGetValue(neighbor, out var neighborPos)) continue;
 
                 var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
-                var color = isUnlocked ? Color.Gold : Color.Gray * 0.5f;
+                var color = isUnlocked ? ColorPalette.Yellow : ColorPalette.Gray;
                 _primitiveRenderer.DrawLine(spriteBatch, nodePos, neighborPos, color, 8f, Layers.Edges);
             }
         }
@@ -264,19 +264,19 @@ internal class SphereGridUi
 
     private void DrawScreenspaceUi(SpriteBatch spriteBatch)
     {
-        _titlePanel.Draw(spriteBatch, Color.White, Color.SlateGray.ShiftLightness(-0.1f));
+        _titlePanel.Draw(spriteBatch, ColorPalette.Peach, ColorPalette.DarkGray.ShiftLightness(-0.1f));
 
         var titleText = TitleText(_grid.AvailablePoints);
         var titleSize = _content.FontLarge.MeasureString(titleText);
         var titlePosition = _titlePanel.Interior.CreateAnchoredRectangle(UiAnchor.Centre, titleSize).TopLeft;
-        spriteBatch.DrawString(_content.FontLarge, titleText, titlePosition, Color.White,
+        spriteBatch.DrawString(_content.FontLarge, titleText, titlePosition, ColorPalette.White,
             layerDepth: _titlePanel.InteriorLayerDepth + 0.01f);
 
         var helpText = HelpText();
         var helpSize = _content.FontMedium.MeasureString(helpText);
         var helpRectangle = _graphicsDevice.Viewport.UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.BottomCenter, helpSize, new Vector2(0f, -50f));
-        spriteBatch.DrawString(_content.FontMedium, helpText, helpRectangle.TopLeft, Color.Gray,
+        spriteBatch.DrawString(_content.FontMedium, helpText, helpRectangle.TopLeft, ColorPalette.LightGray,
             layerDepth: Layers.HelpText);
 
         DrawTooltips(spriteBatch);
@@ -331,9 +331,9 @@ internal class SphereGridUi
     }
 
     private ToolTipBodyLine UnlockLineFor(Node node) =>
-        _grid.IsUnlocked(node) ? new ToolTipBodyLine("[Unlocked]", Color.LawnGreen) :
-        _grid.CanUnlock(node) ? new ToolTipBodyLine(UnlockText(), Color.Turquoise) :
-        new ToolTipBodyLine("[Cannot unlock]", Color.DimGray);
+        _grid.IsUnlocked(node) ? new ToolTipBodyLine("[Unlocked]", ColorPalette.Green) :
+        _grid.CanUnlock(node) ? new ToolTipBodyLine(UnlockText(), ColorPalette.Cyan) :
+        new ToolTipBodyLine("[Cannot unlock]", ColorPalette.DarkGray);
 
     private string UnlockText() =>
         InputMethod is InputMethod.KeyboardMouse ? "[Click to unlock]" : "[Press A to unlock]";

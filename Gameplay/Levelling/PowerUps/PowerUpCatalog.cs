@@ -167,7 +167,7 @@ public static class PowerUpCatalog
     {
         public Color BaseColor()
         {
-            if (powerUp is null) return Color.Gold;
+            if (powerUp is null) return ColorPalette.Yellow;
 
             var category = Categories[powerUp.GetType()];
             return Colors.ByCategory[category];

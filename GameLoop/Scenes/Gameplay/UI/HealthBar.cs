@@ -1,5 +1,6 @@
 ﻿using ContentLibrary;
 using Gameplay.Entities;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,7 +54,7 @@ internal class HealthBar(ContentManager content, PlayerCharacter player, Vector2
         var drawPosition = position + new Vector2(0, offsetY);
         var origin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
 
-        spriteBatch.Draw(texture, drawPosition, null, Color.White, 0f, origin, 1f,
+        spriteBatch.Draw(texture, drawPosition, null, ColorPalette.White, 0f, origin, 1f,
             SpriteEffects.None, 0f);
     }
 }

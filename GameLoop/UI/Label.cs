@@ -1,5 +1,6 @@
 ﻿using System;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -97,7 +98,7 @@ internal sealed class Label : IUiElement
             float layerDepth = 0f)
         {
             var font = content.Load<SpriteFont>(fontPath);
-            var labelColor = color ?? Color.White;
+            var labelColor = color ?? ColorPalette.White;
 
             return new Label(font, origin, anchor, text, labelColor, alignment, templateString, layerDepth);
         }

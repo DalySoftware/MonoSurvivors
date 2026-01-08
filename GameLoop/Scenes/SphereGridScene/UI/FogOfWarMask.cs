@@ -4,6 +4,7 @@ using System.Linq;
 using Gameplay.Entities;
 using Gameplay.Levelling.SphereGrid.UI;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -59,7 +60,7 @@ internal sealed class FogOfWarMask
         RebuildCircleIfNeeded();
 
         _graphics.SetRenderTarget(_fogTarget);
-        _graphics.Clear(Color.DarkSlateGray);
+        _graphics.Clear(ColorPalette.DarkGray);
 
         // Punch holes
         _spriteBatch.Begin(blendState: EraseBlend, transformMatrix: _camera.Transform);
@@ -69,7 +70,6 @@ internal sealed class FogOfWarMask
                 _circle,
                 pos,
                 origin: new Vector2(_baseVisionRadius * _visionRadiusMultiplier),
-                color: Color.White,
                 layerDepth: _layerDepth + 0.01f);
 
         _spriteBatch.End();
@@ -86,7 +86,7 @@ internal sealed class FogOfWarMask
     }
 
     public void Draw(SpriteBatch spriteBatch) =>
-        spriteBatch.Draw(_fogTarget, Vector2.Zero, Color.DarkSlateGray, layerDepth: _layerDepth);
+        spriteBatch.Draw(_fogTarget, Vector2.Zero, ColorPalette.Charcoal, layerDepth: _layerDepth);
 
     public bool IsVisible(Vector2 screenPosition)
     {

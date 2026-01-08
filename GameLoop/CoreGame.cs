@@ -14,6 +14,7 @@ using Gameplay;
 using Gameplay.Audio;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -173,7 +174,7 @@ public class CoreGame : Game, IGlobalCommands
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.DarkSlateGray);
+        GraphicsDevice.Clear(ColorPalette.Wine.ShiftChroma(-0.04f).ShiftLightness(-0.05f));
 
         SceneManager.Current?.Draw(gameTime);
 

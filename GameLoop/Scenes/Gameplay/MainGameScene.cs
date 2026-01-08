@@ -43,6 +43,7 @@ internal class MainGameScene(
     BossHealthBar bossHealthBar)
     : IScene
 {
+    private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.02f);
     private readonly Texture2D _backgroundTile = content.Load<Texture2D>(Paths.Images.BackgroundTile);
 
     public void Dispose() { }
@@ -72,8 +73,7 @@ internal class MainGameScene(
     {
         spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: camera.Transform,
             sortMode: SpriteSortMode.FrontToBack);
-        spriteBatch.Draw(_backgroundTile, camera.VisibleWorldBounds, camera.VisibleWorldBounds,
-            Color.DarkSlateGray.ShiftChroma(-0.02f).ShiftLightness(0.05f));
+        spriteBatch.Draw(_backgroundTile, camera.VisibleWorldBounds, camera.VisibleWorldBounds, BackgroundColor);
         spriteBatch.End();
     }
 

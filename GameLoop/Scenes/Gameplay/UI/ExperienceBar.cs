@@ -38,13 +38,8 @@ internal sealed class ExperienceBarFactory(
 
         var barPanel = panelFactory.DefineByExterior(barRect);
 
-        var progressBar = new PanelProgressBar(
-            barPanel,
-            primitiveRenderer,
-            ColorPalette.Agave,
-            Color.SlateGray,
-            ColorPalette.Green
-        );
+        var progressBar = new PanelProgressBar(barPanel, primitiveRenderer, ColorPalette.Agave, ColorPalette.Gray,
+            ColorPalette.Green);
 
         // Points box
         var pointsInteriorSize = new Vector2(interiorHeight, interiorHeight);
@@ -109,7 +104,7 @@ internal class ExperienceBar(
         var textPosition = interiorRect.TopLeft() + (interiorRect.Size.ToVector2() - textSize) * 0.5f;
 
         var textLayer = progressBar.FillLayerDepth + 0.01f;
-        spriteBatch.DrawString(font, spendPrompt, textPosition, Color.White, layerDepth: textLayer);
+        spriteBatch.DrawString(font, spendPrompt, textPosition, ColorPalette.White, layerDepth: textLayer);
     }
 
     private void DrawPointsBox(SpriteBatch spriteBatch, GameTime gameTime)
@@ -134,11 +129,11 @@ internal class ExperienceBar(
 
     private Color PointsBoxTint(GameTime gameTime)
     {
-        var baseColor = Color.SlateBlue;
+        var baseColor = ColorPalette.Teal;
         if (!_provideFeedbackToSpendPoints) return baseColor;
 
         var pulse = 0.5f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
-        return Color.Lerp(baseColor, Color.Gold, pulse);
+        return Color.Lerp(baseColor, ColorPalette.Yellow, pulse);
     }
 
     private float PointsTextScale(GameTime gameTime)

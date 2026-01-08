@@ -1,4 +1,5 @@
 ﻿using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,8 +27,8 @@ internal sealed class Panel : IUiElement
         _primitiveRenderer = primitiveRenderer;
         Rectangle = exterior;
         _frameDepth = frameDepth;
-        _interiorColor = interiorColor ?? Color.White;
-        _frameColor = frameColor ?? Color.White;
+        _interiorColor = interiorColor ?? ColorPalette.Charcoal;
+        _frameColor = frameColor ?? ColorPalette.Agave;
     }
 
     internal UiRectangle Interior => new(

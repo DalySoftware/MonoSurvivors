@@ -1,5 +1,6 @@
 ﻿using System;
 using ContentLibrary;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -26,7 +27,7 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
     private static Texture2D CreatePixelTexture(GraphicsDevice graphicsDevice)
     {
         var texture = new Texture2D(graphicsDevice, 1, 1);
-        texture.SetData([Color.White]);
+        texture.SetData([ColorPalette.White]);
         return texture;
     }
 
@@ -99,8 +100,8 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
             {
                 var t = 1f - SmoothStep(inner, outer, d);
 
-                var bx = x / pixelStep & 3;
-                var by = y / pixelStep & 3;
+                var bx = (x / pixelStep) & 3;
+                var by = (y / pixelStep) & 3;
                 var threshold =
                     (Bayer4[bx, by] / 16f - 0.5f) * ditherStrength;
 

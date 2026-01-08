@@ -46,7 +46,7 @@ internal class WinScene(
         const string titleText = "You win!";
         var titleSize = _titleFont.MeasureString(titleText);
         var titlePosition = new Vector2(window.Centre.X - titleSize.X / 2, window.Centre.Y - 100);
-        spriteBatch.DrawString(_titleFont, titleText, titlePosition, ColorPalette.Orange);
+        spriteBatch.DrawString(_titleFont, titleText, titlePosition, ColorPalette.Yellow);
     }
 
     private void DrawHelpText()

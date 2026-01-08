@@ -1,4 +1,5 @@
 using System;
+using Gameplay.Rendering.Colors;
 
 namespace Gameplay.Rendering.Effects;
 
@@ -7,5 +8,5 @@ namespace Gameplay.Rendering.Effects;
 /// </summary>
 public sealed class GreyscaleEffect(TimeSpan duration) : VisualEffect(duration)
 {
-    public override Color ComputeColor() => Color.DarkGray;
+    public Color ComputeColor() => ColorPalette.DarkGray;
 }
