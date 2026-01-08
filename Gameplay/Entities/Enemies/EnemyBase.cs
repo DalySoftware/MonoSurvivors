@@ -5,13 +5,12 @@ using System.Threading;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
-using Gameplay.Levelling;
 using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
 
 public abstract class EnemyBase(Vector2 position, EnemyStats stats)
-    : MovableEntity(position), IDamagesPlayer, ICreatesExperienceOnDeath
+    : MovableEntity(position), IDamagesPlayer
 {
     private int _isDead; // Marker for concurrency
     private readonly List<SlowdownInstance> _activeSlows = [];

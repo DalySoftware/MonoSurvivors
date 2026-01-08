@@ -350,12 +350,12 @@ public class Editor : Game
 
         // Draw pending connection line
         if (_connectingFromNode != null &&
-            _nodePositions.ContainsKey(_connectingFromNode) &&
+            _nodePositions.TryGetValue(_connectingFromNode, out var value) &&
             _pendingConnectionDirection.HasValue)
         {
             var radius = _connectingFromNode == _root ? 50f : 40f;
             var offset = GetDirectionOffset(_pendingConnectionDirection.Value, radius);
-            var startPos = _nodePositions[_connectingFromNode] + offset + _cameraOffset;
+            var startPos = value + offset + _cameraOffset;
             var mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
             _primitiveRenderer.DrawLine(_spriteBatch, startPos, mousePos, Color.Yellow * 0.7f, 3,
                 Layers.HelpText - 0.05f);
@@ -445,7 +445,7 @@ public class Editor : Game
                 tooltipLines.Add(new ToolTipBodyLine($"  - {conn}", Color.DarkGray));
 
             var tooltip = new ToolTip("Template Node", tooltipLines);
-            _tooltipRenderer.DrawTooltip(_spriteBatch, tooltip);
+            _tooltipRenderer.DrawTooltipAtMouse(_spriteBatch, tooltip);
         }
 
         // Draw selected node info in top-left corner
@@ -501,9 +501,9 @@ public class Editor : Game
         {
             var menuPos = new Vector2(GraphicsDevice.Viewport.Width / 2f - 250,
                 GraphicsDevice.Viewport.Height / 2f - 200);
-            var buttonWidth = 180;
-            var buttonHeight = 30;
-            var padding = 10;
+            const int buttonWidth = 180;
+            const int buttonHeight = 30;
+            const int padding = 10;
             var lineHeight = font.MeasureString("A").Y;
 
             var categories = Enum.GetValues<PowerUpCategory>();
@@ -625,7 +625,7 @@ public class Editor : Game
             _spriteBatch.DrawString(font, createText, createTextPos, Color.White, layerDepth: Layers.CreateNodeText);
 
             // Help text
-            var escText = "ESC - Cancel";
+            const string escText = "ESC - Cancel";
             _spriteBatch.DrawString(font, escText,
                 new Vector2(menuPos.X + padding, currentY - lineHeight - 10), Color.Gray,
                 layerDepth: Layers.CreateNodeText);
@@ -664,7 +664,7 @@ public class Editor : Game
 
     private void DrawCircle(Vector2 center, float radius, Color color, float layerDepth)
     {
-        var segments = 32;
+        const int segments = 32;
 
         for (var i = 0; i < segments; i++)
         {
@@ -813,8 +813,8 @@ public class Editor : Game
             var nodeTemplate = new NodeTemplate
             {
                 Id = idMap[node],
-                Category = meta.Item1!.Value,
-                Rarity = meta.Item2,
+                Category = meta.category!.Value,
+                Rarity = meta.rarity,
             };
 
             foreach (var (dir, neighbour) in node.Neighbours)

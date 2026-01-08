@@ -40,7 +40,7 @@ internal static class CollisionChecker
         (CircleCollider circle, RectangleCollider rect) => HasOverlap(circle, rect),
         (RectangleCollider rect, CircleCollider circle) => HasOverlap(circle, rect),
         (RectangleCollider sourceRect, RectangleCollider targetRect) => HasOverlap(sourceRect, targetRect),
-        _ => throw new InvalidOperationException("Unsupported collision check")
+        _ => throw new InvalidOperationException("Unsupported collision check"),
     };
 }
 
@@ -48,9 +48,9 @@ internal static class ColliderExtensions
 {
     extension(RectangleCollider collider)
     {
-        internal float Left => collider.Position.X - collider.Width / 2;
-        internal float Right => collider.Position.X + collider.Width / 2;
-        internal float Top => collider.Position.Y - collider.Height / 2;
-        internal float Bottom => collider.Position.Y + collider.Height / 2;
+        internal float Left => (collider.Position.X - collider.Width) * 0.5f;
+        internal float Right => (collider.Position.X + collider.Width) * 0.5f;
+        internal float Top => (collider.Position.Y - collider.Height) * 0.5f;
+        internal float Bottom => (collider.Position.Y + collider.Height) * 0.5f;
     }
 }

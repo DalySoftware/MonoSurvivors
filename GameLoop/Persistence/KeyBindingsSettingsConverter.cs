@@ -68,7 +68,7 @@ public sealed class KeyBindingsSettingsConverter : JsonConverter<KeyBindingsSett
         JsonSerializerOptions options)
         where TAction : struct, Enum
     {
-        if (jsonElement.TryGetProperty(nameof(ActionKeyMap<TAction>.Keyboard), out var keyboardProp))
+        if (jsonElement.TryGetProperty(nameof(ActionKeyMap<>.Keyboard), out var keyboardProp))
         {
             var keyboard =
                 JsonSerializer.Deserialize<Dictionary<TAction, List<Keys>>>(keyboardProp.GetRawText(), options);
@@ -76,7 +76,7 @@ public sealed class KeyBindingsSettingsConverter : JsonConverter<KeyBindingsSett
                 target.MergeFrom(new ActionKeyMap<TAction> { Keyboard = keyboard });
         }
 
-        if (jsonElement.TryGetProperty(nameof(ActionKeyMap<TAction>.Gamepad), out var gamepadProp))
+        if (jsonElement.TryGetProperty(nameof(ActionKeyMap<>.Gamepad), out var gamepadProp))
         {
             var gamepad =
                 JsonSerializer.Deserialize<Dictionary<TAction, List<Buttons>>>(gamepadProp.GetRawText(), options);

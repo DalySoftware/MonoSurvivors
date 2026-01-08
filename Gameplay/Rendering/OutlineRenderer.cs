@@ -20,16 +20,6 @@ public class OutlineRenderer(GraphicsDevice graphics)
         new(4, 4),
     ];
 
-    public void DrawOutline(SpriteBatch spriteBatch, Texture2D texture, Vector2 position, Vector2 origin,
-        float layerDepth, Color color)
-    {
-        var silhouetteTexture = GetSilhouetteTexture(texture);
-
-        foreach (var outline in _outlineVectors)
-            spriteBatch.Draw(silhouetteTexture, position + outline, origin: origin, layerDepth: layerDepth,
-                color: color);
-    }
-
     public void DrawOutline(SpriteBatch spriteBatch, Texture2D texture, Vector2 position, Rectangle sourceRectangle,
         Vector2 origin,
         float layerDepth, Color color)

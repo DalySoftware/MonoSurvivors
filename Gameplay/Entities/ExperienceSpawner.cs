@@ -10,7 +10,7 @@ namespace Gameplay.Entities;
 public class ExperienceSpawner(EntityManager entityManager, IAudioPlayer audio)
 {
     private readonly static int[] ExperienceDenominations = [5, 1];
-    internal void SpawnExperienceFor(EnemyBase deadEnemy, PlayerCharacter killer)
+    internal void SpawnExperienceFor(EnemyBase deadEnemy)
     {
         foreach (var experience in GetExperiences(deadEnemy))
             entityManager.Spawn(experience);

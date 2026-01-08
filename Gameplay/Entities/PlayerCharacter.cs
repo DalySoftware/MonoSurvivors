@@ -42,13 +42,13 @@ public class PlayerCharacter(
 
     public PlayerStats Stats { get; } = stats;
 
-    public IEnumerable<ICollider> Colliders => [new CircleCollider(this, 32f)];
-
     public int Health
     {
         get;
         private set => field = Math.Clamp(value, 0, Stats.MaxHealth);
     } = PlayerStats.BaseHealth;
+
+    public IEnumerable<ICollider> Colliders => [new CircleCollider(this, 32f)];
 
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
 
@@ -123,7 +123,7 @@ public class PlayerCharacter(
 
     public void OnKill(EnemyBase enemy)
     {
-        experienceSpawner.SpawnExperienceFor(enemy, this);
+        experienceSpawner.SpawnExperienceFor(enemy);
         audio.Play(SoundEffectTypes.EnemyDeath);
         TrackKills(1);
 

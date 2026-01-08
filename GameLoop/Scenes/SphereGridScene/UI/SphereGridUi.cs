@@ -297,18 +297,19 @@ internal class SphereGridUi
         _ => _content.GridNodeSmall,
     };
 
-    private void DrawNode(SpriteBatch spriteBatch, Texture2D sprite, Vector2 center, Color color) =>
+    private static void DrawNode(SpriteBatch spriteBatch, Texture2D sprite, Vector2 center, Color color) =>
         spriteBatch.Draw(sprite, center, origin: sprite.Centre, color: color, layerDepth: Layers.Nodes);
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node, bool drawAtNode = false)
     {
         var tooltip = GetTooltip(node);
+        var layer = _titlePanel.InteriorLayerDepth + 0.05f;
 
         if (drawAtNode)
             _toolTipRenderer.DrawTooltipAt(spriteBatch, tooltip,
-                Camera.WorldToScreen(NodePositions[node]) + new Vector2(40f, 40f));
+                Camera.WorldToScreen(NodePositions[node]) + new Vector2(40f, 40f), layer);
         else
-            _toolTipRenderer.DrawTooltip(spriteBatch, tooltip);
+            _toolTipRenderer.DrawTooltipAtMouse(spriteBatch, tooltip, layer);
     }
 
     private ToolTip GetTooltip(Node node)

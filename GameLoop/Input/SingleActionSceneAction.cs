@@ -11,4 +11,4 @@ public enum SingleActionSceneAction
 internal sealed class SingleActionSceneActionInput(
     GameInputState state,
     ActionKeyMap<SingleActionSceneAction> map)
-    : ActionInputBase<SingleActionSceneAction>(state, map) { }
+    : ActionInputBase<SingleActionSceneAction>(state, map);

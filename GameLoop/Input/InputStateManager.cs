@@ -15,8 +15,7 @@ internal class InputStateManager(GameInputState state, IGlobalCommands globalCom
         state.PreviousGamePadState = state.GamePadState;
         state.GamePadState = GamePad.GetState(0);
 
-        state.HasFocus = hasFocus;
-        if (state.HasFocus)
+        if (hasFocus)
         {
             state.PreviousMouseState = state.MouseState;
             state.MouseState = Mouse.GetState();

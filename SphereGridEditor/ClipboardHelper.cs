@@ -13,8 +13,8 @@ public static class ClipboardHelper
                 FileName = "clip",
                 RedirectStandardInput = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
-            }
+                CreateNoWindow = true,
+            },
         };
         process.Start();
         process.StandardInput.Write(text);

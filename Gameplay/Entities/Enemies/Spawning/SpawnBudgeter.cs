@@ -31,9 +31,7 @@ public sealed class SpawnBudgeter
 
     private static SpawnEntry PickWeighted(IReadOnlyList<SpawnEntry> entries)
     {
-        var totalWeight = 0f;
-        foreach (var e in entries)
-            totalWeight += e.Weight;
+        var totalWeight = entries.Sum(e => e.Weight);
 
         var roll = Random.Shared.NextSingle() * totalWeight;
 

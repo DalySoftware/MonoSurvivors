@@ -15,7 +15,6 @@ public abstract class UiStack(Vector2 origin, float gap, UiAnchor originAnchor) 
 
     protected float Gap { get; } = gap;
 
-    public IReadOnlyList<IUiElement> Children => _children;
     public UiRectangle Rectangle { get; private set; } = new(origin, Vector2.Zero, originAnchor);
 
     public void Draw(SpriteBatch spriteBatch)

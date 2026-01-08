@@ -4,7 +4,7 @@ namespace Gameplay.Levelling.SphereGrid.UI;
 
 public interface ISphereGridCamera
 {
-    IHasPosition? Target { get; set; }
+    IHasPosition? Target { set; }
     Matrix Transform { get; }
     Vector2 Position { get; set; }
     void Update(GameTime gameTime);

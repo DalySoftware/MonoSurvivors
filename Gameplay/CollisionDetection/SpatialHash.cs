@@ -57,7 +57,7 @@ internal class SpatialHash<T>(float cellSize)
     {
         CircleCollider circle => GetCircleCells(circle),
         RectangleCollider rect => GetRectangleCells(rect),
-        var unmatched => [GetCell(unmatched.Position)],
+        _ => [GetCell(collider.Position)],
     };
 
     private IEnumerable<(int x, int y)> GetCircleCells(CircleCollider circle)

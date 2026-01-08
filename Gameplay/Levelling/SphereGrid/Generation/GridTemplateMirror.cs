@@ -2,7 +2,7 @@
 
 namespace Gameplay.Levelling.SphereGrid.Generation;
 
-internal class GridTemplateMirror
+internal static class GridTemplateMirror
 {
     internal static GridTemplate Mirror(GridTemplate template) => new()
     {

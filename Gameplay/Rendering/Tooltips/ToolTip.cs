@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering.Tooltips;
 
-public record struct ToolTip(string Title, IReadOnlyCollection<ToolTipBodyLine> Body)
+public readonly record struct ToolTip(string Title, IReadOnlyCollection<ToolTipBodyLine> Body)
 {
     internal int TotalLines => Body.Count + 1; // Add 1 for title
 

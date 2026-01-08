@@ -68,16 +68,6 @@ public static class PowerUpCatalog
     public static Dictionary<Type, PowerUpCategory> Categories { get; } =
         PowerUpDefinitions.ToDictionary(d => d.PowerUpType, d => d.Category);
 
-    /// <summary>
-    ///     Calls <paramref name="func" /> for each weapon unlock type in the catalog and returns the results.
-    /// </summary>
-    public static IEnumerable<TResult> ApplyForEachWeapon<TResult>(Func<Type, TResult> func)
-    {
-        Type[] weaponTypes =
-            [typeof(Shotgun), typeof(SniperRifle), typeof(IceAura), typeof(BouncingGun), typeof(BasicGun)];
-        foreach (var weapon in weaponTypes) yield return func(weapon);
-    }
-
     extension(IPowerUp powerUp)
     {
         public string Title() => powerUp switch

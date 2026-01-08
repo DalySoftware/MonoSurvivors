@@ -53,8 +53,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
         OnDeath = onDeath;
     }
 
-    public IEnumerable<ICollider> SecondaryColliders => _segments.Select(s => s.Collider);
-
     public void Draw(SpriteBatch spriteBatch)
     {
         var layer = Layers.Enemies + 0.02f;

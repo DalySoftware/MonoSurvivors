@@ -12,7 +12,6 @@ public class WeaponBelt(BulletSplitOnHit bulletSplit, ChainLightningOnHit chainL
     private readonly List<IWeapon> _weapons = [];
 
     public WeaponBeltStats Stats { get; } = new();
-    public IReadOnlyCollection<IWeapon> Weapons => _weapons;
 
     public List<IOnHitEffect> OnHitEffects { get; } =
     [
