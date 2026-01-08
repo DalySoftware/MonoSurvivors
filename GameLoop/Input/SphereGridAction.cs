@@ -65,30 +65,36 @@ internal sealed class SphereGridActionInput(GameInputState state, ActionKeyMap<S
 
     public Vector2 GetNavigationDirection(GameTime gameTime)
     {
-        // Left thumbstick (rate-limited)
+        var direction = Vector2.Zero;
+
+        // Stick
         var stick = State.GamePadState.ThumbSticks.Left;
         stick.Y *= -1f;
 
         if (stick.LengthSquared() >= 0.02f)
         {
-            _currentNavigationCooldown -= gameTime.ElapsedGameTime;
-            if (_currentNavigationCooldown > TimeSpan.Zero)
-                return Vector2.Zero;
-
-            _currentNavigationCooldown = _navigationCooldown;
-            return stick;
+            direction = stick;
+        }
+        else
+        {
+            // D-pad
+            if (IsDown(SphereGridAction.NavigateUp)) direction += Vector2.UnitY * -1f;
+            if (IsDown(SphereGridAction.NavigateDown)) direction += Vector2.UnitY;
+            if (IsDown(SphereGridAction.NavigateLeft)) direction += Vector2.UnitX * -1f;
+            if (IsDown(SphereGridAction.NavigateRight)) direction += Vector2.UnitX;
         }
 
-        _currentNavigationCooldown = TimeSpan.Zero;
+        if (direction == Vector2.Zero)
+        {
+            _currentNavigationCooldown = TimeSpan.Zero;
+            return Vector2.Zero;
+        }
 
-        // D-pad (edge-triggered)
-        var direction = Vector2.Zero;
+        _currentNavigationCooldown -= gameTime.ElapsedGameTime;
+        if (_currentNavigationCooldown > TimeSpan.Zero)
+            return Vector2.Zero;
 
-        if (IsDown(SphereGridAction.NavigateUp)) direction += Vector2.UnitY * -1f;
-        if (IsDown(SphereGridAction.NavigateDown)) direction += Vector2.UnitY;
-        if (IsDown(SphereGridAction.NavigateLeft)) direction += Vector2.UnitX * -1f;
-        if (IsDown(SphereGridAction.NavigateRight)) direction += Vector2.UnitX;
-
+        _currentNavigationCooldown = _navigationCooldown;
         return direction;
     }
 }
