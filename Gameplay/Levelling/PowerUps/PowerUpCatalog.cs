@@ -59,9 +59,9 @@ public static class PowerUpCatalog
     public readonly static IReadOnlyList<WeaponDescriptor> Weapons =
     [
         new("Enforcer", new WeaponUnlock<BasicGun>(), "The enforcer is good all rounder"),
-        new("Shotgun", new WeaponUnlock<Shotgun>(), "The shotgun fires bullets in a spread"),
+        new("Shotgun", new WeaponUnlock<Shotgun>(), "The shotgun fires bullets in a spread and knock enemies back"),
         new("Sniper", new WeaponUnlock<SniperRifle>(), "The sniper rifle pierces and is twice as likely to crit"),
-        new("Ice Aura", new WeaponUnlock<IceAura>(), "You emit an ice aura which damages and slows all nearby enemies"),
+        new("Ice Aura", new WeaponUnlock<IceAura>(), "You emit an ice aura which damages and slows nearby enemies"),
         new("Bouncer", new WeaponUnlock<BouncingGun>(), "The bouncer's bullets ricochet off enemies"),
     ];
 
