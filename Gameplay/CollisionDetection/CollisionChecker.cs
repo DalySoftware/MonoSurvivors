@@ -48,9 +48,9 @@ internal static class ColliderExtensions
 {
     extension(RectangleCollider collider)
     {
-        internal float Left => (collider.Position.X - collider.Width) * 0.5f;
-        internal float Right => (collider.Position.X + collider.Width) * 0.5f;
-        internal float Top => (collider.Position.Y - collider.Height) * 0.5f;
-        internal float Bottom => (collider.Position.Y + collider.Height) * 0.5f;
+        internal float Left => collider.Position.X - collider.Width * 0.5f;
+        internal float Right => collider.Position.X + collider.Width * 0.5f;
+        internal float Top => collider.Position.Y - collider.Height * 0.5f;
+        internal float Bottom => collider.Position.Y + collider.Height * 0.5f;
     }
 }
