@@ -5,13 +5,14 @@ Framework Content Pipeline. Follow the comments to customize the appearance
 of the font in your game, and to change the characters which are available to draw
 with.
 -->
+<!--https://otter-and-bench.itch.io/righteous-->
 <XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
     <Asset Type="Graphics:FontDescription">
 
         <!--
         Modify this string to change the font that will be imported.
         -->
-        <FontName>KarmaticArcade</FontName>
+        <FontName>Righteous</FontName>
 
         <!--
         Size is a float value, measured in points. Modify this value to change

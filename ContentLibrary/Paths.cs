@@ -72,16 +72,16 @@ public static class Paths
 
     public static class Fonts
     {
-        public static class KarmaticArcade
-        {
-            public const string Large = @"Fonts\KarmaticArcade-Large";
-        }
-
         public static class BoldPixels
         {
             public const string Large = @"Fonts\BoldPixels-Large";
             public const string Medium = @"Fonts\BoldPixels-Medium";
             public const string Small = @"Fonts\BoldPixels-Small";
+        }
+
+        public static class Righteous
+        {
+            public const string Large = @"Fonts\Righteous-Large";
         }
     }
 

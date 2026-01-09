@@ -19,7 +19,7 @@ internal class GameOverScene(
     : IScene
 {
     private readonly SpriteFont _messageFont = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
-    private readonly SpriteFont _titleFont = content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
+    private readonly SpriteFont _titleFont = content.Load<SpriteFont>(Paths.Fonts.Righteous.Large);
 
     public void Update(GameTime gameTime)
     {

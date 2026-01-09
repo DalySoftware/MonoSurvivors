@@ -34,12 +34,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/BoldPixels-Small.spritefont
 
-#begin Fonts/KarmaticArcade-Large.spritefont
+#begin Fonts/Righteous-Large.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/KarmaticArcade-Large.spritefont
+/build:Fonts/Righteous-Large.spritefont
 
 #begin Images/BossBody.png
 /importer:TextureImporter

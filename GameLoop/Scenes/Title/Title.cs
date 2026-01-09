@@ -14,8 +14,8 @@ internal class Title(SpriteFont font, UiRectangle rectangle) : IUiElement
     private const string Line1 = "Mono";
     private const string Line2 = "Survivors";
     private const float Line2Offset = 150f; // This isn't a gap but TopLeft to TopLeft. Could be refactored further
-    private readonly static Color ForegroundColor = ColorPalette.Blue;
-    private readonly static Color ShadowColor = ColorPalette.Blue.ShiftChroma(-0.16f).ShiftLightness(-0.32f);
+    private readonly static Color ForegroundColor = ColorPalette.Teal;
+    private readonly static Color ShadowColor = ColorPalette.Teal.ShiftChroma(-0.04f).ShiftLightness(-0.32f);
 
     public UiRectangle Rectangle { get; } = rectangle;
 
@@ -23,23 +23,21 @@ internal class Title(SpriteFont font, UiRectangle rectangle) : IUiElement
     {
         var shadowOffset = new Vector2(-10f, 10f);
 
-        const string line1 = "Mono";
         var line1Rectangle = Rectangle.CreateAnchoredRectangle(UiAnchor.TopCenter, font.MeasureString(Line1));
-        spriteBatch.DrawString(font, line1, line1Rectangle.TopLeft, ForegroundColor, layerDepth: Layers.Front);
-        spriteBatch.DrawString(font, line1, line1Rectangle.TopLeft + shadowOffset, ShadowColor,
+        spriteBatch.DrawString(font, Line1, line1Rectangle.TopLeft, ForegroundColor, layerDepth: Layers.Front);
+        spriteBatch.DrawString(font, Line1, line1Rectangle.TopLeft + shadowOffset, ShadowColor,
             layerDepth: Layers.Shadow);
 
-        const string line2 = "Survivors";
         var line2Rectangle =
             Rectangle.CreateAnchoredRectangle(UiAnchor.BottomCenter, font.MeasureString(Line2));
-        spriteBatch.DrawString(font, line2, line2Rectangle.TopLeft, ForegroundColor, layerDepth: Layers.Front);
-        spriteBatch.DrawString(font, line2, line2Rectangle.TopLeft + shadowOffset, ShadowColor,
+        spriteBatch.DrawString(font, Line2, line2Rectangle.TopLeft, ForegroundColor, layerDepth: Layers.Front);
+        spriteBatch.DrawString(font, Line2, line2Rectangle.TopLeft + shadowOffset, ShadowColor,
             layerDepth: Layers.Shadow);
     }
 
     internal class Factory(ContentManager content)
     {
-        private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.KarmaticArcade.Large);
+        private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.Righteous.Large);
 
         public Title Create(Vector2 anchor)
         {

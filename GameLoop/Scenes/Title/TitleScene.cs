@@ -46,7 +46,7 @@ internal class TitleScene : IScene
 
     public void Draw(GameTime gameTime)
     {
-        _spriteBatch.Begin(SpriteSortMode.FrontToBack);
+        _spriteBatch.Begin(SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp);
 
         _stack.Draw(_spriteBatch);
 
