@@ -11,8 +11,8 @@ namespace GameLoop.Scenes.Title;
 
 internal class Title(SpriteFont font, UiRectangle rectangle) : IUiElement
 {
-    private const string Line1 = "Mono";
-    private const string Line2 = "Survivors";
+    private const string Line1 = "Veil of";
+    private const string Line2 = "Cataclysm";
     private const float Line2Offset = 150f; // This isn't a gap but TopLeft to TopLeft. Could be refactored further
     private readonly static Color ForegroundColor = ColorPalette.Teal;
     private readonly static Color ShadowColor = ColorPalette.Teal.ShiftChroma(-0.04f).ShiftLightness(-0.32f);

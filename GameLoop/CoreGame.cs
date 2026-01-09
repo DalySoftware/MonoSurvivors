@@ -37,7 +37,7 @@ public class CoreGame : Game, IGlobalCommands
         graphicsManager.PreferredBackBufferHeight = 1080;
         IsMouseVisible = true;
 
-        Window.Title = "Mono Survivors";
+        Window.Title = "Veil of Cataclysm";
 
         _container = new GameContainer(this);
     }
