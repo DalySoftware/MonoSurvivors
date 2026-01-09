@@ -4,7 +4,7 @@ namespace Gameplay.CollisionDetection;
 
 internal static class CollisionChecker
 {
-    internal static bool HasOverlap(CircleCollider source, CircleCollider target)
+    private static bool HasOverlap(CircleCollider source, CircleCollider target)
     {
         var sourceRadius = source.CollisionRadius;
         var targetRadius = target.CollisionRadius;
@@ -13,7 +13,7 @@ internal static class CollisionChecker
         return distanceSquared <= (sourceRadius + targetRadius) * (sourceRadius + targetRadius);
     }
 
-    internal static bool HasOverlap(CircleCollider source, RectangleCollider target)
+    private static bool HasOverlap(CircleCollider source, RectangleCollider target)
     {
         // Find the closest point on the rectangle to the circle's centre
         var closestX = Math.Clamp(source.Position.X, target.Left, target.Right);
@@ -28,7 +28,7 @@ internal static class CollisionChecker
         return distanceSquared <= source.CollisionRadius * source.CollisionRadius;
     }
 
-    internal static bool HasOverlap(RectangleCollider source, RectangleCollider target) =>
+    private static bool HasOverlap(RectangleCollider source, RectangleCollider target) =>
         source.Left < target.Right &&
         source.Right > target.Left &&
         source.Top < target.Bottom &&
