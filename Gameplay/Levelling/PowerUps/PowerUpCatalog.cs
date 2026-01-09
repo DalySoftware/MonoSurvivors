@@ -58,11 +58,11 @@ public static class PowerUpCatalog
 
     public readonly static IReadOnlyList<WeaponDescriptor> Weapons =
     [
-        new("Enforcer", new WeaponUnlock<BasicGun>()),
-        new("Shotgun", new WeaponUnlock<Shotgun>()),
-        new("Sniper", new WeaponUnlock<SniperRifle>()),
-        new("Ice Aura", new WeaponUnlock<IceAura>()),
-        new("Bouncer", new WeaponUnlock<BouncingGun>()),
+        new("Enforcer", new WeaponUnlock<BasicGun>(), "The enforcer is good all rounder"),
+        new("Shotgun", new WeaponUnlock<Shotgun>(), "The shotgun fires bullets in a spread"),
+        new("Sniper", new WeaponUnlock<SniperRifle>(), "The sniper rifle pierces and is twice as likely to crit"),
+        new("Ice Aura", new WeaponUnlock<IceAura>(), "You emit an ice aura which damages and slows all nearby enemies"),
+        new("Bouncer", new WeaponUnlock<BouncingGun>(), "The bouncer's bullets ricochet off enemies"),
     ];
 
     public static Dictionary<Type, PowerUpCategory> Categories { get; } =
@@ -119,13 +119,8 @@ public static class PowerUpCatalog
             ProjectileSpeedUp projectileSpeedUp => $"Increase Projectile Speed by {projectileSpeedUp.Value:P0}",
             RangeUp rangeUp => $"Increase Range by {rangeUp.Value:P0}",
             SpeedUp speedUp => $"Increase Speed by {speedUp.Value:P0}",
-            WeaponUnlock<Shotgun> => "Unlock an extra weapon! The shotgun fires bullets in a spread",
-            WeaponUnlock<SniperRifle> =>
-                "Unlock an extra weapon! The sniper rifle pierces and is twice as likely to crit",
-            WeaponUnlock<BouncingGun> => "Unlock an extra weapon! The bouncer's bullets ricochet off enemies",
-            WeaponUnlock<IceAura> =>
-                "Unlock an extra weapon! You emit an ice aura which damages and slows all nearby enemies",
-            WeaponUnlock<BasicGun> => "Unlock an extra weapon! The enforcer is good all rounder",
+            WeaponUnlock weapon when Weapons.FirstOrDefault(w => w.Unlock == weapon) is { } descriptor =>
+                $"Unlock an extra weapon! {descriptor.Description}",
             _ => throw new ArgumentOutOfRangeException(nameof(powerUp)),
         };
     }
@@ -252,4 +247,4 @@ internal static class Pluralization
     }
 }
 
-public sealed record WeaponDescriptor(string DisplayName, WeaponUnlock Unlock);
+public sealed record WeaponDescriptor(string DisplayName, WeaponUnlock Unlock, string Description);
