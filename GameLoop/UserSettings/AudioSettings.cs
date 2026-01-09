@@ -14,7 +14,7 @@ public class AudioSettings
     {
         get;
         set => field = RoundVolume(value);
-    } = 0.5f;
+    } = 0.25f;
 
     public float SoundEffectVolume
     {
