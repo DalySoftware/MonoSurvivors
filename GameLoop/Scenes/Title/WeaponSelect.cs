@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ContentLibrary;
 using GameLoop.UI;
 using Gameplay.Levelling.PowerUps;
-using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,125 +10,108 @@ namespace GameLoop.Scenes.Title;
 
 internal sealed class WeaponSelect : IUiElement
 {
-    private readonly WeaponPanelCarousel _carousel;
+    private readonly WeaponCarouselPanel _carousel;
+    private readonly VerticalStack _stack;
+    private readonly Label _titleLabel;
+    private readonly Label _descriptionLabel;
 
     private WeaponSelect(
         Button.Factory buttonFactory,
         WeaponPanelFactory weaponPanelFactory,
+        Label.Factory labelFactory,
         Vector2 topCenter)
     {
-        // --- Central carousel
-        var carouselRect = new UiRectangle(topCenter, new Vector2(100, 100), UiAnchor.TopCenter);
+        // Have to tell the compiler we're assigning required props
+        WeaponCarouselPanel carousel = null!;
+        Button previousButton = null!;
+        Button nextButton = null!;
 
-        _carousel = new WeaponPanelCarousel(weaponPanelFactory, carouselRect);
+        _stack = new VerticalStack(topCenter, 12f);
+        _stack.AddChild(origin =>
+        {
+            var carouselRect = new UiRectangle(origin, new Vector2(100, 100), UiAnchor.TopCenter);
+            carousel = new WeaponCarouselPanel(weaponPanelFactory, carouselRect);
 
-        var buttonPadding = new Vector2(50f, 0f);
+            var padding = new Vector2(50f, 0f);
 
-        PreviousButton = buttonFactory.Create("<", _carousel.Previous,
-            _carousel.Rectangle.AnchorForPoint(UiAnchor.CenterLeft) - buttonPadding, UiAnchor.CenterRight,
-            true);
+            previousButton = buttonFactory.Create(
+                "<",
+                () =>
+                {
+                    carousel.Previous();
+                    RefreshLabels();
+                },
+                carouselRect.AnchorForPoint(UiAnchor.CenterLeft) - padding,
+                UiAnchor.CenterRight,
+                true);
 
-        NextButton = buttonFactory.Create(
-            ">",
-            _carousel.Next,
-            _carousel.Rectangle.AnchorForPoint(UiAnchor.CenterRight) + buttonPadding, UiAnchor.CenterLeft,
-            true);
+            nextButton = buttonFactory.Create(
+                ">",
+                () =>
+                {
+                    carousel.Next();
+                    RefreshLabels();
+                },
+                carouselRect.AnchorForPoint(UiAnchor.CenterRight) + padding,
+                UiAnchor.CenterLeft,
+                true);
 
-        var height = Elements.Max(e => e.Rectangle.Size.Y);
-        var minX = Elements.Min(e => e.Rectangle.TopLeft.X);
-        var maxX = Elements.Max(e => e.Rectangle.AnchorForPoint(UiAnchor.CenterRight).X);
+            return new WeaponCarousel(carousel, previousButton, nextButton);
+        });
 
-        var size = new Vector2(maxX - minX, height);
-        Rectangle = new UiRectangle(topCenter, size, UiAnchor.TopCenter);
+        _carousel = carousel;
+        PreviousButton = previousButton;
+        NextButton = nextButton;
+
+        _titleLabel = _stack.AddChild(origin =>
+            labelFactory.Create(
+                Paths.Fonts.BoldPixels.Medium,
+                _carousel.CurrentWeapon.DisplayName,
+                origin,
+                UiAnchor.TopCenter,
+                alignment: TextAlignment.Center,
+                templateString: LongestName()));
+
+        _descriptionLabel = _stack.AddChild(origin =>
+            labelFactory.Create(
+                Paths.Fonts.BoldPixels.Medium,
+                _carousel.CurrentWeapon.Description,
+                origin,
+                UiAnchor.TopCenter,
+                alignment: TextAlignment.Center,
+                templateString: LongestDescription()));
+
+        Rectangle = _stack.Rectangle;
     }
 
     internal Button PreviousButton { get; }
     internal Button NextButton { get; }
 
     internal IEnumerable<Button> Buttons => [PreviousButton, NextButton];
-    private IEnumerable<IUiElement> Elements => [_carousel, ..Buttons];
     internal WeaponDescriptor CurrentWeapon => _carousel.CurrentWeapon;
 
     public UiRectangle Rectangle { get; }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch) => _stack.Draw(spriteBatch);
+
+    private void RefreshLabels()
     {
-        _carousel.Draw(spriteBatch);
-        PreviousButton.Draw(spriteBatch);
-        NextButton.Draw(spriteBatch);
+        _titleLabel.Text = _carousel.CurrentWeapon.DisplayName;
+        _descriptionLabel.Text = _carousel.CurrentWeapon.Description;
     }
+
+    private static string LongestName() => PowerUpCatalog.Weapons.Max(w => w.DisplayName) ?? "";
+    private static string LongestDescription() => PowerUpCatalog.Weapons.Max(w => w.Description) ?? "";
 
     /// <summary>
     ///     Factory for WeaponSelect
     /// </summary>
-    internal sealed class Factory(Button.Factory buttonFactory, WeaponPanelFactory panelFactory)
+    internal sealed class Factory(
+        Button.Factory buttonFactory,
+        WeaponPanelFactory panelFactory,
+        Label.Factory labelFactory)
     {
         internal WeaponSelect Create(Vector2 topCenter)
-            => new(buttonFactory, panelFactory, topCenter);
+            => new(buttonFactory, panelFactory, labelFactory, topCenter);
     }
-}
-
-internal interface IWeaponPanel : IUiElement
-{
-    WeaponDescriptor Descriptor { get; }
-}
-
-internal sealed class WeaponPanel(Panel panel, Texture2D icon, WeaponDescriptor descriptor) : IWeaponPanel
-{
-    public WeaponDescriptor Descriptor { get; } = descriptor;
-    public UiRectangle Rectangle => panel.Rectangle;
-
-    public void Draw(SpriteBatch spriteBatch)
-    {
-        panel.Draw(spriteBatch);
-
-        var interior = panel.Interior;
-        var iconSize = new Vector2(icon.Width, icon.Height);
-        var iconTopLeft = interior.Centre - iconSize / 2f;
-
-        spriteBatch.Draw(icon, iconTopLeft, layerDepth: panel.InteriorLayerDepth + 0.01f);
-    }
-}
-
-internal sealed class WeaponPanelFactory(
-    Panel.Factory panelFactory,
-    PowerUpIcons powerUpIcons)
-{
-    /// <summary>
-    ///     Create a WeaponPanel for a specific weapon type T.
-    /// </summary>
-    public IWeaponPanel Create(WeaponDescriptor descriptor, UiRectangle rectangle)
-    {
-        var icon = powerUpIcons.IconFor(descriptor.Unlock) ?? throw new Exception("Unknown weapon type");
-
-        var interior = new UiRectangle(rectangle.Centre, rectangle.Size, UiAnchor.Centre);
-        var panel = panelFactory.DefineByInterior(interior);
-
-        return new WeaponPanel(panel, icon, descriptor);
-    }
-}
-
-internal sealed class WeaponPanelCarousel : IUiElement
-{
-    private readonly List<IWeaponPanel> _panels;
-
-    public WeaponPanelCarousel(WeaponPanelFactory panelFactory, UiRectangle centerRect)
-    {
-        // Create panels for each weapon
-        _panels = PowerUpCatalog.Weapons.Select(descriptor => panelFactory.Create(descriptor, centerRect)).ToList();
-
-        CurrentIndex = 0;
-    }
-
-    public int CurrentIndex { get; private set; }
-
-    public WeaponDescriptor CurrentWeapon => _panels[CurrentIndex].Descriptor;
-
-    public UiRectangle Rectangle => _panels[CurrentIndex].Rectangle;
-
-    public void Draw(SpriteBatch spriteBatch) => _panels[CurrentIndex].Draw(spriteBatch);
-
-    public void Next() => CurrentIndex = (CurrentIndex + 1) % _panels.Count;
-
-    public void Previous() => CurrentIndex = (CurrentIndex - 1 + _panels.Count) % _panels.Count;
 }

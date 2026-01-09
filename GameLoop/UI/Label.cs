@@ -57,18 +57,24 @@ internal sealed class Label : IUiElement
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        var position = Rectangle.TopLeft;
-        var origin = Vector2.Zero;
+        var (position, origin) = GetPositionAndOrigin();
 
-        if (_alignment == TextAlignment.Right)
-        {
-            position.X += Rectangle.Size.X;
-            origin.X = _textSize.X;
-        }
-
-        spriteBatch.DrawString(_font, Text, position, _color, origin: origin, layerDepth: _layerDepth);
+        spriteBatch.DrawString(
+            _font,
+            Text,
+            position,
+            _color,
+            origin: origin,
+            layerDepth: _layerDepth);
     }
 
+    private (Vector2 position, Vector2 origin) GetPositionAndOrigin() => _alignment switch
+    {
+        TextAlignment.Center => (Rectangle.TopLeft + new Vector2(Rectangle.Size.X * 0.5f, 0f),
+            new Vector2(_textSize.X * 0.5f, 0f)),
+        TextAlignment.Right => (Rectangle.TopLeft + new Vector2(Rectangle.Size.X, 0f), new Vector2(_textSize.X, 0f)),
+        _ => (Rectangle.TopLeft, Vector2.Zero),
+    };
 
     private void UpdateRectangle(Vector2 origin, UiAnchor anchor)
     {
@@ -121,5 +127,6 @@ internal sealed class Label : IUiElement
 public enum TextAlignment
 {
     Left,
+    Center,
     Right,
 }
