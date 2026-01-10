@@ -24,6 +24,7 @@ namespace GameLoop;
 
 public class CoreGame : Game, IGlobalCommands
 {
+    private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.04f).ShiftLightness(-0.05f);
     private readonly GameContainer _container;
 
     private ILifetimeScope _contentScope = null!;
@@ -171,10 +172,9 @@ public class CoreGame : Game, IGlobalCommands
         base.Update(gameTime);
     }
 
-
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(ColorPalette.Wine.ShiftChroma(-0.04f).ShiftLightness(-0.05f));
+        GraphicsDevice.Clear(BackgroundColor);
 
         SceneManager.Current?.Draw(gameTime);
 
