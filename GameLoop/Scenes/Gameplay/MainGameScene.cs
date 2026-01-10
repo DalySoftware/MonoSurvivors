@@ -79,8 +79,6 @@ internal class MainGameScene(
 
     internal static void ConfigureServices(ContainerBuilder builder)
     {
-        builder.Register(ctx => ctx.Resolve<GraphicsDevice>().Viewport);
-
         builder.RegisterType<BulletSplitOnHit>();
         builder.RegisterType<ChainLightningOnHit>();
 

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ContentLibrary;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using Gameplay.Entities.Enemies;
 using Gameplay.Entities.Enemies.Spawning;
@@ -13,7 +14,7 @@ namespace GameLoop.Scenes.Gameplay.UI;
 
 internal sealed class BossHealthBarFactory(
     ContentManager content,
-    Viewport viewport,
+    RenderScaler renderScaler,
     PrimitiveRenderer primitiveRenderer,
     EnemySpawner enemySpawner,
     Panel.Factory panelFactory)
@@ -23,13 +24,13 @@ internal sealed class BossHealthBarFactory(
         var font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
 
         const float interiorHeight = 20f;
-        var interiorSize = new Vector2(viewport.Width * 0.6f, interiorHeight);
+        var interiorSize = new Vector2(renderScaler.Width * 0.6f, interiorHeight);
 
         // Root rectangle = full viewport
         var panelSize = Panel.Factory.MeasureByInterior(interiorSize);
 
         const float topPadding = 50f;
-        var panelRect = viewport
+        var panelRect = renderScaler
             .UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.TopCenter, panelSize, new Vector2(0f, topPadding));
 

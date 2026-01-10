@@ -1,6 +1,7 @@
 using Autofac;
 using ContentLibrary;
 using GameLoop.Input;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
@@ -19,7 +20,7 @@ internal class GameOverScene : IScene
     private InputMethod _lastInputMethod;
 
     public GameOverScene(
-        Viewport viewport,
+        RenderScaler renderScaler,
         SpriteBatch spriteBatch,
         GameOverInputManager input,
         InputGate inputGate,
@@ -33,7 +34,7 @@ internal class GameOverScene : IScene
 
         const string titleText = "Game Over";
         var titleSize = labelFactory.Measure(Paths.Fonts.Righteous.Large, titleText);
-        var titleRectangle = viewport.UiRectangle()
+        var titleRectangle = renderScaler.UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.Centre, titleSize, new Vector2(0f, -100f));
 
         _titleLabel = labelFactory.Create(

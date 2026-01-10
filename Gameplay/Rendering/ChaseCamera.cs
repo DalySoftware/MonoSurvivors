@@ -1,11 +1,10 @@
 ﻿using System;
 using Gameplay.Behaviour;
 using Gameplay.Levelling.SphereGrid.UI;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Rendering;
 
-public class ChaseCamera(Viewport viewport, IHasPosition? target, float decayRate = 0.0025f) : ISphereGridCamera
+public class ChaseCamera(IRenderViewport viewport, IHasPosition? target, float decayRate = 0.0025f) : ISphereGridCamera
 {
     private Vector2 ViewportSize => new(viewport.Width, viewport.Height);
     private Vector2 ViewportCentre => ViewportSize / 2;

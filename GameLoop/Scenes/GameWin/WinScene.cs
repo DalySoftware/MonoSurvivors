@@ -2,6 +2,7 @@
 using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Persistence;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using Gameplay;
 using Gameplay.Rendering.Colors;
@@ -22,7 +23,7 @@ internal class WinScene : IScene
     private InputMethod _lastInputMethod;
 
     public WinScene(
-        Viewport viewport,
+        RenderScaler renderScaler,
         SpriteBatch spriteBatch,
         WinSceneInputManager input,
         InputGate inputGate,
@@ -37,7 +38,7 @@ internal class WinScene : IScene
         // Title label
         const string titleText = "You Win!";
         var titleSize = labelFactory.Measure(Paths.Fonts.Righteous.Large, titleText);
-        var titleRectangle = viewport.UiRectangle()
+        var titleRectangle = renderScaler.UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.Centre, titleSize, new Vector2(0f, -100f));
 
         _titleLabel = labelFactory.Create(

@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.Gameplay.UI;
 
-internal class RunClockFactory(ContentManager content, Viewport viewport, EnemySpawner spawner)
+internal class RunClockFactory(ContentManager content, IRenderViewport viewport, EnemySpawner spawner)
 {
     internal RunClock Create()
     {

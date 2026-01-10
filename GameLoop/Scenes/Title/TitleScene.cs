@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using GameLoop.Input;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,6 +15,7 @@ internal class TitleScene : IScene
     private readonly InputGate _inputGate;
     private readonly VerticalStack _stack;
     public TitleScene(SpriteBatch spriteBatch,
+        RenderScaler renderScaler,
         InputGate inputGate,
         Title.Factory titleFactory,
         HelpText.Factory helpTextFactory,
@@ -23,11 +25,7 @@ internal class TitleScene : IScene
         _spriteBatch = spriteBatch;
         _inputGate = inputGate;
 
-        var topCentre = _spriteBatch
-            .GraphicsDevice
-            .Viewport
-            .UiRectangle()
-            .AnchorForPoint(UiAnchor.TopCenter);
+        var topCentre = renderScaler.UiRectangle().AnchorForPoint(UiAnchor.TopCenter);
 
         _stack = new VerticalStack(topCentre + new Vector2(0f, 100f), 100f);
 

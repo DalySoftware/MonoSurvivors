@@ -3,11 +3,10 @@ using ContentLibrary;
 using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Gameplay.Rendering.Tooltips;
 
-public class ToolTipRenderer(PrimitiveRenderer primitiveRenderer, ContentManager content)
+public class ToolTipRenderer(IMouseInputState mouse, PrimitiveRenderer primitiveRenderer, ContentManager content)
 {
     private readonly SpriteFont _font = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
 
@@ -40,7 +39,7 @@ public class ToolTipRenderer(PrimitiveRenderer primitiveRenderer, ContentManager
     /// <param name="layerDepth">Layer depth for background. Text will use <paramref name="layerDepth" /> + 0.01f</param>
     public void DrawTooltipAtMouse(SpriteBatch spriteBatch, ToolTip tooltip, float layerDepth = Layers.Tooltips)
     {
-        var mouseState = Mouse.GetState();
+        var mouseState = mouse.MouseState;
         var position = new Vector2(mouseState.X + 20, mouseState.Y);
 
         DrawTooltipAt(spriteBatch, tooltip, position, layerDepth);

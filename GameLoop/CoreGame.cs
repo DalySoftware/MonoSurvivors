@@ -2,6 +2,7 @@
 using GameLoop.Audio;
 using GameLoop.DependencyInjection;
 using GameLoop.Input;
+using GameLoop.Rendering;
 using GameLoop.Scenes;
 using GameLoop.Scenes.GameOver;
 using GameLoop.Scenes.Gameplay;
@@ -30,6 +31,7 @@ public class CoreGame : Game, IGlobalCommands
     private ILifetimeScope _contentScope = null!;
     private ILifetimeScope _gameplayScope = null!;
     private InputStateManager _inputStateManager = null!;
+    private RenderScaler _renderScaler = null!;
 
     public CoreGame()
     {
@@ -139,6 +141,7 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterInstance(GraphicsDevice).As<GraphicsDevice>();
             builder.RegisterInstance(Content).As<ContentManager>();
             builder.RegisterType<SpriteBatch>().ExternallyOwned();
+            builder.RegisterType<RenderScaler>().AsSelf().As<IRenderViewport>().SingleInstance();
 
             builder.RegisterType<PrimitiveRenderer>().SingleInstance();
             builder.RegisterType<Panel.Factory>().SingleInstance();
@@ -152,13 +155,14 @@ public class CoreGame : Game, IGlobalCommands
 
             TitleScene.ConfigureServices(builder);
 
-            builder.RegisterType<GameInputState>().SingleInstance();
+            builder.RegisterType<GameInputState>().AsSelf().As<IMouseInputState>().SingleInstance();
             builder.RegisterType<InputStateManager>().SingleInstance();
             builder.RegisterType<InputGate>().SingleInstance();
         });
 
         _contentScope.Resolve<GameInputState>();
         _inputStateManager = _contentScope.Resolve<InputStateManager>();
+        _renderScaler = _contentScope.Resolve<RenderScaler>();
 
         ReturnToTitle();
 
@@ -174,9 +178,10 @@ public class CoreGame : Game, IGlobalCommands
 
     protected override void Draw(GameTime gameTime)
     {
+        _renderScaler.BeginRenderTarget();
         GraphicsDevice.Clear(BackgroundColor);
-
         SceneManager.Current?.Draw(gameTime);
+        _renderScaler.EndRenderTarget();
 
         base.Draw(gameTime);
     }

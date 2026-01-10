@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameLoop.Input;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using Gameplay.Audio;
 using Gameplay.Levelling.PowerUps;
@@ -24,6 +25,7 @@ internal class SphereGridUi
     private readonly static Color IconColor = ColorPalette.White;
     private Node? _hoveredNode;
     private readonly GraphicsDevice _graphicsDevice;
+    private readonly RenderScaler _renderScaler;
     private readonly SphereGrid _grid;
     private readonly PrimitiveRenderer _primitiveRenderer;
     private readonly ToolTipRenderer _toolTipRenderer;
@@ -41,6 +43,7 @@ internal class SphereGridUi
     /// </summary>
     public SphereGridUi(
         GraphicsDevice graphicsDevice,
+        RenderScaler renderScaler,
         SphereGrid grid,
         PrimitiveRenderer primitiveRenderer,
         ToolTipRenderer toolTipRenderer,
@@ -53,6 +56,7 @@ internal class SphereGridUi
         IAudioPlayer audio)
     {
         _graphicsDevice = graphicsDevice;
+        _renderScaler = renderScaler;
         _grid = grid;
         _primitiveRenderer = primitiveRenderer;
         _toolTipRenderer = toolTipRenderer;
@@ -66,7 +70,7 @@ internal class SphereGridUi
         FocusedNode = grid.Root;
 
         var panelSize = Panel.Factory.MeasureByInterior(TitleSize);
-        var exterior = graphicsDevice.Viewport.UiRectangle()
+        var exterior = renderScaler.UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.TopCenter, panelSize, new Vector2(0f, 50f));
         _titlePanel = panelFactory.DefineByExterior(exterior);
 
@@ -274,7 +278,7 @@ internal class SphereGridUi
 
         var helpText = HelpText();
         var helpSize = _content.FontMedium.MeasureString(helpText);
-        var helpRectangle = _graphicsDevice.Viewport.UiRectangle()
+        var helpRectangle = _renderScaler.UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.BottomCenter, helpSize, new Vector2(0f, -50f));
         spriteBatch.DrawString(_content.FontMedium, helpText, helpRectangle.TopLeft, ColorPalette.LightGray,
             layerDepth: Layers.HelpText);

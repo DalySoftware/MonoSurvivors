@@ -1,6 +1,7 @@
 ﻿using System;
 using ContentLibrary;
 using GameLoop.Input;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using Gameplay.Levelling;
 using Gameplay.Levelling.SphereGrid;
@@ -14,7 +15,7 @@ namespace GameLoop.Scenes.Gameplay.UI;
 
 internal sealed class ExperienceBarFactory(
     ContentManager content,
-    Viewport viewport,
+    RenderScaler renderScaler,
     PrimitiveRenderer primitiveRenderer,
     LevelManager levelManager,
     SphereGrid sphereGrid,
@@ -29,10 +30,10 @@ internal sealed class ExperienceBarFactory(
         const float padding = 50f;
 
         // Main bar
-        var interiorSize = new Vector2(viewport.Width * 0.7f, interiorHeight);
+        var interiorSize = new Vector2(renderScaler.Width * 0.7f, interiorHeight);
         var barSize = Panel.Factory.MeasureByInterior(interiorSize);
 
-        var barRect = viewport
+        var barRect = renderScaler
             .UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.BottomCenter, barSize, new Vector2(0f, -padding));
 

@@ -96,14 +96,3 @@ public enum UiAnchor
     BottomCenter,
     BottomRight,
 }
-
-public static class UiExtensions
-{
-    extension(Viewport viewport)
-    {
-        public UiRectangle UiRectangle() => new(
-            Vector2.Zero,
-            new Vector2(viewport.Width, viewport.Height)
-        );
-    }
-}

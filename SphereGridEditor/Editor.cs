@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ContentLibrary;
 using GameLoop.Scenes.SphereGridScene.UI;
+using Gameplay;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.Generation;
@@ -120,7 +121,8 @@ public class Editor : Game
         _font = Content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Small);
 
         _primitiveRenderer = new PrimitiveRenderer(Content, GraphicsDevice);
-        _tooltipRenderer = new ToolTipRenderer(_primitiveRenderer, Content);
+        var mouseWrapper = new MouseStateWrapper(this);
+        _tooltipRenderer = new ToolTipRenderer(mouseWrapper, _primitiveRenderer, Content);
     }
 
     private void LayoutNodes()
@@ -939,5 +941,11 @@ public class Editor : Game
         internal const float CreateNode = 0.80f;
         internal const float CreateNodeButton = 0.85f;
         internal const float CreateNodeText = 0.90f;
+    }
+
+    private class MouseStateWrapper(Editor editor) : IMouseInputState
+    {
+        public MouseState MouseState => Mouse.GetState();
+        public MouseState PreviousMouseState => editor._previousMouseState;
     }
 }

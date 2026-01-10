@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ContentLibrary;
 using GameLoop.Persistence;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using GameLoop.UserSettings;
 using Gameplay;
@@ -29,7 +30,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
     public PauseUi(
         SpriteBatch spriteBatch,
-        Viewport viewport,
+        RenderScaler renderScaler,
         Label.Factory labelFactory,
         PrimitiveRenderer primitiveRenderer,
         ISettingsPersistence settingsPersistence,
@@ -44,7 +45,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
         _audioSettings = settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
         settingsPersistence.OnChanged += OnSettingsChanged;
 
-        _viewPortRectangle = viewport.UiRectangle();
+        _viewPortRectangle = renderScaler.UiRectangle();
         _mainStack = new VerticalStack(
             _viewPortRectangle.AnchorForPoint(UiAnchor.TopCenter) + new Vector2(0f, 50f),
             100
