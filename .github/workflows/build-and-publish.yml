@@ -24,7 +24,7 @@ jobs:
       - name: Build & publish
         shell: pwsh
         run: |
-          $VERSION = $env:GITHUB_REF -replace '^refs/tags/', ''
+          $VERSION = ($env:GITHUB_REF -replace '^refs/tags/', '') -replace '^v',''
           Write-Host "Publishing version $VERSION"
           dotnet publish ./GameLoop/GameLoop.csproj `
             -c Release `
