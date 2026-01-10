@@ -41,7 +41,7 @@ jobs:
           # Create Game folder for distribution
           $distDir = "$publishDir\Game"
           New-Item -ItemType Directory -Force -Path $distDir
-          Get-ChildItem $publishDir -File | Move-Item -Destination $distDir
+          Get-ChildItem $publishDir | Move-Item -Destination $distDir
 
           # Create Launcher.bat at the root
           $launcherPath = "$publishDir\Launcher.bat"
