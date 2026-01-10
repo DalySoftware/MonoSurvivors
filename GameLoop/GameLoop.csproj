@@ -1,5 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <AssemblyTitle>Veil of Cataclysm</AssemblyTitle>
+        <Product>Veil of Cataclysm</Product>
+        <Description>An action roguelike with sphere grid levelling</Description>
+        <Company>DalySoftware</Company>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <RollForward>Major</RollForward>
         <PublishReadyToRun>false</PublishReadyToRun>
