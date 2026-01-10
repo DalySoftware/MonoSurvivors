@@ -5,79 +5,96 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Entities.Enemies.Spawning;
 
-public sealed class EnemySpawner(
-    EntityManager entityManager,
-    PlayerCharacter player,
-    EnemyFactory enemyFactory,
-    ScreenPositioner screenPositioner,
-    IGlobalCommands globalCommands)
+public sealed class EnemySpawner
 {
     private const float BaseBudgetPerSecond = 0.5f;
-    private readonly List<SpawnPhase> _phases =
-    [
-        new()
-        {
-            Duration = TimeSpan.FromMinutes(2),
-            BudgetMultiplier = 0.8f,
-            Enemies =
-            [
-                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
-            ],
-        },
-        new()
-        {
-            Duration = TimeSpan.FromMinutes(2),
-            BudgetMultiplier = 0.8f,
-            Enemies =
-            [
-                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
-                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.05f),
-            ],
-        },
-        new()
-        {
-            Duration = TimeSpan.FromMinutes(3),
-            BudgetMultiplier = 1.0f,
-            Enemies =
-            [
-                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
-                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.1f),
-                new SpawnEntry(enemyFactory.Scorcher, 3f, 0.5f),
-            ],
-        },
-        new()
-        {
-            Duration = TimeSpan.FromMinutes(4),
-            BudgetMultiplier = 1.2f,
-            Enemies =
-            [
-                new SpawnEntry(enemyFactory.BasicEnemy, 1f),
-                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.2f),
-                new SpawnEntry(enemyFactory.Scorcher, 3f, 0.5f),
-                new SpawnEntry(enemyFactory.EliteScorcher, 9f, 0.05f),
-                new SpawnEntry(enemyFactory.Hulker, 6f, 0.4f),
-            ],
-        },
-        new() // boss wave
-        {
-            Duration = TimeSpan.FromMinutes(2),
-            BudgetMultiplier = 1.4f,
-            Enemies =
-            [
-                new SpawnEntry(enemyFactory.BasicEnemy, 1f, 0.8f),
-                new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.4f),
-                new SpawnEntry(enemyFactory.Scorcher, 3f),
-                new SpawnEntry(enemyFactory.EliteScorcher, 9f, 0.1f),
-                new SpawnEntry(enemyFactory.Hulker, 6f, 1.5f),
-                new SpawnEntry(enemyFactory.EliteHulker, 20f, 0.05f),
-            ],
-            BossFactory = enemyFactory.SnakeBoss,
-        },
-    ];
+    private readonly List<SpawnPhase> _phases;
 
     private readonly SpawnBudgeter _budgeter = new();
     private SpawnPhase? _previousPhase;
     private readonly List<EnemyBase> _activeBosses = [];
+    private readonly EntityManager _entityManager;
+    private readonly PlayerCharacter _player;
+    private readonly ScreenPositioner _screenPositioner;
+    private readonly IGlobalCommands _globalCommands;
+
+    public EnemySpawner(EntityManager entityManager,
+        PlayerCharacter player,
+        EnemyFactory enemyFactory,
+        ScreenPositioner screenPositioner,
+        IGlobalCommands globalCommands)
+    {
+        _entityManager = entityManager;
+        _player = player;
+        _screenPositioner = screenPositioner;
+        _globalCommands = globalCommands;
+        _phases =
+        [
+            new SpawnPhase
+            {
+                Duration = TimeSpan.FromMinutes(2),
+                BudgetMultiplier = 0.8f,
+                Enemies =
+                [
+                    new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+                ],
+            },
+            new SpawnPhase
+            {
+                Duration = TimeSpan.FromMinutes(2),
+                BudgetMultiplier = 0.8f,
+                Enemies =
+                [
+                    new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+                    new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.05f),
+                ],
+            },
+            new SpawnPhase
+            {
+                Duration = TimeSpan.FromMinutes(3),
+                BudgetMultiplier = 1.0f,
+                Enemies =
+                [
+                    new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+                    new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.1f),
+                    new SpawnEntry(enemyFactory.Scorcher, 3f, 0.5f),
+                ],
+            },
+            new SpawnPhase
+            {
+                Duration = TimeSpan.FromMinutes(4),
+                BudgetMultiplier = 1.2f,
+                Enemies =
+                [
+                    new SpawnEntry(enemyFactory.BasicEnemy, 1f),
+                    new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.2f),
+                    new SpawnEntry(enemyFactory.Scorcher, 3f, 0.5f),
+                    new SpawnEntry(enemyFactory.EliteScorcher, 9f, 0.05f),
+                    new SpawnEntry(enemyFactory.Hulker, 6f, 0.4f),
+                ],
+            },
+            new SpawnPhase // boss wave
+            {
+                Duration = TimeSpan.FromMinutes(2),
+                BudgetMultiplier = 1.4f,
+                Enemies =
+                [
+                    new SpawnEntry(enemyFactory.BasicEnemy, 1f, 0.8f),
+                    new SpawnEntry(enemyFactory.EliteBasicEnemy, 3f, 0.4f),
+                    new SpawnEntry(enemyFactory.Scorcher, 3f),
+                    new SpawnEntry(enemyFactory.EliteScorcher, 9f, 0.1f),
+                    new SpawnEntry(enemyFactory.Hulker, 6f, 1.5f),
+                    new SpawnEntry(enemyFactory.EliteHulker, 20f, 0.05f),
+                ],
+                BossFactory = enemyFactory.SnakeBoss,
+            },
+        ];
+
+        // Prefill the budget to avoid an awkward pause at game start
+        var firstPhase = _phases[0];
+        var mostExpensive = firstPhase.Enemies.Max(e => e.Cost);
+        _budgeter.AddBudget(mostExpensive * 2f); // 2x to match trigger logic
+    }
 
     public TimeSpan ElapsedTime { get; private set; }
     public IReadOnlyCollection<EnemyBase> ActiveBosses => _activeBosses;
@@ -105,8 +122,8 @@ public sealed class EnemySpawner(
 
         foreach (var entry in _budgeter.Spend(phase.Enemies))
         {
-            var enemy = entry.Factory(screenPositioner.GetRandomOffScreenPosition(player.Position));
-            entityManager.Spawn(enemy);
+            var enemy = entry.Factory(_screenPositioner.GetRandomOffScreenPosition(_player.Position));
+            _entityManager.Spawn(enemy);
         }
     }
 
@@ -130,10 +147,10 @@ public sealed class EnemySpawner(
         if (phase.BossFactory is null || phase.BossSpawned)
             return;
 
-        var bossSpawnPosition = screenPositioner.GetRandomOffScreenPosition(player.Position);
+        var bossSpawnPosition = _screenPositioner.GetRandomOffScreenPosition(_player.Position);
         var boss = phase.BossFactory(bossSpawnPosition, OnBossKill);
 
-        entityManager.Spawn(boss);
+        _entityManager.Spawn(boss);
         phase.BossSpawned = true;
         _activeBosses.Add(boss);
     }
@@ -141,7 +158,7 @@ public sealed class EnemySpawner(
     private void OnBossKill(EnemyBase deadBoss)
     {
         _activeBosses.Remove(deadBoss);
-        globalCommands.ShowWinGame();
+        _globalCommands.ShowWinGame();
     }
 
     private static float GrowthFactor(TimeSpan elapsed)
