@@ -13,7 +13,7 @@ public class SniperRifle(
     BulletPool pool,
     CritCalculator critCalculator) : GunBase(owner.WeaponBelt.Stats)
 {
-    protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(2.8);
+    protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(3.5);
     protected override void Shoot()
     {
         var target = entityFinder.NearestEnemyTo(owner);
