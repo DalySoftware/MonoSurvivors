@@ -27,6 +27,16 @@ public class ChaseCamera(IRenderViewport viewport, IHasPosition? target, float d
     private Vector2 ExpDecay(GameTime gameTime)
     {
         var anchor = Target?.Position ?? Vector2.Zero;
-        return anchor + (Position - anchor) * MathF.Exp(-decayRate * gameTime.ElapsedGameTime.Milliseconds);
+        var delta = Position - anchor;
+
+        var decayFactor = MathF.Exp(-decayRate * gameTime.ElapsedGameTime.Milliseconds);
+        var movement = delta * decayFactor;
+
+        // Snap if movement is tiny
+        const float tolerance = 4f; // ~2 px
+        if (movement.LengthSquared() < tolerance)
+            return anchor;
+
+        return anchor + movement;
     }
 }
