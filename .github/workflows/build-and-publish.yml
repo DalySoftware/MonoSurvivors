@@ -26,6 +26,8 @@ jobs:
         run: |
           $VERSION = ($env:GITHUB_REF -replace '^refs/tags/', '') -replace '^v',''
           Write-Host "Publishing version $VERSION"
+
+          $publishDir = "./GameLoop/bin/Release/net10.0/win-x64/publish"
           dotnet publish ./GameLoop/GameLoop.csproj `
             -c Release `
             -r win-x64 `
@@ -35,6 +37,20 @@ jobs:
             -p:Version=$VERSION `
             -p:FileVersion=$VERSION `
             -p:AssemblyVersion=$VERSION
+
+          # Create Game folder for distribution
+          $distDir = "$publishDir\Game"
+          New-Item -ItemType Directory -Force -Path $distDir
+          Get-ChildItem $publishDir -File | Move-Item -Destination $distDir
+
+          # Create Launcher.bat at the root
+          $launcherPath = "$publishDir\Launcher.bat"
+          @"
+          :: Launcher.bat - simple shortcut to run GameLoop.exe
+          cd Game
+          start GameLoop.exe
+          "@ | Out-File -Encoding ASCII $launcherPath
+
 
 
       - name: Upload artifacts
