@@ -2,62 +2,93 @@
 using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Persistence;
+using GameLoop.UI;
 using Gameplay;
-using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.GameWin;
 
-internal class WinScene(
-    ContentManager content,
-    SpriteBatch spriteBatch,
-    GameWindow window,
-    WinSceneInputManager input,
-    InputGate inputGate,
-    GameInputState inputState)
-    : IScene
+internal class WinScene : IScene
 {
-    private readonly SpriteFont _messageFont = content.Load<SpriteFont>(Paths.Fonts.BoldPixels.Large);
-    private readonly SpriteFont _titleFont = content.Load<SpriteFont>(Paths.Fonts.Righteous.Large);
+    private readonly SpriteBatch _spriteBatch;
+    private readonly WinSceneInputManager _input;
+    private readonly InputGate _inputGate;
+    private readonly GameInputState _inputState;
 
-    public void Dispose() => spriteBatch.Dispose();
+    private readonly Label _titleLabel;
+    private readonly Label _instructionsLabel;
+    private InputMethod _lastInputMethod;
+
+    public WinScene(
+        Viewport viewport,
+        SpriteBatch spriteBatch,
+        WinSceneInputManager input,
+        InputGate inputGate,
+        GameInputState inputState,
+        Label.Factory labelFactory)
+    {
+        _spriteBatch = spriteBatch;
+        _input = input;
+        _inputGate = inputGate;
+        _inputState = inputState;
+
+        // Title label
+        const string titleText = "You Win!";
+        var titleSize = labelFactory.Measure(Paths.Fonts.Righteous.Large, titleText);
+        var titleRectangle = viewport.UiRectangle()
+            .CreateAnchoredRectangle(UiAnchor.Centre, titleSize, new Vector2(0f, -100f));
+
+        _titleLabel = labelFactory.Create(
+            Paths.Fonts.Righteous.Large,
+            titleText,
+            titleRectangle.Origin,
+            titleRectangle.OriginAnchor,
+            ColorPalette.Yellow,
+            TextAlignment.Center);
+
+        // Instructions label (dynamic)
+        _lastInputMethod = inputState.CurrentInputMethod;
+        _instructionsLabel = labelFactory.Create(
+            Paths.Fonts.BoldPixels.Large,
+            GetInstructionsText(),
+            titleRectangle.AnchorForPoint(UiAnchor.BottomCenter) + new Vector2(0f, 100f),
+            UiAnchor.TopCenter,
+            ColorPalette.LightGray,
+            TextAlignment.Center);
+    }
 
     public void Update(GameTime gameTime)
     {
-        if (inputGate.ShouldProcessInput())
-            input.Update();
+        if (_inputGate.ShouldProcessInput())
+            _input.Update();
+
+        // Update instructions text if input method changed
+        var currentInput = _inputState.CurrentInputMethod;
+        if (currentInput != _lastInputMethod)
+        {
+            _instructionsLabel.Text = GetInstructionsText();
+            _lastInputMethod = currentInput;
+        }
     }
 
     public void Draw(GameTime gameTime)
     {
-        spriteBatch.Begin(SpriteSortMode.FrontToBack);
+        _spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
-        DrawTitle();
-        DrawHelpText();
+        _titleLabel.Draw(_spriteBatch);
+        _instructionsLabel.Draw(_spriteBatch);
 
-        spriteBatch.End();
+        _spriteBatch.End();
     }
 
-    private void DrawTitle()
-    {
-        const string titleText = "You win!";
-        var titleSize = _titleFont.MeasureString(titleText);
-        var titlePosition = new Vector2(window.Centre.X - titleSize.X / 2, window.Centre.Y - 100);
-        spriteBatch.DrawString(_titleFont, titleText, titlePosition, ColorPalette.Yellow);
-    }
+    public void Dispose() { }
 
-    private void DrawHelpText()
-    {
-        var instructionsText = inputState.CurrentInputMethod is InputMethod.KeyboardMouse
+    private string GetInstructionsText() =>
+        _inputState.CurrentInputMethod is InputMethod.KeyboardMouse
             ? "SPACE to Restart | ESC to Exit"
             : "START to Restart | BACK to Exit";
-        var instructionsSize = _messageFont.MeasureString(instructionsText);
-        var instructionsPosition = new Vector2(window.Centre.X - instructionsSize.X / 2, window.Centre.Y + 50);
-        spriteBatch.DrawString(_messageFont, instructionsText, instructionsPosition, ColorPalette.LightGray);
-    }
 
     public static void ConfigureServices(ContainerBuilder builder)
     {
