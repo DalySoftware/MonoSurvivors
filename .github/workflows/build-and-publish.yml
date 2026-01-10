@@ -1,0 +1,42 @@
+name: Build & Publish
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger only on tags like v0.3.1
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 10.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build & publish
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "Publishing version $VERSION"
+          dotnet publish ./GameLoop/GameLoop.csproj \
+            -c Release \
+            -r win-x64 \
+            --self-contained true \
+            -p:PublishReadyToRun=false \
+            -p:TieredCompilation=false \
+            -p:Version=$VERSION \
+            -p:FileVersion=$VERSION \
+            -p:AssemblyVersion=$VERSION
+          
+          - name: Upload artifacts
+            uses: actions/upload-artifact@v3
+            with:
+              name: WindowsBuild
+              path: ./GameLoop/bin/Release/net10.0/win-x64/publish/
