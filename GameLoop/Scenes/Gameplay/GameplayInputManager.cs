@@ -16,6 +16,9 @@ internal class GameplayInputManager(
     KeyBindingsSettings keyBindingsSettings,
     ISettingsPersistence persistence)
 {
+#if !DEBUG
+    private readonly ISettingsPersistence _ = persistence; // prevent "unused parameter" warning
+#endif
     private readonly GameplayActionInput _actions = new(inputState, keyBindingsSettings);
 
     internal void Update()
