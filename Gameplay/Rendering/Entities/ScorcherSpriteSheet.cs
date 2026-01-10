@@ -22,10 +22,12 @@ public class ScorcherSpriteSheet(ContentManager content) : ISpriteSheet
         var cellWidth = Texture.Width / columns;
         var cellHeight = Texture.Height / rows;
 
+        const int extrude = 4; // pixels of extrusion in the final texture
         var column = _currentFrame % columns;
         var row = _currentFrame / columns;
 
-        return new Rectangle(column * cellWidth, row * cellHeight, cellWidth, cellHeight);
+        return new Rectangle(column * cellWidth + extrude, row * cellHeight + extrude,
+            cellWidth - extrude * 2, cellHeight - extrude * 2);
     }
 
     public void Update(GameTime gameTime)
