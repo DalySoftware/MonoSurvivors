@@ -3,15 +3,14 @@ name: Build & Publish
 on:
   push:
     tags:
-      - 'v*'  # Trigger only on tags like v0.3.1
+      - 'v*'  # Trigger on tags like v0.3.1
 
 jobs:
-  build:
+  build-windows:
+    name: Build Windows
     runs-on: windows-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -21,10 +20,10 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build & publish
+      - name: Build & publish Windows x64
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          echo "Publishing version $VERSION"
+          echo "Publishing Windows version $VERSION"
           dotnet publish ./GameLoop/GameLoop.csproj \
             -c Release \
             -r win-x64 \
@@ -34,9 +33,136 @@ jobs:
             -p:Version=$VERSION \
             -p:FileVersion=$VERSION \
             -p:AssemblyVersion=$VERSION
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: WindowsBuild
+          path: ./GameLoop/bin/Release/net10.0/win-x64/publish/
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 10.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build & publish Linux x64
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "Publishing Linux version $VERSION"
+          dotnet publish ./GameLoop/GameLoop.csproj \
+            -c Release \
+            -r linux-x64 \
+            --self-contained true \
+            -p:PublishReadyToRun=false \
+            -p:TieredCompilation=false \
+            -p:Version=$VERSION \
+            -p:FileVersion=$VERSION \
+            -p:AssemblyVersion=$VERSION
+
+          # Ensure executable permission
+          chmod +x ./GameLoop/bin/Release/net10.0/linux-x64/publish/GameLoop
+
+          # Package tar.gz for itch
+          tar -czf GameLoop-linux-x64.tar.gz -C ./GameLoop/bin/Release/net10.0/linux-x64/publish/ .
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: LinuxBuild
+          path: ./GameLoop/GameLoop-linux-x64.tar.gz
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 10.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build macOS x64 and arm64
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "Publishing macOS version $VERSION"
+
+          # Intel x64
+          dotnet publish ./GameLoop/GameLoop.csproj \
+            -c Release \
+            -r osx-x64 \
+            --self-contained true \
+            -p:PublishReadyToRun=false \
+            -p:TieredCompilation=false \
+            -p:Version=$VERSION \
+            -p:FileVersion=$VERSION \
+            -p:AssemblyVersion=$VERSION
+
+          # Apple Silicon arm64
+          dotnet publish ./GameLoop/GameLoop.csproj \
+            -c Release \
+            -r osx-arm64 \
+            --self-contained true \
+            -p:PublishReadyToRun=false \
+            -p:TieredCompilation=false \
+            -p:Version=$VERSION \
+            -p:FileVersion=$VERSION \
+            -p:AssemblyVersion=$VERSION
+
+          # Create .app bundle structure
+          APP_DIR=./GameLoop/bin/Release/GameLoop.app
+          mkdir -p $APP_DIR/Contents/MacOS
+          mkdir -p $APP_DIR/Contents/Resources/Content
+
+          # Copy x64 build files as base
+          cp -R ./GameLoop/bin/Release/net10.0/osx-x64/publish/* $APP_DIR/Contents/MacOS/
+
+          # Combine into universal binary
+          lipo -create \
+            ./GameLoop/bin/Release/net10.0/osx-x64/publish/GameLoop \
+            ./GameLoop/bin/Release/net10.0/osx-arm64/publish/GameLoop \
+            -output $APP_DIR/Contents/MacOS/GameLoop
+
+          # Move Content to Resources
+          mv $APP_DIR/Contents/MacOS/Content $APP_DIR/Contents/Resources/
+
+          # Create Info.plist
+          cat > $APP_DIR/Contents/Info.plist <<EOL
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+          <key>CFBundleDevelopmentRegion</key><string>en</string>
+          <key>CFBundleExecutable</key><string>GameLoop</string>
+          <key>CFBundleIdentifier</key><string>com.yourdomain.gameloop</string>
+          <key>CFBundleName</key><string>GameLoop</string>
+          <key>CFBundlePackageType</key><string>APPL</string>
+          <key>CFBundleShortVersionString</key><string>$VERSION</string>
+          <key>CFBundleVersion</key><string>$VERSION</string>
+          </dict>
+          </plist>
+          EOL
           
-          - name: Upload artifacts
-            uses: actions/upload-artifact@v3
-            with:
-              name: WindowsBuild
-              path: ./GameLoop/bin/Release/net10.0/win-x64/publish/
+          # Ensure executable permissions
+          chmod +x $APP_DIR/Contents/MacOS/GameLoop
+          
+          # Create tar.gz for itch
+          tar -czf GameLoop-osx.tar.gz -C $APP_DIR .
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MacBuild
+          path: ./GameLoop/GameLoop-osx.tar.gz
