@@ -16,26 +16,24 @@ public enum TitleAction
 internal sealed class TitleActionInput(GameInputState state, KeyBindingsSettings bindings)
     : ActionInputBase<TitleAction>(state, bindings.TitleActions)
 {
-    private readonly TimeSpan _navigationCooldown = TimeSpan.FromMilliseconds(150);
+    private readonly TimeSpan _navigationCooldown = TimeSpan.FromMilliseconds(250);
     private TimeSpan _currentNavigationCooldown = TimeSpan.Zero;
 
     public TitleAction? GetThumbstickNavigation(GameTime gameTime)
     {
+        _currentNavigationCooldown -= gameTime.ElapsedGameTime;
+        if (_currentNavigationCooldown > TimeSpan.Zero)
+            return null;
+
         var stick = State.GamePadState.ThumbSticks.Left;
 
-        if (MathF.Abs(stick.X) > 0.2f)
-        {
-            _currentNavigationCooldown -= gameTime.ElapsedGameTime;
-            if (_currentNavigationCooldown > TimeSpan.Zero)
-                return null;
+        const float deadzone = 0.2f;
+        if (MathF.Abs(stick.X) < deadzone) return null;
 
-            _currentNavigationCooldown = _navigationCooldown;
-            return stick.X > 1 ? TitleAction.NextWeapon : TitleAction.PreviousWeapon;
-        }
-
-        _currentNavigationCooldown = TimeSpan.Zero;
-        return null;
+        _currentNavigationCooldown = _navigationCooldown;
+        return stick.X > 0 ? TitleAction.NextWeapon : TitleAction.PreviousWeapon;
     }
+
 
     public bool WasLeftMousePressedThisFrame() =>
         State.MouseState.LeftButton == ButtonState.Pressed &&
