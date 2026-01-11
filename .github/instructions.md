@@ -14,14 +14,13 @@
 ## Coding Style
 
 - Match the project’s existing style **only within your new code**.
-- Do not introduce modern .NET conveniences unless requested
+- Do not remove modern .NET conveniences unless requested
   (implicit usings, file-scoped namespaces, target-typed `new`, etc.).
 - Prefer explicit types and traditional structure when applicable.
 
 ## Respect for User Edits
 
-- If the user modifies code you previously generated,  
-  **the user’s version is always authoritative.**
+- If the user modifies code you previously generated, **the user’s version is always authoritative.**
 - Never revert, override, or “correct” user-applied changes unless directly asked.
 
 ## Consistency & Reviewability
