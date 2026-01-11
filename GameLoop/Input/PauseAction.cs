@@ -14,6 +14,7 @@ public enum PauseAction
     NavigateDown,
     NavigateLeft,
     NavigateRight,
+    ToggleFullscreen,
 }
 
 internal sealed class PauseActionInput(GameInputState state, KeyBindingsSettings bindings)

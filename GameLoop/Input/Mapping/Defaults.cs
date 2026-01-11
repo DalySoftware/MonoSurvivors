@@ -24,6 +24,7 @@ internal static class Defaults
             [GameplayAction.MoveRight] = [Keys.D, Keys.Right],
             [GameplayAction.OpenSphereGrid] = [Keys.Space, Keys.Tab],
             [GameplayAction.Pause] = [Keys.Escape],
+            [GameplayAction.ToggleFullscreen] = [Keys.F11],
         },
     };
 
@@ -41,6 +42,7 @@ internal static class Defaults
         Keyboard = new Dictionary<PauseAction, List<Keys>>
         {
             [PauseAction.Resume] = [Keys.Escape],
+            [PauseAction.ToggleFullscreen] = [Keys.F11],
         },
     };
 
@@ -59,6 +61,7 @@ internal static class Defaults
         {
             [SphereGridAction.Close] = [Keys.Escape, Keys.Space, Keys.Tab],
             [SphereGridAction.ResetCamera] = [Keys.T],
+            [SphereGridAction.ToggleFullscreen] = [Keys.F11],
         },
     };
 
@@ -89,6 +92,7 @@ internal static class Defaults
         {
             [TitleAction.StartGame] = [Keys.Enter, Keys.Space],
             [TitleAction.Exit] = [Keys.Escape, Keys.Q],
+            [TitleAction.ToggleFullscreen] = [Keys.F11],
         },
     };
 }

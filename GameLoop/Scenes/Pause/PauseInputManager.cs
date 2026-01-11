@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using GameLoop.Input;
+using GameLoop.Rendering;
 using GameLoop.Scenes.Pause.UI;
 using GameLoop.UI;
 using GameLoop.UserSettings;
@@ -13,7 +14,8 @@ internal class PauseInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
     KeyBindingsSettings bindings,
-    PauseUi ui)
+    PauseUi ui,
+    DisplayModeManager displayMode)
 {
     private readonly PauseActionInput _actions = new(inputState, bindings);
 
@@ -57,6 +59,9 @@ internal class PauseInputManager(
             _onResume();
             return;
         }
+
+        if (_actions.WasPressed(PauseAction.ToggleFullscreen))
+            displayMode.ToggleFullscreen();
 
         if (CurrentInputMethod == InputMethod.KeyboardMouse)
             HandleMouseNavigation();

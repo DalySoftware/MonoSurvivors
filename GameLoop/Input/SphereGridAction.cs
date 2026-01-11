@@ -15,6 +15,7 @@ public enum SphereGridAction
     NavigateDown,
     NavigateLeft,
     NavigateRight,
+    ToggleFullscreen,
 }
 
 internal sealed class SphereGridActionInput(GameInputState state, ActionKeyMap<SphereGridAction> map)

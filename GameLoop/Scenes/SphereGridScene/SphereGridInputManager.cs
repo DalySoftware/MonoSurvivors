@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using GameLoop.Input;
 using GameLoop.Persistence;
+using GameLoop.Rendering;
 using GameLoop.Scenes.SphereGridScene.UI;
 using Gameplay;
 using Gameplay.Levelling.SphereGrid;
@@ -13,7 +14,8 @@ internal class SphereGridInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
     ISettingsPersistence settingsPersistence,
-    SphereGridUi ui)
+    SphereGridUi ui,
+    DisplayModeManager displayMode)
 {
     private readonly SphereGridActionInput _actions =
         new(inputState, settingsPersistence.Load(PersistenceJsonContext.Default.KeyBindingsSettings).SphereGridActions);
@@ -33,6 +35,9 @@ internal class SphereGridInputManager(
 
         if (_actions.IsActionTriggered(SphereGridAction.ResetCamera))
             ui.Camera.Position = Vector2.Zero;
+
+        if (_actions.IsActionTriggered(SphereGridAction.ToggleFullscreen))
+            displayMode.ToggleFullscreen();
 
         var pan = _actions.GetRightStickPan();
         if (pan != Vector2.Zero)

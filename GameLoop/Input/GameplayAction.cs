@@ -12,6 +12,7 @@ public enum GameplayAction
     MoveRight,
     MoveUp,
     MoveDown,
+    ToggleFullscreen,
 }
 
 internal sealed class GameplayActionInput(GameInputState state, KeyBindingsSettings bindings)

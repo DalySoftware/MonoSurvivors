@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using GameLoop.Input;
+using GameLoop.Rendering;
 using GameLoop.UI;
 using GameLoop.UserSettings;
 using Gameplay;
@@ -11,7 +12,8 @@ internal sealed class TitleInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
     KeyBindingsSettings bindings,
-    WeaponSelect weaponSelect)
+    WeaponSelect weaponSelect,
+    DisplayModeManager displayMode)
 {
     private readonly TitleActionInput _actions = new(inputState, bindings);
 
@@ -59,6 +61,9 @@ internal sealed class TitleInputManager(
             globalCommands.Exit();
             return;
         }
+
+        if (_actions.WasPressed(TitleAction.ToggleFullscreen))
+            displayMode.ToggleFullscreen();
 
         if (_actions.WasPressed(TitleAction.NextWeapon))
             weaponSelect.NextButton.Activate();
@@ -124,9 +129,10 @@ internal sealed class TitleInputManager(
     internal class Factory(
         IGlobalCommands globalCommands,
         GameInputState inputState,
-        KeyBindingsSettings bindings)
+        KeyBindingsSettings bindings,
+        DisplayModeManager displayMode)
     {
         internal TitleInputManager Create(WeaponSelect weaponSelect) =>
-            new(globalCommands, inputState, bindings, weaponSelect);
+            new(globalCommands, inputState, bindings, weaponSelect, displayMode);
     }
 }

@@ -19,7 +19,6 @@ using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop;
 
@@ -35,9 +34,6 @@ public class CoreGame : Game, IGlobalCommands
 
     public CoreGame()
     {
-        var graphicsManager = new GraphicsDeviceManager(this);
-        graphicsManager.PreferredBackBufferWidth = 1920;
-        graphicsManager.PreferredBackBufferHeight = 1080;
         IsMouseVisible = true;
 
         Window.Title = "Veil of Cataclysm";
@@ -138,10 +134,7 @@ public class CoreGame : Game, IGlobalCommands
 
         _contentScope = _container.Root.BeginLifetimeScope(builder =>
         {
-            builder.RegisterInstance(GraphicsDevice).As<GraphicsDevice>();
             builder.RegisterInstance(Content).As<ContentManager>();
-            builder.RegisterType<SpriteBatch>().ExternallyOwned();
-            builder.RegisterType<RenderScaler>().AsSelf().As<IRenderViewport>().SingleInstance();
 
             builder.RegisterType<PrimitiveRenderer>().SingleInstance();
             builder.RegisterType<Panel.Factory>().SingleInstance();
@@ -163,6 +156,7 @@ public class CoreGame : Game, IGlobalCommands
         _contentScope.Resolve<GameInputState>();
         _inputStateManager = _contentScope.Resolve<InputStateManager>();
         _renderScaler = _contentScope.Resolve<RenderScaler>();
+        _contentScope.Resolve<DisplayModeManager>().InitializeDefault();
 
         ReturnToTitle();
 

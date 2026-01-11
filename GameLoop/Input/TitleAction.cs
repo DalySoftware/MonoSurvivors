@@ -11,6 +11,7 @@ public enum TitleAction
     Exit,
     NextWeapon,
     PreviousWeapon,
+    ToggleFullscreen,
 }
 
 internal sealed class TitleActionInput(GameInputState state, KeyBindingsSettings bindings)

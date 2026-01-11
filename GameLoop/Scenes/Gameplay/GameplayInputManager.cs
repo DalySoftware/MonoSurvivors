@@ -1,6 +1,7 @@
 using GameLoop.Debug;
 using GameLoop.Input;
 using GameLoop.Persistence;
+using GameLoop.Rendering;
 using GameLoop.UserSettings;
 using Gameplay;
 using Gameplay.Entities;
@@ -14,7 +15,8 @@ internal class GameplayInputManager(
     IGlobalCommands globalCommands,
     GameInputState inputState,
     KeyBindingsSettings keyBindingsSettings,
-    ISettingsPersistence persistence)
+    ISettingsPersistence persistence,
+    DisplayModeManager displayMode)
 {
 #if !DEBUG
     private readonly ISettingsPersistence _ = persistence; // prevent "unused parameter" warning
@@ -34,6 +36,9 @@ internal class GameplayInputManager(
             globalCommands.ShowSphereGrid();
             return;
         }
+
+        if (_actions.WasPressed(GameplayAction.ToggleFullscreen))
+            displayMode.ToggleFullscreen();
 
         var movement = _actions.GetMovement();
         player.DirectionInput(new UnitVector2(movement.X, movement.Y));
