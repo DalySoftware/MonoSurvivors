@@ -48,7 +48,7 @@ internal static class Defaults
     {
         Gamepad = new Dictionary<SphereGridAction, List<Buttons>>
         {
-            [SphereGridAction.Close] = [Buttons.Back, Buttons.B],
+            [SphereGridAction.Close] = [Buttons.Back, Buttons.B, Buttons.Y],
             [SphereGridAction.UnlockFocused] = [Buttons.A],
             [SphereGridAction.NavigateUp] = [Buttons.DPadUp],
             [SphereGridAction.NavigateDown] = [Buttons.DPadDown],
