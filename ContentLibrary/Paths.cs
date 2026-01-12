@@ -8,7 +8,6 @@ public static class Paths
     {
         public const string BackgroundTile = @"Images\Placeholder-BackgroundTile";
         public const string Player = @"Images\Placeholder-Player";
-        public const string Bullet = @"Images\Placeholder-Bullet";
         public const string Experience = @"Images\Experience";
         public const string Experience2 = @"Images\Experience-2";
         public const string PanelNineSlice = @"Images\PanelNineSlice";
@@ -67,6 +66,14 @@ public static class Paths
                 public const string Shotgun = @"Images\PowerUpIcons\WeaponShotgun";
                 public const string SniperRifle = @"Images\PowerUpIcons\WeaponSniper";
             }
+        }
+
+        public static class Bullets
+        {
+            public const string Basic = @"Images\BasicBullet";
+            public const string BasicSmall = @"Images\BasicBullet-Small";
+            public const string Bouncer = @"Images\BouncerBullet";
+            public const string Sniper = @"Images\SniperBullet";
         }
     }
 

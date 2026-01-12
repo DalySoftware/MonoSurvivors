@@ -25,7 +25,8 @@ public class BasicGun(
         var damage = critCalculator.CalculateCritDamage(baseDamage, Stats);
         var range = 300f * Stats.RangeMultiplier;
 
-        var bullet = pool.Get(owner, owner.Position, target.Position, bulletSpeed * Stats.SpeedMultiplier, damage,
+        var bullet = pool.Get(BulletType.Basic, owner, owner.Position, target.Position,
+            bulletSpeed * Stats.SpeedMultiplier, damage,
             range, Stats.Pierce, owner.WeaponBelt.OnHitEffects);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.BasicShoot);

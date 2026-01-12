@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ContentLibrary;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
@@ -19,18 +18,21 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     private float _distanceTraveled = 0f;
 
     public Bullet(BulletPool pool, PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage,
-        float maxRange, int pierceEnemies = 0, IEnumerable<IOnHitEffect>? onHits = null,
+        float maxRange, float radius, string texturePath,
+        int pierceEnemies = 0, IEnumerable<IOnHitEffect>? onHits = null,
         HashSet<EnemyBase>? immuneEnemies = null) : base(initialPosition)
     {
         Owner = owner;
         MaxRange = maxRange;
         _pool = pool;
+        TexturePath = texturePath;
         _piercesLeft = pierceEnemies;
         OnHitEffects = onHits ?? [];
         _immuneEnemies = immuneEnemies ?? [];
 
         IntentVelocity = velocity;
         Damage = damage;
+        Colliders = [new CircleCollider(this, radius)];
     }
 
     internal PlayerCharacter Owner { get; private set; }
@@ -38,7 +40,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     internal float RemainingRange => MaxRange - _distanceTraveled;
     internal IEnumerable<IOnHitEffect> OnHitEffects { get; private set; }
     public float Damage { get; private set; }
-    public IEnumerable<ICollider> Colliders => [new CircleCollider(this, 16f)];
+    public IEnumerable<ICollider> Colliders { get; private set; }
 
     public void OnHit(GameTime gameTime, EnemyBase enemy)
     {
@@ -59,7 +61,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
     public float Layer => Layers.Projectiles;
 
-    public string TexturePath => Paths.Images.Bullet;
+    public string TexturePath { get; private set; }
 
     public Bullet Reinitialize(
         PlayerCharacter owner,
@@ -67,6 +69,8 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         Vector2 velocity,
         float damage,
         float maxRange,
+        float radius,
+        string texturePath,
         int pierceEnemies,
         IEnumerable<IOnHitEffect>? onHits = null,
         HashSet<EnemyBase>? immuneEnemies = null)
@@ -84,6 +88,9 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
         _immuneEnemies = immuneEnemies ?? [];
         OnHitEffects = onHits ?? [];
+
+        TexturePath = texturePath;
+        Colliders = [new CircleCollider(this, radius)];
 
         return this;
     }

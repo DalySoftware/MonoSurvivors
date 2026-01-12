@@ -39,6 +39,7 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity, BulletPool pool) 
             var speed = bullet.Velocity.Length();
 
             var splitBullet = pool.Get(
+                BulletType.BasicSmall,
                 bullet.Owner,
                 spawnPoint,
                 direction * speed,

@@ -28,7 +28,8 @@ public class BouncingGun(
         var damage = critCalculator.CalculateCritDamage(baseDamage, Stats);
         var range = 600f * Stats.RangeMultiplier;
 
-        var bullet = pool.Get(owner, owner.Position, target.Position, bulletSpeed * Stats.SpeedMultiplier, damage,
+        var bullet = pool.Get(BulletType.Bouncer, owner, owner.Position, target.Position,
+            bulletSpeed * Stats.SpeedMultiplier, damage,
             range, Stats.Pierce, [BounceOnHit, ..owner.WeaponBelt.OnHitEffects]);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.BouncerShoot);
