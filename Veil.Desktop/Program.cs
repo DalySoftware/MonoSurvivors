@@ -1,13 +1,15 @@
 ﻿using System;
+using GameLoop;
+using Veil.Desktop.PlatformServices;
 
 namespace Veil.Desktop;
 
 public static class Program
 {
     [STAThread]
-    static void Main()
+    private static void Main()
     {
-        using var game = new GameLoop.CoreGame();
+        using var game = new CoreGame(ServiceConfigurator.Configure);
         game.Run();
     }
 }

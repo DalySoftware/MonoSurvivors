@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 
-namespace GameLoop.Audio;
+namespace Veil.Desktop.PlatformServices.Audio;
 
 // Keeps verbose code out of AudioPlayer
 internal class SoundEffectContent(ContentManager content)

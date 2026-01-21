@@ -9,10 +9,6 @@ internal static class ServiceConfiguration
     {
         internal void ConfigureOptions()
         {
-            builder.RegisterType<AppDataPersistence>()
-                .As<ISettingsPersistence>()
-                .SingleInstance();
-
             builder.Register(ctx =>
                 ctx.Resolve<ISettingsPersistence>()
                     .Load(PersistenceJsonContext.Default.AudioSettings));

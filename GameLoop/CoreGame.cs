@@ -1,5 +1,5 @@
-﻿using Autofac;
-using GameLoop.Audio;
+﻿using System;
+using Autofac;
 using GameLoop.DependencyInjection;
 using GameLoop.Input;
 using GameLoop.Rendering;
@@ -26,6 +26,7 @@ namespace GameLoop;
 public class CoreGame : Game, IGlobalCommands
 {
     private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.04f).ShiftLightness(-0.05f);
+    private readonly Action<ContainerBuilder> _configurePlatformServices;
     private readonly GameContainer _container;
 
     private ILifetimeScope _contentScope = null!;
@@ -33,8 +34,10 @@ public class CoreGame : Game, IGlobalCommands
     private InputStateManager _inputStateManager = null!;
     private RenderScaler _renderScaler = null!;
 
-    public CoreGame()
+    /// <param name="configurePlatformServices">Called during <see cref="LoadContent" /></param>
+    public CoreGame(Action<ContainerBuilder>? configurePlatformServices = null)
     {
+        _configurePlatformServices = configurePlatformServices ?? (_ => { });
         IsMouseVisible = true;
 
         Window.Title = "Veil of Cataclysm";
@@ -80,7 +83,7 @@ public class CoreGame : Game, IGlobalCommands
         SceneManager.Push(scene);
 
         // Duck the music while the scene is active
-        var music = scope.Resolve<MusicPlayer>();
+        var music = scope.Resolve<IMusicPlayer>();
         music.DuckBackgroundMusic();
     }
 
@@ -101,7 +104,7 @@ public class CoreGame : Game, IGlobalCommands
             return;
 
         SceneManager.Pop();
-        _gameplayScope.Resolve<MusicPlayer>().RestoreBackgroundMusic();
+        _gameplayScope.Resolve<IMusicPlayer>().RestoreBackgroundMusic();
     }
 
 
@@ -127,7 +130,7 @@ public class CoreGame : Game, IGlobalCommands
         SceneManager.Push(mainScene);
 
         // Play background music
-        var music = _gameplayScope.Resolve<MusicPlayer>();
+        var music = _gameplayScope.Resolve<IMusicPlayer>();
         music.PlayBackgroundMusic();
     }
 
@@ -145,15 +148,14 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterType<Label.Factory>().SingleInstance();
             builder.RegisterType<ToolTipRenderer>().SingleInstance();
             builder.RegisterType<PowerUpIcons>().SingleInstance();
-            builder.RegisterType<MusicPlayer>().SingleInstance();
-
-            builder.RegisterType<SoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
 
             TitleScene.ConfigureServices(builder);
 
             builder.RegisterType<GameInputState>().AsSelf().As<IMouseInputState>().SingleInstance();
             builder.RegisterType<InputStateManager>().SingleInstance();
             builder.RegisterType<InputGate>().SingleInstance();
+
+            _configurePlatformServices(builder);
         });
 
         _contentScope.Resolve<GameInputState>();

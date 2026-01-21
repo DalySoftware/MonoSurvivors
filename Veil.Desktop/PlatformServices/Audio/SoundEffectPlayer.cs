@@ -5,8 +5,9 @@ using GameLoop.UserSettings;
 using Gameplay.Audio;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using PersistenceJsonContext = GameLoop.Persistence.PersistenceJsonContext;
 
-namespace GameLoop.Audio;
+namespace Veil.Desktop.PlatformServices.Audio;
 
 public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
 {
@@ -21,14 +22,14 @@ public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
     private readonly SoundEffectContent _effects;
     private readonly Random _random = new();
     private readonly ISettingsPersistence _settingsPersistence;
-    private readonly MusicPlayer _musicPlayer;
+    private readonly IMusicPlayer _musicPlayer;
 
     private AudioSettings _audioSettings;
 
     public SoundEffectPlayer(
         ContentManager content,
         ISettingsPersistence settingsPersistence,
-        MusicPlayer musicPlayer)
+        IMusicPlayer musicPlayer)
     {
         _effects = new SoundEffectContent(content);
         _settingsPersistence = settingsPersistence;

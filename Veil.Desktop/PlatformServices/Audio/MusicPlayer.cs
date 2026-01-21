@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using ContentLibrary;
 using GameLoop.Persistence;
 using GameLoop.UserSettings;
+using Gameplay.Audio;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using PersistenceJsonContext = GameLoop.Persistence.PersistenceJsonContext;
 
-namespace GameLoop.Audio;
+namespace Veil.Desktop.PlatformServices.Audio;
 
-public sealed class MusicPlayer : IDisposable
+internal sealed class MusicPlayer : IDisposable, IMusicPlayer
 {
     private readonly ISettingsPersistence _settingsPersistence;
     private readonly SoundEffectInstance _soundEffect;
@@ -35,18 +37,6 @@ public sealed class MusicPlayer : IDisposable
         _soundEffect.Dispose();
     }
 
-    private void OnSettingsChange(Type type)
-    {
-        if (type != typeof(AudioSettings)) return;
-        UpdateVolume(_settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings));
-    }
-
-    private void UpdateVolume(AudioSettings settings)
-    {
-        _baseVolume = settings.MasterVolume * settings.MusicVolume;
-        _soundEffect.Volume = _baseVolume;
-    }
-
     public void PlayBackgroundMusic() => _soundEffect.Play();
 
     /// <summary>Reduce music volume temporarily for a ducking effect.</summary>
@@ -67,4 +57,16 @@ public sealed class MusicPlayer : IDisposable
     public void DuckBackgroundMusic() => _soundEffect.Volume *= 0.7f;
 
     public void RestoreBackgroundMusic() => _soundEffect.Volume *= 1.4286f; // reciprocal
+
+    private void OnSettingsChange(Type type)
+    {
+        if (type != typeof(AudioSettings)) return;
+        UpdateVolume(_settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings));
+    }
+
+    private void UpdateVolume(AudioSettings settings)
+    {
+        _baseVolume = settings.MasterVolume * settings.MusicVolume;
+        _soundEffect.Volume = _baseVolume;
+    }
 }
