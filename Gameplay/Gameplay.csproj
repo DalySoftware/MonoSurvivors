@@ -1,11 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-        <PackageReference Include="Autofac" Version="9.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.1"/>
-        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*"/>
-    </ItemGroup>
+        <PackageReference Include="Autofac" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.1" />
+		<PackageReference Include="nkast.Xna.Framework.Game" Version="4.2.9001" />
+		<PackageReference Include="nkast.Xna.Framework.Graphics" Version="4.2.9001" />
+		<PackageReference Include="nkast.Xna.Framework.Audio" Version="4.2.9001" />
+	</ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj"/>
+        <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj" />
     </ItemGroup>
 
     <ItemGroup>

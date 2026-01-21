@@ -50,6 +50,7 @@ public class Editor : Game
     public Editor()
     {
         var graphics = new GraphicsDeviceManager(this);
+        graphics.GraphicsProfile = GraphicsProfile.HiDef;
         graphics.PreferredBackBufferWidth = 1920;
         graphics.PreferredBackBufferHeight = 1080;
         Content.RootDirectory = "ContentLibrary";
@@ -338,17 +339,17 @@ public class Editor : Game
 
         // Draw edges
         foreach (var (node, pos) in _nodePositions)
-        foreach (var (direction, neighbor) in node.Neighbours)
-            if (_nodePositions.TryGetValue(neighbor, out var neighborPos))
-                // Only draw each edge once
-                if (_nodePositions[node].GetHashCode() < neighborPos.GetHashCode())
-                {
-                    var fromOffset = GetDirectionOffset(direction, node == _root ? 50f : 40f);
-                    var toOffset = GetDirectionOffset(direction.Opposite(), neighbor == _root ? 50f : 40f);
-                    _primitiveRenderer.DrawLine(_spriteBatch, pos + fromOffset + _cameraOffset,
-                        neighborPos + toOffset + _cameraOffset,
-                        Color.Gray * 0.5f, 2);
-                }
+            foreach (var (direction, neighbor) in node.Neighbours)
+                if (_nodePositions.TryGetValue(neighbor, out var neighborPos))
+                    // Only draw each edge once
+                    if (_nodePositions[node].GetHashCode() < neighborPos.GetHashCode())
+                    {
+                        var fromOffset = GetDirectionOffset(direction, node == _root ? 50f : 40f);
+                        var toOffset = GetDirectionOffset(direction.Opposite(), neighbor == _root ? 50f : 40f);
+                        _primitiveRenderer.DrawLine(_spriteBatch, pos + fromOffset + _cameraOffset,
+                            neighborPos + toOffset + _cameraOffset,
+                            Color.Gray * 0.5f, 2);
+                    }
 
         // Draw pending connection line
         if (_connectingFromNode != null &&

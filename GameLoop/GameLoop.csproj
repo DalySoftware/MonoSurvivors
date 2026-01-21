@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <AssemblyTitle>Veil of Cataclysm</AssemblyTitle>
         <Product>Veil of Cataclysm</Product>
@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <OutputType>WinExe</OutputType>
+        <OutputType>Library</OutputType>
         <RollForward>Major</RollForward>
         <PublishReadyToRun>false</PublishReadyToRun>
         <TieredCompilation>false</TieredCompilation>
@@ -30,13 +30,6 @@
     <ItemGroup>
         <PackageReference Include="Autofac" Version="9.0.0"/>
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.1"/>
-        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*"/>
-        <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.*"/>
     </ItemGroup>
 
     <ItemGroup>

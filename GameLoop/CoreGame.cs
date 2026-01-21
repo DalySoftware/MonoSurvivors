@@ -19,6 +19,7 @@ using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop;
 
@@ -38,7 +39,9 @@ public class CoreGame : Game, IGlobalCommands
 
         Window.Title = "Veil of Cataclysm";
 
-        _container = new GameContainer(this);
+        var graphicsManager = new GraphicsDeviceManager(this);
+        graphicsManager.GraphicsProfile = GraphicsProfile.HiDef;
+        _container = new GameContainer(this, graphicsManager);
     }
 
     private SceneManager SceneManager => _contentScope.Resolve<SceneManager>();

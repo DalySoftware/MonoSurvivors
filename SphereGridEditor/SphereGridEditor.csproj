@@ -1,33 +1,43 @@
-<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <PublishReadyToRun>false</PublishReadyToRun>
-        <TieredCompilation>false</TieredCompilation>
-    </PropertyGroup>
-    <PropertyGroup>
-        <ApplicationIcon>Icon.ico</ApplicationIcon>
-    </PropertyGroup>
-    <ItemGroup>
-        <None Remove="Icon.ico"/>
-        <None Remove="Icon.bmp"/>
-    </ItemGroup>
-    <ItemGroup>
-        <EmbeddedResource Include="Icon.ico">
-            <LogicalName>Icon.ico</LogicalName>
-        </EmbeddedResource>
-        <EmbeddedResource Include="Icon.bmp">
-            <LogicalName>Icon.bmp</LogicalName>
-        </EmbeddedResource>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*"/>
-        <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*"/>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\GameLoop\GameLoop.csproj"/>
-        <ProjectReference Include="..\Gameplay\Gameplay.csproj"/>
-    </ItemGroup>
-    <ItemGroup>
-        <MonoGameContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb"/>
-    </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RollForward>Major</RollForward>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ProjectGuid>4632b0ea-b3b2-4ef6-a9de-fa3908b89482</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SphereGridEditor</RootNamespace>
+    <AssemblyName>SphereGridEditor</AssemblyName>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <DefineConstants>$(DefineConstants);WINDOWSDX</DefineConstants>
+    <KniPlatform>Windows</KniPlatform>
+  </PropertyGroup>
+	
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  </PropertyGroup>
+	
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  </PropertyGroup>
+	
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="nkast.Kni.Platform.WinForms.DX11" Version="4.2.9001" />
+	  <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="4.2.9001" PrivateAssets="All" />
+	  <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder.Windows" Version="4.2.9001" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ContentLibrary\ContentLibrary.csproj" />
+    <ProjectReference Include="..\GameLoop\GameLoop.csproj" />
+    <ProjectReference Include="..\Gameplay\Gameplay.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<KniContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb" />
+	</ItemGroup>
+
 </Project>

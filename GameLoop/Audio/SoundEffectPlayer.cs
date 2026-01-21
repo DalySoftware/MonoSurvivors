@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GameLoop.Persistence;
 using GameLoop.UserSettings;
 using Gameplay.Audio;
@@ -9,7 +10,7 @@ namespace GameLoop.Audio;
 
 public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
 {
-    private readonly static SoundEffectTypes[] DucksMusic =
+    private readonly static HashSet<SoundEffectTypes> DucksMusic =
     [
         SoundEffectTypes.BasicShoot,
         SoundEffectTypes.BouncerShoot,

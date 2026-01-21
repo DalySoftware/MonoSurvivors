@@ -10,7 +10,7 @@ namespace GameLoop.DependencyInjection;
 
 public sealed class GameContainer
 {
-    public GameContainer(CoreGame game)
+    public GameContainer(CoreGame game, GraphicsDeviceManager graphicsManager)
     {
         var builder = new ContainerBuilder();
 
@@ -21,9 +21,9 @@ public sealed class GameContainer
 
         builder.RegisterInstance(game.Window).SingleInstance();
 
-        builder.RegisterType<GraphicsDeviceManager>().SingleInstance();
+        builder.RegisterInstance(graphicsManager).ExternallyOwned();
         builder.Register(ctx => ctx.Resolve<GraphicsDeviceManager>().GraphicsDevice)
-            .SingleInstance();
+            .SingleInstance().ExternallyOwned();
         builder.RegisterType<SpriteBatch>().SingleInstance();
         builder.RegisterType<RenderScaler>().AsSelf().As<IRenderViewport>().SingleInstance();
         builder.RegisterType<DisplayModeManager>().SingleInstance();
@@ -33,8 +33,6 @@ public sealed class GameContainer
         builder.ConfigureOptions();
 
         Root = builder.Build();
-
-        _ = Root.Resolve<GraphicsDeviceManager>();
     }
 
     public IContainer Root { get; }

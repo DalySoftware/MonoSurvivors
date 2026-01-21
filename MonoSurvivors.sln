@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11222.15 d18.0
+VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLoop", "GameLoop\GameLoop.csproj", "{CE2889C3-BECC-45DD-BA5C-6BB7A1D133FD}"
 EndProject
@@ -14,11 +14,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{77808CBB-6A2B-4C97-96AD-2D624390D718}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		.github\instructions.md = .github\instructions.md
 		.github\workflows\build-and-publish.yml = .github\workflows\build-and-publish.yml
+		.github\instructions.md = .github\instructions.md
+		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SphereGridEditor", "SphereGridEditor\SphereGridEditor.csproj", "{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SphereGridEditor", "SphereGridEditor\SphereGridEditor.csproj", "{4632B0EA-B3B2-4EF6-A9DE-FA3908B89482}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veil.Desktop", "Veil.Desktop\Veil.Desktop.csproj", "{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,12 +45,19 @@ Global
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{050A7898-7A94-46D6-9D88-C0E56938FB12}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8DA6A5C-9B47-47E0-BF21-3D05642F180D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4632B0EA-B3B2-4EF6-A9DE-FA3908B89482}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4632B0EA-B3B2-4EF6-A9DE-FA3908B89482}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4632B0EA-B3B2-4EF6-A9DE-FA3908B89482}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4632B0EA-B3B2-4EF6-A9DE-FA3908B89482}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17DD3F65-7925-4A91-96A2-A85503569593}
 	EndGlobalSection
 EndGlobal
