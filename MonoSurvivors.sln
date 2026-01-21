@@ -15,13 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.github\workflows\build-and-publish.yml = .github\workflows\build-and-publish.yml
-		.github\instructions.md = .github\instructions.md
 		Directory.Build.props = Directory.Build.props
+		.github\instructions.md = .github\instructions.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SphereGridEditor", "SphereGridEditor\SphereGridEditor.csproj", "{4632B0EA-B3B2-4EF6-A9DE-FA3908B89482}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veil.Desktop", "Veil.Desktop\Veil.Desktop.csproj", "{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veil.Web", "Veil.Web\Veil.Web.csproj", "{9E6C6003-4E33-4B91-80D6-480F6E6A6A2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF18E670-9B3D-4D1A-B9C3-643EB05BFE57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E6C6003-4E33-4B91-80D6-480F6E6A6A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E6C6003-4E33-4B91-80D6-480F6E6A6A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E6C6003-4E33-4B91-80D6-480F6E6A6A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E6C6003-4E33-4B91-80D6-480F6E6A6A2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
