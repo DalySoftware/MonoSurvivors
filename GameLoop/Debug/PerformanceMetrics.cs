@@ -5,7 +5,6 @@ namespace GameLoop.Debug;
 
 internal sealed class PerformanceMetrics
 {
-    // Smoothed frame times (EMA) so numbers aren't unreadable noise
     private const double Alpha = 0.12;
 
     private long _lastDrawTicks;
@@ -22,8 +21,12 @@ internal sealed class PerformanceMetrics
     public int Gc1Delta { get; private set; }
     public int Gc2Delta { get; private set; }
 
-    internal Scope MeasureUpdate() => new(this, ScopeKind.Update);
-    internal Scope MeasureDraw() => new(this, ScopeKind.Draw);
+    public string ProbeName { get; private set; } = "";
+    public double ProbeMs { get; private set; }
+
+    internal Scope MeasureUpdate() => new(this, ScopeKind.Update, "");
+    internal Scope MeasureDraw() => new(this, ScopeKind.Draw, "");
+    internal Scope MeasureProbe(string name) => new(this, ScopeKind.Probe, name);
 
     public void TickDrawFrame()
     {
@@ -36,9 +39,17 @@ internal sealed class PerformanceMetrics
     private void RecordUpdate(double ms) => UpdateMs = UpdateMs <= 0 ? ms : Lerp(UpdateMs, ms, Alpha);
     private void RecordDraw(double ms) => DrawMs = DrawMs <= 0 ? ms : Lerp(DrawMs, ms, Alpha);
 
+    private void RecordProbe(double ms, string name)
+    {
+        // Keep name stable unless it changes (cheap, but avoids pointless churn)
+        if (!ReferenceEquals(ProbeName, name) && ProbeName != name)
+            ProbeName = name;
+
+        ProbeMs = ProbeMs <= 0 ? ms : Lerp(ProbeMs, ms, Alpha);
+    }
+
     private void OnDrawFrame(double dtSeconds)
     {
-        // FPS window
         _frames++;
         _fpsWindowSeconds += dtSeconds;
         if (_fpsWindowSeconds >= 1.0)
@@ -48,7 +59,6 @@ internal sealed class PerformanceMetrics
             _fpsWindowSeconds = 0;
         }
 
-        // GC delta window (per ~1 sec)
         _gcWindowSeconds += dtSeconds;
         if (_gcWindowSeconds >= 1.0)
         {
@@ -87,9 +97,10 @@ internal sealed class PerformanceMetrics
     {
         Update,
         Draw,
+        Probe,
     }
 
-    internal readonly struct Scope(PerformanceMetrics metrics, ScopeKind kind) : IDisposable
+    internal readonly struct Scope(PerformanceMetrics metrics, ScopeKind kind, string name) : IDisposable
     {
         private readonly long _startTicks = Stopwatch.GetTimestamp();
 
@@ -99,7 +110,8 @@ internal sealed class PerformanceMetrics
             var ms = (end - _startTicks) * 1000.0 / Stopwatch.Frequency;
 
             if (kind == ScopeKind.Update) metrics.RecordUpdate(ms);
-            else metrics.RecordDraw(ms);
+            else if (kind == ScopeKind.Draw) metrics.RecordDraw(ms);
+            else metrics.RecordProbe(ms, name);
         }
     }
 }

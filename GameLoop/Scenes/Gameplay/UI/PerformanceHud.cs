@@ -31,12 +31,13 @@ internal sealed class PerformanceHud(SpriteFont font, RenderScaler viewport, Per
         if (_timeSinceRefresh < TextRefreshSeconds) return;
         _timeSinceRefresh = 0;
 
-        var w = viewport.Width;
-        var h = viewport.Height;
+        var probe = string.IsNullOrEmpty(metrics.ProbeName)
+            ? ""
+            : $" | {metrics.ProbeName} {metrics.ProbeMs,5:0.0}ms";
 
         _text =
-            $"FPS {metrics.Fps,3} | U {metrics.UpdateMs,6:0.00}ms | D {metrics.DrawMs,6:0.00}ms" +
-            $" | GC {metrics.Gc0Delta}/{metrics.Gc1Delta}/{metrics.Gc2Delta} | {w}x{h}";
+            $"FPS {metrics.Fps,3} | U {metrics.UpdateMs,5:0.0}ms | D {metrics.DrawMs,5:0.0}ms" +
+            $"{probe} | GC {metrics.Gc0Delta}/{metrics.Gc1Delta}/{metrics.Gc2Delta}";
 
         _textSize = font.MeasureString(_text);
         _uiRectangle = viewport.UiRectangle()
