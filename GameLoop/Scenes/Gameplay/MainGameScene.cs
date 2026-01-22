@@ -172,7 +172,6 @@ internal class MainGameScene(
 
         builder.RegisterType<MainGameScene>().InstancePerDependency();
 
-        builder.RegisterType<PerformanceMetrics>().SingleInstance();
         builder.RegisterType<PerformanceHudFactory>();
         builder.Register<PerformanceHud>(ctx => ctx.Resolve<PerformanceHudFactory>().Create()).SingleInstance();
     }

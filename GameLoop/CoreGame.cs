@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using GameLoop.Debug;
 using GameLoop.DependencyInjection;
 using GameLoop.Input;
 using GameLoop.Rendering;
@@ -155,6 +156,8 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterType<GameInputState>().AsSelf().As<IMouseInputState>().SingleInstance();
             builder.RegisterType<InputStateManager>().SingleInstance();
             builder.RegisterType<InputGate>().SingleInstance();
+
+            builder.RegisterType<PerformanceMetrics>().SingleInstance();
 
             _configurePlatformServices(builder);
         });
