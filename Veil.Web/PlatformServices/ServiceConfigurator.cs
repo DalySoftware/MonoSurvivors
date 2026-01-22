@@ -1,9 +1,11 @@
 ﻿using Autofac;
 using GameLoop.Persistence;
 using GameLoop.Rendering;
+using Gameplay;
 using Gameplay.Audio;
 using Microsoft.JSInterop;
 using Veil.Web.PlatformServices.Audio;
+using Veil.Web.PlatformServices.LifeCycle;
 using Veil.Web.PlatformServices.Persistence;
 using Veil.Web.PlatformServices.Rendering;
 
@@ -29,5 +31,7 @@ internal static class ServiceConfigurator
 
         builder.RegisterType<WebDisplayModeManager>().As<IDisplayModeManager>().SingleInstance();
         builder.RegisterType<WebViewportSync>().As<IViewportSync>().SingleInstance();
+
+        builder.RegisterType<WebAppLifecycle>().As<IAppLifeCycle>().SingleInstance();
     }
 }

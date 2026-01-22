@@ -5,7 +5,7 @@ using Gameplay;
 namespace GameLoop.Input;
 
 internal class SingleActionSceneInputManager(
-    IGlobalCommands globalCommands,
+    IAppLifeCycle appLifeCycle,
     GameInputState inputState,
     ISettingsPersistence settingsPersistence,
     Action primaryAction)
@@ -16,7 +16,7 @@ internal class SingleActionSceneInputManager(
 
     internal void Update()
     {
-        if (_actions.WasPressed(SingleActionSceneAction.Exit)) globalCommands.Exit();
+        if (_actions.WasPressed(SingleActionSceneAction.Exit) && appLifeCycle.CanExit) appLifeCycle.Exit();
 
         if (_actions.WasPressed(SingleActionSceneAction.PrimaryAction)) primaryAction();
     }

@@ -9,7 +9,6 @@ public interface IGlobalCommands
     void ShowSphereGrid();
     void ShowPauseMenu();
     void ResumeGame();
-    void Exit();
     void StartGame(WeaponDescriptor startingWeapon);
     void CloseSphereGrid();
     void ShowMouse();

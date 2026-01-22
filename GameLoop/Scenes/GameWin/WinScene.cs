@@ -17,6 +17,7 @@ internal class WinScene : IScene
     private readonly WinSceneInputManager _input;
     private readonly InputGate _inputGate;
     private readonly GameInputState _inputState;
+    private readonly IAppLifeCycle _appLifeCycle;
 
     private readonly Label _titleLabel;
     private readonly Label _instructionsLabel;
@@ -28,12 +29,14 @@ internal class WinScene : IScene
         WinSceneInputManager input,
         InputGate inputGate,
         GameInputState inputState,
-        Label.Factory labelFactory)
+        Label.Factory labelFactory,
+        IAppLifeCycle appLifeCycle)
     {
         _spriteBatch = spriteBatch;
         _input = input;
         _inputGate = inputGate;
         _inputState = inputState;
+        _appLifeCycle = appLifeCycle;
 
         // Title label
         const string titleText = "You Win!";
@@ -86,10 +89,14 @@ internal class WinScene : IScene
 
     public void Dispose() { }
 
-    private string GetInstructionsText() =>
-        _inputState.CurrentInputMethod is InputMethod.KeyboardMouse
-            ? "SPACE to Restart | ESC to Exit"
-            : "START to Restart | BACK to Exit";
+    private string GetInstructionsText() => _inputState.CurrentInputMethod switch
+    {
+        InputMethod.KeyboardMouse when _appLifeCycle.CanExit => "[Space] to restart | [Esc] to exit",
+        InputMethod.KeyboardMouse => "[Space] to restart",
+        InputMethod.Gamepad when _appLifeCycle.CanExit => "[A] to restart | [B] to exit",
+        InputMethod.Gamepad => "[A] to restart",
+        _ => string.Empty,
+    };
 
     public static void ConfigureServices(ContainerBuilder builder)
     {
@@ -100,10 +107,11 @@ internal class WinScene : IScene
 
 internal sealed class WinSceneInputManager(
     IGlobalCommands globalCommands,
+    IAppLifeCycle appLifeCycle,
     GameInputState inputState,
     ISettingsPersistence settingsPersistence)
     : SingleActionSceneInputManager(
-        globalCommands,
+        appLifeCycle,
         inputState,
         settingsPersistence,
         globalCommands.ReturnToTitle);

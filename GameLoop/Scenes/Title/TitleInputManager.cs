@@ -10,6 +10,7 @@ namespace GameLoop.Scenes.Title;
 
 internal sealed class TitleInputManager(
     IGlobalCommands globalCommands,
+    IAppLifeCycle appLifeCycle,
     GameInputState inputState,
     KeyBindingsSettings bindings,
     WeaponSelect weaponSelect,
@@ -56,9 +57,9 @@ internal sealed class TitleInputManager(
             return;
         }
 
-        if (_actions.WasPressed(TitleAction.Exit))
+        if (_actions.WasPressed(TitleAction.Exit) && appLifeCycle.CanExit)
         {
-            globalCommands.Exit();
+            appLifeCycle.Exit();
             return;
         }
 
@@ -128,11 +129,12 @@ internal sealed class TitleInputManager(
 
     internal class Factory(
         IGlobalCommands globalCommands,
+        IAppLifeCycle appLifeCycle,
         GameInputState inputState,
         KeyBindingsSettings bindings,
         IDisplayModeManager displayMode)
     {
         internal TitleInputManager Create(WeaponSelect weaponSelect) =>
-            new(globalCommands, inputState, bindings, weaponSelect, displayMode);
+            new(globalCommands, appLifeCycle, inputState, bindings, weaponSelect, displayMode);
     }
 }

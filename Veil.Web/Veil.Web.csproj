@@ -25,6 +25,7 @@
         <Compile Include="PlatformServices\Audio\WebSoundEffectPlayer.cs"/>
         <Compile Include="PlatformServices\Audio\WebMusicPlayer.cs"/>
         <Compile Include="Pages\Index.razor.cs"/>
+        <Compile Include="PlatformServices\LifeCycle\WebAppLifeCycle.cs"/>
         <Compile Include="PlatformServices\Persistence\LocalStoragePersistence.cs"/>
         <Compile Include="PlatformServices\Rendering\WebDisplayModeManager.cs"/>
         <Compile Include="PlatformServices\Rendering\WebViewportSync.cs"/>

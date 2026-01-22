@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using GameLoop.Persistence;
 using GameLoop.Rendering;
+using Gameplay;
 using Gameplay.Audio;
 using Veil.Desktop.PlatformServices.Audio;
+using Veil.Desktop.PlatformServices.Lifecycle;
 using Veil.Desktop.PlatformServices.Persistence;
 using Veil.Desktop.PlatformServices.Rendering;
 
@@ -19,5 +21,7 @@ internal static class ServiceConfigurator
 
         builder.RegisterType<DisplayModeManager>().As<IDisplayModeManager>().SingleInstance();
         builder.RegisterType<DesktopViewportSync>().As<IViewportSync>().SingleInstance();
+
+        builder.RegisterType<DesktopAppLifeCycle>().As<IAppLifeCycle>().SingleInstance();
     }
 }

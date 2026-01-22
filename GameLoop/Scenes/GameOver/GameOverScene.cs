@@ -3,6 +3,7 @@ using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Rendering;
 using GameLoop.UI;
+using Gameplay;
 using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,6 +16,7 @@ internal class GameOverScene : IScene
     private readonly GameOverInputManager _input;
     private readonly InputGate _inputGate;
     private readonly GameInputState _inputState;
+    private readonly IAppLifeCycle _appLifeCycle;
     private readonly Label _titleLabel;
     private readonly Label _instructionsLabel;
     private InputMethod _lastInputMethod;
@@ -25,12 +27,14 @@ internal class GameOverScene : IScene
         GameOverInputManager input,
         InputGate inputGate,
         GameInputState inputState,
-        Label.Factory labelFactory)
+        Label.Factory labelFactory,
+        IAppLifeCycle appLifeCycle)
     {
         _spriteBatch = spriteBatch;
         _input = input;
         _inputGate = inputGate;
         _inputState = inputState;
+        _appLifeCycle = appLifeCycle;
 
         const string titleText = "Game Over";
         var titleSize = labelFactory.Measure(Paths.Fonts.Righteous.Large, titleText);
@@ -83,10 +87,14 @@ internal class GameOverScene : IScene
     public void Dispose() { }
 
 
-    private string GetInstructionsText() =>
-        _inputState.CurrentInputMethod is InputMethod.KeyboardMouse
-            ? "SPACE to Restart | ESC to Exit"
-            : "START to Restart | BACK to Exit";
+    private string GetInstructionsText() => _inputState.CurrentInputMethod switch
+    {
+        InputMethod.KeyboardMouse when _appLifeCycle.CanExit => "[Space] to restart | [Esc] to exit",
+        InputMethod.KeyboardMouse => "[Space] to restart",
+        InputMethod.Gamepad when _appLifeCycle.CanExit => "[A] to restart | [B] to exit",
+        InputMethod.Gamepad => "[A] to restart",
+        _ => string.Empty,
+    };
 
     public static void ConfigureServices(ContainerBuilder builder)
     {

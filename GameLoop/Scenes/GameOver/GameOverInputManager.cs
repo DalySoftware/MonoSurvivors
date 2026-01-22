@@ -6,6 +6,7 @@ namespace GameLoop.Scenes.GameOver;
 
 internal class GameOverInputManager(
     IGlobalCommands globalCommands,
+    IAppLifeCycle appLifeCycle,
     GameInputState inputState,
     ISettingsPersistence settingsPersistence)
-    : SingleActionSceneInputManager(globalCommands, inputState, settingsPersistence, globalCommands.ReturnToTitle);
+    : SingleActionSceneInputManager(appLifeCycle, inputState, settingsPersistence, globalCommands.ReturnToTitle);
