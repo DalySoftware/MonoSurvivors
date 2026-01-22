@@ -1,25 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using GameLoop.Audio;
 using GameLoop.Persistence;
 using GameLoop.UserSettings;
 using Gameplay.Audio;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using PersistenceJsonContext = GameLoop.Persistence.PersistenceJsonContext;
 
 namespace Veil.Desktop.PlatformServices.Audio;
 
 public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
 {
-    private readonly static HashSet<SoundEffectTypes> DucksMusic =
-    [
-        SoundEffectTypes.BasicShoot,
-        SoundEffectTypes.BouncerShoot,
-        SoundEffectTypes.SniperShoot,
-        SoundEffectTypes.ShotgunShoot,
-    ];
-
-    private readonly SoundEffectContent _effects;
+    private readonly Dictionary<SoundEffectTypes, SoundEffect[]> _effectsByType;
     private readonly Random _random = new();
     private readonly ISettingsPersistence _settingsPersistence;
     private readonly IMusicPlayer _musicPlayer;
@@ -31,9 +23,11 @@ public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
         ISettingsPersistence settingsPersistence,
         IMusicPlayer musicPlayer)
     {
-        _effects = new SoundEffectContent(content);
         _settingsPersistence = settingsPersistence;
         _musicPlayer = musicPlayer;
+
+        // Build once: load all variants from the shared catalogue.
+        _effectsByType = LoadEffects(content);
 
         // Initial load
         _audioSettings = settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
@@ -45,12 +39,10 @@ public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
 
     public void Play(SoundEffectTypes effectType)
     {
-        EffectsFor(effectType)
-            .PickRandom(_random)
-            .Play(effectType, _audioSettings);
+        _effectsByType[effectType].PickRandom(_random).Play(effectType, _audioSettings);
 
         // Duck music briefly when firing
-        if (DucksMusic.Contains(effectType))
+        if (SoundEffectTuning.ShouldDuckMusic(effectType))
             _ = _musicPlayer.DuckFor(TimeSpan.FromMilliseconds(40), 0.5f);
     }
 
@@ -62,23 +54,48 @@ public sealed class SoundEffectPlayer : IAudioPlayer, IDisposable
             _audioSettings = _settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
     }
 
-    private SoundEffect[] EffectsFor(SoundEffectTypes effectType) => effectType switch
+    private static Dictionary<SoundEffectTypes, SoundEffect[]> LoadEffects(ContentManager content)
     {
-        SoundEffectTypes.BasicShoot => _effects.Shoot,
-        SoundEffectTypes.BouncerShoot => _effects.BouncerShoot,
-        SoundEffectTypes.SniperShoot => _effects.SniperShoot,
-        SoundEffectTypes.ShotgunShoot => _effects.ShotgunShoot,
-        SoundEffectTypes.ExperiencePickup => _effects.ExperienceUp,
-        SoundEffectTypes.LevelUp => _effects.LevelUp,
-        SoundEffectTypes.EnemyDeath => _effects.EnemyDeath,
-        SoundEffectTypes.EnemyExplode => _effects.Explosion,
-        SoundEffectTypes.PlayerHurt => _effects.PlayerHurt,
-        SoundEffectTypes.Lightning => _effects.Lightning,
-        SoundEffectTypes.IceAura => _effects.IceDamage,
-        SoundEffectTypes.UnlockNode => _effects.UnlockNode,
-        SoundEffectTypes.Crit => _effects.Crit,
-        _ => throw new ArgumentOutOfRangeException(nameof(effectType)),
-    };
+        var dict = new Dictionary<SoundEffectTypes, SoundEffect[]>();
+        var missing = new List<SoundEffectTypes>();
+        var empty = new List<SoundEffectTypes>();
+
+        foreach (var type in Enum.GetValues<SoundEffectTypes>())
+        {
+            // Optional: skip a sentinel/None value if you have one.
+            // if (type == SoundEffectTypes.None) continue;
+
+            if (!SoundEffectCatalog.Variants.TryGetValue(type, out var baseNames))
+            {
+                missing.Add(type);
+                continue;
+            }
+
+            if (baseNames.Length == 0)
+            {
+                empty.Add(type);
+                continue;
+            }
+
+            var loaded = new SoundEffect[baseNames.Length];
+            for (var i = 0; i < baseNames.Length; i++)
+            {
+                var assetName = SoundEffectCatalog.DesktopContentName(baseNames[i]);
+                loaded[i] = content.Load<SoundEffect>(assetName);
+            }
+
+            dict[type] = loaded;
+        }
+
+        if (missing.Count != 0 || empty.Count != 0)
+            throw new InvalidOperationException(
+                "SoundEffectCatalog is incomplete.\n" +
+                (missing.Count == 0 ? "" : $"Missing entries: {string.Join(", ", missing)}\n") +
+                (empty.Count == 0 ? "" : $"Empty variant lists: {string.Join(", ", empty)}\n") +
+                "Fix: add/update SoundEffectCatalog.Variants for these SoundEffectTypes.");
+
+        return dict;
+    }
 }
 
 internal static class Extensions
@@ -87,29 +104,8 @@ internal static class Extensions
 
     internal static void Play(this SoundEffect effect, SoundEffectTypes type, AudioSettings settings)
     {
-        var volume = settings.MasterVolume * settings.SoundEffectVolume;
-
-        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-        switch (type)
-        {
-            case SoundEffectTypes.IceAura or SoundEffectTypes.LevelUp:
-                effect.Play(volume * 0.7f, 0f, 0f);
-                break;
-            case SoundEffectTypes.Crit:
-                effect.Play(volume * 0.5f, 0f, 0f);
-                break;
-            case SoundEffectTypes.ExperiencePickup or SoundEffectTypes.EnemyExplode:
-                effect.Play(volume * 0.2f, 0f, 0f);
-                break;
-            case SoundEffectTypes.Lightning:
-                effect.Play(volume * 0.15f, 0f, 0f);
-                break;
-            case SoundEffectTypes.SniperShoot:
-                effect.Play(volume, .2f, 0f);
-                break;
-            default:
-                effect.Play(volume, 0f, 0f);
-                break;
-        }
+        var baseVolume = settings.MasterVolume * settings.SoundEffectVolume;
+        var tuning = SoundEffectTuning.Get(type);
+        effect.Play(baseVolume * tuning.VolumeMultiplier, tuning.Pitch, 0f);
     }
 }

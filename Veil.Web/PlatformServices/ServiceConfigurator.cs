@@ -15,7 +15,7 @@ internal static class ServiceConfigurator
         builder.RegisterType<LocalStoragePersistence>().As<ISettingsPersistence>().SingleInstance();
 
         builder.RegisterType<NullMusicPlayer>().As<IMusicPlayer>().SingleInstance();
-        builder.RegisterType<NullSoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
+        builder.RegisterType<WebSoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
 
         builder.Register(ctx =>
             ctx.Resolve<ISettingsPersistence>()

@@ -22,7 +22,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="PlatformServices\Audio\NullSoundEffectPlayer.cs"/>
+        <Compile Include="PlatformServices\Audio\WebSoundEffectPlayer.cs"/>
         <Compile Include="PlatformServices\Audio\NullMusicPlayer.cs"/>
         <Compile Include="Pages\Index.razor.cs"/>
         <Compile Include="PlatformServices\Persistence\LocalStoragePersistence.cs"/>
@@ -47,6 +47,18 @@
     <ItemGroup>
         <KniContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <_SoundEffectFiles Include="..\ContentLibrary\ContentLibrary\SoundEffects\**\*.wav"/>
+    </ItemGroup>
+
+    <Target Name="CopySoundEffectsToWwwroot"
+            BeforeTargets="ResolveStaticWebAssetsInputs">
+        <Copy
+                SourceFiles="@(_SoundEffectFiles)"
+                DestinationFiles="@(_SoundEffectFiles->'$(MSBuildProjectDirectory)\wwwroot\soundEffects\%(RecursiveDir)%(Filename)%(Extension)')"
+                SkipUnchangedFiles="true"/>
+    </Target>
 
 
 </Project>
