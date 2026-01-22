@@ -14,7 +14,11 @@ internal sealed class SpatialHash<T>(float cellSize, PerformanceMetrics perf)
 
     internal float CellSize => cellSize;
 
-    public void Clear() => _grid.Clear();
+    public void Clear()
+    {
+        foreach (var list in _grid.Values)
+            list.Clear();
+    }
 
     private static long Key(int x, int y) => ((long)x << 32) ^ (uint)y;
 
