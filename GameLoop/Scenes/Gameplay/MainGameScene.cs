@@ -1,7 +1,6 @@
 using System;
 using Autofac;
 using ContentLibrary;
-using GameLoop.Debug;
 using GameLoop.Input;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay.Behaviour;
@@ -21,6 +20,7 @@ using Gameplay.Levelling.SphereGrid.Generation;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects;
+using Gameplay.Telemetry;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;

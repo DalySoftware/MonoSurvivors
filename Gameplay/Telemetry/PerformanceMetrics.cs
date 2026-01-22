@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace GameLoop.Debug;
+namespace Gameplay.Telemetry;
 
-internal sealed class PerformanceMetrics
+public sealed class PerformanceMetrics
 {
+    public enum ScopeKind
+    {
+        Update,
+        Draw,
+        Probe,
+    }
+
     private const double Alpha = 0.12;
 
     private long _lastDrawTicks;
@@ -13,6 +20,10 @@ internal sealed class PerformanceMetrics
 
     private int _lastGc0, _lastGc1, _lastGc2;
     private double _gcWindowSeconds;
+
+    private double _probeFrameSumMs;
+    private int _probeFrameCalls;
+    private string _probeFrameName = "";
 
     public int Fps { get; private set; }
     public double UpdateMs { get; private set; }
@@ -24,9 +35,42 @@ internal sealed class PerformanceMetrics
     public string ProbeName { get; private set; } = "";
     public double ProbeMs { get; private set; }
 
-    internal Scope MeasureUpdate() => new(this, ScopeKind.Update, "");
-    internal Scope MeasureDraw() => new(this, ScopeKind.Draw, "");
-    internal Scope MeasureProbe(string name) => new(this, ScopeKind.Probe, name);
+    public int ProbeCalls { get; private set; }
+
+    private void ResetProbeFrame()
+    {
+        _probeFrameSumMs = 0;
+        _probeFrameCalls = 0;
+        _probeFrameName = "";
+    }
+
+    private void PublishProbeFrame()
+    {
+        if (_probeFrameCalls == 0) return;
+
+        if (!ReferenceEquals(ProbeName, _probeFrameName) && ProbeName != _probeFrameName)
+            ProbeName = _probeFrameName;
+
+        ProbeCalls = _probeFrameCalls;
+
+        var totalMs = _probeFrameSumMs;
+        ProbeMs = ProbeMs <= 0 ? totalMs : Lerp(ProbeMs, totalMs, Alpha);
+    }
+
+
+    public Scope MeasureUpdate()
+    {
+        ResetProbeFrame();
+        return new Scope(this, ScopeKind.Update, "");
+    }
+
+    public Scope MeasureDraw()
+    {
+        ResetProbeFrame();
+        return new Scope(this, ScopeKind.Draw, "");
+    }
+
+    public Scope MeasureProbe(string name) => new(this, ScopeKind.Probe, name);
 
     public void TickDrawFrame()
     {
@@ -41,12 +85,13 @@ internal sealed class PerformanceMetrics
 
     private void RecordProbe(double ms, string name)
     {
-        // Keep name stable unless it changes (cheap, but avoids pointless churn)
-        if (!ReferenceEquals(ProbeName, name) && ProbeName != name)
-            ProbeName = name;
+        if (_probeFrameCalls == 0)
+            _probeFrameName = name;
 
-        ProbeMs = ProbeMs <= 0 ? ms : Lerp(ProbeMs, ms, Alpha);
+        _probeFrameSumMs += ms;
+        _probeFrameCalls++;
     }
+
 
     private void OnDrawFrame(double dtSeconds)
     {
@@ -93,14 +138,7 @@ internal sealed class PerformanceMetrics
 
     private static double Lerp(double a, double b, double t) => a + (b - a) * t;
 
-    internal enum ScopeKind
-    {
-        Update,
-        Draw,
-        Probe,
-    }
-
-    internal readonly struct Scope(PerformanceMetrics metrics, ScopeKind kind, string name) : IDisposable
+    public readonly struct Scope(PerformanceMetrics metrics, ScopeKind kind, string name) : IDisposable
     {
         private readonly long _startTicks = Stopwatch.GetTimestamp();
 
@@ -109,9 +147,20 @@ internal sealed class PerformanceMetrics
             var end = Stopwatch.GetTimestamp();
             var ms = (end - _startTicks) * 1000.0 / Stopwatch.Frequency;
 
-            if (kind == ScopeKind.Update) metrics.RecordUpdate(ms);
-            else if (kind == ScopeKind.Draw) metrics.RecordDraw(ms);
-            else metrics.RecordProbe(ms, name);
+            if (kind == ScopeKind.Update)
+            {
+                metrics.RecordUpdate(ms);
+                metrics.PublishProbeFrame();
+            }
+            else if (kind == ScopeKind.Draw)
+            {
+                metrics.RecordDraw(ms);
+                metrics.PublishProbeFrame();
+            }
+            else
+            {
+                metrics.RecordProbe(ms, name);
+            }
         }
     }
 }

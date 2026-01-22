@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using GameLoop.Debug;
 using GameLoop.DependencyInjection;
 using GameLoop.Input;
 using GameLoop.Rendering;
@@ -18,6 +17,7 @@ using Gameplay.Levelling.PowerUps;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
+using Gameplay.Telemetry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

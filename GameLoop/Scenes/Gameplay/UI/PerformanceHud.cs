@@ -1,8 +1,8 @@
 ﻿using ContentLibrary;
-using GameLoop.Debug;
 using GameLoop.Rendering;
 using GameLoop.UI;
 using Gameplay.Rendering.Colors;
+using Gameplay.Telemetry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
