@@ -92,75 +92,8 @@ public static class Paths
         }
     }
 
-    public static class SoundEffects
-    {
-        public const string Shoot1 = @"SoundEffects\Shoot1";
-        public const string Shoot2 = @"SoundEffects\Shoot2";
-        public const string Shoot3 = @"SoundEffects\Shoot3";
-        public const string Shoot4 = @"SoundEffects\Shoot4";
-        public const string Shoot5 = @"SoundEffects\Shoot5";
-
-        public const string BouncerShoot1 = @"SoundEffects\BouncerShoot1";
-        public const string BouncerShoot2 = @"SoundEffects\BouncerShoot2";
-        public const string BouncerShoot3 = @"SoundEffects\BouncerShoot3";
-
-        public const string SniperShoot1 = @"SoundEffects\SniperShoot1";
-        public const string SniperShoot2 = @"SoundEffects\SniperShoot2";
-        public const string SniperShoot3 = @"SoundEffects\SniperShoot3";
-
-        public const string ShotgunShoot1 = @"SoundEffects\ShotgunShoot1";
-        public const string ShotgunShoot2 = @"SoundEffects\ShotgunShoot2";
-        public const string ShotgunShoot3 = @"SoundEffects\ShotgunShoot3";
-
-        public const string Lightning1 = @"SoundEffects\Lightning1";
-        public const string Lightning2 = @"SoundEffects\Lightning2";
-        public const string Lightning3 = @"SoundEffects\Lightning3";
-        public const string Lightning4 = @"SoundEffects\Lightning4";
-
-        public const string IceDamage1 = @"SoundEffects\IceDamage1";
-        public const string IceDamage2 = @"SoundEffects\IceDamage2";
-        public const string IceDamage3 = @"SoundEffects\IceDamage3";
-        public const string IceDamage4 = @"SoundEffects\IceDamage4";
-
-        public const string ExperienceUp1 = @"SoundEffects\ExperienceUp1";
-        public const string ExperienceUp2 = @"SoundEffects\ExperienceUp2";
-        public const string ExperienceUp3 = @"SoundEffects\ExperienceUp3";
-        public const string ExperienceUp4 = @"SoundEffects\ExperienceUp4";
-        public const string ExperienceUp5 = @"SoundEffects\ExperienceUp5";
-
-        public const string LevelUp1 = @"SoundEffects\LevelUp1";
-        public const string LevelUp2 = @"SoundEffects\LevelUp2";
-        public const string LevelUp3 = @"SoundEffects\LevelUp3";
-        public const string LevelUp4 = @"SoundEffects\LevelUp4";
-
-        public const string EnemyDeath1 = @"SoundEffects\EnemyDeath1";
-        public const string EnemyDeath2 = @"SoundEffects\EnemyDeath2";
-        public const string EnemyDeath3 = @"SoundEffects\EnemyDeath3";
-
-        public const string Explosion1 = @"SoundEffects\Explosion1";
-        public const string Explosion2 = @"SoundEffects\Explosion2";
-        public const string Explosion3 = @"SoundEffects\Explosion3";
-        public const string Explosion4 = @"SoundEffects\Explosion4";
-
-        public const string PlayerHurt1 = @"SoundEffects\PlayerHurt1";
-        public const string PlayerHurt2 = @"SoundEffects\PlayerHurt2";
-        public const string PlayerHurt3 = @"SoundEffects\PlayerHurt3";
-
-        public const string UnlockNode = @"SoundEffects\UnlockNode";
-
-        public const string Crit1 = @"SoundEffects\Crit1";
-        public const string Crit2 = @"SoundEffects\Crit2";
-        public const string Crit3 = @"SoundEffects\Crit3";
-    }
-
     public static class ShaderEffects
     {
         public const string Greyscale = @"Shaders\greyscale";
-    }
-
-    public static class Music
-    {
-        public const string AppleStrudel = @"Music\AppleStrudel";
-        public const string Venezuela = @"Music\Venezuela";
     }
 }

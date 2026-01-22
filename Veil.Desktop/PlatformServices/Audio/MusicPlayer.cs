@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ContentLibrary;
+using GameLoop.Audio;
 using GameLoop.Persistence;
 using GameLoop.UserSettings;
 using Gameplay.Audio;
@@ -12,21 +12,24 @@ namespace Veil.Desktop.PlatformServices.Audio;
 
 internal sealed class MusicPlayer : IDisposable, IMusicPlayer
 {
+    private readonly MusicDucker _ducking;
     private readonly ISettingsPersistence _settingsPersistence;
-    private readonly SoundEffectInstance _soundEffect;
+    private readonly SoundEffectInstance _instance;
 
-    private float _baseVolume; // store original volume
-
-    public MusicPlayer(ContentManager content, ISettingsPersistence settingsPersistence)
+    public MusicPlayer(ContentManager content, MusicDucker ducking, ISettingsPersistence settingsPersistence)
     {
+        _ducking = ducking;
         _settingsPersistence = settingsPersistence;
-        _soundEffect = content.Load<SoundEffect>(Paths.Music.Venezuela).CreateInstance();
-        _soundEffect.IsLooped = true;
 
-        // Set initial volume
+        var path = MusicCatalog.DesktopContentName(MusicCatalog.Tracks.Venezuela);
+        _instance = content.Load<SoundEffect>(path).CreateInstance();
+        _instance.IsLooped = true;
+
+        _ducking.OnEffectiveVolumeChanged += ApplyVolume;
+
+        // Initial volume from settings
         UpdateVolume(settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings));
 
-        // Subscribe to settings changes
         settingsPersistence.OnChanged -= OnSettingsChange;
         settingsPersistence.OnChanged += OnSettingsChange;
     }
@@ -34,29 +37,29 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
     public void Dispose()
     {
         _settingsPersistence.OnChanged -= OnSettingsChange;
-        _soundEffect.Dispose();
+        _ducking.OnEffectiveVolumeChanged -= ApplyVolume;
+        _instance.Dispose();
     }
 
-    public void PlayBackgroundMusic() => _soundEffect.Play();
+    public void PlayBackgroundMusic()
+    {
+        if (_instance.State != SoundState.Playing)
+            _instance.Play();
+    }
 
-    /// <summary>Reduce music volume temporarily for a ducking effect.</summary>
     public async Task DuckFor(TimeSpan? duration = null, float duckFactor = 0.7f)
     {
-        if (!_soundEffect.State.Equals(SoundState.Playing))
-            return;
-
-        _soundEffect.Volume = _baseVolume * duckFactor;
-
         duration ??= TimeSpan.FromMilliseconds(100);
-        await Task.Delay(duration.Value);
 
-        // Restore volume
-        _soundEffect.Volume = _baseVolume;
+        using (_ducking.BeginTemporaryDuck(duckFactor))
+        {
+            await Task.Delay(duration.Value);
+        }
     }
 
-    public void DuckBackgroundMusic() => _soundEffect.Volume *= 0.7f;
+    public void DuckBackgroundMusic() => _ducking.SetManualDuck(0.7f);
 
-    public void RestoreBackgroundMusic() => _soundEffect.Volume *= 1.4286f; // reciprocal
+    public void RestoreBackgroundMusic() => _ducking.ClearManualDuck();
 
     private void OnSettingsChange(Type type)
     {
@@ -66,7 +69,9 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
 
     private void UpdateVolume(AudioSettings settings)
     {
-        _baseVolume = settings.MasterVolume * settings.MusicVolume;
-        _soundEffect.Volume = _baseVolume;
+        var baseVolume = settings.MasterVolume * settings.MusicVolume;
+        _ducking.SetBaseVolume(baseVolume);
     }
+
+    private void ApplyVolume(float volume) => _instance.Volume = volume;
 }

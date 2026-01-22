@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using GameLoop.Audio;
 using GameLoop.Rendering;
 using GameLoop.Scenes;
 using Gameplay;
@@ -29,6 +30,8 @@ public sealed class GameContainer
         builder.RegisterType<DisplayModeManager>().SingleInstance();
 
         builder.RegisterType<SceneManager>().SingleInstance();
+
+        builder.RegisterType<MusicDucker>().SingleInstance();
 
         builder.ConfigureOptions();
 

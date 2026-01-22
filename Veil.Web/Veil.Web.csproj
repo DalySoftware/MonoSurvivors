@@ -23,7 +23,7 @@
 
     <ItemGroup>
         <Compile Include="PlatformServices\Audio\WebSoundEffectPlayer.cs"/>
-        <Compile Include="PlatformServices\Audio\NullMusicPlayer.cs"/>
+        <Compile Include="PlatformServices\Audio\WebMusicPlayer.cs"/>
         <Compile Include="Pages\Index.razor.cs"/>
         <Compile Include="PlatformServices\Persistence\LocalStoragePersistence.cs"/>
         <Compile Include="PlatformServices\ServiceConfigurator.cs"/>
@@ -57,6 +57,18 @@
         <Copy
                 SourceFiles="@(_SoundEffectFiles)"
                 DestinationFiles="@(_SoundEffectFiles->'$(MSBuildProjectDirectory)\wwwroot\soundEffects\%(RecursiveDir)%(Filename)%(Extension)')"
+                SkipUnchangedFiles="true"/>
+    </Target>
+
+    <ItemGroup>
+        <_MusicFiles Include="..\ContentLibrary\ContentLibrary\Music\**\*.wav"/>
+    </ItemGroup>
+
+    <Target Name="CopySoundEffectsToWwwroot"
+            BeforeTargets="ResolveStaticWebAssetsInputs">
+        <Copy
+                SourceFiles="@(_MusicFiles)"
+                DestinationFiles="@(_MusicFiles->'$(MSBuildProjectDirectory)\wwwroot\music\%(RecursiveDir)%(Filename)%(Extension)')"
                 SkipUnchangedFiles="true"/>
     </Target>
 

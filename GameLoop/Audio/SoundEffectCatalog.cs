@@ -3,7 +3,6 @@ using Gameplay.Audio;
 
 namespace GameLoop.Audio;
 
-// Pure data: shared by Desktop + Web.
 public static class SoundEffectCatalog
 {
     public static IReadOnlyDictionary<SoundEffectTypes, string[]> Variants { get; } =
@@ -23,10 +22,10 @@ public static class SoundEffectCatalog
             [SoundEffectTypes.Lightning] = ["Lightning1", "Lightning2", "Lightning3", "Lightning4"],
             [SoundEffectTypes.IceAura] = ["IceDamage1", "IceDamage2", "IceDamage3", "IceDamage4"],
             [SoundEffectTypes.UnlockNode] = ["UnlockNode"],
-            [SoundEffectTypes.Crit] = ["Crit1", "Crit2", "Crit3"], // drop Crit3 if you truly don't have it
+            [SoundEffectTypes.Crit] = ["Crit1", "Crit2", "Crit3"],
         };
 
-    // Desktop content pipeline name (no extension)
+    // Desktop content pipeline name, no file extension
     public static string DesktopContentName(string baseName) => $@"SoundEffects\{baseName}";
 
     // Web URL, assumes .wav

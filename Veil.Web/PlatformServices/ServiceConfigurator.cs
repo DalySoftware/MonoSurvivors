@@ -14,7 +14,7 @@ internal static class ServiceConfigurator
         builder.RegisterInstance(jsRuntime).As<IJSInProcessRuntime>().SingleInstance();
         builder.RegisterType<LocalStoragePersistence>().As<ISettingsPersistence>().SingleInstance();
 
-        builder.RegisterType<NullMusicPlayer>().As<IMusicPlayer>().SingleInstance();
+        builder.RegisterType<WebMusicPlayer>().As<IMusicPlayer>().SingleInstance();
         builder.RegisterType<WebSoundEffectPlayer>().As<IAudioPlayer>().SingleInstance();
 
         builder.Register(ctx =>
