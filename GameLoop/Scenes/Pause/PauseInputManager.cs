@@ -15,7 +15,7 @@ internal class PauseInputManager(
     GameInputState inputState,
     KeyBindingsSettings bindings,
     PauseUi ui,
-    DisplayModeManager displayMode)
+    IDisplayModeManager displayMode)
 {
     private readonly PauseActionInput _actions = new(inputState, bindings);
 

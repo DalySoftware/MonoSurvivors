@@ -15,7 +15,7 @@ internal class SphereGridInputManager(
     GameInputState inputState,
     ISettingsPersistence settingsPersistence,
     SphereGridUi ui,
-    DisplayModeManager displayMode)
+    IDisplayModeManager displayMode)
 {
     private readonly SphereGridActionInput _actions =
         new(inputState, settingsPersistence.Load(PersistenceJsonContext.Default.KeyBindingsSettings).SphereGridActions);

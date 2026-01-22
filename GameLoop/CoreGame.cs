@@ -33,6 +33,7 @@ public class CoreGame : Game, IGlobalCommands
     private ILifetimeScope _gameplayScope = null!;
     private InputStateManager _inputStateManager = null!;
     private RenderScaler _renderScaler = null!;
+    private IViewportSync _viewportSync = null!;
 
     /// <param name="configurePlatformServices">Called during <see cref="LoadContent" /></param>
     public CoreGame(Action<ContainerBuilder>? configurePlatformServices = null)
@@ -161,7 +162,9 @@ public class CoreGame : Game, IGlobalCommands
         _contentScope.Resolve<GameInputState>();
         _inputStateManager = _contentScope.Resolve<InputStateManager>();
         _renderScaler = _contentScope.Resolve<RenderScaler>();
-        _contentScope.Resolve<DisplayModeManager>().InitializeDefault();
+        _contentScope.Resolve<IDisplayModeManager>().InitializeDefault();
+        _viewportSync = _contentScope.Resolve<IViewportSync>();
+        _viewportSync.ForceRefresh();
 
         ReturnToTitle();
 
@@ -170,6 +173,7 @@ public class CoreGame : Game, IGlobalCommands
 
     protected override void Update(GameTime gameTime)
     {
+        _viewportSync.Update();
         SceneManager.Current?.Update(gameTime);
         _inputStateManager.Update(IsActive);
         base.Update(gameTime);

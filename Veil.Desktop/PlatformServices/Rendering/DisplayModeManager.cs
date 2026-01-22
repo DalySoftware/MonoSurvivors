@@ -1,9 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameLoop.Rendering;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameLoop.Rendering;
+namespace Veil.Desktop.PlatformServices.Rendering;
 
 internal sealed class DisplayModeManager(GraphicsDeviceManager graphics, RenderScaler renderScaler)
+    : IDisplayModeManager
 {
     public void InitializeDefault() => SetWindowed();
 

@@ -16,7 +16,7 @@ internal class GameplayInputManager(
     GameInputState inputState,
     KeyBindingsSettings keyBindingsSettings,
     ISettingsPersistence persistence,
-    DisplayModeManager displayMode)
+    IDisplayModeManager displayMode)
 {
 #if !DEBUG
     private readonly ISettingsPersistence _ = persistence; // prevent "unused parameter" warning

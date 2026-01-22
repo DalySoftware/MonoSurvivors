@@ -1,9 +1,11 @@
 ﻿using Autofac;
 using GameLoop.Persistence;
+using GameLoop.Rendering;
 using Gameplay.Audio;
 using Microsoft.JSInterop;
 using Veil.Web.PlatformServices.Audio;
 using Veil.Web.PlatformServices.Persistence;
+using Veil.Web.PlatformServices.Rendering;
 
 namespace Veil.Web.PlatformServices;
 
@@ -24,5 +26,8 @@ internal static class ServiceConfigurator
         builder.Register(ctx =>
             ctx.Resolve<ISettingsPersistence>()
                 .Load(PersistenceJsonContext.Default.KeyBindingsSettings));
+
+        builder.RegisterType<WebDisplayModeManager>().As<IDisplayModeManager>().SingleInstance();
+        builder.RegisterType<WebViewportSync>().As<IViewportSync>().SingleInstance();
     }
 }

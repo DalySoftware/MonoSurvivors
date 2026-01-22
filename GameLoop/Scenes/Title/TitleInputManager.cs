@@ -13,7 +13,7 @@ internal sealed class TitleInputManager(
     GameInputState inputState,
     KeyBindingsSettings bindings,
     WeaponSelect weaponSelect,
-    DisplayModeManager displayMode)
+    IDisplayModeManager displayMode)
 {
     private readonly TitleActionInput _actions = new(inputState, bindings);
 
@@ -130,7 +130,7 @@ internal sealed class TitleInputManager(
         IGlobalCommands globalCommands,
         GameInputState inputState,
         KeyBindingsSettings bindings,
-        DisplayModeManager displayMode)
+        IDisplayModeManager displayMode)
     {
         internal TitleInputManager Create(WeaponSelect weaponSelect) =>
             new(globalCommands, inputState, bindings, weaponSelect, displayMode);

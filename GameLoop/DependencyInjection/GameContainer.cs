@@ -27,7 +27,6 @@ public sealed class GameContainer
             .SingleInstance().ExternallyOwned();
         builder.RegisterType<SpriteBatch>().SingleInstance();
         builder.RegisterType<RenderScaler>().AsSelf().As<IRenderViewport>().SingleInstance();
-        builder.RegisterType<DisplayModeManager>().SingleInstance();
 
         builder.RegisterType<SceneManager>().SingleInstance();
 
