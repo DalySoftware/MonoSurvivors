@@ -78,7 +78,7 @@ internal class ExperienceBar(
     {
         _provideFeedbackToSpendPoints = sphereGrid.AvailablePoints >= 3 ||
                                         (sphereGrid.AvailablePoints >= 1 &&
-                                         gameTime.ElapsedGameTime <= TimeSpan.FromMinutes(3));
+                                         gameTime.TotalGameTime <= TimeSpan.FromMinutes(3));
 
         progressBar.Progress = Progress;
 
