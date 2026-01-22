@@ -1,6 +1,7 @@
 using System;
 using Autofac;
 using ContentLibrary;
+using GameLoop.Debug;
 using GameLoop.Input;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay.Behaviour;
@@ -40,7 +41,9 @@ internal class MainGameScene(
     InputGate inputGate,
     HealthBar healthBar,
     RunClock clock,
-    BossHealthBar bossHealthBar)
+    BossHealthBar bossHealthBar,
+    PerformanceMetrics performanceMetrics,
+    PerformanceHud performanceHud)
     : IScene
 {
     private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.02f);
@@ -50,16 +53,22 @@ internal class MainGameScene(
 
     public void Update(GameTime gameTime)
     {
+        using var _ = performanceMetrics.MeasureUpdate();
+
         if (inputGate.ShouldProcessInput())
             input.Update();
         effectManager.Update(gameTime);
         entityManager.Update(gameTime);
         camera.Update(gameTime);
         spawner.Update(gameTime);
+
+        performanceHud.Update(gameTime);
     }
 
     public void Draw(GameTime gameTime)
     {
+        using var _ = performanceMetrics.MeasureDraw();
+
         DrawBackground();
 
         entityRenderer.Draw(entityManager.Entities);
@@ -67,6 +76,9 @@ internal class MainGameScene(
         experienceBar.Draw(spriteBatch, gameTime);
         clock.Draw(spriteBatch);
         bossHealthBar.Draw(spriteBatch);
+
+        performanceMetrics.TickDrawFrame();
+        performanceHud.Draw(spriteBatch);
     }
 
     private void DrawBackground()
@@ -154,5 +166,9 @@ internal class MainGameScene(
             .SingleInstance();
 
         builder.RegisterType<MainGameScene>().InstancePerDependency();
+
+        builder.RegisterType<PerformanceMetrics>().SingleInstance();
+        builder.RegisterType<PerformanceHudFactory>();
+        builder.Register<PerformanceHud>(ctx => ctx.Resolve<PerformanceHudFactory>().Create()).SingleInstance();
     }
 }

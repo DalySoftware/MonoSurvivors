@@ -2,6 +2,7 @@ using GameLoop.Debug;
 using GameLoop.Input;
 using GameLoop.Persistence;
 using GameLoop.Rendering;
+using GameLoop.Scenes.Gameplay.UI;
 using GameLoop.UserSettings;
 using Gameplay;
 using Gameplay.Entities;
@@ -16,7 +17,8 @@ internal class GameplayInputManager(
     GameInputState inputState,
     KeyBindingsSettings keyBindingsSettings,
     ISettingsPersistence persistence,
-    IDisplayModeManager displayMode)
+    IDisplayModeManager displayMode,
+    PerformanceHud performanceHud)
 {
 #if !DEBUG
     private readonly ISettingsPersistence _ = persistence; // prevent "unused parameter" warning
@@ -53,5 +55,9 @@ internal class GameplayInputManager(
             inputState.KeyboardState.IsKeyDown(Keys.S))
             DebugActions.SaveKeybinds(keyBindingsSettings, persistence);
 #endif
+        if (inputState.KeyboardState.IsKeyDown(Keys.LeftAlt) &&
+            inputState.KeyboardState.IsKeyDown(Keys.P) &&
+            inputState.PreviousKeyboardState.IsKeyUp(Keys.P))
+            performanceHud.Toggle();
     }
 }
