@@ -2,13 +2,20 @@
 using System.Linq;
 using Gameplay.CollisionDetection;
 using Gameplay.Entities;
+using Gameplay.Telemetry;
 
 namespace Gameplay.Levelling;
 
-internal class PickupProcessor
+internal class PickupProcessor(PerformanceMetrics perf)
 {
-    private readonly SpatialCollisionChecker _collisionChecker = new();
-    private readonly SpatialHash<Experience> _experienceHash = new(64f);
+    private const int CellSize = 256;
+    private readonly SpatialCollisionChecker _collisionChecker = new(perf);
+    private readonly SpatialHash<Experience> _experienceHash = new(CellSize, perf);
+
+    private readonly List<Experience> _nearbyExperience = new(256);
+
+    private readonly List<(PlayerCharacter player, IPickup pickup)> _pickupOverlaps = new(256);
+    private readonly HashSet<IPickup> _alreadyUsed = [];
 
     internal void ProcessPickups(IReadOnlyCollection<IEntity> entities)
     {
@@ -16,12 +23,21 @@ internal class PickupProcessor
 
         var pickups = entities.OfType<IPickup>();
         var players = entities.OfType<PlayerCharacter>();
-        var alreadyUsed = new HashSet<IPickup>();
 
-        foreach (var (player, pickup) in _collisionChecker.FindOverlaps(players, pickups))
-            if (alreadyUsed.Add(pickup))
+        _alreadyUsed.Clear();
+
+        var pickupHash = _collisionChecker.BuildHash(pickups);
+
+        _collisionChecker.FindOverlapsInto(players, pickupHash, _pickupOverlaps);
+
+        for (var i = 0; i < _pickupOverlaps.Count; i++)
+        {
+            var (player, pickup) = _pickupOverlaps[i];
+            if (_alreadyUsed.Add(pickup))
                 pickup.OnPickupBy(player);
+        }
     }
+
     private void ProcessExperienceAttraction(IReadOnlyCollection<IEntity> entities)
     {
         _experienceHash.Clear();
@@ -38,8 +54,11 @@ internal class PickupProcessor
     {
         const float attractionRange = 1000f;
         const float attractionRangeSq = attractionRange * attractionRange;
-        var cellRadius = (int)(attractionRange / _experienceHash.CellSize) + 1;
-        foreach (var experience in _experienceHash.QueryNearby(player.Position, cellRadius))
+        const int cellRadius = (int)(attractionRange / CellSize) + 1;
+
+        _experienceHash.QueryNearbyInto(player.Position, _nearbyExperience, cellRadius);
+
+        foreach (var experience in _nearbyExperience)
         {
             var delta = player.Position - experience.Position;
             var distSq = delta.LengthSquared();

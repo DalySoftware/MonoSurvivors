@@ -7,7 +7,7 @@ namespace Gameplay.Behaviour;
 
 internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
 {
-    internal Vector2 CalculateVelocity(IEnumerable<EnemyBase>? nearbyEnemies = null)
+    internal Vector2 CalculateVelocity(List<EnemyBase> nearbyEnemies)
     {
         var ownerPosition = owner.Position;
 
@@ -17,10 +17,6 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
 
         var normalizedTargetDirection = (Vector2)new UnitVector2(directionToTarget);
         var velocity = normalizedTargetDirection * speed;
-
-
-        if (nearbyEnemies == null)
-            return velocity;
 
         var ownerRadius = ApproximateRadius(owner);
         const float desiredGapMultiplier = 1.2f; // Keep ~20% gap between

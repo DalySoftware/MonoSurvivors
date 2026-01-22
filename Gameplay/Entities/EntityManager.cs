@@ -1,47 +1,98 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Entities.Enemies;
 using Gameplay.Entities.Pooling;
 using Gameplay.Levelling;
+using Gameplay.Telemetry;
 
 namespace Gameplay.Entities;
 
-public class EntityManager : ISpawnEntity, IEntityFinder
+public class EntityManager(PerformanceMetrics perf) : ISpawnEntity, IEntityFinder
 {
-    private readonly DamageProcessor _damageProcessor = new();
+    private readonly DamageProcessor _damageProcessor = new(perf);
     private readonly List<IEntity> _entitiesToAdd = [];
-    private readonly PickupProcessor _pickupProcessor = new();
-    private SpatialHash<EnemyBase> _spatialHash = new(64f);
+    private readonly PickupProcessor _pickupProcessor = new(perf);
+    private readonly SpatialHash<EnemyBase> _spatialHash = new(64f, perf);
+
+    private readonly List<EnemyBase> _enemies = new(256);
+    private readonly List<EnemyBase> _nearbyEnemies = new(256);
+    private readonly List<EnemyBase> _closeEnemies = new(256);
+
     public List<IEntity> Entities { get; } = [];
 
-    private IEnumerable<EnemyBase> Enemies => Entities.OfType<EnemyBase>();
+    public EnemyBase? NearestEnemyTo(IHasPosition source)
+    {
+        EnemyBase? best = null;
+        var bestD = float.PositiveInfinity;
 
-    public EnemyBase? NearestEnemyTo(IHasPosition source) =>
-        Enemies.MinBy(e => Vector2.DistanceSquared(source.Position, e.Position));
+        for (var index = 0; index < Entities.Count; index++)
+        {
+            var entity = Entities[index];
+            if (entity is EnemyBase enemy)
+            {
+                var distanceSquared = Vector2.DistanceSquared(source.Position, enemy.Position);
+                if (distanceSquared < bestD)
+                {
+                    bestD = distanceSquared;
+                    best = enemy;
+                }
+            }
+        }
 
-    public IEnumerable<EnemyBase> EnemiesCloseTo(Vector2 position, float maxDistance) => _spatialHash
-        .QueryNearby(position)
-        .Where(e => Vector2.DistanceSquared(e.Position, position) <= maxDistance * maxDistance);
+        return best;
+    }
 
+    public IReadOnlyCollection<EnemyBase> EnemiesCloseTo(Vector2 position, float maxDistance)
+    {
+        _closeEnemies.Clear();
+
+        var maxDistSq = maxDistance * maxDistance;
+        var cellRadius = (int)(maxDistance / _spatialHash.CellSize) + 1;
+
+        _spatialHash.QueryNearbyInto(position, _nearbyEnemies, cellRadius);
+
+        for (var index = 0; index < _nearbyEnemies.Count; index++)
+        {
+            var e = _nearbyEnemies[index];
+            if (Vector2.DistanceSquared(e.Position, position) <= maxDistSq)
+                _closeEnemies.Add(e);
+        }
+
+        return _closeEnemies;
+    }
 
     public void Spawn(params IEnumerable<IEntity> entities) => _entitiesToAdd.AddRange(entities);
 
     public void Update(GameTime gameTime)
     {
-        var enemies = Enemies.ToList();
+        _enemies.Clear();
+        for (var index = 0; index < Entities.Count; index++)
+        {
+            var x = Entities[index];
+            if (x is EnemyBase e)
+                _enemies.Add(e);
+        }
 
-        _spatialHash = new SpatialHash<EnemyBase>(64f);
-        foreach (var enemy in enemies)
+        _spatialHash.Clear();
+        for (var index = 0; index < _enemies.Count; index++)
+        {
+            var enemy = _enemies[index];
             _spatialHash.Insert(enemy);
+        }
 
-        foreach (var enemy in enemies)
-            enemy.NearbyEnemies = _spatialHash.QueryNearby(enemy.Position);
+        for (var index = 0; index < _enemies.Count; index++)
+        {
+            var enemy = _enemies[index];
+            _spatialHash.QueryNearbyInto(enemy.Position, enemy.NearbyEnemies);
+        }
 
-        foreach (var entity in Entities)
+        for (var index = 0; index < Entities.Count; index++)
+        {
+            var entity = Entities[index];
             entity.Update(gameTime);
+        }
 
         _damageProcessor.ApplyDamage(gameTime, Entities);
         _pickupProcessor.ProcessPickups(Entities);
@@ -51,9 +102,12 @@ public class EntityManager : ISpawnEntity, IEntityFinder
 
     private void RemoveEntities()
     {
-        foreach (var entity in Entities)
+        for (var index = 0; index < Entities.Count; index++)
+        {
+            var entity = Entities[index];
             if (entity.MarkedForDeletion && entity is IPoolableEntity poolable)
                 poolable.OnDespawned();
+        }
 
         Entities.RemoveAll(e => e.MarkedForDeletion);
     }

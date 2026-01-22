@@ -7,5 +7,5 @@ namespace Gameplay.Entities;
 public interface IEntityFinder
 {
     EnemyBase? NearestEnemyTo(IHasPosition source);
-    IEnumerable<EnemyBase> EnemiesCloseTo(Vector2 position, float maxDistance);
+    IReadOnlyCollection<EnemyBase> EnemiesCloseTo(Vector2 position, float maxDistance);
 }

@@ -19,7 +19,8 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     public float Health { get; private set; } = stats.MaxHealth;
     public EnemyStats Stats { get; } = stats;
     public float Layer => Layers.Enemies;
-    internal IEnumerable<EnemyBase> NearbyEnemies { get; set; } = [];
+
+    internal List<EnemyBase> NearbyEnemies { get; } = new(16);
 
     protected Action<EnemyBase>? OnDeath { get; init; } = null;
 

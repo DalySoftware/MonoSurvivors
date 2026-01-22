@@ -1,83 +1,87 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using Gameplay.Telemetry;
 
 namespace Gameplay.CollisionDetection;
 
-internal class SpatialHash<T>(float cellSize)
+internal sealed class SpatialHash<T>(float cellSize, PerformanceMetrics perf)
     where T : IHasColliders
 {
-    private readonly Dictionary<(int, int), List<T>> _grid = [];
+    private readonly Dictionary<long, List<T>> _grid = [];
 
     // We define a field to avoid allocating an object in each QueryNearby() call 
     private readonly HashSet<T> _seenItems = [];
 
     internal float CellSize => cellSize;
 
-    public void Insert(T item)
+    public void Clear() => _grid.Clear();
+
+    private static long Key(int x, int y) => ((long)x << 32) ^ (uint)y;
+
+    private void AddToCell(int x, int y, T item)
     {
-        var cells = GetCells(item);
+        var key = Key(x, y);
+        if (!_grid.TryGetValue(key, out var list))
+            _grid[key] = list = new List<T>(4);
 
-        foreach (var cell in cells)
-        {
-            if (!_grid.TryGetValue(cell, out var list))
-            {
-                list = [];
-                _grid[cell] = list;
-            }
-
-            list.Add(item);
-        }
+        list.Add(item);
     }
 
-    public IEnumerable<T> QueryNearby(Vector2 position, int cellRadius = 1)
+    public void Insert(T item)
     {
+        using var _ = perf.MeasureProbe("Insert");
+        foreach (var collider in item.Colliders)
+            switch (collider)
+            {
+                case CircleCollider circle:
+                {
+                    var r = circle.CollisionRadius;
+                    var min = GetCell(new Vector2(circle.Position.X - r, circle.Position.Y - r));
+                    var max = GetCell(new Vector2(circle.Position.X + r, circle.Position.Y + r));
+                    for (var x = min.x; x <= max.x; x++)
+                    for (var y = min.y; y <= max.y; y++)
+                        AddToCell(x, y, item);
+                    break;
+                }
+                case RectangleCollider rect:
+                {
+                    var min = GetCell(new Vector2(rect.Left, rect.Top));
+                    var max = GetCell(new Vector2(rect.Right, rect.Bottom));
+                    for (var x = min.x; x <= max.x; x++)
+                    for (var y = min.y; y <= max.y; y++)
+                        AddToCell(x, y, item);
+                    break;
+                }
+                default:
+                {
+                    var cell = GetCell(collider.Position);
+                    AddToCell(cell.x, cell.y, item);
+                    break;
+                }
+            }
+    }
+
+    public void QueryNearbyInto(Vector2 position, List<T> results, int cellRadius = 1)
+    {
+        results.Clear();
+
         var centerCell = GetCell(position);
         _seenItems.Clear();
 
         for (var x = -cellRadius; x <= cellRadius; x++)
         for (var y = -cellRadius; y <= cellRadius; y++)
         {
-            var cell = (centerCell.x + x, centerCell.y + y);
-            if (!_grid.TryGetValue(cell, out var items))
+            var key = Key(centerCell.x + x, centerCell.y + y);
+            if (!_grid.TryGetValue(key, out var items))
                 continue;
 
             foreach (var item in items)
                 if (_seenItems.Add(item))
-                    yield return item;
+                    results.Add(item);
         }
     }
 
-    public void Clear() => _grid.Clear();
 
-    private (int x, int y) GetCell(Vector2 position) => ((int)(position.X / cellSize), (int)(position.Y / cellSize));
-
-    private IEnumerable<(int x, int y)> GetCells(T item) => item.Colliders.SelectMany(GetCellsForCollider);
-
-    private IEnumerable<(int x, int y)> GetCellsForCollider(ICollider collider) => collider switch
-    {
-        CircleCollider circle => GetCircleCells(circle),
-        RectangleCollider rect => GetRectangleCells(rect),
-        _ => [GetCell(collider.Position)],
-    };
-
-    private IEnumerable<(int x, int y)> GetCircleCells(CircleCollider circle)
-    {
-        var radius = circle.CollisionRadius;
-        var minCell = GetCell(new Vector2(circle.Position.X - radius, circle.Position.Y - radius));
-        var maxCell = GetCell(new Vector2(circle.Position.X + radius, circle.Position.Y + radius));
-
-        for (var x = minCell.x; x <= maxCell.x; x++)
-        for (var y = minCell.y; y <= maxCell.y; y++)
-            yield return (x, y);
-    }
-
-    private IEnumerable<(int x, int y)> GetRectangleCells(RectangleCollider rect)
-    {
-        var minCell = GetCell(new Vector2(rect.Left, rect.Top));
-        var maxCell = GetCell(new Vector2(rect.Right, rect.Bottom));
-
-        for (var x = minCell.x; x <= maxCell.x; x++)
-        for (var y = minCell.y; y <= maxCell.y; y++)
-            yield return (x, y);
-    }
+    private (int x, int y) GetCell(Vector2 position) =>
+        ((int)MathF.Floor(position.X / cellSize), (int)MathF.Floor(position.Y / cellSize));
 }
