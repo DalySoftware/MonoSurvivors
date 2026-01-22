@@ -26,7 +26,7 @@ internal class PickupProcessor
     {
         _experienceHash.Clear();
 
-        var experiences = entities.OfType<Experience>().ToList();
+        var experiences = entities.OfType<Experience>();
         foreach (var xp in experiences)
             _experienceHash.Insert(xp);
 
