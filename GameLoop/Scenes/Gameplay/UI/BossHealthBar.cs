@@ -61,12 +61,8 @@ internal sealed class BossHealthBar(
 
         progressBar.Progress = boss.Health / boss.Stats.MaxHealth;
 
-        spriteBatch.Begin(SpriteSortMode.FrontToBack);
-
         progressBar.Draw(spriteBatch);
         DrawBossName(spriteBatch);
-
-        spriteBatch.End();
     }
 
     private void DrawBossName(SpriteBatch spriteBatch)

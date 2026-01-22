@@ -29,10 +29,8 @@ internal class RunClock(SpriteFont font, EnemySpawner spawner, UiRectangle recta
 {
     internal void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Begin();
         var text = Format(spawner.ElapsedTime);
         spriteBatch.DrawString(font, text, rectangle.TopLeft, ColorPalette.White);
-        spriteBatch.End();
     }
 
     internal static Vector2 Measure(SpriteFont font) => font.MeasureString(Format(TimeSpan.FromMinutes(30)));

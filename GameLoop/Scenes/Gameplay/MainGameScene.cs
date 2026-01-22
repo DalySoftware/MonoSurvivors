@@ -72,10 +72,15 @@ internal class MainGameScene(
         DrawBackground();
 
         entityRenderer.Draw(entityManager.Entities);
+
+        spriteBatch.Begin(SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp);
+
         healthBar.Draw(spriteBatch);
         experienceBar.Draw(spriteBatch, gameTime);
         clock.Draw(spriteBatch);
         bossHealthBar.Draw(spriteBatch);
+
+        spriteBatch.End();
 
         performanceMetrics.TickDrawFrame();
         performanceHud.Draw(spriteBatch);

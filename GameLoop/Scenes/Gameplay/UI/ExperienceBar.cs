@@ -82,13 +82,9 @@ internal class ExperienceBar(
 
         progressBar.Progress = Progress;
 
-        spriteBatch.Begin(SpriteSortMode.FrontToBack);
-
         progressBar.Draw(spriteBatch);
         DrawPointsBox(spriteBatch, gameTime);
         DrawSpendPrompt(spriteBatch);
-
-        spriteBatch.End();
     }
 
     private void DrawSpendPrompt(SpriteBatch spriteBatch)

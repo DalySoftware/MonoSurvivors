@@ -34,15 +34,11 @@ internal class HealthBar(ContentManager content, PlayerCharacter player, Vector2
         var fullHearts = currentHealth / 2;
         var hasHalf = currentHealth % 2 != 0;
 
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
         var i = 0;
 
         while (i < fullHearts) DrawHeart(spriteBatch, _heartFull, i++);
         if (hasHalf) DrawHeart(spriteBatch, _heartHalf, i++);
         while (i < totalHearts) DrawHeart(spriteBatch, _heartEmpty, i++);
-
-        spriteBatch.End();
     }
 
     private void DrawHeart(SpriteBatch spriteBatch, Texture2D texture, int index)
