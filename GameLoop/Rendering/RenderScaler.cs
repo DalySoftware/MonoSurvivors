@@ -97,10 +97,10 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
             effect.Parameters["MatrixTransform"]?.SetValue(projection);
             effect.Parameters["SourceTexel"]?.SetValue(_sourceTexel);
 
-            effect.Parameters["ScanlineStrength"]?.SetValue(0.2f);
+            effect.Parameters["ScanlineStrength"]?.SetValue(0.25f);
             effect.Parameters["ScanlineStepPx"]?.SetValue(4f);
 
-            effect.Parameters["GrilleStrength"]?.SetValue(0.03f);
+            effect.Parameters["GrilleStrength"]?.SetValue(0.01f);
             effect.Parameters["GrilleStepPx"]?.SetValue(8f);
 
             effect.Parameters["VignetteStrength"]?.SetValue(0.9f);
