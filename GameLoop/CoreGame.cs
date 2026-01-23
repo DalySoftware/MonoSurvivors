@@ -144,6 +144,8 @@ public class CoreGame : Game, IGlobalCommands
         {
             builder.RegisterInstance(Content).As<ContentManager>();
 
+            builder.RegisterType<RenderScaler>().AsSelf().As<IRenderViewport>().SingleInstance();
+
             builder.RegisterType<PrimitiveRenderer>().SingleInstance();
             builder.RegisterType<Panel.Factory>().SingleInstance();
             builder.RegisterType<Button.Factory>().SingleInstance();

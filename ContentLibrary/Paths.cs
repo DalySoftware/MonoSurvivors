@@ -95,5 +95,6 @@ public static class Paths
     public static class ShaderEffects
     {
         public const string Greyscale = @"Shaders\greyscale";
+        public const string Crt = @"Shaders\crt";
     }
 }

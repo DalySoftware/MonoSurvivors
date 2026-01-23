@@ -1,9 +1,7 @@
 ﻿using Autofac;
 using GameLoop.Audio;
-using GameLoop.Rendering;
 using GameLoop.Scenes;
 using Gameplay;
-using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -26,7 +24,7 @@ public sealed class GameContainer
         builder.Register(ctx => ctx.Resolve<GraphicsDeviceManager>().GraphicsDevice)
             .SingleInstance().ExternallyOwned();
         builder.RegisterType<SpriteBatch>().SingleInstance();
-        builder.RegisterType<RenderScaler>().AsSelf().As<IRenderViewport>().SingleInstance();
+
 
         builder.RegisterType<SceneManager>().SingleInstance();
 

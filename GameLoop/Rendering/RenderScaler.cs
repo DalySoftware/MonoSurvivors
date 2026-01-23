@@ -1,26 +1,28 @@
-﻿using GameLoop.UI;
+﻿using System;
+using ContentLibrary;
+using GameLoop.UI;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Rendering;
 
-/// <summary>
-///     Handles rendering everything at a fixed internal resolution, scaling to the screen with letterboxing.
-/// </summary>
-public class RenderScaler : IRenderViewport
+public sealed class RenderScaler : IRenderViewport, IDisposable
 {
     private const int InternalWidth = 1920;
     private const int InternalHeight = 1080;
 
     private readonly RenderTarget2D _renderTarget;
     private Rectangle _outputRect;
+
     private readonly GraphicsDevice _graphicsDevice;
     private readonly SpriteBatch _spriteBatch;
-    /// <summary>
-    ///     Handles rendering everything at a fixed internal resolution, scaling to the screen with letterboxing.
-    /// </summary>
-    public RenderScaler(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
+
+    private readonly Effect? _postEffect;
+    private readonly Vector2 _sourceTexel;
+
+    public RenderScaler(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, ContentManager content)
     {
         _graphicsDevice = graphicsDevice;
         _spriteBatch = spriteBatch;
@@ -36,15 +38,18 @@ public class RenderScaler : IRenderViewport
             RenderTargetUsage.DiscardContents
         );
 
+        _postEffect = content.Load<Effect>(Paths.ShaderEffects.Crt);
+        _sourceTexel = new Vector2(1f / _renderTarget.Width, 1f / _renderTarget.Height);
+
         UpdateOutputRectangle();
     }
+
+
+    public void Dispose() => _renderTarget.Dispose();
 
     public int Width => InternalWidth;
     public int Height => InternalHeight;
 
-    /// <summary>
-    ///     Call when the window size changes, or after Initialize().
-    /// </summary>
     public void UpdateOutputRectangle()
     {
         var windowWidth = _graphicsDevice.PresentationParameters.BackBufferWidth;
@@ -71,47 +76,67 @@ public class RenderScaler : IRenderViewport
         _outputRect = new Rectangle(offsetX, offsetY, outputWidth, outputHeight);
     }
 
-    /// <summary>
-    ///     Begin rendering to the internal 1920x1080 render target.
-    /// </summary>
     public void BeginRenderTarget()
     {
         _graphicsDevice.SetRenderTarget(_renderTarget);
         _graphicsDevice.Clear(Color.Black);
     }
 
-    /// <summary>
-    ///     End rendering to the internal render target and draw it scaled to the screen.
-    /// </summary>
     public void EndRenderTarget()
     {
         _graphicsDevice.SetRenderTarget(null);
         _graphicsDevice.Clear(Color.Black);
 
+        var effect = _postEffect;
+        if (effect != null)
+        {
+            var vp = _graphicsDevice.Viewport;
+            // Start with a basic ortho that maps pixel coords to clip space.
+            var projection = Matrix.CreateOrthographicOffCenter(0, vp.Width, vp.Height, 0, 0, 1);
+
+            // If you see a half-pixel shimmer later, enable this line.
+            // var halfPixel = Matrix.CreateTranslation(-0.5f, -0.5f, 0f);
+            // var matrixTransform = halfPixel * projection;
+
+            var matrixTransform = projection;
+            effect.Parameters["MatrixTransform"]?.SetValue(matrixTransform);
+
+            effect.Parameters["ScanlineStrength"]?.SetValue(0.2f);
+            effect.Parameters["ScanlineStepPx"]?.SetValue(4f);
+
+            effect.Parameters["GrilleStrength"]?.SetValue(0.03f);
+            effect.Parameters["GrilleStepPx"]?.SetValue(8f);
+
+            effect.Parameters["VignetteStrength"]?.SetValue(0.9f);
+            effect.Parameters["VignetteWidthX"]?.SetValue(0.06f);
+            effect.Parameters["VignetteWidthY"]?.SetValue(0.08f);
+            effect.Parameters["VignetteCurve"]?.SetValue(8f);
+            effect.Parameters["CornerBoost"]?.SetValue(1f);
+
+            effect.Parameters["Gain"]?.SetValue(1f);
+
+            effect.Parameters["SourceTexel"]?.SetValue(_sourceTexel);
+            effect.Parameters["BlurRadiusPx"]?.SetValue(2f);
+            effect.Parameters["BlurStrength"]?.SetValue(0.8f);
+        }
+
         _spriteBatch.Begin(
-            SpriteSortMode.Deferred,
+            SpriteSortMode.Immediate,
             BlendState.Opaque,
             SamplerState.LinearClamp,
             DepthStencilState.None,
-            RasterizerState.CullNone
+            RasterizerState.CullNone,
+            effect
         );
 
         _spriteBatch.Draw(_renderTarget, _outputRect, Color.White);
         _spriteBatch.End();
     }
 
-    /// <summary>
-    ///     Converts screen coordinates to internal 1920x1080 coordinates.
-    ///     Useful for UI hit testing.
-    /// </summary>
     public Vector2 ScreenToInternal(Vector2 screenPos) => new(
         (screenPos.X - _outputRect.X) * InternalWidth / _outputRect.Width,
         (screenPos.Y - _outputRect.Y) * InternalHeight / _outputRect.Height
     );
 
-    /// <summary>
-    ///     Returns a UiRectangle representing the internal 1920x1080 space.
-    ///     Use this for UI layout so it is independent of the actual screen size / scaling.
-    /// </summary>
     public UiRectangle UiRectangle() => new(Vector2.Zero, new Vector2(InternalWidth, InternalHeight));
 }
