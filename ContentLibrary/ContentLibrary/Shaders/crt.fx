@@ -209,26 +209,28 @@ float4 PS(VSOut i) : COLOR0
     float grilleMul = 1.0 + GrilleStrength * (0.5 - triX) * 2.0; // [1-g, 1+g]
     col *= grilleMul;
     
-    // Border-style vignette (edge band + stronger corners, keeps center clean)
-    
-    // distance to nearest edge in each axis (0 at edge, 0.5 at center)
+    // Border-style vignette (edge band + smoother corner curve)
     float2 e = min(uv, 1.0 - uv);
     
-    // map to 0..1 inside the border band (0 = inside, 1 = at edge)
-    float bx = saturate((VignetteWidthX - e.x) / max(VignetteWidthX, 1e-5));
-    float by = saturate((VignetteWidthY - e.y) / max(VignetteWidthY, 1e-5));
+    // Raw band coords (0 inside, 1 at edge)
+    float bx0 = saturate((VignetteWidthX - e.x) / max(VignetteWidthX, 1e-5));
+    float by0 = saturate((VignetteWidthY - e.y) / max(VignetteWidthY, 1e-5));
     
-    // sharpen so it stays near 0 until close to edge (approx pow without pow)
-    bx = pow(bx, VignetteCurve);
-    by = pow(by, VignetteCurve);
+    // Shape the edge falloff
+    float bx = pow(bx0, VignetteCurve);
+    float by = pow(by0, VignetteCurve);
     
-    // combine: edges darken when either axis is near edge; corners darken most when both are
+    // Union of edge bands (what you already had)
     float edgeT = 1.0 - (1.0 - bx) * (1.0 - by);
     
-    // optional extra corner push (only really affects corners)
-    edgeT = saturate(edgeT + CornerBoost * (bx * by));
+    // Corner term, but based on *unshaped* bx0/by0 so it starts curving earlier.
+    // Use x^(1.5) = x*sqrt(x) (cheaper than pow)
+    float corner = bx0 * by0;
+    corner = corner * sqrt(max(corner, 1e-6)); // ^1.5
     
-    // apply
+    edgeT = saturate(edgeT + CornerBoost * corner);
+    
+    // Apply
     col *= (1.0 - VignetteStrength * edgeT);
 
     col *= Gain;

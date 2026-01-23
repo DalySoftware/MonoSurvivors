@@ -104,10 +104,10 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
             effect.Parameters["GrilleStepPx"]?.SetValue(8f);
 
             effect.Parameters["VignetteStrength"]?.SetValue(0.9f);
-            effect.Parameters["VignetteWidthX"]?.SetValue(0.06f);
-            effect.Parameters["VignetteWidthY"]?.SetValue(0.08f);
-            effect.Parameters["VignetteCurve"]?.SetValue(8f);
-            effect.Parameters["CornerBoost"]?.SetValue(1f);
+            effect.Parameters["VignetteWidthX"]?.SetValue(0.04f);
+            effect.Parameters["VignetteWidthY"]?.SetValue(0.04f);
+            effect.Parameters["VignetteCurve"]?.SetValue(2f);
+            effect.Parameters["CornerBoost"]?.SetValue(0.6f);
 
             effect.Parameters["Gain"]?.SetValue(1f);
 
