@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Gameplay.CollisionDetection;
 
-internal sealed class SpatialHash<T>(float cellSize)
+public sealed class SpatialHash<T>(float cellSize)
     where T : IHasColliders
 {
     private readonly Dictionary<long, List<T>> _grid = [];

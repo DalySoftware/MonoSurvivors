@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Gameplay.CollisionDetection;
 
-internal sealed class SpatialCollisionChecker(float cellSize = 50f)
+public sealed class SpatialCollisionChecker(float cellSize = 50f)
 {
     private readonly Dictionary<Type, object> _hashCache = new();
     private readonly Dictionary<Type, object> _nearbyScratchCache = new();

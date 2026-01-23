@@ -4,6 +4,7 @@ using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay.Behaviour;
+using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
 using Gameplay.Combat.Weapons.AreaOfEffect;
@@ -143,6 +144,10 @@ internal class MainGameScene(
 
         builder.RegisterType<EntityRenderer>().SingleInstance();
         builder.RegisterType<OutlineRenderer>().SingleInstance();
+
+        builder.RegisterType<SpatialCollisionChecker>().SingleInstance();
+        builder.RegisterType<PickupProcessor>().SingleInstance();
+        builder.RegisterType<DamageProcessor>().SingleInstance();
 
         builder.RegisterType<ChaseCamera>()
             .WithParameter((pi, _) => pi.Name == "target", (_, ctx) => ctx.Resolve<PlayerCharacter>())

@@ -8,11 +8,10 @@ using Gameplay.Levelling;
 
 namespace Gameplay.Entities;
 
-public class EntityManager : ISpawnEntity, IEntityFinder
+public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pickupProcessor)
+    : ISpawnEntity, IEntityFinder
 {
-    private readonly DamageProcessor _damageProcessor = new();
     private readonly List<IEntity> _entitiesToAdd = [];
-    private readonly PickupProcessor _pickupProcessor = new();
     private readonly SpatialHash<EnemyBase> _spatialHash = new(64);
 
     private readonly List<EnemyBase> _enemies = new(256);
@@ -74,6 +73,7 @@ public class EntityManager : ISpawnEntity, IEntityFinder
                 _enemies.Add(e);
         }
 
+
         _spatialHash.Clear();
         for (var index = 0; index < _enemies.Count; index++)
         {
@@ -93,8 +93,8 @@ public class EntityManager : ISpawnEntity, IEntityFinder
             entity.Update(gameTime);
         }
 
-        _damageProcessor.ApplyDamage(gameTime, Entities);
-        _pickupProcessor.ProcessPickups(Entities);
+        damageProcessor.ApplyDamage(gameTime, Entities);
+        pickupProcessor.ProcessPickups(Entities);
         RemoveEntities();
         AddPendingEntities();
     }

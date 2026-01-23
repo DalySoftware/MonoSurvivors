@@ -8,10 +8,8 @@ namespace Gameplay.Combat;
 /// <summary>
 ///     Processes damage for a fixed state of entities, ie for any relevant overlapping entities
 /// </summary>
-internal class DamageProcessor
+public class DamageProcessor(SpatialCollisionChecker collisionChecker)
 {
-    private readonly SpatialCollisionChecker _collisionChecker = new();
-
     private readonly List<IDamagesPlayer> _playerDamagers = new(256);
     private readonly List<IDamageablePlayer> _players = new(16);
 
@@ -36,8 +34,8 @@ internal class DamageProcessor
             if (e is EnemyBase enemy) _enemies.Add(enemy);
         }
 
-        var damagerHash = _collisionChecker.BuildHash(_playerDamagers);
-        _collisionChecker.FindOverlapsInto(_players, damagerHash, _playerHits);
+        var damagerHash = collisionChecker.BuildHash(_playerDamagers);
+        collisionChecker.FindOverlapsInto(_players, damagerHash, _playerHits);
 
         for (var i = 0; i < _playerHits.Count; i++)
         {
@@ -45,8 +43,8 @@ internal class DamageProcessor
             player.TakeDamage(damager.Damage);
         }
 
-        var enemyHash = _collisionChecker.BuildHash(_enemies);
-        _collisionChecker.FindOverlapsInto(_enemyDamagers, enemyHash, _enemyHits);
+        var enemyHash = collisionChecker.BuildHash(_enemies);
+        collisionChecker.FindOverlapsInto(_enemyDamagers, enemyHash, _enemyHits);
 
         for (var i = 0; i < _enemyHits.Count; i++)
         {

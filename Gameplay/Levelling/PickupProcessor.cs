@@ -4,10 +4,9 @@ using Gameplay.Entities;
 
 namespace Gameplay.Levelling;
 
-internal class PickupProcessor
+public class PickupProcessor(SpatialCollisionChecker collisionChecker)
 {
     private const int CellSize = 256;
-    private readonly SpatialCollisionChecker _collisionChecker = new();
     private readonly SpatialHash<Experience> _experienceHash = new(CellSize);
 
     private readonly List<Experience> _nearbyExperience = new(256);
@@ -37,8 +36,8 @@ internal class PickupProcessor
             if (e is PlayerCharacter player) _playersScratch.Add(player);
         }
 
-        var pickupHash = _collisionChecker.BuildHash(_pickupsScratch);
-        _collisionChecker.FindOverlapsInto(_playersScratch, pickupHash, _pickupOverlaps);
+        var pickupHash = collisionChecker.BuildHash(_pickupsScratch);
+        collisionChecker.FindOverlapsInto(_playersScratch, pickupHash, _pickupOverlaps);
 
         for (var i = 0; i < _pickupOverlaps.Count; i++)
         {
