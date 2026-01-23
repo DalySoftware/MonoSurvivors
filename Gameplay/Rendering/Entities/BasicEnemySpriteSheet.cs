@@ -24,5 +24,8 @@ public class BasicEnemySpriteSheet(ContentManager content) : ISpriteSheet
 
     private interface IFrame : Rendering.IFrame;
 
-    public readonly record struct LookDirectionFrame(Vector2 Direction) : IFrame;
+    public class LookDirectionFrame(Vector2 direction) : IFrame
+    {
+        public Vector2 Direction { get; set; } = direction;
+    }
 }

@@ -40,7 +40,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     internal float RemainingRange => MaxRange - _distanceTraveled;
     internal IEnumerable<IOnHitEffect> OnHitEffects { get; private set; }
     public float Damage { get; private set; }
-    public IEnumerable<ICollider> Colliders { get; private set; }
+    public ICollider[] Colliders { get; private set; }
 
     public void OnHit(GameTime gameTime, EnemyBase enemy)
     {

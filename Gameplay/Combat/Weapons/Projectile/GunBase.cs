@@ -2,19 +2,24 @@
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
-public abstract class GunBase(WeaponBeltStats stats) : IWeapon
+public abstract class GunBase : IWeapon
 {
-    private readonly ExtraShotHandler _extraShotHandler = new(stats);
+    private readonly ExtraShotHandler _extraShotHandler;
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
 
-    protected abstract TimeSpan Cooldown { get; }
-    protected WeaponBeltStats Stats => stats;
+    protected GunBase(WeaponBeltStats stats)
+    {
+        Stats = stats;
+        _extraShotHandler = new ExtraShotHandler(stats, Shoot);
+    }
 
-    // public static string DisplayName { get; } = "Gun";
+    protected abstract TimeSpan Cooldown { get; }
+    protected WeaponBeltStats Stats { get; }
+
     public void Update(GameTime gameTime)
     {
         // Handle extra shots first
-        var extraShotsResult = _extraShotHandler.Update(gameTime, Shoot);
+        var extraShotsResult = _extraShotHandler.Update(gameTime);
         if (extraShotsResult is ExtraShotResult.WaitingToFire or ExtraShotResult.Fired)
             return;
 
@@ -24,7 +29,8 @@ public abstract class GunBase(WeaponBeltStats stats) : IWeapon
 
         Shoot();
         _extraShotHandler.QueueFire();
-        _remainingCooldown = Cooldown / stats.AttackSpeedMultiplier;
+        _remainingCooldown = Cooldown / Stats.AttackSpeedMultiplier;
     }
+
     protected abstract void Shoot();
 }

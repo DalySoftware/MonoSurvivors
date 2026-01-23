@@ -8,9 +8,7 @@ namespace GameLoop.UI;
 
 internal sealed class Panel : IUiElement
 {
-    private readonly NineSliceFrame _nineSliceFrame;
     private readonly PrimitiveRenderer _primitiveRenderer;
-    private readonly float _frameDepth;
     private readonly Color _interiorColor;
     private readonly Color _frameColor;
 
@@ -23,12 +21,13 @@ internal sealed class Panel : IUiElement
         Color? frameColor = null
     )
     {
-        _nineSliceFrame = nineSliceFrame;
         _primitiveRenderer = primitiveRenderer;
         Rectangle = exterior;
-        _frameDepth = frameDepth;
         _interiorColor = interiorColor ?? ColorPalette.Charcoal;
         _frameColor = frameColor ?? ColorPalette.Agave;
+
+        Frame = nineSliceFrame.Define(Rectangle, frameDepth);
+        InteriorLayerDepth = Frame.LayerDepth - 0.01f;
     }
 
     internal UiRectangle Interior => new(
@@ -36,10 +35,8 @@ internal sealed class Panel : IUiElement
         Rectangle.Size - new Vector2(NineSliceFrame.CornerSize * 2)
     );
 
-    internal Frame Frame => _nineSliceFrame.Define(Rectangle, _frameDepth);
-
-    internal float InteriorLayerDepth => Frame.LayerDepth - 0.01f;
-
+    internal Frame Frame { get; }
+    internal float InteriorLayerDepth { get; }
     public UiRectangle Rectangle { get; }
 
     public void Draw(SpriteBatch spriteBatch) => Draw(spriteBatch, _frameColor, _interiorColor);

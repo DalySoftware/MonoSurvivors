@@ -5,16 +5,15 @@ using Gameplay.Combat;
 using Gameplay.Entities.Enemies;
 using Gameplay.Entities.Pooling;
 using Gameplay.Levelling;
-using Gameplay.Telemetry;
 
 namespace Gameplay.Entities;
 
-public class EntityManager(PerformanceMetrics perf) : ISpawnEntity, IEntityFinder
+public class EntityManager : ISpawnEntity, IEntityFinder
 {
-    private readonly DamageProcessor _damageProcessor = new(perf);
+    private readonly DamageProcessor _damageProcessor = new();
     private readonly List<IEntity> _entitiesToAdd = [];
-    private readonly PickupProcessor _pickupProcessor = new(perf);
-    private readonly SpatialHash<EnemyBase> _spatialHash = new(64f, perf);
+    private readonly PickupProcessor _pickupProcessor = new();
+    private readonly SpatialHash<EnemyBase> _spatialHash = new(64);
 
     private readonly List<EnemyBase> _enemies = new(256);
     private readonly List<EnemyBase> _nearbyEnemies = new(256);

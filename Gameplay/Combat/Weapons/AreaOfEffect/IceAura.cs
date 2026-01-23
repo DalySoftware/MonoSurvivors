@@ -33,7 +33,7 @@ public class IceAura(
     private float RangeMultiplier { get; set; }
     private IEnumerable<IOnHitEffect> OnHitEffects => [SlowOnHit, ..owner.WeaponBelt.OnHitEffects];
 
-    public IEnumerable<ICollider> Colliders => [_collider];
+    public ICollider[] Colliders => [_collider];
 
     public void Update(GameTime gameTime)
     {

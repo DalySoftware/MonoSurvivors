@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ContentLibrary;
+﻿using ContentLibrary;
 using Gameplay.Audio;
 using Gameplay.CollisionDetection;
 using Gameplay.Entities;
@@ -19,7 +18,7 @@ public class Experience : MovableEntity, IPickup, ISpriteVisual
         Colliders = [new CircleCollider(this, 16f)];
     }
 
-    public IEnumerable<ICollider> Colliders { get; }
+    public ICollider[] Colliders { get; }
 
     public void OnPickupBy(PlayerCharacter player)
     {

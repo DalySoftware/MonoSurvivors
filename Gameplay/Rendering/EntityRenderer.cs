@@ -22,25 +22,54 @@ public class EntityRenderer(
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
     private readonly Dictionary<string, Texture2D> _textureCache = [];
 
+    private readonly Dictionary<IVisual, List<VisualEffect>> _effectsLookup = new();
+    private readonly Stack<List<VisualEffect>> _effectsListPool = new();
+
+    private List<VisualEffect> RentEffectsList() => _effectsListPool.Count > 0
+        ? _effectsListPool.Pop()
+        : new List<VisualEffect>(4);
+
+    private void ReturnEffectsList(List<VisualEffect> list)
+    {
+        list.Clear();
+        _effectsListPool.Push(list);
+    }
+
     public void Draw(IEnumerable<IEntity> entities)
     {
         var visibleBounds = camera.VisibleWorldBounds;
-        var effectsLookup = entities
-            .OfType<IVisual>()
-            .Where(e => IsVisible(e, visibleBounds))
-            .ToDictionary(
-                e => e,
-                e => effectManager.GetEffects(e).ToList());
+        _effectsLookup.Clear();
 
-        spriteBatch.Begin(transformMatrix: camera.Transform, sortMode: SpriteSortMode.FrontToBack,
+        foreach (var e in entities.OfType<IVisual>().Where(v => IsVisible(v, visibleBounds)))
+        {
+            var list = RentEffectsList();
+
+            foreach (var fx in effectManager.GetEffects(e))
+                list.Add(fx);
+
+            _effectsLookup.Add(e, list);
+        }
+
+        spriteBatch.Begin(
+            transformMatrix: camera.Transform,
+            sortMode: SpriteSortMode.FrontToBack,
             samplerState: SamplerState.PointClamp);
-        foreach (var (entity, _) in effectsLookup.Where(pair => pair.Value.Count == 0))
-            Draw(entity);
+
+        foreach (var (entity, effects) in _effectsLookup)
+            if (effects.Count == 0)
+                Draw(entity);
+
         spriteBatch.End();
 
-        foreach (var (entity, effects) in effectsLookup)
+        foreach (var (entity, effects) in _effectsLookup)
         foreach (var effect in effects)
             DrawWithEffect(entity, effect);
+
+        // Return pooled lists
+        foreach (var list in _effectsLookup.Values)
+            ReturnEffectsList(list);
+
+        _effectsLookup.Clear();
     }
 
     private void Draw(IVisual visual)

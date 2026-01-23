@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Gameplay.Telemetry;
 
 namespace Gameplay.CollisionDetection;
 
-internal sealed class SpatialCollisionChecker(PerformanceMetrics perf, float cellSize = 50f)
+internal sealed class SpatialCollisionChecker(float cellSize = 50f)
 {
     private readonly Dictionary<Type, object> _hashCache = new();
     private readonly Dictionary<Type, object> _nearbyScratchCache = new();
@@ -14,7 +13,7 @@ internal sealed class SpatialCollisionChecker(PerformanceMetrics perf, float cel
         if (_hashCache.TryGetValue(typeof(T), out var existing))
             return (SpatialHash<T>)existing;
 
-        var created = new SpatialHash<T>(cellSize, perf);
+        var created = new SpatialHash<T>(cellSize);
         _hashCache.Add(typeof(T), created);
         return created;
     }

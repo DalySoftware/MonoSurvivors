@@ -2,16 +2,15 @@
 using Gameplay.CollisionDetection;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
-using Gameplay.Telemetry;
 
 namespace Gameplay.Combat;
 
 /// <summary>
 ///     Processes damage for a fixed state of entities, ie for any relevant overlapping entities
 /// </summary>
-internal class DamageProcessor(PerformanceMetrics perf)
+internal class DamageProcessor
 {
-    private readonly SpatialCollisionChecker _collisionChecker = new(perf);
+    private readonly SpatialCollisionChecker _collisionChecker = new();
 
     private readonly List<IDamagesPlayer> _playerDamagers = new(256);
     private readonly List<IDamageablePlayer> _players = new(16);

@@ -26,7 +26,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
 
     public float Experience => Stats.Experience;
     public int Damage => Stats.Damage;
-    public required IEnumerable<ICollider> Colliders { get; init; }
+    public required ICollider[] Colliders { get; init; }
 
     public void TakeDamage(PlayerCharacter damager, float amount)
     {

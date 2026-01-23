@@ -2,13 +2,13 @@
 
 namespace Gameplay.Combat.Weapons;
 
-internal class ExtraShotHandler(WeaponBeltStats stats)
+internal class ExtraShotHandler(WeaponBeltStats stats, Action shoot)
 {
     private int _remainingShots;
     private TimeSpan _remainingCooldown = TimeSpan.Zero;
     private TimeSpan Cooldown => TimeSpan.FromSeconds(0.2) / stats.AttackSpeedMultiplier;
 
-    internal ExtraShotResult Update(GameTime gameTime, Action shoot)
+    internal ExtraShotResult Update(GameTime gameTime)
     {
         if (_remainingShots <= 0) return ExtraShotResult.NotFiring;
 

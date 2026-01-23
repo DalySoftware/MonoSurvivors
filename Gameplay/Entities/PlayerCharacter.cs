@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.Audio;
 using Gameplay.Behaviour;
@@ -16,31 +15,50 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Entities;
 
-public class PlayerCharacter(
-    Vector2 position,
-    EffectManager effectManager,
-    IAudioPlayer audio,
-    ExperienceSpawner experienceSpawner,
-    IGlobalCommands globalCommands,
-    WeaponBelt weaponBelt,
-    HealthRegenManager healthRegen,
-    PlayerStats stats,
-    WeaponFactory weaponFactory,
-    EnemyDeathBlast deathBlast)
-    : MovableEntity(position), IDamageablePlayer, ISpriteVisual
+public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
 {
     private readonly TimeSpan _invincibilityOnHit = TimeSpan.FromSeconds(0.5);
-    private readonly Action? _onDeath = globalCommands.ShowGameOver;
+    private readonly Action? _onDeath;
 
     private TimeSpan _invincibilityDuration = TimeSpan.Zero;
     private int _killsSinceLastLifeSteal = 0;
+    private readonly EffectManager _effectManager;
+    private readonly IAudioPlayer _audio;
+    private readonly ExperienceSpawner _experienceSpawner;
+    private readonly HealthRegenManager _healthRegen;
+    private readonly EnemyDeathBlast _deathBlast;
 
-    public WeaponFactory WeaponFactory { get; } = weaponFactory;
-    public WeaponBelt WeaponBelt { get; } = weaponBelt;
+    public PlayerCharacter(
+        Vector2 position,
+        EffectManager effectManager,
+        IAudioPlayer audio,
+        ExperienceSpawner experienceSpawner,
+        IGlobalCommands globalCommands,
+        WeaponBelt weaponBelt,
+        HealthRegenManager healthRegen,
+        PlayerStats stats,
+        WeaponFactory weaponFactory,
+        EnemyDeathBlast deathBlast) : base(position)
+    {
+        _effectManager = effectManager;
+        _audio = audio;
+        _experienceSpawner = experienceSpawner;
+        _healthRegen = healthRegen;
+        _deathBlast = deathBlast;
+        _onDeath = globalCommands.ShowGameOver;
+        WeaponFactory = weaponFactory;
+        WeaponBelt = weaponBelt;
+        Stats = stats;
+
+        Colliders = [new CircleCollider(this, 32f)];
+    }
+
+    public WeaponFactory WeaponFactory { get; }
+    public WeaponBelt WeaponBelt { get; }
 
     public float Experience { get; private set; }
 
-    public PlayerStats Stats { get; } = stats;
+    public PlayerStats Stats { get; }
 
     public int Health
     {
@@ -48,7 +66,7 @@ public class PlayerCharacter(
         private set => field = Math.Clamp(value, 0, Stats.MaxHealth);
     } = PlayerStats.BaseHealth;
 
-    public IEnumerable<ICollider> Colliders => [new CircleCollider(this, 32f)];
+    public ICollider[] Colliders { get; }
 
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
 
@@ -60,8 +78,8 @@ public class PlayerCharacter(
 
         Health -= damage;
         _invincibilityDuration = _invincibilityOnHit;
-        effectManager.FireEffect(this, new GreyscaleEffect(_invincibilityOnHit));
-        audio.Play(SoundEffectTypes.PlayerHurt);
+        _effectManager.FireEffect(this, new GreyscaleEffect(_invincibilityOnHit));
+        _audio.Play(SoundEffectTypes.PlayerHurt);
 
         if (Health > 0) return;
 
@@ -72,6 +90,7 @@ public class PlayerCharacter(
     public float Layer => Layers.Player;
 
     public string TexturePath => Paths.Images.Player;
+
     public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
 
     public void GainExperience(float amount)
@@ -87,7 +106,7 @@ public class PlayerCharacter(
         _invincibilityDuration -= gameTime.ElapsedGameTime;
         WeaponBelt.Update(gameTime);
         ApplyLifeSteal();
-        healthRegen.Update(gameTime, Stats);
+        _healthRegen.Update(gameTime, Stats);
         base.Update(gameTime);
     }
 
@@ -123,8 +142,8 @@ public class PlayerCharacter(
 
     public void OnKill(EnemyBase enemy)
     {
-        experienceSpawner.SpawnExperienceFor(enemy);
-        audio.Play(SoundEffectTypes.EnemyDeath);
+        _experienceSpawner.SpawnExperienceFor(enemy);
+        _audio.Play(SoundEffectTypes.EnemyDeath);
         TrackKills(1);
 
         MaybeExplodeOnDeath(enemy);
@@ -149,7 +168,7 @@ public class PlayerCharacter(
             return;
 
         var bullets = baseBullets * explosionCount;
-        deathBlast.Explode(this, enemy.Position, bullets, WeaponBelt.Stats.DamageMultiplier);
-        audio.Play(SoundEffectTypes.EnemyExplode);
+        _deathBlast.Explode(this, enemy.Position, bullets, WeaponBelt.Stats.DamageMultiplier);
+        _audio.Play(SoundEffectTypes.EnemyExplode);
     }
 }

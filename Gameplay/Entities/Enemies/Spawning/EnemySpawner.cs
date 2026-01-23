@@ -115,7 +115,11 @@ public sealed class EnemySpawner
 
         _budgeter.AddBudget(budgetPerSecond * (float)gameTime.ElapsedGameTime.TotalSeconds);
 
-        var mostExpensiveEnemy = phase.Enemies.Max(e => e.Cost);
+        var mostExpensiveEnemy = 0f;
+        foreach (var enemy in phase.Enemies)
+            if (enemy.Cost > mostExpensiveEnemy)
+                mostExpensiveEnemy = enemy.Cost;
+
         var triggerBudget = 2f * mostExpensiveEnemy;
 
         if (_budgeter.Budget < triggerBudget) return;

@@ -1,34 +1,44 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Gameplay.CollisionDetection;
 using Gameplay.Entities;
-using Gameplay.Telemetry;
 
 namespace Gameplay.Levelling;
 
-internal class PickupProcessor(PerformanceMetrics perf)
+internal class PickupProcessor
 {
     private const int CellSize = 256;
-    private readonly SpatialCollisionChecker _collisionChecker = new(perf);
-    private readonly SpatialHash<Experience> _experienceHash = new(CellSize, perf);
+    private readonly SpatialCollisionChecker _collisionChecker = new();
+    private readonly SpatialHash<Experience> _experienceHash = new(CellSize);
 
     private readonly List<Experience> _nearbyExperience = new(256);
 
     private readonly List<(PlayerCharacter player, IPickup pickup)> _pickupOverlaps = new(256);
     private readonly HashSet<IPickup> _alreadyUsed = [];
 
-    internal void ProcessPickups(IReadOnlyCollection<IEntity> entities)
+    private readonly List<IPickup> _pickupsScratch = new(256);
+    private readonly List<PlayerCharacter> _playersScratch = new(4);
+
+    internal void ProcessPickups(IReadOnlyList<IEntity> entities)
     {
         ProcessExperienceAttraction(entities);
 
-        var pickups = entities.OfType<IPickup>();
-        var players = entities.OfType<PlayerCharacter>();
-
         _alreadyUsed.Clear();
+        _pickupOverlaps.Clear();
 
-        var pickupHash = _collisionChecker.BuildHash(pickups);
+        // Build concrete lists without LINQ/boxing
+        _pickupsScratch.Clear();
+        _playersScratch.Clear();
 
-        _collisionChecker.FindOverlapsInto(players, pickupHash, _pickupOverlaps);
+        for (var i = 0; i < entities.Count; i++)
+        {
+            var e = entities[i];
+
+            if (e is IPickup pickup) _pickupsScratch.Add(pickup);
+            if (e is PlayerCharacter player) _playersScratch.Add(player);
+        }
+
+        var pickupHash = _collisionChecker.BuildHash(_pickupsScratch);
+        _collisionChecker.FindOverlapsInto(_playersScratch, pickupHash, _pickupOverlaps);
 
         for (var i = 0; i < _pickupOverlaps.Count; i++)
         {
@@ -38,17 +48,20 @@ internal class PickupProcessor(PerformanceMetrics perf)
         }
     }
 
-    private void ProcessExperienceAttraction(IReadOnlyCollection<IEntity> entities)
+
+    private void ProcessExperienceAttraction(IReadOnlyList<IEntity> entities)
     {
         _experienceHash.Clear();
 
-        var experiences = entities.OfType<Experience>();
-        foreach (var xp in experiences)
-            _experienceHash.Insert(xp);
+        for (var i = 0; i < entities.Count; i++)
+            if (entities[i] is Experience xp)
+                _experienceHash.Insert(xp);
 
-        foreach (var player in entities.OfType<PlayerCharacter>())
-            AttractExperience(player);
+        for (var i = 0; i < entities.Count; i++)
+            if (entities[i] is PlayerCharacter player)
+                AttractExperience(player);
     }
+
 
     private void AttractExperience(PlayerCharacter player)
     {
