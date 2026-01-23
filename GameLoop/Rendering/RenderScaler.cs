@@ -122,6 +122,10 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
             effect.Parameters["BloomStrength"]?.SetValue(0.2f);
             effect.Parameters["BloomThreshold"]?.SetValue(0.5f);
             effect.Parameters["BloomRadiusPx"]?.SetValue(2f);
+
+            effect.Parameters["ChromaticBleedPx"]?.SetValue(2f);
+            effect.Parameters["ChromaticBleedX"]?.SetValue(0.9f);
+            effect.Parameters["ChromaStrength"]?.SetValue(1f);
         }
 
         _spriteBatch.Begin(

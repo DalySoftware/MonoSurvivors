@@ -29,6 +29,9 @@ float BloomThreshold = 0.70; // 0..1 (0.6..0.85)
 float BloomRadiusPx  = 2.0;  // in SOURCE pixels (1..4)
 float BlurRadiusPx   = 1.0;   // in SOURCE pixels (0.5..2.5)
 float BlurStrength   = 0.35;  // 0..1 (0.2..0.6 usually)
+float ChromaticBleedPx = 0.75; // in SOURCE pixels, try 0.25..1.5
+float ChromaticBleedX  = 1.0;  // 0..1 (1 = horizontal, 0 = vertical)
+float ChromaStrength = 0.35; // 0..1 (try 0.15..0.6)
 
 float Gain             = 1.10;   // 1..1.3
 
@@ -68,6 +71,13 @@ float3 ExtractHighlights(float3 c)
     return c * w;
 }
 
+float ExtractWeight(float3 c)
+{
+    float bright = max(c.r, max(c.g, c.b));
+    float w = saturate((bright - BloomThreshold) / max(1e-5, 1.0 - BloomThreshold));
+    w = w * w * (3.0 - 2.0 * w); // smoothstep knee
+    return w;
+}
 
 float4 PS(VSOut i) : COLOR0
 {
@@ -92,22 +102,95 @@ float4 PS(VSOut i) : COLOR0
     float a = c0.a;
     
     float2 bo = SourceTexel * BloomRadiusPx;
+    float2 uv = i.TexCoord;
     
-    // Bloom samples (separate radius so it actually "bleeds")
-    float3 b0 = ExtractHighlights(c0.rgb);
-    float3 bR = ExtractHighlights(tex2D(TextureSampler, i.TexCoord + float2( bo.x, 0)).rgb);
-    float3 bL = ExtractHighlights(tex2D(TextureSampler, i.TexCoord + float2(-bo.x, 0)).rgb);
-    float3 bU = ExtractHighlights(tex2D(TextureSampler, i.TexCoord + float2(0,  bo.y)).rgb);
-    float3 bD = ExtractHighlights(tex2D(TextureSampler, i.TexCoord + float2(0, -bo.y)).rgb);
+    // chromatic offset in texcoords
+    float cx = saturate(ChromaticBleedX); // clamp 0..1
+    float2 co = SourceTexel * ChromaticBleedPx;
+    co *= float2(cx, 1.0 - cx);
     
-    float3 bloom =
-        b0 * 0.40 +
-        bR * 0.15 +
-        bL * 0.15 +
-        bU * 0.15 +
-        bD * 0.15;
+    // Center tap (reuse c0 for G + weight, only sample R/B shifted)
+    float3 s0 = c0.rgb;
+    float  w0 = ExtractWeight(s0);
+    float  r0 = tex2D(TextureSampler, i.TexCoord + co).r;
+    float  b0c = tex2D(TextureSampler, i.TexCoord - co).b;
+    float3 cb0 = float3(r0, s0.g, b0c) * w0;
     
-    col += bloom * BloomStrength;
+    // Extra visible chroma fringe (directional: red on one side, cyan on the other)
+    float3 center = s0; // c0.rgb
+    
+    // Neighbours along chroma axis (co points right when ChromaticBleedX=1)
+    float3 cPlus  = tex2D(TextureSampler, uv + co).rgb; // right neighbour
+    float3 cMinus = tex2D(TextureSampler, uv - co).rgb; // left neighbour
+    
+    const float3 LUMA = float3(0.299, 0.587, 0.114);
+    float lum0    = dot(center, LUMA);
+    float lumPlus = dot(cPlus,  LUMA);
+    float lumMinus= dot(cMinus, LUMA);
+    
+    // Only apply onto darker pixels (keeps the white outline from shifting colour)
+    float darkFactor = saturate(1.0 - lum0 * 1.25);
+    
+    // Neighbour highlight gating (so bleed comes from bright edges even on dark pixels)
+    float wPlus  = ExtractWeight(cPlus);
+    float wMinus = ExtractWeight(cMinus);
+    
+    // “Is neighbour clearly brighter than me?”
+    float eps = 0.02;
+    float rightIsBright = step(lum0 + eps, lumPlus);
+    float leftIsBright  = step(lum0 + eps, lumMinus);
+    
+    // Add RED bleed when bright is on the LEFT (so red shows on the right-hand dark side)
+    float redAdd = max(0.0, cMinus.r - center.r);
+    col.r += redAdd * (ChromaStrength * 1.25) * wMinus * leftIsBright * darkFactor;
+    
+    // Add CYAN bleed when bright is on the RIGHT (so cyan shows on the left-hand dark side)
+    float gAdd = max(0.0, cPlus.g - center.g);
+    float bAdd = max(0.0, cPlus.b - center.b);
+    col.g += gAdd * (ChromaStrength * 0.65) * wPlus * rightIsBright * darkFactor;
+    col.b += bAdd * (ChromaStrength * 0.80) * wPlus * rightIsBright * darkFactor;
+
+    // Right tap
+    float2 uvR = i.TexCoord + float2( bo.x, 0);
+    float3 sR = cR.rgb;
+    float  wR = ExtractWeight(sR);
+    float  rR = tex2D(TextureSampler, uv + float2( bo.x, 0) + co).r;
+    float  bR = tex2D(TextureSampler, uv + float2( bo.x, 0) - co).b;
+    float3 cbR = float3(rR, sR.g, bR) * wR;
+    
+    // Left tap
+    float2 uvL = i.TexCoord + float2(-bo.x, 0);
+    float3 sL = cL.rgb;
+    float  wL = ExtractWeight(sL);
+    float  rL = tex2D(TextureSampler, uv + float2(-bo.x, 0) + co).r;
+    float  bL = tex2D(TextureSampler, uv + float2(-bo.x, 0) - co).b;
+    float3 cbL = float3(rL, sL.g, bL) * wL;
+    
+    // Up tap
+    float2 uvU = i.TexCoord + float2(0,  bo.y);
+    float3 sU = cU.rgb;
+    float  wU = ExtractWeight(sU);
+    float  rU = tex2D(TextureSampler, uv + float2(0,  bo.y) + co).r;
+    float  bU = tex2D(TextureSampler, uv + float2(0,  bo.y) - co).b;
+    float3 cbU = float3(rU, sU.g, bU) * wU;
+    
+    // Down tap
+    float2 uvD = i.TexCoord + float2(0, -bo.y);
+    float3 sD = cD.rgb;
+    float  wD = ExtractWeight(sD);
+    float  rD = tex2D(TextureSampler, uv + float2(0, -bo.y) + co).r;
+    float  bD = tex2D(TextureSampler, uv + float2(0, -bo.y) - co).b;
+    float3 cbD = float3(rD, sD.g, bD) * wD;
+    
+    // Combine (same weights as your blur)
+    float3 chromaBloom =
+        cb0 * 0.40 +
+        cbR * 0.15 +
+        cbL * 0.15 +
+        cbU * 0.15 +
+        cbD * 0.15;
+    
+    col += chromaBloom * BloomStrength;
 
     float2 p = i.ScreenPx;
 
@@ -127,7 +210,6 @@ float4 PS(VSOut i) : COLOR0
     col *= grilleMul;
     
     // Border-style vignette (edge band + stronger corners, keeps center clean)
-    float2 uv = i.TexCoord;
     
     // distance to nearest edge in each axis (0 at edge, 0.5 at center)
     float2 e = min(uv, 1.0 - uv);
