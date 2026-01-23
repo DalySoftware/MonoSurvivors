@@ -19,8 +19,8 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
     private readonly GraphicsDevice _graphicsDevice;
     private readonly SpriteBatch _spriteBatch;
 
-    private readonly Effect? _postEffect;
-    private readonly Vector2 _sourceTexel;
+    private bool _enableCrt;
+    private readonly Effect? _crtEffect;
 
     public RenderScaler(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, ContentManager content)
     {
@@ -38,17 +38,47 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
             RenderTargetUsage.DiscardContents
         );
 
-        _postEffect = content.Load<Effect>(Paths.ShaderEffects.Crt);
-        _sourceTexel = new Vector2(1f / _renderTarget.Width, 1f / _renderTarget.Height);
+        _crtEffect = content.Load<Effect>(Paths.ShaderEffects.Crt);
+        var sourceTexel = new Vector2(1f / _renderTarget.Width, 1f / _renderTarget.Height);
+        SetCrtConstantParameters(_crtEffect, sourceTexel);
+        _enableCrt = true;
 
         UpdateOutputRectangle();
     }
-
 
     public void Dispose() => _renderTarget.Dispose();
 
     public int Width => InternalWidth;
     public int Height => InternalHeight;
+
+    private static void SetCrtConstantParameters(Effect effect, Vector2 sourceTexel)
+    {
+        effect.Parameters["SourceTexel"]?.SetValue(sourceTexel);
+
+        effect.Parameters["ScanlineStrength"]?.SetValue(0.25f);
+        effect.Parameters["ScanlineStepPx"]?.SetValue(4f);
+
+        effect.Parameters["GrilleStrength"]?.SetValue(0.01f);
+        effect.Parameters["GrilleStepPx"]?.SetValue(8f);
+
+        effect.Parameters["VignetteStrength"]?.SetValue(0.9f);
+        effect.Parameters["VignetteWidthX"]?.SetValue(0.04f);
+        effect.Parameters["VignetteWidthY"]?.SetValue(0.04f);
+        effect.Parameters["VignetteCurve"]?.SetValue(2f);
+        effect.Parameters["CornerBoost"]?.SetValue(0.6f);
+
+        effect.Parameters["Gain"]?.SetValue(1f);
+
+        effect.Parameters["BlurRadiusPx"]?.SetValue(2f);
+        effect.Parameters["BlurStrength"]?.SetValue(0f);
+        effect.Parameters["BloomStrength"]?.SetValue(0.2f);
+        effect.Parameters["BloomThreshold"]?.SetValue(0.5f);
+        effect.Parameters["BloomRadiusPx"]?.SetValue(2f);
+
+        effect.Parameters["ChromaticBleedPx"]?.SetValue(2f);
+        effect.Parameters["ChromaticBleedX"]?.SetValue(0.9f);
+        effect.Parameters["ChromaStrength"]?.SetValue(1f);
+    }
 
     public void UpdateOutputRectangle()
     {
@@ -87,39 +117,14 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         _graphicsDevice.SetRenderTarget(null);
         _graphicsDevice.Clear(Color.Black);
 
-        var effect = _postEffect;
-        if (effect != null)
+        var effect = _enableCrt ? _crtEffect : null;
+        if (effect is not null)
         {
             var vp = _graphicsDevice.Viewport;
 
-            // Start with a basic ortho that maps pixel coords to clip space.
+            // Basic ortho that maps pixel coords to clip space.
             var projection = Matrix.CreateOrthographicOffCenter(0, vp.Width, vp.Height, 0, 0, 1);
             effect.Parameters["MatrixTransform"]?.SetValue(projection);
-            effect.Parameters["SourceTexel"]?.SetValue(_sourceTexel);
-
-            effect.Parameters["ScanlineStrength"]?.SetValue(0.25f);
-            effect.Parameters["ScanlineStepPx"]?.SetValue(4f);
-
-            effect.Parameters["GrilleStrength"]?.SetValue(0.01f);
-            effect.Parameters["GrilleStepPx"]?.SetValue(8f);
-
-            effect.Parameters["VignetteStrength"]?.SetValue(0.9f);
-            effect.Parameters["VignetteWidthX"]?.SetValue(0.04f);
-            effect.Parameters["VignetteWidthY"]?.SetValue(0.04f);
-            effect.Parameters["VignetteCurve"]?.SetValue(2f);
-            effect.Parameters["CornerBoost"]?.SetValue(0.6f);
-
-            effect.Parameters["Gain"]?.SetValue(1f);
-
-            effect.Parameters["BlurRadiusPx"]?.SetValue(2f);
-            effect.Parameters["BlurStrength"]?.SetValue(0f);
-            effect.Parameters["BloomStrength"]?.SetValue(0.2f);
-            effect.Parameters["BloomThreshold"]?.SetValue(0.5f);
-            effect.Parameters["BloomRadiusPx"]?.SetValue(2f);
-
-            effect.Parameters["ChromaticBleedPx"]?.SetValue(2f);
-            effect.Parameters["ChromaticBleedX"]?.SetValue(0.9f);
-            effect.Parameters["ChromaStrength"]?.SetValue(1f);
         }
 
         _spriteBatch.Begin(
