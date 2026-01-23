@@ -91,7 +91,7 @@ public class RenderScaler : IRenderViewport
         _spriteBatch.Begin(
             SpriteSortMode.Deferred,
             BlendState.Opaque,
-            SamplerState.PointClamp, // pixel-perfect; swap to LinearClamp if you want smooth scaling
+            SamplerState.LinearClamp,
             DepthStencilState.None,
             RasterizerState.CullNone
         );
