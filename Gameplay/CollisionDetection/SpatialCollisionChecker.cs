@@ -18,7 +18,7 @@ public sealed class SpatialCollisionChecker(float cellSize = 50f)
         return created;
     }
 
-    public SpatialHash<TSource> BuildHash<TSource>(IEnumerable<TSource> sources)
+    public SpatialHash<TSource> BuildHash<TSource>(List<TSource> sources)
         where TSource : IHasColliders
     {
         var hash = GetHash<TSource>();
