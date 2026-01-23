@@ -91,15 +91,11 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         if (effect != null)
         {
             var vp = _graphicsDevice.Viewport;
+
             // Start with a basic ortho that maps pixel coords to clip space.
             var projection = Matrix.CreateOrthographicOffCenter(0, vp.Width, vp.Height, 0, 0, 1);
-
-            // If you see a half-pixel shimmer later, enable this line.
-            // var halfPixel = Matrix.CreateTranslation(-0.5f, -0.5f, 0f);
-            // var matrixTransform = halfPixel * projection;
-
-            var matrixTransform = projection;
-            effect.Parameters["MatrixTransform"]?.SetValue(matrixTransform);
+            effect.Parameters["MatrixTransform"]?.SetValue(projection);
+            effect.Parameters["SourceTexel"]?.SetValue(_sourceTexel);
 
             effect.Parameters["ScanlineStrength"]?.SetValue(0.2f);
             effect.Parameters["ScanlineStepPx"]?.SetValue(4f);
@@ -114,8 +110,6 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
             effect.Parameters["CornerBoost"]?.SetValue(1f);
 
             effect.Parameters["Gain"]?.SetValue(1f);
-
-            effect.Parameters["SourceTexel"]?.SetValue(_sourceTexel);
 
             effect.Parameters["BlurRadiusPx"]?.SetValue(2f);
             effect.Parameters["BlurStrength"]?.SetValue(0f);
