@@ -116,8 +116,12 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
             effect.Parameters["Gain"]?.SetValue(1f);
 
             effect.Parameters["SourceTexel"]?.SetValue(_sourceTexel);
+
             effect.Parameters["BlurRadiusPx"]?.SetValue(2f);
-            effect.Parameters["BlurStrength"]?.SetValue(0.8f);
+            effect.Parameters["BlurStrength"]?.SetValue(0f);
+            effect.Parameters["BloomStrength"]?.SetValue(0.2f);
+            effect.Parameters["BloomThreshold"]?.SetValue(0.5f);
+            effect.Parameters["BloomRadiusPx"]?.SetValue(2f);
         }
 
         _spriteBatch.Begin(
