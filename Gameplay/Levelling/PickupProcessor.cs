@@ -4,12 +4,11 @@ using Gameplay.Entities;
 
 namespace Gameplay.Levelling;
 
-public class PickupProcessor(SpatialCollisionChecker collisionChecker)
+public class PickupProcessor(SpatialCollisionChecker collisionChecker, SpatialHashManager spatialHashManager)
 {
     private const int CellSize = 256;
-    private readonly SpatialHash<Experience> _experienceHash = new(CellSize);
 
-    private readonly List<Experience> _nearbyExperience = new(256);
+    private readonly List<IPickup> _nearbyPickups = new(256);
 
     private readonly List<(PlayerCharacter player, IPickup pickup)> _pickupOverlaps = new(256);
     private readonly HashSet<IPickup> _alreadyUsed = [];
@@ -46,12 +45,6 @@ public class PickupProcessor(SpatialCollisionChecker collisionChecker)
 
     private void ProcessExperienceAttraction(IReadOnlyList<IEntity> entities)
     {
-        _experienceHash.Clear();
-
-        for (var i = 0; i < entities.Count; i++)
-            if (entities[i] is Experience xp)
-                _experienceHash.Insert(xp);
-
         for (var i = 0; i < entities.Count; i++)
             if (entities[i] is PlayerCharacter player)
                 AttractExperience(player);
@@ -64,10 +57,12 @@ public class PickupProcessor(SpatialCollisionChecker collisionChecker)
         const float attractionRangeSq = attractionRange * attractionRange;
         const int cellRadius = (int)(attractionRange / CellSize) + 1;
 
-        _experienceHash.QueryNearbyInto(player.Position, _nearbyExperience, cellRadius);
+        spatialHashManager.Pickups.QueryNearbyInto(player.Position, _nearbyPickups, cellRadius);
 
-        foreach (var experience in _nearbyExperience)
+        foreach (var pickup in _nearbyPickups)
         {
+            if (pickup is not Experience experience) continue;
+
             var delta = player.Position - experience.Position;
             var distSq = delta.LengthSquared();
 
