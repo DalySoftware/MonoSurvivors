@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace Gameplay.Entities;
+﻿namespace Gameplay.Entities;
 
 public interface ISpawnEntity
 {
-    public void Spawn(params IEnumerable<IEntity> entity);
+    public void Spawn(IEntity entity);
 }

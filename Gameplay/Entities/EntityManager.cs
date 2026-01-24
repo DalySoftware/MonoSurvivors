@@ -54,7 +54,7 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
         }
     }
 
-    public void Spawn(params IEnumerable<IEntity> entities) => _entitiesToAdd.AddRange(entities);
+    public void Spawn(IEntity entity) => _entitiesToAdd.Add(entity);
 
     public void Update(GameTime gameTime)
     {
