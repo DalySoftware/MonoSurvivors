@@ -48,7 +48,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
         _viewPortRectangle = renderScaler.UiRectangle();
         _mainStack = new VerticalStack(
             _viewPortRectangle.AnchorForPoint(UiAnchor.TopCenter) + new Vector2(0f, 50f),
-            100
+            50
         );
 
         // Title
@@ -73,6 +73,10 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
             return volumeStack;
         });
+
+        // Crt Toggle 
+        _menuButtons.Add(_mainStack.AddChild(pos =>
+            buttonFactory.Create("Toggle CRT", renderScaler.ToggleCrt, pos, UiAnchor.TopCenter)));
 
         // Menu buttons stack
         _mainStack.AddChild(pos =>

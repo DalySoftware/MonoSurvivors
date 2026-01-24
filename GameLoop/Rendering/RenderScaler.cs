@@ -106,6 +106,8 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         _outputRect = new Rectangle(offsetX, offsetY, outputWidth, outputHeight);
     }
 
+    public void ToggleCrt() => _enableCrt = !_enableCrt;
+
     public void BeginRenderTarget()
     {
         _graphicsDevice.SetRenderTarget(_renderTarget);
