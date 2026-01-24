@@ -14,7 +14,6 @@ public class PickupProcessor(SpatialCollisionChecker collisionChecker)
     private readonly List<(PlayerCharacter player, IPickup pickup)> _pickupOverlaps = new(256);
     private readonly HashSet<IPickup> _alreadyUsed = [];
 
-    private readonly List<IPickup> _pickupsScratch = new(256);
     private readonly List<PlayerCharacter> _playersScratch = new(4);
 
     internal void ProcessPickups(IReadOnlyList<IEntity> entities)
@@ -25,14 +24,12 @@ public class PickupProcessor(SpatialCollisionChecker collisionChecker)
         _pickupOverlaps.Clear();
 
         // Build concrete lists without LINQ/boxing
-        _pickupsScratch.Clear();
         _playersScratch.Clear();
 
         for (var i = 0; i < entities.Count; i++)
         {
             var e = entities[i];
 
-            if (e is IPickup pickup) _pickupsScratch.Add(pickup);
             if (e is PlayerCharacter player) _playersScratch.Add(player);
         }
 
