@@ -14,7 +14,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 
     private TimeSpan _animationCooldown = TimeSpan.Zero;
 
-    private BasicEnemySpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
+    private readonly BasicEnemySpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
 
     [SetsRequiredMembers]
     public BasicEnemy(ContentManager content, Vector2 initialPosition, IHasPosition target, bool elite)
@@ -42,7 +42,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 
         if (_animationCooldown <= TimeSpan.Zero)
         {
-            _frame.Direction = Velocity;
+            _frame.Direction = IntentVelocity; // Eyes move based on intent, not actual velocity
             _animationCooldown = TimeSpan.FromMilliseconds(200);
         }
 
