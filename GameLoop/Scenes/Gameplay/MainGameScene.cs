@@ -70,9 +70,15 @@ internal class MainGameScene(
     {
         using var _ = performanceMetrics.MeasureDraw();
 
-        DrawBackground();
+        spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: camera.Transform,
+            sortMode: SpriteSortMode.FrontToBack);
 
+        DrawBackground();
         entityRenderer.Draw(entityManager.Entities);
+
+        spriteBatch.End();
+
+        entityRenderer.DrawManagedEffects();
 
         spriteBatch.Begin(SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp);
 
@@ -87,13 +93,8 @@ internal class MainGameScene(
         performanceHud.Draw(spriteBatch);
     }
 
-    private void DrawBackground()
-    {
-        spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: camera.Transform,
-            sortMode: SpriteSortMode.FrontToBack);
-        spriteBatch.Draw(_backgroundTile, camera.VisibleWorldBounds, camera.VisibleWorldBounds, BackgroundColor);
-        spriteBatch.End();
-    }
+    private void DrawBackground() => spriteBatch.Draw(_backgroundTile, camera.VisibleWorldBounds,
+        camera.VisibleWorldBounds, BackgroundColor);
 
     internal static void ConfigureServices(ContainerBuilder builder)
     {

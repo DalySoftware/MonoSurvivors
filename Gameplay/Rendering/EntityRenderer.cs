@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ContentLibrary;
 using Gameplay.Entities;
 using Gameplay.Rendering.Effects;
@@ -35,13 +34,36 @@ public class EntityRenderer(
         _effectsListPool.Push(list);
     }
 
+    private void FlushEffectsLookup()
+    {
+        foreach (var list in _effectsLookup.Values)
+            ReturnEffectsList(list);
+
+        _effectsLookup.Clear();
+    }
+
+    // Effects that require this renderer to manage SpriteBatch.Begin/End internally
+    private static bool RequiresManagedSpriteBatch(VisualEffect effect) => effect is GreyscaleEffect;
+
+    /// <summary>
+    ///     Draws entities that do NOT require EntityRenderer-managed SpriteBatch.Begin/End.
+    ///     (Caller is expected to manage SpriteBatch.Begin/End around this.)
+    /// </summary>
     public void Draw(IReadOnlyList<IEntity> entities)
     {
-        var visibleBounds = camera.VisibleWorldBounds;
-        _effectsLookup.Clear();
+        // In case the caller didn't call DrawManagedEffects() last frame/pass
+        FlushEffectsLookup();
 
-        foreach (var e in entities.OfType<IVisual>().Where(v => IsVisible(v, visibleBounds)))
+        var visibleBounds = camera.VisibleWorldBounds;
+
+        for (var i = 0; i < entities.Count; i++)
         {
+            if (entities[i] is not IVisual e)
+                continue;
+
+            if (!IsVisible(e, visibleBounds))
+                continue;
+
             var list = RentEffectsList();
 
             foreach (var fx in effectManager.GetEffects(e))
@@ -50,26 +72,44 @@ public class EntityRenderer(
             _effectsLookup.Add(e, list);
         }
 
-        spriteBatch.Begin(
-            transformMatrix: camera.Transform,
-            sortMode: SpriteSortMode.FrontToBack,
-            samplerState: SamplerState.PointClamp);
-
         foreach (var (entity, effects) in _effectsLookup)
-            if (effects.Count == 0)
-                Draw(entity);
+        {
+            // If it has any effects that require managed SpriteBatch, skip it here.
+            // It will be drawn in DrawManagedEffects().
+            if (HasManagedEffect(effects))
+                continue;
 
-        spriteBatch.End();
+            Draw(entity);
+        }
+    }
 
+    private static bool HasManagedEffect(List<VisualEffect> effects)
+    {
+        for (var i = 0; i < effects.Count; i++)
+            if (RequiresManagedSpriteBatch(effects[i]))
+                return true;
+
+        return false;
+    }
+
+
+    /// <summary>
+    ///     Draws the subset of entities/effects that require EntityRenderer to manage SpriteBatch.Begin/End.
+    ///     Call this after Draw() (typically after ending your main SpriteBatch).
+    /// </summary>
+    public void DrawManagedEffects()
+    {
         foreach (var (entity, effects) in _effectsLookup)
         foreach (var effect in effects)
-            DrawWithEffect(entity, effect);
+        {
+            if (!RequiresManagedSpriteBatch(effect))
+                continue;
+
+            DrawWithManagedEffect(entity, effect);
+        }
 
         // Return pooled lists
-        foreach (var list in _effectsLookup.Values)
-            ReturnEffectsList(list);
-
-        _effectsLookup.Clear();
+        FlushEffectsLookup();
     }
 
     private void Draw(IVisual visual)
@@ -102,6 +142,7 @@ public class EntityRenderer(
         if (visual.OutlineColor is { } outlineColor)
             outlineRenderer.DrawOutline(spriteBatch, texture, visual.Position, sourceRect, origin,
                 layer - 0.001f, outlineColor);
+
         spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect, origin: origin,
             layerDepth: layer);
     }
@@ -115,7 +156,7 @@ public class EntityRenderer(
         spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: layer);
     }
 
-    private void DrawWithEffect(IVisual visual, VisualEffect effect)
+    private void DrawWithManagedEffect(IVisual visual, VisualEffect effect)
     {
         switch (effect)
         {
