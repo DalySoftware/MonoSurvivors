@@ -83,7 +83,7 @@ public class EntityManager(
 
     private void RemoveEntities()
     {
-        for (var index = 0; index < _entities.Count; index++)
+        for (var index = _entities.Count - 1; index >= 0; index--)
         {
             var entity = _entities[index];
             if (!entity.MarkedForDeletion)
