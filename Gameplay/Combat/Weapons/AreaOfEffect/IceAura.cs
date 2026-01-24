@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Gameplay.Audio;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
@@ -30,7 +29,6 @@ public class IceAura(
 
     private float Range => BaseRange * RangeMultiplier;
     private float RangeMultiplier { get; set; }
-    private IEnumerable<IOnHitEffect> OnHitEffects => [SlowOnHit, ..owner.WeaponBelt.OnHitEffects];
 
     public ICollider[] Colliders => [_collider];
 
