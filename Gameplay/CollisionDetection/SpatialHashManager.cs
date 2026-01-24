@@ -12,19 +12,32 @@ public class SpatialHashManager
     public SpatialHash<IDamagesEnemies> DamagesEnemies { get; } = new(64);
     public SpatialHash<IPickup> Pickups { get; } = new(256);
 
+    public SpatialPointHash<EnemyBase> EnemyNeighborhood { get; } = new(96f);
+
     public void Update(GameTime gameTime, ISpatialHashSources sources)
     {
         RebuildHash(Enemies, sources.Enemies);
         RebuildHash(DamagesPlayers, sources.Enemies); // Needs updating if we add projectiles
         RebuildHash(DamagesEnemies, sources.DamagesEnemies);
         RebuildHash(Pickups, sources.Experiences);
+
+        RebuildEnemyNeighborhood(sources.Enemies);
+    }
+
+    private void RebuildEnemyNeighborhood(IReadOnlyList<EnemyBase> enemies)
+    {
+        EnemyNeighborhood.Clear();
+        for (var i = 0; i < enemies.Count; i++)
+        {
+            var e = enemies[i];
+            EnemyNeighborhood.Insert(e.Position, e);
+        }
     }
 
     private static void RebuildHash<TSource>(SpatialHash<TSource> hash, IReadOnlyList<TSource> sources)
         where TSource : IHasColliders
     {
         hash.Clear();
-
         foreach (var s in sources)
             hash.Insert(s);
     }

@@ -70,7 +70,7 @@ public class EntityManager(
         for (var index = 0; index < _enemies.Count; index++)
         {
             var enemy = _enemies[index];
-            spatialHashManager.Enemies.QueryNearbyInto(enemy.Position, enemy.NearbyEnemies);
+            spatialHashManager.EnemyNeighborhood.QueryNearbyInto(enemy.Position, enemy.NearbyEnemies);
         }
 
         for (var index = 0; index < _entities.Count; index++)
