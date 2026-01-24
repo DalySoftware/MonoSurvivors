@@ -95,8 +95,7 @@ public class EntityRenderer(
     {
         var texture = visual.SpriteSheet.Texture;
         var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
-        var origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
-
+        var origin = new Vector2(sourceRect.Width * 0.5f, sourceRect.Height * 0.5f);
 
         var layer = visual.Layer + visual.Position.Y * YSortScale;
 
@@ -110,7 +109,7 @@ public class EntityRenderer(
     private void DrawSimpleSprite(ISpriteVisual visual)
     {
         var texture = GetTexture(visual.TexturePath);
-        var origin = new Vector2(texture.Width / 2f, texture.Height / 2f);
+        var origin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
 
         var layer = visual.Layer + visual.Position.Y * YSortScale;
         spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: layer);
