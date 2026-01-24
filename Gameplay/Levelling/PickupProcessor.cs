@@ -50,7 +50,6 @@ public class PickupProcessor(SpatialCollisionChecker collisionChecker, SpatialHa
                 AttractExperience(player);
     }
 
-
     private void AttractExperience(PlayerCharacter player)
     {
         const float attractionRange = 1000f;

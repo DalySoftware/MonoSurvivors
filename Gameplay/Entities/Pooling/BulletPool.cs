@@ -20,12 +20,12 @@ public class BulletPool
         float speed,
         float damage,
         float range,
+        IReadOnlyList<IOnHitEffect> onHits,
         int pierce = 0,
-        IEnumerable<IOnHitEffect>? onHits = null,
         HashSet<EnemyBase>? immuneEnemies = null)
     {
         var velocity = VectorCalculations.Velocity(position, target, speed);
-        return Get(type, owner, position, velocity, damage, range, pierce, onHits, immuneEnemies);
+        return Get(type, owner, position, velocity, damage, range, onHits, pierce, immuneEnemies);
     }
 
     public Bullet Get(
@@ -35,8 +35,8 @@ public class BulletPool
         Vector2 velocity,
         float damage,
         float range,
+        IReadOnlyList<IOnHitEffect> onHits,
         int pierce = 0,
-        IEnumerable<IOnHitEffect>? onHits = null,
         HashSet<EnemyBase>? immuneEnemies = null)
     {
         var (radius, sprite) = GetTypeSpecificValues(type);
@@ -56,9 +56,9 @@ public class BulletPool
         float radius,
         string spritePath,
         int pierce,
-        IEnumerable<IOnHitEffect>? onHits,
+        IReadOnlyList<IOnHitEffect> onHits,
         HashSet<EnemyBase>? immuneEnemies) =>
-        new(this, owner, position, velocity, damage, range, radius, spritePath, pierce, onHits, immuneEnemies);
+        new(this, owner, position, velocity, damage, range, radius, spritePath, onHits, pierce, immuneEnemies);
     private static (float radius, string spritePath) GetTypeSpecificValues(BulletType type) => type switch
     {
         BulletType.Basic => (16f, Paths.Images.Bullets.Basic),

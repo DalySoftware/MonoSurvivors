@@ -14,12 +14,13 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     private HashSet<EnemyBase> _immuneEnemies;
     private readonly BulletPool _pool;
     private int _piercesLeft;
+    private readonly CircleCollider _circle;
 
     private float _distanceTraveled = 0f;
 
     public Bullet(BulletPool pool, PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage,
         float maxRange, float radius, string texturePath,
-        int pierceEnemies = 0, IEnumerable<IOnHitEffect>? onHits = null,
+        IReadOnlyList<IOnHitEffect> onHits, int pierceEnemies = 0, 
         HashSet<EnemyBase>? immuneEnemies = null) : base(initialPosition)
     {
         Owner = owner;
@@ -27,20 +28,27 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         _pool = pool;
         TexturePath = texturePath;
         _piercesLeft = pierceEnemies;
-        OnHitEffects = onHits ?? [];
+        OnHitEffects = onHits;
         _immuneEnemies = immuneEnemies ?? [];
 
         IntentVelocity = velocity;
         Damage = damage;
-        Colliders = [new CircleCollider(this, radius)];
+        _circle = new CircleCollider(this, radius);
+        Colliders = [_circle];
     }
 
     internal PlayerCharacter Owner { get; private set; }
     internal float MaxRange { get; private set; }
     internal float RemainingRange => MaxRange - _distanceTraveled;
-    internal IEnumerable<IOnHitEffect> OnHitEffects { get; private set; }
+
+    private IReadOnlyList<IOnHitEffect> OnHitEffects
+    {
+        get;
+        set => field = value.OrderBy(o => o.Priority).ToArray();
+    }
+
     public float Damage { get; private set; }
-    public ICollider[] Colliders { get; private set; }
+    public ICollider[] Colliders { get; }
 
     public void OnHit(GameTime gameTime, EnemyBase enemy)
     {
@@ -51,7 +59,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
         var context = new BulletHitContext(gameTime, Owner, enemy, this);
 
-        foreach (var onHit in OnHitEffects.OrderBy(o => o.Priority))
+        foreach (var onHit in OnHitEffects)
             onHit.Apply(context);
 
         Resolve(context);
@@ -72,7 +80,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         float radius,
         string texturePath,
         int pierceEnemies,
-        IEnumerable<IOnHitEffect>? onHits = null,
+        IReadOnlyList<IOnHitEffect> onHits,
         HashSet<EnemyBase>? immuneEnemies = null)
     {
         Owner = owner;
@@ -87,10 +95,10 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         MarkedForDeletion = false;
 
         _immuneEnemies = immuneEnemies ?? [];
-        OnHitEffects = onHits ?? [];
+        OnHitEffects = onHits;
 
         TexturePath = texturePath;
-        Colliders = [new CircleCollider(this, radius)];
+        _circle.CollisionRadius = radius;
 
         return this;
     }

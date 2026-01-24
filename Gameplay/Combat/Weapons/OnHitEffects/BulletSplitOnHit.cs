@@ -45,6 +45,7 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity, BulletPool pool) 
                 direction * speed,
                 bullet.Damage * DamageRatio,
                 range,
+                [],
                 immuneEnemies: [enemy]);
 
             spawnEntity.Spawn(splitBullet);

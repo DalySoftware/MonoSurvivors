@@ -21,7 +21,7 @@ public class EnemyDeathBlast(
 
         foreach (var direction in bulletDirections)
         {
-            var bullet = pool.Get(BulletType.BasicSmall, owner, position, position + direction, 1f, damage, range);
+            var bullet = pool.Get(BulletType.BasicSmall, owner, position, position + direction, 1f, damage, range, []);
             entityManager.Spawn(bullet);
         }
     }
