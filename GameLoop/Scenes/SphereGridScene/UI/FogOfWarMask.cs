@@ -33,8 +33,8 @@ internal sealed class FogOfWarMask
     private readonly PlayerStats _playerStats;
     private float _visionRadiusMultiplier = 1f;
 
-    public FogOfWarMask(GraphicsDevice graphics, int baseVisionRadius, ISphereGridCamera camera,
-        PlayerStats playerStats)
+    public FogOfWarMask(GraphicsDevice graphics, IRenderViewport viewport, int baseVisionRadius,
+        ISphereGridCamera camera, PlayerStats playerStats)
     {
         _graphics = graphics;
         _camera = camera;
@@ -43,9 +43,8 @@ internal sealed class FogOfWarMask
         _baseVisionRadius = baseVisionRadius;
         _playerStats = playerStats;
 
-        var vp = graphics.Viewport;
         _fogTarget = new RenderTarget2D(
-            graphics, vp.Width, vp.Height,
+            graphics, viewport.Width, viewport.Height,
             false, SurfaceFormat.Color, DepthFormat.None);
 
         _circle = PrimitiveRenderer.CreateSoftCircle(graphics, VisionRadius,
