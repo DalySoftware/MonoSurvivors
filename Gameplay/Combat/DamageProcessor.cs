@@ -11,12 +11,12 @@ namespace Gameplay.Combat;
 public class DamageProcessor(
     SpatialCollisionChecker collisionChecker)
 {
-    private readonly List<(IDamageablePlayer player, IDamagesPlayer damager)> _playerHits = new(256);
+    private readonly List<(IDamageablePlayer player, EnemyBase enemy)> _playerHits = new(256);
     private readonly List<(EnemyBase enemy, IDamagesEnemies damager)> _enemyHits = new(256);
 
-    internal void ApplyDamage(GameTime gameTime, EntityManager  entityManager)
+    internal void ApplyDamage(GameTime gameTime, EntityManager entityManager)
     {
-        collisionChecker.FindOverlapsWithPlayerDamagers(entityManager.Players, _playerHits);
+        collisionChecker.FindOverlapsWithEnemies(entityManager.Players, _playerHits);
 
         for (var i = 0; i < _playerHits.Count; i++)
         {

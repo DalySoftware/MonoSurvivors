@@ -13,10 +13,6 @@ public sealed class SpatialCollisionChecker(SpatialHashManager hashManager)
         where TTarget : IHasColliders
         => FindOverlapsInto(targets, hashManager.Enemies, results);
 
-    public void FindOverlapsWithPlayerDamagers(IEnumerable<IDamageablePlayer> players,
-        List<(IDamageablePlayer target, IDamagesPlayer source)> results)
-        => FindOverlapsInto(players, hashManager.DamagesPlayers, results);
-
     public void FindOverlapsWithEnemyDamagers(IEnumerable<EnemyBase> enemies,
         List<(EnemyBase target, IDamagesEnemies source)> results)
         => FindOverlapsInto(enemies, hashManager.DamagesEnemies, results);

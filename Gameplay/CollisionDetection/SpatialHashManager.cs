@@ -8,7 +8,6 @@ namespace Gameplay.CollisionDetection;
 public class SpatialHashManager
 {
     public SpatialHash<EnemyBase> Enemies { get; } = new(64);
-    public SpatialHash<IDamagesPlayer> DamagesPlayers { get; } = new(64);
     public SpatialHash<IDamagesEnemies> DamagesEnemies { get; } = new(64);
     public SpatialHash<IPickup> Pickups { get; } = new(256);
 
@@ -17,7 +16,6 @@ public class SpatialHashManager
     public void Update(GameTime gameTime, ISpatialHashSources sources)
     {
         RebuildHash(Enemies, sources.Enemies);
-        RebuildHash(DamagesPlayers, sources.Enemies); // Needs updating if we add projectiles
         RebuildHash(DamagesEnemies, sources.DamagesEnemies);
         RebuildHash(Pickups, sources.Experiences);
 
