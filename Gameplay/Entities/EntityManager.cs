@@ -11,7 +11,7 @@ namespace Gameplay.Entities;
 public class EntityManager(
     DamageProcessor damageProcessor,
     PickupProcessor pickupProcessor,
-    SpatialHashManager spatialHashManager)
+    EnemySeparation enemySeparation)
     : ISpawnEntity, IEntityFinder, ISpatialHashSources
 {
     private readonly List<IEntity> _entitiesToAdd = [];
@@ -67,12 +67,7 @@ public class EntityManager(
 
     public void Update(GameTime gameTime)
     {
-        for (var index = 0; index < _enemies.Count; index++)
-        {
-            var enemy = _enemies[index];
-            var newForce = EnemySeparation.Compute(enemy, spatialHashManager.EnemyNeighborhood);
-            enemy.SeparationForce = Vector2.Lerp(enemy.SeparationForce, newForce, 0.25f);
-        }
+        enemySeparation.Update(_enemies);
 
         for (var index = 0; index < _entities.Count; index++)
         {

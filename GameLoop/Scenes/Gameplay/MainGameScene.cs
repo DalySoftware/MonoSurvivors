@@ -136,6 +136,7 @@ internal class MainGameScene(
 
         builder.RegisterType<EffectManager>().SingleInstance();
         builder.RegisterType<EntityManager>().AsSelf().As<ISpawnEntity>().As<IEntityFinder>().SingleInstance();
+        builder.RegisterType<EnemySeparation>().SingleInstance();
         builder.RegisterType<ExperienceSpawner>().SingleInstance();
         builder.RegisterType<ScreenPositioner>().WithParameter(new NamedParameter("buffer", 0.3f));
         builder.RegisterType<EnemyFactory>();
