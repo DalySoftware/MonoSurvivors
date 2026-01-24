@@ -34,7 +34,7 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
     {
         base.Update(gameTime);
 
-        IntentVelocity = _followEntity.CalculateVelocity(NearbyEnemies);
+        IntentVelocity = _followEntity.CalculateVelocity(SeparationForce);
         _spriteSheet.Update(gameTime);
     }
 }

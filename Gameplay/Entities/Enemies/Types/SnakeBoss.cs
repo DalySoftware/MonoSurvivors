@@ -77,7 +77,7 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     {
         base.Update(gameTime);
 
-        IntentVelocity = _followEntity.CalculateVelocity(NearbyEnemies);
+        IntentVelocity = _followEntity.CalculateVelocity(SeparationForce);
 
         // Record head position
         _positionHistory.Insert(0, Position);

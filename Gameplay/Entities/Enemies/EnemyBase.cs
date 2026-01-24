@@ -20,7 +20,26 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     public EnemyStats Stats { get; } = stats;
     public float Layer => Layers.Enemies;
 
-    internal List<EnemyBase> NearbyEnemies { get; } = new(16);
+    internal Vector2 SeparationForce { get; set; }
+
+    internal float ApproximateRadius
+    {
+        get
+        {
+            if (field >= 0f)
+                return field;
+
+            var max = 0f;
+            for (var i = 0; i < Colliders.Length; i++)
+            {
+                var r = Colliders[i].ApproximateRadius;
+                if (r > max) max = r;
+            }
+
+            field = max;
+            return max;
+        }
+    } = -1f;
 
     protected Action<EnemyBase>? OnDeath { get; init; } = null;
 

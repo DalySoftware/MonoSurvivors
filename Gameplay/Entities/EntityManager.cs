@@ -70,7 +70,8 @@ public class EntityManager(
         for (var index = 0; index < _enemies.Count; index++)
         {
             var enemy = _enemies[index];
-            spatialHashManager.EnemyNeighborhood.QueryNearbyInto(enemy.Position, enemy.NearbyEnemies);
+            var newForce = EnemySeparation.Compute(enemy, spatialHashManager.EnemyNeighborhood);
+            enemy.SeparationForce = Vector2.Lerp(enemy.SeparationForce, newForce, 0.25f);
         }
 
         for (var index = 0; index < _entities.Count; index++)
