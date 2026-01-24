@@ -15,19 +15,18 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
     private readonly SpatialHash<EnemyBase> _spatialHash = new(64);
 
     private readonly List<EnemyBase> _enemies = new(256);
-    private readonly List<EnemyBase> _nearbyEnemies = new(256);
-    private readonly List<EnemyBase> _closeEnemies = new(256);
 
-    public List<IEntity> Entities { get; } = [];
+    private readonly List<IEntity> _entities = [];
+    public IReadOnlyList<IEntity> Entities => _entities;
 
     public EnemyBase? NearestEnemyTo(IHasPosition source)
     {
         EnemyBase? best = null;
         var bestD = float.PositiveInfinity;
 
-        for (var index = 0; index < Entities.Count; index++)
+        for (var index = 0; index < _entities.Count; index++)
         {
-            var entity = Entities[index];
+            var entity = _entities[index];
             if (entity is EnemyBase enemy)
             {
                 var distanceSquared = Vector2.DistanceSquared(source.Position, enemy.Position);
@@ -42,23 +41,17 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
         return best;
     }
 
-    public IReadOnlyCollection<EnemyBase> EnemiesCloseTo(Vector2 position, float maxDistance)
+    public IEnumerable<EnemyBase> EnemiesCloseTo(Vector2 position, float maxDistance)
     {
-        _closeEnemies.Clear();
-
         var maxDistSq = maxDistance * maxDistance;
-        var cellRadius = (int)(maxDistance / _spatialHash.CellSize) + 1;
 
-        _spatialHash.QueryNearbyInto(position, _nearbyEnemies, cellRadius);
-
-        for (var index = 0; index < _nearbyEnemies.Count; index++)
+        // _enemies is rebuilt once per frame in Update(), and not modified during entity updates.
+        for (var i = 0; i < _enemies.Count; i++)
         {
-            var e = _nearbyEnemies[index];
+            var e = _enemies[i];
             if (Vector2.DistanceSquared(e.Position, position) <= maxDistSq)
-                _closeEnemies.Add(e);
+                yield return e;
         }
-
-        return _closeEnemies;
     }
 
     public void Spawn(params IEnumerable<IEntity> entities) => _entitiesToAdd.AddRange(entities);
@@ -66,9 +59,9 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
     public void Update(GameTime gameTime)
     {
         _enemies.Clear();
-        for (var index = 0; index < Entities.Count; index++)
+        for (var index = 0; index < _entities.Count; index++)
         {
-            var x = Entities[index];
+            var x = _entities[index];
             if (x is EnemyBase e)
                 _enemies.Add(e);
         }
@@ -87,33 +80,33 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
             _spatialHash.QueryNearbyInto(enemy.Position, enemy.NearbyEnemies);
         }
 
-        for (var index = 0; index < Entities.Count; index++)
+        for (var index = 0; index < _entities.Count; index++)
         {
-            var entity = Entities[index];
+            var entity = _entities[index];
             entity.Update(gameTime);
         }
 
-        damageProcessor.ApplyDamage(gameTime, Entities);
-        pickupProcessor.ProcessPickups(Entities);
+        damageProcessor.ApplyDamage(gameTime, _entities);
+        pickupProcessor.ProcessPickups(_entities);
         RemoveEntities();
         AddPendingEntities();
     }
 
     private void RemoveEntities()
     {
-        for (var index = 0; index < Entities.Count; index++)
+        for (var index = 0; index < _entities.Count; index++)
         {
-            var entity = Entities[index];
+            var entity = _entities[index];
             if (entity.MarkedForDeletion && entity is IPoolableEntity poolable)
                 poolable.OnDespawned();
         }
 
-        Entities.RemoveAll(e => e.MarkedForDeletion);
+        _entities.RemoveAll(e => e.MarkedForDeletion);
     }
 
     private void AddPendingEntities()
     {
-        Entities.AddRange(_entitiesToAdd);
+        _entities.AddRange(_entitiesToAdd);
         _entitiesToAdd.Clear();
     }
 }

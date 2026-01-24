@@ -35,7 +35,7 @@ public class EntityRenderer(
         _effectsListPool.Push(list);
     }
 
-    public void Draw(List<IEntity> entities)
+    public void Draw(IReadOnlyList<IEntity> entities)
     {
         var visibleBounds = camera.VisibleWorldBounds;
         _effectsLookup.Clear();

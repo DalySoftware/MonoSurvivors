@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Gameplay.Audio;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
@@ -54,19 +53,35 @@ public class IceAura(
         _collider.CollisionRadius = Range;
     }
 
+
     private void DealDamage(GameTime gameTime)
     {
         var damage = critCalculator.CalculateCritDamage(BaseDamage, Stats) * Stats.DamageMultiplier;
         var nearby = entityFinder.EnemiesCloseTo(owner.Position, Range * 1.5f);
 
-        foreach (var enemy in nearby.Where(e => e.Colliders.Any(c => CollisionChecker.HasOverlap(c, _collider))))
+        foreach (var enemy in nearby)
         {
+            var colliders = enemy.Colliders;
+            var overlapped = false;
+
+            for (var c = 0; c < colliders.Length; c++)
+                if (CollisionChecker.HasOverlap(colliders[c], _collider))
+                {
+                    overlapped = true;
+                    break;
+                }
+
+            if (!overlapped)
+                continue;
+
             enemy.TakeDamage(owner, damage);
-            foreach (var onHit in OnHitEffects)
-            {
-                var context = new HitContext(gameTime, owner, enemy);
-                onHit.Apply(context);
-            }
+
+            var context = new HitContext(gameTime, owner, enemy);
+
+            SlowOnHit.Apply(context);
+            var effects = owner.WeaponBelt.OnHitEffects;
+            for (var i = 0; i < effects.Count; i++)
+                effects[i].Apply(context);
         }
 
         auraEffect.SpawnRipple();
