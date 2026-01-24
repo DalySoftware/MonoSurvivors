@@ -2,7 +2,7 @@
 
 namespace Gameplay.Combat;
 
-internal interface IDamageablePlayer : IHasColliders
+public interface IDamageablePlayer : IHasColliders
 {
     public bool Damageable { get; }
 

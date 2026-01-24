@@ -36,8 +36,7 @@ public class PickupProcessor(SpatialCollisionChecker collisionChecker)
             if (e is PlayerCharacter player) _playersScratch.Add(player);
         }
 
-        var pickupHash = collisionChecker.BuildHash(_pickupsScratch);
-        collisionChecker.FindOverlapsInto(_playersScratch, pickupHash, _pickupOverlaps);
+        collisionChecker.FindOverlapsWithPickups(_playersScratch, _pickupOverlaps);
 
         for (var i = 0; i < _pickupOverlaps.Count; i++)
         {

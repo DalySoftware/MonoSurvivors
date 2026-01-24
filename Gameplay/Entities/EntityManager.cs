@@ -8,16 +8,22 @@ using Gameplay.Levelling;
 
 namespace Gameplay.Entities;
 
-public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pickupProcessor)
-    : ISpawnEntity, IEntityFinder
+public class EntityManager(
+    DamageProcessor damageProcessor,
+    PickupProcessor pickupProcessor,
+    SpatialHashManager spatialHashManager)
+    : ISpawnEntity, IEntityFinder, ISpatialHashSources
 {
     private readonly List<IEntity> _entitiesToAdd = [];
-    private readonly SpatialHash<EnemyBase> _spatialHash = new(64);
 
     private readonly List<EnemyBase> _enemies = new(256);
+    private readonly List<Experience> _experiences = [];
+    private readonly List<IDamagesEnemies> _damagesEnemies = [];
 
     private readonly List<IEntity> _entities = [];
+    private readonly List<PlayerCharacter> _players = [];
     public IReadOnlyList<IEntity> Entities => _entities;
+    public IReadOnlyList<PlayerCharacter> Players => _players;
 
     public EnemyBase? NearestEnemyTo(IHasPosition source)
     {
@@ -53,31 +59,18 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
                 yield return e;
         }
     }
+    public IReadOnlyList<EnemyBase> Enemies => _enemies;
+    public IReadOnlyList<Experience> Experiences => _experiences;
+    public IReadOnlyList<IDamagesEnemies> DamagesEnemies => _damagesEnemies;
 
     public void Spawn(IEntity entity) => _entitiesToAdd.Add(entity);
 
     public void Update(GameTime gameTime)
     {
-        _enemies.Clear();
-        for (var index = 0; index < _entities.Count; index++)
-        {
-            var x = _entities[index];
-            if (x is EnemyBase e)
-                _enemies.Add(e);
-        }
-
-
-        _spatialHash.Clear();
         for (var index = 0; index < _enemies.Count; index++)
         {
             var enemy = _enemies[index];
-            _spatialHash.Insert(enemy);
-        }
-
-        for (var index = 0; index < _enemies.Count; index++)
-        {
-            var enemy = _enemies[index];
-            _spatialHash.QueryNearbyInto(enemy.Position, enemy.NearbyEnemies);
+            spatialHashManager.Enemies.QueryNearbyInto(enemy.Position, enemy.NearbyEnemies);
         }
 
         for (var index = 0; index < _entities.Count; index++)
@@ -86,7 +79,7 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
             entity.Update(gameTime);
         }
 
-        damageProcessor.ApplyDamage(gameTime, _entities);
+        damageProcessor.ApplyDamage(gameTime, this);
         pickupProcessor.ProcessPickups(_entities);
         RemoveEntities();
         AddPendingEntities();
@@ -97,16 +90,40 @@ public class EntityManager(DamageProcessor damageProcessor, PickupProcessor pick
         for (var index = 0; index < _entities.Count; index++)
         {
             var entity = _entities[index];
-            if (entity.MarkedForDeletion && entity is IPoolableEntity poolable)
+            if (!entity.MarkedForDeletion)
+                continue;
+
+            if (entity is EnemyBase enemy)
+                _enemies.Remove(enemy);
+            if (entity is Experience xp)
+                _experiences.Remove(xp);
+            if (entity is IDamagesEnemies de)
+                _damagesEnemies.Remove(de);
+            if (entity is PlayerCharacter p)
+                _players.Remove(p);
+
+            _entities.RemoveAt(index);
+
+            if (entity is IPoolableEntity poolable)
                 poolable.OnDespawned();
         }
-
-        _entities.RemoveAll(e => e.MarkedForDeletion);
     }
 
     private void AddPendingEntities()
     {
-        _entities.AddRange(_entitiesToAdd);
+        foreach (var entity in _entitiesToAdd)
+        {
+            _entities.Add(entity);
+            if (entity is EnemyBase e)
+                _enemies.Add(e);
+            if (entity is Experience xp)
+                _experiences.Add(xp);
+            if (entity is IDamagesEnemies d)
+                _damagesEnemies.Add(d);
+            if (entity is PlayerCharacter p)
+                _players.Add(p);
+        }
+
         _entitiesToAdd.Clear();
     }
 }

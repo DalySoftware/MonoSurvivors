@@ -3,7 +3,7 @@ using Gameplay.Entities;
 
 namespace Gameplay.Levelling;
 
-internal interface IPickup : IHasColliders
+public interface IPickup : IHasColliders
 {
     void OnPickupBy(PlayerCharacter player);
 }

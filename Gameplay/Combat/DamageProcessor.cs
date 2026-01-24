@@ -8,34 +8,15 @@ namespace Gameplay.Combat;
 /// <summary>
 ///     Processes damage for a fixed state of entities, ie for any relevant overlapping entities
 /// </summary>
-public class DamageProcessor(SpatialCollisionChecker collisionChecker)
+public class DamageProcessor(
+    SpatialCollisionChecker collisionChecker)
 {
-    private readonly List<IDamagesPlayer> _playerDamagers = new(256);
-    private readonly List<IDamageablePlayer> _players = new(16);
-
-    private readonly List<IDamagesEnemies> _enemyDamagers = new(256);
-    private readonly List<EnemyBase> _enemies = new(256);
-
     private readonly List<(IDamageablePlayer player, IDamagesPlayer damager)> _playerHits = new(256);
-    private readonly List<(IDamagesEnemies damager, EnemyBase enemy)> _enemyHits = new(256);
+    private readonly List<(EnemyBase enemy, IDamagesEnemies damager)> _enemyHits = new(256);
 
-    internal void ApplyDamage(GameTime gameTime, IReadOnlyCollection<IEntity> entities)
+    internal void ApplyDamage(GameTime gameTime, EntityManager  entityManager)
     {
-        _playerDamagers.Clear();
-        _players.Clear();
-        _enemyDamagers.Clear();
-        _enemies.Clear();
-
-        foreach (var e in entities)
-        {
-            if (e is IDamagesPlayer dp) _playerDamagers.Add(dp);
-            if (e is IDamageablePlayer { Damageable: true } p) _players.Add(p);
-            if (e is IDamagesEnemies de) _enemyDamagers.Add(de);
-            if (e is EnemyBase enemy) _enemies.Add(enemy);
-        }
-
-        var damagerHash = collisionChecker.BuildHash(_playerDamagers);
-        collisionChecker.FindOverlapsInto(_players, damagerHash, _playerHits);
+        collisionChecker.FindOverlapsWithPlayerDamagers(entityManager.Players, _playerHits);
 
         for (var i = 0; i < _playerHits.Count; i++)
         {
@@ -43,12 +24,10 @@ public class DamageProcessor(SpatialCollisionChecker collisionChecker)
             player.TakeDamage(damager.Damage);
         }
 
-        var enemyHash = collisionChecker.BuildHash(_enemies);
-        collisionChecker.FindOverlapsInto(_enemyDamagers, enemyHash, _enemyHits);
-
+        collisionChecker.FindOverlapsWithEnemyDamagers(entityManager.Enemies, _enemyHits);
         for (var i = 0; i < _enemyHits.Count; i++)
         {
-            var (damager, enemy) = _enemyHits[i];
+            var (enemy, damager) = _enemyHits[i];
             damager.OnHit(gameTime, enemy);
         }
     }
