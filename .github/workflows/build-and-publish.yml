@@ -3,59 +3,115 @@ name: Build & Publish
 on:
   push:
     tags:
-      - 'v*'  # Trigger only on tags like v0.3.1
+      - 'v*' # Trigger only on tags like v0.3.1
 
 jobs:
-  build:
+  windows:
+    name: Windows (Veil.Desktop)
     runs-on: windows-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.x
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
-      - name: Build & publish
+      - name: Publish (win-x64)
         shell: pwsh
         run: |
           $VERSION = ($env:GITHUB_REF -replace '^refs/tags/', '') -replace '^v',''
-          Write-Host "Publishing version $VERSION"
+          Write-Host "Publishing Windows version $VERSION"
 
-          $publishDir = "./GameLoop/bin/Release/net10.0/win-x64/publish"
-          dotnet publish ./GameLoop/GameLoop.csproj `
+          $publishDir = Join-Path $env:GITHUB_WORKSPACE "artifacts/windows/publish"
+          New-Item -ItemType Directory -Force -Path $publishDir | Out-Null
+
+          dotnet publish ./Veil.Desktop/Veil.Desktop.csproj `
             -c Release `
             -r win-x64 `
             --self-contained true `
-            -p:PublishReadyToRun=false `
-            -p:TieredCompilation=false `
+            -o $publishDir `
             -p:Version=$VERSION `
             -p:FileVersion=$VERSION `
             -p:AssemblyVersion=$VERSION
 
-          # Create Game folder for distribution
-          $distDir = "$publishDir\Game"
-          New-Item -ItemType Directory -Force -Path $distDir
-          # Move all files and folders into Game/
+          # Create Game/ folder for distribution
+          $distDir = Join-Path $publishDir "Game"
+          New-Item -ItemType Directory -Force -Path $distDir | Out-Null
+
+          # Move all files/folders into Game/ (except the Game folder itself)
           Get-ChildItem $publishDir | Where-Object { $_.Name -ne "Game" } | Move-Item -Destination $distDir
 
           # Create Launcher.bat at the root
-          $launcherPath = "$publishDir\Launcher.bat"
+          $exeName = "Veil.Desktop.exe"
+          $launcherPath = Join-Path $publishDir "Launcher.bat"
           @"
-          :: Launcher.bat - simple shortcut to run GameLoop.exe
+          :: Launcher.bat - simple shortcut to run $exeName
           cd Game
-          start GameLoop.exe
+          start """" $exeName
           "@ | Out-File -Encoding ASCII $launcherPath
 
+          # Zip for distribution
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE "artifacts/Veil-Windows-$VERSION.zip"
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $zipPath
 
-
-      - name: Upload artifacts
+      - name: Upload artifact (Windows zip)
         uses: actions/upload-artifact@v4
         with:
-          name: WindowsBuild
-          path: ./GameLoop/bin/Release/net10.0/win-x64/publish/
+          name: Veil-Windows
+          path: artifacts/Veil-Windows-*.zip
+
+  web:
+    name: Web (Veil.Web HTML5 zip)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Install WASM build tools
+        run: dotnet workload install wasm-tools
+
+      - name: Publish (Blazor WASM)
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          VERSION="${VERSION#v}"
+          echo "Publishing Web version ${VERSION}"
+
+          PUBLISH_DIR="${GITHUB_WORKSPACE}/artifacts/web/publish"
+          DIST_DIR="${GITHUB_WORKSPACE}/artifacts/web/dist"
+          ZIP_PATH="${GITHUB_WORKSPACE}/artifacts/Veil-Web-${VERSION}.zip"
+
+          mkdir -p "${PUBLISH_DIR}"
+          dotnet publish ./Veil.Web/Veil.Web.csproj -c Release -o "${PUBLISH_DIR}"
+
+          # itch HTML5 upload expects index.html at the root of the zip.
+          # Blazor static assets live in publish/wwwroot, so copy *contents* of wwwroot to dist.
+          rm -rf "${DIST_DIR}"
+          mkdir -p "${DIST_DIR}"
+          cp -a "${PUBLISH_DIR}/wwwroot/." "${DIST_DIR}/"
+
+          # Zip the contents (so index.html is at zip root)
+          rm -f "${ZIP_PATH}"
+          (cd "${DIST_DIR}" && zip -r "${ZIP_PATH}" .)
+
+      - name: Upload artifact (Web zip)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Veil-Web
+          path: artifacts/Veil-Web-*.zip
