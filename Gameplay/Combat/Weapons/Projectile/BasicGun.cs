@@ -27,7 +27,7 @@ public class BasicGun(
 
         var bullet = pool.Get(BulletType.Basic, owner, owner.Position, target.Position,
             bulletSpeed * Stats.SpeedMultiplier, damage,
-            range, owner.WeaponBelt.OnHitEffects, Stats.Pierce);
+            range, owner.WeaponBelt.OnHitEffects, pierce: Stats.Pierce);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.BasicShoot);
     }

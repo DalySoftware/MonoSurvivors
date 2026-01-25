@@ -27,7 +27,7 @@ public class SniperRifle(
         var pierce = Stats.Pierce + 1;
         var bullet = pool.Get(BulletType.Sniper, owner, owner.Position, target.Position,
             bulletSpeed * Stats.SpeedMultiplier, damage,
-            range, owner.WeaponBelt.OnHitEffects, pierce);
+            range, owner.WeaponBelt.OnHitEffects, pierce: pierce);
         spawnEntity.Spawn(bullet);
         audio.Play(SoundEffectTypes.SniperShoot);
     }

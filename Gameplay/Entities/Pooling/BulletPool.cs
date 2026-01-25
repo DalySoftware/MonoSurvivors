@@ -21,11 +21,11 @@ public class BulletPool
         float damage,
         float range,
         IReadOnlyList<IOnHitEffect> onHits,
-        int pierce = 0,
-        HashSet<EnemyBase>? immuneEnemies = null)
+        HashSet<EnemyBase>? immuneEnemies = null,
+        int pierce = 0)
     {
         var velocity = VectorCalculations.Velocity(position, target, speed);
-        return Get(type, owner, position, velocity, damage, range, onHits, pierce, immuneEnemies);
+        return Get(type, owner, position, velocity, damage, range, onHits, immuneEnemies, pierce);
     }
 
     public Bullet Get(
@@ -36,15 +36,15 @@ public class BulletPool
         float damage,
         float range,
         IReadOnlyList<IOnHitEffect> onHits,
-        int pierce = 0,
-        HashSet<EnemyBase>? immuneEnemies = null)
+        HashSet<EnemyBase>? immuneEnemies = null,
+        int pierce = 0)
     {
         var (radius, sprite) = GetTypeSpecificValues(type);
         if (_pool.TryPop(out var bullet))
             return bullet.Reinitialize(owner, position, velocity, damage, range, radius, sprite, pierce, onHits,
                 immuneEnemies);
 
-        return Create(owner, position, velocity, damage, range, radius, sprite, pierce, onHits, immuneEnemies);
+        return Create(owner, position, velocity, damage, range, radius, sprite, onHits, immuneEnemies, pierce);
     }
 
     private Bullet Create(
@@ -55,10 +55,11 @@ public class BulletPool
         float range,
         float radius,
         string spritePath,
-        int pierce,
         IReadOnlyList<IOnHitEffect> onHits,
-        HashSet<EnemyBase>? immuneEnemies) =>
+        HashSet<EnemyBase>? immuneEnemies,
+        int pierce) =>
         new(this, owner, position, velocity, damage, range, radius, spritePath, onHits, immuneEnemies, pierce);
+
     private static (float radius, string spritePath) GetTypeSpecificValues(BulletType type) => type switch
     {
         BulletType.Basic => (16f, Paths.Images.Bullets.Basic),

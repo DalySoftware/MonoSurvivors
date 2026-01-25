@@ -33,8 +33,8 @@ public class Shotgun(
         foreach (var direction in ArcSpreader.Arc(targetDirection, 5, MathF.PI / 6))
         {
             var velocity = direction * bulletSpeed * owner.WeaponBelt.Stats.ProjectileSpeedMultiplier;
-            var bullet = pool.Get(BulletType.Basic, owner, owner.Position, velocity, damage, range, Stats.Pierce,
-                [KnockbackOnHit, ..owner.WeaponBelt.OnHitEffects]);
+            var bullet = pool.Get(BulletType.Basic, owner, owner.Position, velocity, damage, range,
+                [KnockbackOnHit, ..owner.WeaponBelt.OnHitEffects], pierce: Stats.Pierce);
             spawnEntity.Spawn(bullet);
         }
 
