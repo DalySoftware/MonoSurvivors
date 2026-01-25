@@ -32,7 +32,6 @@ namespace GameLoop.Scenes.Gameplay;
 internal class MainGameScene(
     SpriteBatch spriteBatch,
     EntityManager entityManager,
-    SpatialHashManager spatialHashManager,
     EffectManager effectManager,
     EnemySpawner spawner,
     ChaseCamera camera,
@@ -60,7 +59,6 @@ internal class MainGameScene(
         if (inputGate.ShouldProcessInput())
             input.Update();
         effectManager.Update(gameTime);
-        spatialHashManager.Update(gameTime, entityManager);
         entityManager.Update(gameTime);
         camera.Update(gameTime);
         spawner.Update(gameTime);

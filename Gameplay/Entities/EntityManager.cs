@@ -11,7 +11,8 @@ namespace Gameplay.Entities;
 public class EntityManager(
     DamageProcessor damageProcessor,
     PickupProcessor pickupProcessor,
-    EnemySeparation enemySeparation)
+    EnemySeparation enemySeparation,
+    SpatialHashManager spatialHashManager)
     : ISpawnEntity, IEntityFinder, ISpatialHashSources
 {
     private readonly List<IEntity> _entitiesToAdd = [];
@@ -74,6 +75,8 @@ public class EntityManager(
             var entity = _entities[index];
             entity.Update(gameTime);
         }
+        
+        spatialHashManager.Update(gameTime, this);
 
         damageProcessor.ApplyDamage(gameTime, this);
         pickupProcessor.ProcessPickups(_entities);
