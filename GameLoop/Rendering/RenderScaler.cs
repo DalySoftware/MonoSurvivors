@@ -2,6 +2,7 @@
 using ContentLibrary;
 using GameLoop.UI;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -61,11 +62,11 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         effect.Parameters["GrilleStrength"]?.SetValue(0.01f);
         effect.Parameters["GrilleStepPx"]?.SetValue(8f);
 
-        effect.Parameters["VignetteStrength"]?.SetValue(0.9f);
+        effect.Parameters["VignetteStrength"]?.SetValue(1f);
         effect.Parameters["VignetteWidthX"]?.SetValue(0.04f);
         effect.Parameters["VignetteWidthY"]?.SetValue(0.04f);
-        effect.Parameters["VignetteCurve"]?.SetValue(2f);
-        effect.Parameters["CornerBoost"]?.SetValue(0.6f);
+        effect.Parameters["VignetteCurve"]?.SetValue(3f);
+        effect.Parameters["CornerBoost"]?.SetValue(1f);
 
         effect.Parameters["Gain"]?.SetValue(1f);
 
@@ -78,6 +79,10 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         effect.Parameters["ChromaticBleedPx"]?.SetValue(2f);
         effect.Parameters["ChromaticBleedX"]?.SetValue(0.9f);
         effect.Parameters["ChromaStrength"]?.SetValue(1f);
+
+        // Must match the background
+        effect.Parameters["MatteColor"]?.SetValue(ColorPalette.Black.ToVector4());
+        effect.Parameters["MatteEdgeCurve"]?.SetValue(10f);
     }
 
     public void UpdateOutputRectangle()
@@ -111,7 +116,7 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
     public void BeginRenderTarget()
     {
         _graphicsDevice.SetRenderTarget(_renderTarget);
-        _graphicsDevice.Clear(Color.Black);
+        _graphicsDevice.Clear(ColorPalette.Black);
     }
 
     public void EndRenderTarget()
@@ -127,6 +132,9 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
             // Basic ortho that maps pixel coords to clip space.
             var projection = Matrix.CreateOrthographicOffCenter(0, vp.Width, vp.Height, 0, 0, 1);
             effect.Parameters["MatrixTransform"]?.SetValue(projection);
+
+            var r = _outputRect;
+            effect.Parameters["OutputRectPx"]?.SetValue(new Vector4(r.X, r.Y, r.Width, r.Height));
         }
 
         _spriteBatch.Begin(

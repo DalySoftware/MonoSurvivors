@@ -24,6 +24,12 @@ float VignetteWidthY = 0.10; // fraction of screen height
 float VignetteCurve  = 4.0;  // 2..8 (higher = more “only at the edge”)
 float CornerBoost    = 0.35; // 0..1 (extra corner emphasis)
 
+float4 OutputRectPx;     // x,y,w,h in BACKBUFFER pixels
+float4 MatteColor = float4(0,0,0,1);
+// How aggressively we force the last pixels to MatteColor.
+// Higher = only the extreme edge; lower = more of the vignette band blends.
+float MatteEdgeCurve = 8.0;
+
 float BloomStrength  = 0.35; // 0..1 (try 0.2..0.6)
 float BloomThreshold = 0.70; // 0..1 (0.6..0.85)
 float BloomRadiusPx  = 2.0;  // in SOURCE pixels (1..4)
@@ -209,31 +215,41 @@ float4 PS(VSOut i) : COLOR0
     float grilleMul = 1.0 + GrilleStrength * (0.5 - triX) * 2.0; // [1-g, 1+g]
     col *= grilleMul;
     
-    // Border-style vignette (edge band + smoother corner curve)
-    float2 e = min(uv, 1.0 - uv);
+    // Vignette based on distance to the OUTPUT RECT edges (in SCREEN pixels).
+    // This avoids the "pixel centers never hit uv==0/1" problem.
+    float2 toMin = i.ScreenPx - OutputRectPx.xy;
+    float2 toMax = (OutputRectPx.xy + OutputRectPx.zw) - i.ScreenPx;
+    float2 minToEdge = min(toMin, toMax);
     
-    // Raw band coords (0 inside, 1 at edge)
-    float bx0 = saturate((VignetteWidthX - e.x) / max(VignetteWidthX, 1e-5));
-    float by0 = saturate((VignetteWidthY - e.y) / max(VignetteWidthY, 1e-5));
+    // Treat the outermost pixel centers as distance 0 from the edge.
+    float dx = max(0.0, minToEdge.x - 0.5);
+    float dy = max(0.0, minToEdge.y - 0.5);
+    
+    // Convert fractional widths into pixels of the output rect
+    float vwX = max(1e-5, OutputRectPx.z * VignetteWidthX);
+    float vwY = max(1e-5, OutputRectPx.w * VignetteWidthY);
+    
+    // Raw band coords (0 inside band, 1 at edge)
+    float bx0 = saturate((vwX - dx) / vwX);
+    float by0 = saturate((vwY - dy) / vwY);
     
     // Shape the edge falloff
     float bx = pow(bx0, VignetteCurve);
     float by = pow(by0, VignetteCurve);
     
-    // Union of edge bands (what you already had)
+    // Union of edge bands
     float edgeT = 1.0 - (1.0 - bx) * (1.0 - by);
     
-    // Corner term, but based on *unshaped* bx0/by0 so it starts curving earlier.
-    // Use x^(1.5) = x*sqrt(x) (cheaper than pow)
+    // Corner boost
     float corner = bx0 * by0;
     corner = corner * sqrt(max(corner, 1e-6)); // ^1.5
-    
     edgeT = saturate(edgeT + CornerBoost * corner);
     
-    // Apply
     col *= (1.0 - VignetteStrength * edgeT);
-
-    col *= Gain;
+    
+    // force the very edge to blend to MatteColor (surrounding background)
+    float matteT = pow(edgeT, MatteEdgeCurve);     // concentrates effect at extreme edge
+    col = lerp(col, MatteColor.rgb, matteT);
 
     return float4(saturate(col), a) * i.Color;
 }
