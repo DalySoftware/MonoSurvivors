@@ -20,8 +20,8 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
     public Bullet(BulletPool pool, PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage,
         float maxRange, float radius, string texturePath,
-        IReadOnlyList<IOnHitEffect> onHits, int pierceEnemies = 0, 
-        HashSet<EnemyBase>? immuneEnemies = null) : base(initialPosition)
+        IReadOnlyList<IOnHitEffect> onHits, HashSet<EnemyBase>? immuneEnemies,
+        int pierceEnemies = 0) : base(initialPosition)
     {
         Owner = owner;
         MaxRange = maxRange;
@@ -94,8 +94,9 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         _distanceTraveled = 0f;
         MarkedForDeletion = false;
 
-        _immuneEnemies = immuneEnemies ?? [];
         OnHitEffects = onHits;
+        if (immuneEnemies != null) _immuneEnemies = immuneEnemies;
+        else _immuneEnemies.Clear();
 
         TexturePath = texturePath;
         _circle.CollisionRadius = radius;

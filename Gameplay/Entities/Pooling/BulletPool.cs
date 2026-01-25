@@ -58,7 +58,7 @@ public class BulletPool
         int pierce,
         IReadOnlyList<IOnHitEffect> onHits,
         HashSet<EnemyBase>? immuneEnemies) =>
-        new(this, owner, position, velocity, damage, range, radius, spritePath, onHits, pierce, immuneEnemies);
+        new(this, owner, position, velocity, damage, range, radius, spritePath, onHits, immuneEnemies, pierce);
     private static (float radius, string spritePath) GetTypeSpecificValues(BulletType type) => type switch
     {
         BulletType.Basic => (16f, Paths.Images.Bullets.Basic),
