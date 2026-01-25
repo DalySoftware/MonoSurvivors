@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat.Weapons.OnHitEffects;
 using Gameplay.Entities;
@@ -18,6 +18,8 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
     private float _distanceTraveled = 0f;
 
+    private IOnHitEffect[] _onHitEffects = [];
+
     public Bullet(BulletPool pool, PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage,
         float maxRange, float radius, string texturePath,
         IReadOnlyList<IOnHitEffect> onHits, HashSet<EnemyBase>? immuneEnemies,
@@ -28,7 +30,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         _pool = pool;
         TexturePath = texturePath;
         _piercesLeft = pierceEnemies;
-        OnHitEffects = onHits;
+        SetOnHitEffects(onHits);
         _immuneEnemies = immuneEnemies ?? [];
 
         IntentVelocity = velocity;
@@ -40,12 +42,6 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     internal PlayerCharacter Owner { get; private set; }
     internal float MaxRange { get; private set; }
     internal float RemainingRange => MaxRange - _distanceTraveled;
-
-    private IReadOnlyList<IOnHitEffect> OnHitEffects
-    {
-        get;
-        set => field = value.OrderBy(o => o.Priority).ToArray();
-    }
 
     public float Damage { get; private set; }
     public ICollider[] Colliders { get; }
@@ -59,8 +55,8 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
         var context = new BulletHitContext(gameTime, Owner, enemy, this);
 
-        foreach (var onHit in OnHitEffects)
-            onHit.Apply(context);
+        for (var i = 0; i < _onHitEffects.Length; i++)
+            _onHitEffects[i].Apply(context);
 
         Resolve(context);
     }
@@ -70,6 +66,21 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     public float Layer => Layers.Projectiles;
 
     public string TexturePath { get; private set; }
+
+    private void SetOnHitEffects(IReadOnlyList<IOnHitEffect> value)
+    {
+        if (value.Count == 0)
+        {
+            _onHitEffects = [];
+            return;
+        }
+
+        var arr = new IOnHitEffect[value.Count];
+        for (var i = 0; i < value.Count; i++) arr[i] = value[i];
+
+        Array.Sort(arr, static (a, b) => a.Priority.CompareTo(b.Priority));
+        _onHitEffects = arr;
+    }
 
     public Bullet Reinitialize(
         PlayerCharacter owner,
@@ -94,7 +105,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         _distanceTraveled = 0f;
         MarkedForDeletion = false;
 
-        OnHitEffects = onHits;
+        SetOnHitEffects(onHits);
         if (immuneEnemies != null) _immuneEnemies = immuneEnemies;
         else _immuneEnemies.Clear();
 
