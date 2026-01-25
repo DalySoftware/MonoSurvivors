@@ -2,21 +2,14 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <ProjectGuid>cf18e670-9b3d-4d1a-b9c3-643eb05bfe57</ProjectGuid>
         <OutputType>WinExe</OutputType>
-        <PublishTrimmed>True</PublishTrimmed>
-        <PublishAot>True</PublishAot>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>Veil.Desktop</RootNamespace>
         <AssemblyName>Veil.Desktop</AssemblyName>
-        <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
         <DefineConstants>$(DefineConstants);DESKTOPGL</DefineConstants>
         <KniPlatform>DesktopGL</KniPlatform>
-    </PropertyGroup>
-
-    <PropertyGroup>
         <ApplicationIcon>Icon.ico</ApplicationIcon>
     </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="nkast.Kni.Platform.SDL2.GL" Version="4.2.9001"/>
         <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="4.2.9001"/>
