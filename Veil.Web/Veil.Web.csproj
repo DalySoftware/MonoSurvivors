@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>Veil.Web</RootNamespace>
         <AssemblyName>Veil.Web</AssemblyName>
@@ -18,19 +17,6 @@
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <RunAOTCompilation>true</RunAOTCompilation>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Include="PlatformServices\Audio\WebSoundEffectPlayer.cs"/>
-        <Compile Include="PlatformServices\Audio\WebMusicPlayer.cs"/>
-        <Compile Include="Pages\Index.razor.cs"/>
-        <Compile Include="PlatformServices\LifeCycle\WebAppLifeCycle.cs"/>
-        <Compile Include="PlatformServices\Persistence\LocalStoragePersistence.cs"/>
-        <Compile Include="PlatformServices\Rendering\WebBackground.cs"/>
-        <Compile Include="PlatformServices\Rendering\WebDisplayModeManager.cs"/>
-        <Compile Include="PlatformServices\Rendering\WebViewportSync.cs"/>
-        <Compile Include="PlatformServices\ServiceConfigurator.cs"/>
-        <Compile Include="Program.cs"/>
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="nkast.Kni.Platform.Blazor.GL" Version="4.2.9001"/>
