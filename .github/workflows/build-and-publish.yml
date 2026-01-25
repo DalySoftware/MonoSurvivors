@@ -82,28 +82,29 @@ jobs:
         run: dotnet workload install wasm-tools-net8
 
       - name: Publish (Blazor WASM)
-        shell: bash
+        shell: pwsh
         run: |
-          VERSION="${GITHUB_REF#refs/tags/}"
-          VERSION="${VERSION#v}"
-          echo "Publishing Web version ${VERSION}"
-
-          PUBLISH_DIR="${GITHUB_WORKSPACE}/artifacts/web/publish"
-          DIST_DIR="${GITHUB_WORKSPACE}/artifacts/web/dist"
-          ZIP_PATH="${GITHUB_WORKSPACE}/artifacts/Veil-Web-${VERSION}.zip"
-
-          mkdir -p "${PUBLISH_DIR}"
-          dotnet publish ./Veil.Web/Veil.Web.csproj -c Release -o "${PUBLISH_DIR}"
-
-          # itch HTML5 upload expects index.html at the root of the zip.
-          # Blazor static assets live in publish/wwwroot, so copy *contents* of wwwroot to dist.
-          rm -rf "${DIST_DIR}"
-          mkdir -p "${DIST_DIR}"
-          cp -a "${PUBLISH_DIR}/wwwroot/." "${DIST_DIR}/"
-
-          # Zip the contents (so index.html is at zip root)
-          rm -f "${ZIP_PATH}"
-          (cd "${DIST_DIR}" && zip -r "${ZIP_PATH}" .)
+          $VERSION = ($env:GITHUB_REF -replace '^refs/tags/', '') -replace '^v',''
+          Write-Host "Publishing Web version $VERSION"
+          
+          $publishDir = Join-Path $env:GITHUB_WORKSPACE "artifacts/web/publish"
+          $distDir    = Join-Path $env:GITHUB_WORKSPACE "artifacts/web/dist"
+          $zipPath    = Join-Path $env:GITHUB_WORKSPACE "artifacts/Veil-Web-$VERSION.zip"
+          
+          New-Item -ItemType Directory -Force -Path $publishDir | Out-Null
+          
+          dotnet publish ./Veil.Web/Veil.Web.csproj -c Release -o $publishDir
+          
+          if (Test-Path $distDir) { Remove-Item $distDir -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path $distDir | Out-Null
+          
+          # Copy *contents* of publish/wwwroot to dist (so index.html is at zip root for itch)
+          Copy-Item -Path (Join-Path $publishDir "wwwroot\*") -Destination $distDir -Recurse -Force
+          
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          
+          # Compress the *contents* of dist, not the folder itself
+          Compress-Archive -Path (Join-Path $distDir "*") -DestinationPath $zipPath
 
       - name: Upload artifact (Web zip)
         uses: actions/upload-artifact@v4
