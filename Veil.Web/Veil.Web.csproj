@@ -53,21 +53,19 @@
     <ItemGroup>
         <_SoundEffectFiles Include="..\ContentLibrary\ContentLibrary\SoundEffects\**\*.wav"/>
     </ItemGroup>
-
     <Target Name="CopySoundEffectsToWwwroot" BeforeTargets="ResolveStaticWebAssetsInputs">
-        <Copy SourceFiles="@(_SoundEffectFiles)" DestinationFiles="@(_SoundEffectFiles->'$(MSBuildProjectDirectory)\wwwroot\soundEffects\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true"/>
+        <Copy SourceFiles="@(_SoundEffectFiles)"
+              DestinationFiles="@(_SoundEffectFiles->'$(MSBuildProjectDirectory)\wwwroot\soundEffects\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true"/>
     </Target>
 
     <ItemGroup>
         <_MusicFiles Include="..\ContentLibrary\ContentLibrary\Music\**\*.wav"/>
     </ItemGroup>
-
-    <Target Name="CopySoundEffectsToWwwroot"
-            BeforeTargets="ResolveStaticWebAssetsInputs">
-        <Copy
-                SourceFiles="@(_MusicFiles)"
-                DestinationFiles="@(_MusicFiles->'$(MSBuildProjectDirectory)\wwwroot\music\%(RecursiveDir)%(Filename)%(Extension)')"
-                SkipUnchangedFiles="true"/>
+    <Target Name="CopyMusicToWwwroot" BeforeTargets="ResolveStaticWebAssetsInputs">
+        <Copy SourceFiles="@(_MusicFiles)"
+              DestinationFiles="@(_MusicFiles->'$(MSBuildProjectDirectory)\wwwroot\music\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true"/>
     </Target>
 
 
