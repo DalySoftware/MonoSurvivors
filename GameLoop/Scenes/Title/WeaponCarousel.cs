@@ -81,7 +81,8 @@ internal interface IWeaponPanel : IUiElement
     WeaponDescriptor Descriptor { get; }
 }
 
-internal sealed class WeaponPanel(Panel panel, Texture2D icon, WeaponDescriptor descriptor) : IWeaponPanel
+internal sealed class WeaponPanel(Panel panel, SpriteFrame frame, WeaponDescriptor descriptor)
+    : IWeaponPanel
 {
     public WeaponDescriptor Descriptor { get; } = descriptor;
     public UiRectangle Rectangle => panel.Rectangle;
@@ -91,10 +92,10 @@ internal sealed class WeaponPanel(Panel panel, Texture2D icon, WeaponDescriptor 
         panel.Draw(spriteBatch);
 
         var interior = panel.Interior;
-        var iconSize = new Vector2(icon.Width, icon.Height);
-        var iconTopLeft = interior.Centre - iconSize / 2f;
+        var iconTopLeft = interior.Centre - frame.Origin;
 
-        spriteBatch.Draw(icon, iconTopLeft, layerDepth: panel.InteriorLayerDepth + 0.01f);
+        spriteBatch.Draw(frame.Texture, iconTopLeft, layerDepth: panel.InteriorLayerDepth + 0.01f,
+            sourceRectangle: frame.Source);
     }
 }
 
@@ -105,11 +106,11 @@ internal sealed class WeaponPanelFactory(Panel.Factory panelFactory, PowerUpIcon
     /// </summary>
     public IWeaponPanel Create(WeaponDescriptor descriptor, UiRectangle rectangle)
     {
-        var icon = powerUpIcons.IconFor(descriptor.Unlock) ?? throw new Exception("Unknown weapon type");
+        var frame = powerUpIcons.IconFor(descriptor.Unlock) ?? throw new Exception("Unknown weapon type");
 
         var interior = new UiRectangle(rectangle.Centre, rectangle.Size, UiAnchor.Centre);
         var panel = panelFactory.DefineByInterior(interior);
 
-        return new WeaponPanel(panel, icon, descriptor);
+        return new WeaponPanel(panel, frame, descriptor);
     }
 }

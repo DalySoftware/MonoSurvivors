@@ -152,6 +152,8 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterType<Label.Factory>().SingleInstance();
             builder.RegisterType<ToolTipRenderer>().SingleInstance();
             builder.RegisterType<PowerUpIcons>().SingleInstance();
+            builder.RegisterType<PowerUpIconSpriteSheet>().SingleInstance();
+            builder.RegisterType<WeaponIconsSpriteSheet>().SingleInstance();
 
             TitleScene.ConfigureServices(builder);
 

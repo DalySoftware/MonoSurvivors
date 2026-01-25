@@ -6,6 +6,7 @@ using GameLoop.Rendering;
 using GameLoop.UI;
 using Gameplay.Audio;
 using Gameplay.Levelling.PowerUps;
+using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.UI;
 using Gameplay.Rendering;
@@ -46,7 +47,8 @@ internal class SphereGridUi
     private readonly List<Node> _smallNodes = new(256);
     private readonly List<Node> _mediumNodes = new(256);
     private readonly List<Node> _largeNodes = new(256);
-    private readonly Dictionary<Texture2D, List<Node>> _iconBuckets = new();
+    private readonly List<(SpriteFrame frame, Node node)> _weaponIcons = new(256);
+    private readonly List<(SpriteFrame frame, Node node)> _powerUpIcons = new(256);
 
     private readonly Dictionary<Node, NodeColorCache> _colorCache = [];
 
@@ -169,7 +171,8 @@ internal class SphereGridUi
         _largeNodes.Clear();
 
         // Icon buckets by texture (minimize texture binds)
-        _iconBuckets.Clear();
+        _weaponIcons.Clear();
+        _powerUpIcons.Clear();
 
         foreach (var node in _nodesOrdered)
         {
@@ -180,13 +183,13 @@ internal class SphereGridUi
                 default: _smallNodes.Add(node); break;
             }
 
-            var icon = _content.PowerUpIcons.IconFor(node.PowerUp);
-            if (icon is null) continue;
+            var frame = _content.PowerUpIcons.IconFor(node.PowerUp);
+            if (frame is null) continue;
 
-            if (!_iconBuckets.TryGetValue(icon, out var list))
-                _iconBuckets[icon] = list = new List<Node>(16);
-
-            list.Add(node);
+            if (node.PowerUp is WeaponUnlock)
+                _weaponIcons.Add((frame.Value, node));
+            else
+                _powerUpIcons.Add((frame.Value, node));
         }
 
         BuildEdgeDrawCache();
@@ -326,6 +329,7 @@ internal class SphereGridUi
 
     private void DrawNodeBackplates(SpriteBatch spriteBatch, Texture2D texture, List<Node> nodes)
     {
+        var origin = texture.Centre;
         for (var i = 0; i < nodes.Count; i++)
         {
             var node = nodes[i];
@@ -342,24 +346,29 @@ internal class SphereGridUi
             if (IsFocused(node) || IsHovered(node))
                 nodeColor = nodeColor.ShiftLightness(0.4f);
 
-            spriteBatch.Draw(texture, pos, origin: texture.Centre, color: nodeColor);
+            spriteBatch.Draw(texture, pos, origin: origin, color: nodeColor);
         }
     }
 
     private void DrawIcons(SpriteBatch spriteBatch)
     {
-        foreach (var (iconTexture, nodes) in _iconBuckets)
-            for (var i = 0; i < nodes.Count; i++)
-            {
-                var node = nodes[i];
-                if (!NodePositions.TryGetValue(node, out var pos)) continue;
+        DrawIconList(spriteBatch, _powerUpIcons);
+        DrawIconList(spriteBatch, _weaponIcons);
+    }
 
-                var isUnlocked = _grid.IsUnlocked(node);
-                var canUnlock = _grid.CanUnlock(node);
-                var iconColor = !isUnlocked && !canUnlock ? IconLockedColor : IconColor;
+    private void DrawIconList(SpriteBatch spriteBatch, List<(SpriteFrame frame, Node node)> icons)
+    {
+        for (var i = 0; i < icons.Count; i++)
+        {
+            var (icon, node) = icons[i];
+            if (!NodePositions.TryGetValue(node, out var pos)) continue;
 
-                spriteBatch.Draw(iconTexture, pos, origin: iconTexture.Centre, color: iconColor);
-            }
+            var isUnlocked = _grid.IsUnlocked(node);
+            var canUnlock = _grid.CanUnlock(node);
+            var iconColor = !isUnlocked && !canUnlock ? IconLockedColor : IconColor;
+
+            spriteBatch.Draw(icon.Texture, pos, iconColor, icon.Source, origin: icon.Origin);
+        }
     }
 
     private void DrawTooltips(SpriteBatch spriteBatch)
