@@ -8,56 +8,92 @@ namespace Gameplay.CollisionDetection;
 public sealed class SpatialCollisionChecker(SpatialHashManager hashManager)
 {
     public void FindOverlapsWithEnemies<TTarget>(
-        IEnumerable<TTarget> targets,
+        IReadOnlyList<TTarget> targets,
         List<(TTarget target, EnemyBase source)> results)
         where TTarget : IHasColliders
-        => FindOverlapsInto(targets, hashManager.Enemies, results);
+        => FindOverlapsInto(targets, hashManager.Enemies, hashManager.MaxEnemyRadius, results);
 
-    public void FindOverlapsWithEnemyDamagers(IEnumerable<EnemyBase> enemies,
+    public void FindOverlapsWithEnemyDamagers(
+        IReadOnlyList<EnemyBase> enemies,
         List<(EnemyBase target, IDamagesEnemies source)> results)
-        => FindOverlapsInto(enemies, hashManager.DamagesEnemies, results);
+        => FindOverlapsInto(enemies, hashManager.DamagesEnemies, hashManager.MaxDamagerRadius, results);
 
     public void FindOverlapsWithPickups<TTarget>(
-        IEnumerable<TTarget> targets,
+        IReadOnlyList<TTarget> targets,
         List<(TTarget target, IPickup source)> results)
         where TTarget : IHasColliders
-        => FindOverlapsInto(targets, hashManager.Pickups, results);
+        => FindOverlapsInto(targets, hashManager.Pickups, hashManager.MaxPickupRadius, results);
 
     private void FindOverlapsInto<TTarget, TSource>(
-        IEnumerable<TTarget> targets,
-        SpatialHash<TSource> hash,
+        IReadOnlyList<TTarget> targets,
+        SpatialPointHash<TSource> hash,
+        float maxSourceRadius,
         List<(TTarget target, TSource source)> results)
         where TTarget : IHasColliders
-        where TSource : IHasColliders
+        where TSource : class, IHasColliders
     {
         results.Clear();
         var nearby = NearbyScratch<TSource>.List;
+        var seenMulti = SeenMultiScratch<TSource>.List;
 
-        foreach (var target in targets)
-        foreach (var targetCollider in target.Colliders)
+        for (var t = 0; t < targets.Count; t++)
         {
-            var cellRadius = (int)(targetCollider.ApproximateRadius / hash.CellSize) + 1;
+            var target = targets[t];
+            var targetColliders = target.Colliders;
 
-            nearby.Clear(); // don’t rely on QueryNearbyInto clearing
-            hash.QueryNearbyInto(targetCollider.Position, nearby, cellRadius);
-
-            for (var i = 0; i < nearby.Count; i++)
+            for (var tc = 0; tc < targetColliders.Length; tc++)
             {
-                var source = nearby[i];
+                var targetCollider = targetColliders[tc];
 
-                foreach (var sourceCollider in source.Colliders)
+                var padded = targetCollider.ApproximateRadius + maxSourceRadius;
+                var cellRadius = (int)(padded / hash.CellSize) + 1;
+
+                nearby.Clear();
+                seenMulti.Clear();
+
+                hash.QueryNearbyInto(targetCollider.Position, nearby, cellRadius);
+
+                for (var i = 0; i < nearby.Count; i++)
                 {
-                    if (!CollisionChecker.HasOverlap(sourceCollider, targetCollider))
-                        continue;
+                    var source = nearby[i];
+                    var sourceColliders = source.Colliders;
 
-                    results.Add((target, source));
-                    break; // stop checking this source’s remaining colliders
+                    // Only needed for multi-collider sources (your boss)
+                    if (sourceColliders.Length > 1)
+                    {
+                        if (WasSeen(seenMulti, source))
+                            continue;
+                        seenMulti.Add(source);
+                    }
+
+                    for (var sc = 0; sc < sourceColliders.Length; sc++)
+                    {
+                        if (!CollisionChecker.HasOverlap(sourceColliders[sc], targetCollider))
+                            continue;
+
+                        results.Add((target, source));
+                        break;
+                    }
                 }
             }
         }
+
+        return;
+
+        static bool WasSeen(List<TSource> list, TSource item)
+        {
+            for (var i = 0; i < list.Count; i++)
+                if (ReferenceEquals(list[i], item))
+                    return true;
+            return false;
+        }
     }
 
-    // One scratch list per TSource (shared). Fast and no casts.
+    private static class SeenMultiScratch<T>
+    {
+        public readonly static List<T> List = new(8);
+    }
+
     private static class NearbyScratch<T>
     {
         public readonly static List<T> List = new(256);

@@ -5,19 +5,26 @@ using Gameplay.Levelling;
 
 namespace Gameplay.CollisionDetection;
 
-public class SpatialHashManager
+public sealed class SpatialHashManager
 {
-    public SpatialHash<EnemyBase> Enemies { get; } = new(64);
-    public SpatialHash<IDamagesEnemies> DamagesEnemies { get; } = new(64);
-    public SpatialHash<IPickup> Pickups { get; } = new(256);
+    // Point-insert (one cell per item)
+    public SpatialPointHash<EnemyBase> Enemies { get; } = new(64);
+    public SpatialPointHash<IDamagesEnemies> DamagesEnemies { get; } = new(64);
+    public SpatialPointHash<IPickup> Pickups { get; } = new(256);
 
+    // Point neighborhood for separation (already point-insert)
     public SpatialPointHash<EnemyBase> EnemyNeighborhood { get; } = new(96f);
+
+    // Per-frame maxima for query padding
+    public float MaxEnemyRadius { get; private set; }
+    public float MaxDamagerRadius { get; private set; }
+    public float MaxPickupRadius { get; private set; }
 
     public void Update(GameTime gameTime, ISpatialHashSources sources)
     {
-        RebuildHash(Enemies, sources.Enemies);
-        RebuildHash(DamagesEnemies, sources.DamagesEnemies);
-        RebuildHash(Pickups, sources.Experiences);
+        MaxEnemyRadius = RebuildPointHash(Enemies, sources.Enemies);
+        MaxDamagerRadius = RebuildPointHash(DamagesEnemies, sources.DamagesEnemies);
+        MaxPickupRadius = RebuildPointHash(Pickups, sources.Experiences);
 
         RebuildEnemyNeighborhood(sources.Enemies);
     }
@@ -32,12 +39,30 @@ public class SpatialHashManager
         }
     }
 
-    private static void RebuildHash<TSource>(SpatialHash<TSource> hash, IReadOnlyList<TSource> sources)
+    private static float RebuildPointHash<TSource>(SpatialPointHash<TSource> hash, IReadOnlyList<TSource> sources)
         where TSource : IHasColliders
     {
         hash.Clear();
-        foreach (var s in sources)
-            hash.Insert(s);
+
+        var maxRadius = 0f;
+
+        for (var i = 0; i < sources.Count; i++)
+        {
+            var s = sources[i];
+            var colliders = s.Colliders;
+
+            // Insert once per collider position (snake segments get indexed properly)
+            for (var c = 0; c < colliders.Length; c++)
+            {
+                var col = colliders[c];
+                hash.Insert(col.Position, s);
+
+                var r = col.ApproximateRadius;
+                if (r > maxRadius) maxRadius = r;
+            }
+        }
+
+        return maxRadius;
     }
 }
 
