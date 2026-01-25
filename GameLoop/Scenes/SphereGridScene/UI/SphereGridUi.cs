@@ -269,7 +269,7 @@ internal class SphereGridUi
 
         using var _ = _perf.MeasureProbe("UI");
         // Screen space batch - Will be layered on top of the world space batch 
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
+        spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.Deferred);
         DrawScreenspaceUi(spriteBatch);
         spriteBatch.End();
     }
@@ -344,23 +344,22 @@ internal class SphereGridUi
 
     private void DrawScreenspaceUi(SpriteBatch spriteBatch)
     {
-        _titlePanel.Draw(spriteBatch, ColorPalette.Peach, ColorPalette.DarkGray.ShiftLightness(-0.1f));
-
-        var titleText = TitleText(_grid.AvailablePoints);
-        var titleSize = _content.FontLarge.MeasureString(titleText);
-        var titlePosition = _titlePanel.Interior.CreateAnchoredRectangle(UiAnchor.Centre, titleSize).TopLeft;
-        spriteBatch.DrawString(_content.FontLarge, titleText, titlePosition, ColorPalette.White,
-            layerDepth: _titlePanel.InteriorLayerDepth + 0.01f);
+        _fog.Draw(spriteBatch);
 
         var helpText = HelpText();
         var helpSize = _content.FontMedium.MeasureString(helpText);
         var helpRectangle = _renderScaler.UiRectangle()
             .CreateAnchoredRectangle(UiAnchor.BottomCenter, helpSize, new Vector2(0f, -50f));
-        spriteBatch.DrawString(_content.FontMedium, helpText, helpRectangle.TopLeft, ColorPalette.LightGray,
-            layerDepth: Layers.HelpText);
+        spriteBatch.DrawString(_content.FontMedium, helpText, helpRectangle.TopLeft, ColorPalette.LightGray);
 
         DrawTooltips(spriteBatch);
-        _fog.Draw(spriteBatch);
+
+        _titlePanel.Draw(spriteBatch, ColorPalette.Peach, ColorPalette.DarkGray.ShiftLightness(-0.1f));
+
+        var titleText = TitleText(_grid.AvailablePoints);
+        var titleSize = _content.FontLarge.MeasureString(titleText);
+        var titlePosition = _titlePanel.Interior.CreateAnchoredRectangle(UiAnchor.Centre, titleSize).TopLeft;
+        spriteBatch.DrawString(_content.FontLarge, titleText, titlePosition, ColorPalette.White);
     }
 
     private string HelpText() => InputMethod switch
@@ -381,13 +380,11 @@ internal class SphereGridUi
     private void DrawTooltip(SpriteBatch spriteBatch, Node node, bool drawAtNode = false)
     {
         var tooltip = GetTooltip(node);
-        var layer = _titlePanel.InteriorLayerDepth + 0.05f;
-
         if (drawAtNode)
             _toolTipRenderer.DrawTooltipAt(spriteBatch, tooltip,
-                Camera.WorldToScreen(NodePositions[node]) + new Vector2(40f, 40f), layer);
+                Camera.WorldToScreen(NodePositions[node]) + new Vector2(40f, 40f));
         else
-            _toolTipRenderer.DrawTooltipAtMouse(spriteBatch, tooltip, layer);
+            _toolTipRenderer.DrawTooltipAtMouse(spriteBatch, tooltip);
     }
 
     private ToolTip GetTooltip(Node node)
