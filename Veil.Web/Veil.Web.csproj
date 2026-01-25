@@ -10,8 +10,8 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
-        <!--<InvariantGlobalization>true</InvariantGlobalization>-->
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <InvariantTimezone>true</InvariantTimezone>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
