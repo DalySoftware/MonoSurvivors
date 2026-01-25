@@ -36,8 +36,9 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
     {
         var distance = Vector2.Distance(start, end);
         var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
+        var origin = new Vector2(0f, 0.5f);
 
-        spriteBatch.Draw(_pixelTexture, start, null, color, angle, Vector2.Zero,
+        spriteBatch.Draw(_pixelTexture, start, null, color, angle, origin,
             new Vector2(distance, thickness), SpriteEffects.None, layerDepth);
     }
 
@@ -48,7 +49,8 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
         Vector2 scale, // (length, thickness)
         Color color,
         float layerDepth = 0f) =>
-        spriteBatch.Draw(_pixelTexture, start, color, rotation: rotation, scale: scale, layerDepth: layerDepth);
+        spriteBatch.Draw(_pixelTexture, start, color, rotation: rotation, scale: scale, layerDepth: layerDepth,
+            origin: new Vector2(0, 0.5f));
 
     public void DrawRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color, float layerDepth = 0f) =>
         spriteBatch.Draw(_pixelTexture, rect, color, layerDepth: layerDepth);
