@@ -20,7 +20,7 @@ jobs:
           dotnet-version: 10.x
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ./Veil.Desktop/Veil.Desktop.csproj
 
       - name: Publish (win-x64)
         shell: pwsh
@@ -81,7 +81,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ./Veil.Web/Veil.Web.csproj
 
       - name: Install WASM build tools
         run: dotnet workload install wasm-tools
