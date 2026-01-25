@@ -55,12 +55,12 @@ jobs:
           cd Game
           start """" $exeName
           "@ | Out-File -Encoding ASCII $launcherPath
-          
+
       - name: Upload artifact (Windows zip)
         uses: actions/upload-artifact@v4
         with:
           name: Veil-Windows
-          path: artifacts/Veil-Windows-*.zip
+          path: artifacts/windows/publish/
 
   web:
     name: Web (Veil.Web HTML5 zip)
