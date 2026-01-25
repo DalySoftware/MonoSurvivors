@@ -40,7 +40,9 @@ internal class SphereGridUi
     private Dictionary<Node, int> _nodeIndex = [];
     private List<(Node A, Node B)> _uniqueEdges = [];
 
-// Draw buckets
+    private EdgeDrawData[] _edgeDrawCache = Array.Empty<EdgeDrawData>();
+
+    // Draw buckets
     private readonly List<Node> _smallNodes = new(256);
     private readonly List<Node> _mediumNodes = new(256);
     private readonly List<Node> _largeNodes = new(256);
@@ -186,6 +188,32 @@ internal class SphereGridUi
 
             list.Add(node);
         }
+
+        BuildEdgeDrawCache();
+    }
+
+    private void BuildEdgeDrawCache()
+    {
+        // Geometry is static as long as NodePositions doesn't change
+        var cache = new EdgeDrawData[_uniqueEdges.Count];
+
+        for (var i = 0; i < _uniqueEdges.Count; i++)
+        {
+            var (a, b) = _uniqueEdges[i];
+
+            // If NodePositions is guaranteed complete (it should be), use indexer (fast path).
+            var aPos = NodePositions[a];
+            var bPos = NodePositions[b];
+
+            var d = bPos - aPos;
+            var length = d.Length(); // sqrt once, not every frame
+            var rotation = MathF.Atan2(d.Y, d.X);
+
+            const float thickness = 8f;
+            cache[i] = new EdgeDrawData(a, b, aPos, rotation, new Vector2(length, thickness));
+        }
+
+        _edgeDrawCache = cache;
     }
 
     private void UpdateCameraFollow()
@@ -256,18 +284,20 @@ internal class SphereGridUi
     {
         _graphicsDevice.Clear(ColorPalette.Charcoal);
 
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp,
-            sortMode: SpriteSortMode.Deferred,
-            transformMatrix: Camera.Transform);
+        using (var _ = _perf.MeasureProbe("World"))
+        {
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp,
+                sortMode: SpriteSortMode.Deferred,
+                transformMatrix: Camera.Transform);
 
-        DrawEdges(spriteBatch); // uses _uniqueEdges
-        DrawNodeBackplates(spriteBatch); // only the 3 node textures
-        DrawIcons(spriteBatch); // grouped by icon texture
+            DrawEdges(spriteBatch); // uses _uniqueEdges
+            DrawNodeBackplates(spriteBatch); // only the 3 node textures
+            DrawIcons(spriteBatch); // grouped by icon texture
 
-        spriteBatch.End();
+            spriteBatch.End();
+        }
 
 
-        using var _ = _perf.MeasureProbe("UI");
         // Screen space batch - Will be layered on top of the world space batch 
         spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.Deferred);
         DrawScreenspaceUi(spriteBatch);
@@ -276,15 +306,14 @@ internal class SphereGridUi
 
     private void DrawEdges(SpriteBatch spriteBatch)
     {
-        foreach (var (a, b) in _uniqueEdges)
+        for (var i = 0; i < _edgeDrawCache.Length; i++)
         {
-            if (!NodePositions.TryGetValue(a, out var aPos)) continue;
-            if (!NodePositions.TryGetValue(b, out var bPos)) continue;
+            ref readonly var e = ref _edgeDrawCache[i];
 
-            var isUnlocked = _grid.IsUnlocked(a) && _grid.IsUnlocked(b);
+            var isUnlocked = _grid.IsUnlocked(e.A) && _grid.IsUnlocked(e.B);
             var color = isUnlocked ? ColorPalette.Yellow : ColorPalette.Gray;
 
-            _primitiveRenderer.DrawLine(spriteBatch, aPos, bPos, color, 8f /* thickness */);
+            _primitiveRenderer.DrawLine(spriteBatch, e.Start, e.Rotation, e.Scale, color, Layers.Edges);
         }
     }
 
@@ -413,6 +442,24 @@ internal class SphereGridUi
 
     private string UnlockText() =>
         InputMethod is InputMethod.KeyboardMouse ? "[Click to unlock]" : "[Press A to unlock]";
+
+    private readonly struct EdgeDrawData
+    {
+        public readonly Node A;
+        public readonly Node B;
+        public readonly Vector2 Start;
+        public readonly float Rotation;
+        public readonly Vector2 Scale; // (length, thickness)
+
+        public EdgeDrawData(Node a, Node b, Vector2 start, float rotation, Vector2 scale)
+        {
+            A = a;
+            B = b;
+            Start = start;
+            Rotation = rotation;
+            Scale = scale;
+        }
+    }
 
     private sealed class NodeColorCache
     {

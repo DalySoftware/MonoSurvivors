@@ -41,6 +41,15 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
             new Vector2(distance, thickness), SpriteEffects.None, layerDepth);
     }
 
+    public void DrawLine(
+        SpriteBatch spriteBatch,
+        Vector2 start,
+        float rotation,
+        Vector2 scale, // (length, thickness)
+        Color color,
+        float layerDepth = 0f) =>
+        spriteBatch.Draw(_pixelTexture, start, color, rotation: rotation, scale: scale, layerDepth: layerDepth);
+
     public void DrawRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color, float layerDepth = 0f) =>
         spriteBatch.Draw(_pixelTexture, rect, color, layerDepth: layerDepth);
 
