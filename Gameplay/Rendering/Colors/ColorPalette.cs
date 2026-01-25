@@ -37,4 +37,6 @@ public static class ColorPalette
     public static Color Candy { get; } = new(215, 123, 186); // RGB_CANDY
     public static Color Moss { get; } = new(143, 151, 74); // RGB_MOSS
     public static Color Umber { get; } = new(138, 111, 48); // was BISTRE
+
+    public static Color ItchBranding { get; } = new(4, 2, 3);
 }

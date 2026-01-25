@@ -2,7 +2,6 @@
 using ContentLibrary;
 using GameLoop.UI;
 using Gameplay.Rendering;
-using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,14 +18,17 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
 
     private readonly GraphicsDevice _graphicsDevice;
     private readonly SpriteBatch _spriteBatch;
+    private readonly IBackground _background;
 
     private bool _enableCrt;
     private readonly Effect? _crtEffect;
 
-    public RenderScaler(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, ContentManager content)
+    public RenderScaler(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, ContentManager content,
+        IBackground background)
     {
         _graphicsDevice = graphicsDevice;
         _spriteBatch = spriteBatch;
+        _background = background;
 
         _renderTarget = new RenderTarget2D(
             _graphicsDevice,
@@ -41,7 +43,7 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
 
         _crtEffect = content.Load<Effect>(Paths.ShaderEffects.Crt);
         var sourceTexel = new Vector2(1f / _renderTarget.Width, 1f / _renderTarget.Height);
-        SetCrtConstantParameters(_crtEffect, sourceTexel);
+        SetCrtConstantParameters(_crtEffect, sourceTexel, background.Color);
         _enableCrt = true;
 
         UpdateOutputRectangle();
@@ -52,7 +54,7 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
     public int Width => InternalWidth;
     public int Height => InternalHeight;
 
-    private static void SetCrtConstantParameters(Effect effect, Vector2 sourceTexel)
+    private static void SetCrtConstantParameters(Effect effect, Vector2 sourceTexel, Color backgroundColor)
     {
         effect.Parameters["SourceTexel"]?.SetValue(sourceTexel);
 
@@ -81,7 +83,7 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         effect.Parameters["ChromaStrength"]?.SetValue(1f);
 
         // Must match the background
-        effect.Parameters["MatteColor"]?.SetValue(ColorPalette.Black.ToVector4());
+        effect.Parameters["MatteColor"]?.SetValue(backgroundColor.ToVector4());
         effect.Parameters["MatteEdgeCurve"]?.SetValue(10f);
     }
 
@@ -116,13 +118,13 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
     public void BeginRenderTarget()
     {
         _graphicsDevice.SetRenderTarget(_renderTarget);
-        _graphicsDevice.Clear(ColorPalette.Black);
+        _graphicsDevice.Clear(_background.Color);
     }
 
     public void EndRenderTarget()
     {
         _graphicsDevice.SetRenderTarget(null);
-        _graphicsDevice.Clear(Color.Black);
+        _graphicsDevice.Clear(_background.Color);
 
         var effect = _enableCrt ? _crtEffect : null;
         if (effect is not null)

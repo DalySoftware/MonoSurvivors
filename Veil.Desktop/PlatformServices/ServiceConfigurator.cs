@@ -21,6 +21,7 @@ internal static class ServiceConfigurator
 
         builder.RegisterType<DisplayModeManager>().As<IDisplayModeManager>().SingleInstance();
         builder.RegisterType<DesktopViewportSync>().As<IViewportSync>().SingleInstance();
+        builder.RegisterType<DesktopBackground>().As<IBackground>().SingleInstance();
 
         builder.RegisterType<DesktopAppLifeCycle>().As<IAppLifeCycle>().SingleInstance();
     }

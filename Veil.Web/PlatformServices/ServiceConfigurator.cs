@@ -31,6 +31,7 @@ internal static class ServiceConfigurator
 
         builder.RegisterType<WebDisplayModeManager>().As<IDisplayModeManager>().SingleInstance();
         builder.RegisterType<WebViewportSync>().As<IViewportSync>().SingleInstance();
+        builder.RegisterType<WebBackground>().As<IBackground>().SingleInstance();
 
         builder.RegisterType<WebAppLifecycle>().As<IAppLifeCycle>().SingleInstance();
     }
