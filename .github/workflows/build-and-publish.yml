@@ -98,16 +98,11 @@ jobs:
           if (Test-Path $distDir) { Remove-Item $distDir -Recurse -Force }
           New-Item -ItemType Directory -Force -Path $distDir | Out-Null
           
-          # Copy *contents* of publish/wwwroot to dist (so index.html is at zip root for itch)
+          # Copy *contents* of publish/wwwroot to dist (so index.html is at dist root for itch)
           Copy-Item -Path (Join-Path $publishDir "wwwroot\*") -Destination $distDir -Recurse -Force
-          
-          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
-          
-          # Compress the *contents* of dist, not the folder itself
-          Compress-Archive -Path (Join-Path $distDir "*") -DestinationPath $zipPath
 
-      - name: Upload artifact (Web zip)
+      - name: Upload artifact (Web folder)
         uses: actions/upload-artifact@v4
         with:
           name: Veil-Web
-          path: artifacts/Veil-Web-*.zip
+          path: artifacts/web/dist/
