@@ -84,7 +84,7 @@ jobs:
         run: dotnet restore ./Veil.Web/Veil.Web.csproj
 
       - name: Install WASM build tools
-        run: dotnet workload install wasm-tools
+        run: dotnet workload install wasm-tools-net8
 
       - name: Publish (Blazor WASM)
         shell: bash
