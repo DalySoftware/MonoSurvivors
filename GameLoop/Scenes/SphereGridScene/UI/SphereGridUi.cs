@@ -11,6 +11,7 @@ using Gameplay.Levelling.SphereGrid.UI;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
+using Gameplay.Telemetry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -33,6 +34,17 @@ internal class SphereGridUi
     private readonly FogOfWarMask _fog;
     private readonly GameInputState _inputState;
     private readonly IAudioPlayer _audio;
+    private readonly PerformanceMetrics _perf;
+
+    private List<Node> _nodesOrdered = [];
+    private Dictionary<Node, int> _nodeIndex = [];
+    private List<(Node A, Node B)> _uniqueEdges = [];
+
+// Draw buckets
+    private readonly List<Node> _smallNodes = new(256);
+    private readonly List<Node> _mediumNodes = new(256);
+    private readonly List<Node> _largeNodes = new(256);
+    private readonly Dictionary<Texture2D, List<Node>> _iconBuckets = new();
 
     private readonly Dictionary<Node, NodeColorCache> _colorCache = [];
 
@@ -53,7 +65,8 @@ internal class SphereGridUi
         NodePositionMap nodePositions,
         ISphereGridCamera camera,
         GameInputState inputState,
-        IAudioPlayer audio)
+        IAudioPlayer audio,
+        PerformanceMetrics perf)
     {
         _graphicsDevice = graphicsDevice;
         _renderScaler = renderScaler;
@@ -64,6 +77,7 @@ internal class SphereGridUi
         _fog = fog;
         _inputState = inputState;
         _audio = audio;
+        _perf = perf;
         NodePositions = nodePositions.Positions;
 
         Camera = camera;
@@ -77,6 +91,7 @@ internal class SphereGridUi
         // Ensure the fog is rendered to prevent flicker
         RebuildFog();
         BuildColorCache();
+        BuildDrawLists();
     }
 
     private Vector2 TitleSize => _content.FontLarge.MeasureString(TitleText(100));
@@ -121,6 +136,55 @@ internal class SphereGridUi
                 Unlockable = baseColor.ShiftLightness(0.05f).WithChroma(0.10f),
                 Unlocked = baseColor.ShiftLightness(-0.04f),
             };
+        }
+    }
+
+    private void BuildDrawLists()
+    {
+        // Stable iteration order (HashSet order is not)
+        _nodesOrdered = _grid.Nodes
+            .OrderBy(n => NodePositions[n].Y)
+            .ThenBy(n => NodePositions[n].X)
+            .ToList();
+
+        _nodeIndex = new Dictionary<Node, int>(_nodesOrdered.Count);
+        for (var i = 0; i < _nodesOrdered.Count; i++)
+            _nodeIndex[_nodesOrdered[i]] = i;
+
+        // Unique edges (avoid drawing both A->B and B->A)
+        _uniqueEdges = new List<(Node, Node)>(_nodesOrdered.Count * 3);
+        foreach (var node in _nodesOrdered)
+        foreach (var neighbor in node.Neighbours.Values)
+        {
+            if (!_nodeIndex.TryGetValue(neighbor, out var ni)) continue;
+            if (_nodeIndex[node] < ni)
+                _uniqueEdges.Add((node, neighbor));
+        }
+
+        // Node buckets by base texture (only 3 textures)
+        _smallNodes.Clear();
+        _mediumNodes.Clear();
+        _largeNodes.Clear();
+
+        // Icon buckets by texture (minimize texture binds)
+        _iconBuckets.Clear();
+
+        foreach (var node in _nodesOrdered)
+        {
+            switch (node.Rarity)
+            {
+                case NodeRarity.Legendary: _largeNodes.Add(node); break;
+                case NodeRarity.Rare: _mediumNodes.Add(node); break;
+                default: _smallNodes.Add(node); break;
+            }
+
+            var icon = _content.PowerUpIcons.IconFor(node.PowerUp);
+            if (icon is null) continue;
+
+            if (!_iconBuckets.TryGetValue(icon, out var list))
+                _iconBuckets[icon] = list = new List<Node>(16);
+
+            list.Add(node);
         }
     }
 
@@ -192,13 +256,18 @@ internal class SphereGridUi
     {
         _graphicsDevice.Clear(ColorPalette.Charcoal);
 
-        // World space batch
-        spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack,
+        spriteBatch.Begin(samplerState: SamplerState.PointClamp,
+            sortMode: SpriteSortMode.Deferred,
             transformMatrix: Camera.Transform);
-        DrawEdges(spriteBatch);
-        DrawNodes(spriteBatch);
+
+        DrawEdges(spriteBatch); // uses _uniqueEdges
+        DrawNodeBackplates(spriteBatch); // only the 3 node textures
+        DrawIcons(spriteBatch); // grouped by icon texture
+
         spriteBatch.End();
 
+
+        using var _ = _perf.MeasureProbe("UI");
         // Screen space batch - Will be layered on top of the world space batch 
         spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.FrontToBack);
         DrawScreenspaceUi(spriteBatch);
@@ -207,54 +276,61 @@ internal class SphereGridUi
 
     private void DrawEdges(SpriteBatch spriteBatch)
     {
-        foreach (var node in _grid.Nodes)
+        foreach (var (a, b) in _uniqueEdges)
         {
-            if (!NodePositions.TryGetValue(node, out var nodePos)) continue;
+            if (!NodePositions.TryGetValue(a, out var aPos)) continue;
+            if (!NodePositions.TryGetValue(b, out var bPos)) continue;
 
-            foreach (var (_, neighbor) in node.Neighbours)
-            {
-                if (!NodePositions.TryGetValue(neighbor, out var neighborPos)) continue;
+            var isUnlocked = _grid.IsUnlocked(a) && _grid.IsUnlocked(b);
+            var color = isUnlocked ? ColorPalette.Yellow : ColorPalette.Gray;
 
-                var isUnlocked = _grid.IsUnlocked(node) && _grid.IsUnlocked(neighbor);
-                var color = isUnlocked ? ColorPalette.Yellow : ColorPalette.Gray;
-                _primitiveRenderer.DrawLine(spriteBatch, nodePos, neighborPos, color, 8f, Layers.Edges);
-            }
+            _primitiveRenderer.DrawLine(spriteBatch, aPos, bPos, color, 8f /* thickness */);
         }
     }
 
-    private void DrawNodes(SpriteBatch spriteBatch)
+    private void DrawNodeBackplates(SpriteBatch spriteBatch)
     {
-        foreach (var node in _grid.Nodes)
+        DrawNodeBackplates(spriteBatch, _content.GridNodeSmall, _smallNodes);
+        DrawNodeBackplates(spriteBatch, _content.GridNodeMedium, _mediumNodes);
+        DrawNodeBackplates(spriteBatch, _content.GridNodeLarge, _largeNodes);
+    }
+
+    private void DrawNodeBackplates(SpriteBatch spriteBatch, Texture2D texture, List<Node> nodes)
+    {
+        for (var i = 0; i < nodes.Count; i++)
         {
-            if (!NodePositions.TryGetValue(node, out var nodePos))
-                continue;
+            var node = nodes[i];
+            if (!NodePositions.TryGetValue(node, out var pos)) continue;
 
             var isUnlocked = _grid.IsUnlocked(node);
             var canUnlock = _grid.CanUnlock(node);
-
             var colors = _colorCache[node];
 
             var nodeColor = isUnlocked ? colors.Unlocked :
                 canUnlock ? colors.Unlockable :
                 colors.Locked;
 
-            var iconColor = !isUnlocked && !canUnlock ? IconLockedColor : IconColor;
-
             if (IsFocused(node) || IsHovered(node))
-                nodeColor = nodeColor.ShiftLightness(0.4f); // small, unavoidable runtime tweak
+                nodeColor = nodeColor.ShiftLightness(0.4f);
 
-            var texture = NodeTexture(node);
-            DrawNode(spriteBatch, texture, nodePos, nodeColor);
-
-            var iconTexture = _content.PowerUpIcons.IconFor(node.PowerUp);
-            if (iconTexture != null)
-                spriteBatch.Draw(
-                    iconTexture,
-                    nodePos,
-                    origin: iconTexture.Centre,
-                    color: iconColor,
-                    layerDepth: Layers.Nodes + 0.01f);
+            spriteBatch.Draw(texture, pos, origin: texture.Centre, color: nodeColor);
         }
+    }
+
+    private void DrawIcons(SpriteBatch spriteBatch)
+    {
+        foreach (var (iconTexture, nodes) in _iconBuckets)
+            for (var i = 0; i < nodes.Count; i++)
+            {
+                var node = nodes[i];
+                if (!NodePositions.TryGetValue(node, out var pos)) continue;
+
+                var isUnlocked = _grid.IsUnlocked(node);
+                var canUnlock = _grid.CanUnlock(node);
+                var iconColor = !isUnlocked && !canUnlock ? IconLockedColor : IconColor;
+
+                spriteBatch.Draw(iconTexture, pos, origin: iconTexture.Centre, color: iconColor);
+            }
     }
 
     private void DrawTooltips(SpriteBatch spriteBatch)
@@ -301,9 +377,6 @@ internal class SphereGridUi
         NodeRarity.Rare => _content.GridNodeMedium,
         _ => _content.GridNodeSmall,
     };
-
-    private static void DrawNode(SpriteBatch spriteBatch, Texture2D sprite, Vector2 center, Color color) =>
-        spriteBatch.Draw(sprite, center, origin: sprite.Centre, color: color, layerDepth: Layers.Nodes);
 
     private void DrawTooltip(SpriteBatch spriteBatch, Node node, bool drawAtNode = false)
     {
