@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.github\workflows\build-and-publish.yml = .github\workflows\build-and-publish.yml
 		Directory.Build.props = Directory.Build.props
 		.github\instructions.md = .github\instructions.md
+		.github\actions\install-butler\action.yml = .github\actions\install-butler\action.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SphereGridEditor", "SphereGridEditor\SphereGridEditor.csproj", "{4632B0EA-B3B2-4EF6-A9DE-FA3908B89482}"
