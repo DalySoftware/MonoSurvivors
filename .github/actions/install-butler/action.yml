@@ -1,0 +1,30 @@
+name: Install butler (official broth)
+description: Downloads and installs itch.io butler from the official broth endpoint (Windows runner)
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download + install butler
+      shell: pwsh
+      run: |
+        $butlerZip = Join-Path $env:RUNNER_TEMP "butler.zip"
+        $butlerDir = Join-Path $env:RUNNER_TEMP "butler"
+        if (Test-Path $butlerDir) { Remove-Item $butlerDir -Recurse -Force }
+        New-Item -ItemType Directory -Force -Path $butlerDir | Out-Null
+
+        Invoke-WebRequest `
+          -Uri "https://broth.itch.zone/butler/windows-amd64/LATEST/archive/default" `
+          -OutFile $butlerZip
+
+        Expand-Archive -Path $butlerZip -DestinationPath $butlerDir -Force
+
+        $butlerExe = Get-ChildItem $butlerDir -Recurse -Filter "butler.exe" | Select-Object -First 1
+        if (-not $butlerExe) { throw "butler.exe not found after extracting $butlerZip" }
+
+        $butlerPath = $butlerExe.Directory.FullName
+
+        # Make butler available immediately in this step *and* in later steps
+        $env:PATH = "$butlerPath;$env:PATH"
+        $butlerPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+        & $butlerExe.FullName --version
