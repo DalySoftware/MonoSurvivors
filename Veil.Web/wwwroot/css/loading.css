@@ -1,13 +1,19 @@
-﻿/* --- Loading CRT --- */
+﻿html, body, #app {
+    height: 100%;
+    background: #000;
+}
+
+/* --- Loading CRT --- */
 .loading-crt {
     position: fixed;
     inset: 0;
-    background: #3d353b;
+    background: #2a2328;
     display: flex;
     justify-content: center;
 
     /* Bias upward (roughly 60/40) */
     padding-top: 10vh;
+    border-radius: 50px;
 
     overflow: hidden;
     isolation: isolate; /* keeps blend modes contained */
@@ -65,12 +71,13 @@
     inset: 0; /* override any inset:-2px you had */
     pointer-events: none;
     z-index: 2;
-    border-radius: 30px;
+
+    border-radius: inherit;
     box-sizing: border-box;
 
-    --edge-x: 30px;
-    --edge-y: 30px;
-    --edge-a: 0.8;
+    --edge-x: 50px;
+    --edge-y: 50px;
+    --edge-a: 1;
 
     background: /* edge bands that fade inward */ linear-gradient(to bottom,
     rgba(0, 0, 0, var(--edge-a)) 0%,
