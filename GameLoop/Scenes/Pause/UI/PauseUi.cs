@@ -27,6 +27,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
     private readonly List<Button> _menuButtons = [];
     private readonly List<VolumeControl> _volumeControls = [];
     private readonly UiRectangle _viewPortRectangle;
+    private VideoSettings _videoSettings;
 
     public PauseUi(
         SpriteBatch spriteBatch,
@@ -43,6 +44,9 @@ internal sealed class PauseUi : IUiElement, IDisposable
         _settingsPersistence = settingsPersistence;
 
         _audioSettings = settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
+        settingsPersistence.OnChanged += OnSettingsChanged;
+
+        _videoSettings = settingsPersistence.Load(PersistenceJsonContext.Default.VideoSettings);
         settingsPersistence.OnChanged += OnSettingsChanged;
 
         _viewPortRectangle = renderScaler.UiRectangle();
@@ -76,7 +80,7 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
         // Crt Toggle 
         _menuButtons.Add(_mainStack.AddChild(pos =>
-            buttonFactory.Create("Toggle CRT", renderScaler.ToggleCrt, pos, UiAnchor.TopCenter)));
+            buttonFactory.Create("Toggle CRT", ToggleCrt, pos, UiAnchor.TopCenter)));
 
         // Menu buttons stack
         _mainStack.AddChild(pos =>
@@ -126,13 +130,16 @@ internal sealed class PauseUi : IUiElement, IDisposable
 
     private void OnSettingsChanged(Type changedType)
     {
-        if (changedType != typeof(AudioSettings))
-            return;
+        if (changedType == typeof(AudioSettings))
+        {
+            _audioSettings = _settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
 
-        _audioSettings = _settingsPersistence.Load(PersistenceJsonContext.Default.AudioSettings);
+            foreach (var vc in _volumeControls)
+                vc.RefreshLabel();
+        }
 
-        foreach (var vc in _volumeControls)
-            vc.RefreshLabel();
+        if (changedType == typeof(VideoSettings))
+            _videoSettings = _settingsPersistence.Load(PersistenceJsonContext.Default.VideoSettings);
     }
 
     // --- Audio setters (persist immediately) ---
@@ -152,5 +159,11 @@ internal sealed class PauseUi : IUiElement, IDisposable
     {
         _audioSettings.SoundEffectVolume = value;
         _settingsPersistence.Save(_audioSettings, PersistenceJsonContext.Default.AudioSettings);
+    }
+
+    private void ToggleCrt()
+    {
+        _videoSettings.CrtEnabled = !_videoSettings.CrtEnabled;
+        _settingsPersistence.Save(_videoSettings, PersistenceJsonContext.Default.VideoSettings);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using ContentLibrary;
+using GameLoop.Persistence;
 using GameLoop.UI;
+using GameLoop.UserSettings;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -19,16 +21,19 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
     private readonly GraphicsDevice _graphicsDevice;
     private readonly SpriteBatch _spriteBatch;
     private readonly IBackground _background;
-
-    private bool _enableCrt;
+    private readonly ISettingsPersistence _settingsPersistence;
     private readonly Effect? _crtEffect;
 
     public RenderScaler(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, ContentManager content,
-        IBackground background)
+        IBackground background, ISettingsPersistence settingsPersistence)
     {
         _graphicsDevice = graphicsDevice;
         _spriteBatch = spriteBatch;
         _background = background;
+        _settingsPersistence = settingsPersistence;
+        _settingsPersistence.OnChanged -= OnSettingsChanged;
+        _settingsPersistence.OnChanged += OnSettingsChanged;
+        EnableCrt = _settingsPersistence.Load(PersistenceJsonContext.Default.VideoSettings).CrtEnabled;
 
         _renderTarget = new RenderTarget2D(
             _graphicsDevice,
@@ -44,10 +49,11 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         _crtEffect = content.Load<Effect>(Paths.ShaderEffects.Crt);
         var sourceTexel = new Vector2(1f / _renderTarget.Width, 1f / _renderTarget.Height);
         SetCrtConstantParameters(_crtEffect, sourceTexel, background.Color);
-        _enableCrt = true;
 
         UpdateOutputRectangle();
     }
+
+    public bool EnableCrt { get; set; }
 
     public void Dispose() => _renderTarget.Dispose();
 
@@ -113,8 +119,6 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         _outputRect = new Rectangle(offsetX, offsetY, outputWidth, outputHeight);
     }
 
-    public void ToggleCrt() => _enableCrt = !_enableCrt;
-
     public void BeginRenderTarget()
     {
         _graphicsDevice.SetRenderTarget(_renderTarget);
@@ -126,7 +130,7 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         _graphicsDevice.SetRenderTarget(null);
         _graphicsDevice.Clear(_background.Color);
 
-        var effect = _enableCrt ? _crtEffect : null;
+        var effect = EnableCrt ? _crtEffect : null;
         if (effect is not null)
         {
             var vp = _graphicsDevice.Viewport;
@@ -158,4 +162,11 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
     );
 
     public UiRectangle UiRectangle() => new(Vector2.Zero, new Vector2(InternalWidth, InternalHeight));
+
+    private void OnSettingsChanged(Type type)
+    {
+        if (type != typeof(VideoSettings)) return;
+
+        EnableCrt = _settingsPersistence.Load(PersistenceJsonContext.Default.VideoSettings).CrtEnabled;
+    }
 }

@@ -16,6 +16,7 @@ namespace GameLoop.Persistence;
     ])]
 [JsonSerializable(typeof(AudioSettings))]
 [JsonSerializable(typeof(KeyBindingsSettings))]
+[JsonSerializable(typeof(VideoSettings))]
 [JsonSerializable(typeof(Dictionary<GameplayAction, List<Keys>>))]
 [JsonSerializable(typeof(Dictionary<GameplayAction, List<Buttons>>))]
 [JsonSerializable(typeof(Dictionary<PauseAction, List<Keys>>))]
