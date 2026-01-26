@@ -8,18 +8,19 @@
     <base href="./"/>
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet"/>
     <link href="css/app.css" rel="stylesheet"/>
+    <link href="css/loading.css" rel="stylesheet"/>
     <link href="Veil.Web.styles.css" rel="stylesheet"/>
 </head>
 
 <body>
 
 <div id="app">
-    <div id="loading"
-         style="display: flex; align-items: center; justify-content: center; width:100vw; height:100vh; background: #2a2328;">
-        <div style="text-align: center; color: white">
-            <div><img alt="Veil of Cataclysm" border="0" src="TitleOnlyTransparent.png"
-                      style="display:block; margin:0 auto; max-width:90vw; height:auto;"/></div>
-            <div aria-label="Loading" class="spinner-border" role="status" style="width: 4rem; height: 4rem;"></div>
+    <div class="loading-crt" id="loading">
+        <div class="loading-inner">
+            <div>
+                <img alt="Veil of Cataclysm" src="TitleOnlyTransparent.png"/>
+            </div>
+            <div aria-label="Loading" class="spinner-border" role="status"></div>
         </div>
     </div>
 </div>

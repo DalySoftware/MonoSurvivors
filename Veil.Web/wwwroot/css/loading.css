@@ -1,0 +1,87 @@
+﻿/* --- Loading CRT --- */
+.loading-crt {
+    position: fixed;
+    inset: 0;
+    background: #3d353b;
+    display: flex;
+    justify-content: center;
+
+    /* Bias upward (roughly 60/40) */
+    padding-top: 10vh;
+
+    overflow: hidden;
+    isolation: isolate; /* keeps blend modes contained */
+}
+
+.loading-crt .loading-inner {
+    text-align: center;
+    color: white;
+}
+
+.loading-crt img {
+    max-width: 90vw;
+    height: auto;
+}
+
+/* Make spinner big by default (Bootstrap spinner respects width/height) */
+.loading-crt .spinner-border {
+    width: 4rem;
+    height: 4rem;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+}
+
+/* ----- CRT overlay layers ----- */
+.loading-crt::before,
+.loading-crt::after {
+    content: "";
+    position: absolute;
+    inset: -2px; /* tiny bleed so edges don't show seams */
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Scalines + subtle noise */
+.loading-crt::before {
+    background: /* scanlines */ repeating-linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0.18) 0px,
+            rgba(0, 0, 0, 0.18) 1px,
+            rgba(0, 0, 0, 0.00) 2px,
+            rgba(0, 0, 0, 0.00) 4px
+    ),
+        /* faint static noise */ repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.02) 0px,
+            rgba(255, 255, 255, 0.02) 1px,
+            rgba(0, 0, 0, 0.00) 2px
+    );
+    mix-blend-mode: multiply;
+}
+
+/* Frame-only vignette: center stays a rectangle */
+#loading.loading-crt::after {
+    content: "";
+    position: absolute;
+    inset: 0; /* override any inset:-2px you had */
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 30px;
+    box-sizing: border-box;
+
+    --edge-x: 30px;
+    --edge-y: 30px;
+    --edge-a: 0.8;
+
+    background: /* edge bands that fade inward */ linear-gradient(to bottom,
+    rgba(0, 0, 0, var(--edge-a)) 0%,
+    rgba(0, 0, 0, 0) var(--edge-y),
+    rgba(0, 0, 0, 0) calc(100% - var(--edge-y)),
+    rgba(0, 0, 0, var(--edge-a)) 100%
+    ),
+    linear-gradient(to right,
+            rgba(0, 0, 0, calc(var(--edge-a) * 0.85)) 0%,
+            rgba(0, 0, 0, 0) var(--edge-x),
+            rgba(0, 0, 0, 0) calc(100% - var(--edge-x)),
+            rgba(0, 0, 0, calc(var(--edge-a) * 0.85)) 100%
+    )
+}
