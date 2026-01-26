@@ -48,6 +48,12 @@
     <ItemGroup>
         <_MusicFiles Include="..\ContentLibrary\ContentLibrary\Music\**\*.wav"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="global.json">
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
     <Target Name="CopyMusicToWwwroot" BeforeTargets="ResolveStaticWebAssetsInputs">
         <Copy SourceFiles="@(_MusicFiles)"
               DestinationFiles="@(_MusicFiles->'$(MSBuildProjectDirectory)\wwwroot\music\%(RecursiveDir)%(Filename)%(Extension)')"
