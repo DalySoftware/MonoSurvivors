@@ -1,17 +1,8 @@
-#if OPENGL
-    #define SV_POSITION POSITION
-    #define VS_SHADERMODEL vs_3_0
-    #define PS_SHADERMODEL ps_3_0
-#else
-    #define VS_SHADERMODEL vs_4_0_level_9_1
-    #define PS_SHADERMODEL ps_4_0_level_9_1
-#endif
-
 Texture2D SpriteTexture;
 
 // A value between 0 and 1 that controls the intensity of the grayscale effect.
 // 0 = full color, 1 = full grayscale.
-float Saturation = 1.0;
+float Saturation = 0.2;
 
 sampler2D SpriteTextureSampler = sampler_state
 {
@@ -48,6 +39,6 @@ technique SpriteDrawing
 {
     pass P0
     {
-        PixelShader = compile PS_SHADERMODEL MainPS();
+        PixelShader = compile ps_3_0 MainPS();
     }
 };
