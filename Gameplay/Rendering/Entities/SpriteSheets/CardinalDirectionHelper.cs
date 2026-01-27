@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Gameplay.Rendering;
+namespace Gameplay.Rendering.SpriteSheets;
 
 internal static class CardinalDirectionHelper
 {

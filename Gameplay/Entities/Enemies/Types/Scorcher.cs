@@ -3,6 +3,7 @@ using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
+using Gameplay.Rendering.SpriteSheets;
 using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies.Types;

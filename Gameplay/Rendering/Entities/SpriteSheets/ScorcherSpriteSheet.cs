@@ -3,7 +3,7 @@ using ContentLibrary;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Gameplay.Rendering;
+namespace Gameplay.Rendering.SpriteSheets;
 
 public class ScorcherSpriteSheet(ContentManager content) : ISpriteSheet
 {
