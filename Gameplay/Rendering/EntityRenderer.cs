@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.Entities;
@@ -21,7 +22,7 @@ public class EntityRenderer(
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
     private readonly Dictionary<string, Texture2D> _textureCache = [];
 
-    private readonly Dictionary<IVisual, List<VisualEffect>> _effectsLookup = new();
+    private readonly Dictionary<VisualEffect, List<IVisual>> _effectBuckets = new();
     private readonly Stack<List<VisualEffect>> _effectsListPool = new();
 
     private List<VisualEffect> RentEffectsList() => _effectsListPool.Count > 0
@@ -34,25 +35,13 @@ public class EntityRenderer(
         _effectsListPool.Push(list);
     }
 
-    private void FlushEffectsLookup()
-    {
-        foreach (var list in _effectsLookup.Values)
-            ReturnEffectsList(list);
-
-        _effectsLookup.Clear();
-    }
-
-    // Effects that require this renderer to manage SpriteBatch.Begin/End internally
-    private static bool RequiresManagedSpriteBatch(VisualEffect effect) => effect is GreyscaleEffect;
-
     /// <summary>
     ///     Draws entities that do NOT require EntityRenderer-managed SpriteBatch.Begin/End.
     ///     (Caller is expected to manage SpriteBatch.Begin/End around this.)
     /// </summary>
     public void Draw(IReadOnlyList<IEntity> entities)
     {
-        // In case the caller didn't call DrawManagedEffects() last frame/pass
-        FlushEffectsLookup();
+        _effectBuckets.Clear();
 
         var visibleBounds = camera.VisibleWorldBounds;
 
@@ -67,49 +56,57 @@ public class EntityRenderer(
             var list = RentEffectsList();
 
             foreach (var fx in effectManager.GetEffects(e))
-                list.Add(fx);
+                list.Add(fx.Effect);
 
-            _effectsLookup.Add(e, list);
-        }
-
-        foreach (var (entity, effects) in _effectsLookup)
-        {
-            // If it has any effects that require managed SpriteBatch, skip it here.
-            // It will be drawn in DrawManagedEffects().
-            if (HasManagedEffect(effects))
+            if (list.Count == 0)
+            {
+                ReturnEffectsList(list);
+                Draw(e);
                 continue;
+            }
 
-            Draw(entity);
+            foreach (var fx in list)
+            {
+                if (!_effectBuckets.TryGetValue(fx, out var visuals))
+                    _effectBuckets[fx] = visuals = [];
+
+                visuals.Add(e);
+            }
+
+            ReturnEffectsList(list);
         }
     }
-
-    private static bool HasManagedEffect(List<VisualEffect> effects)
-    {
-        for (var i = 0; i < effects.Count; i++)
-            if (RequiresManagedSpriteBatch(effects[i]))
-                return true;
-
-        return false;
-    }
-
 
     /// <summary>
     ///     Draws the subset of entities/effects that require EntityRenderer to manage SpriteBatch.Begin/End.
-    ///     Call this after Draw() (typically after ending your main SpriteBatch).
+    ///     Call this after Draw() and after ending your main SpriteBatch.
     /// </summary>
     public void DrawManagedEffects()
     {
-        foreach (var (entity, effects) in _effectsLookup)
-        foreach (var effect in effects)
+        foreach (var (fx, visuals) in _effectBuckets)
         {
-            if (!RequiresManagedSpriteBatch(effect))
-                continue;
+            BeginForEffect(fx);
+            foreach (var visual in visuals) Draw(visual);
+            spriteBatch.End();
 
-            DrawWithManagedEffect(entity, effect);
+            visuals.Clear();
         }
+    }
 
-        // Return pooled lists
-        FlushEffectsLookup();
+    private void BeginForEffect(VisualEffect fx)
+    {
+        switch (fx)
+        {
+            case GreyscaleEffect:
+                spriteBatch.Begin(
+                    transformMatrix: camera.Transform,
+                    effect: _grayscaleEffect,
+                    sortMode: SpriteSortMode.FrontToBack);
+                return;
+
+            default:
+                throw new InvalidOperationException($"Unhandled managed effect: {fx.GetType().Name}");
+        }
     }
 
     private void Draw(IVisual visual)
@@ -154,19 +151,6 @@ public class EntityRenderer(
 
         var layer = visual.Layer + visual.Position.Y * YSortScale;
         spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: layer);
-    }
-
-    private void DrawWithManagedEffect(IVisual visual, VisualEffect effect)
-    {
-        switch (effect)
-        {
-            case GreyscaleEffect:
-                spriteBatch.Begin(transformMatrix: camera.Transform, effect: _grayscaleEffect,
-                    sortMode: SpriteSortMode.FrontToBack);
-                Draw(visual);
-                spriteBatch.End();
-                break;
-        }
     }
 
     private Texture2D GetTexture(string path)

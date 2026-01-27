@@ -21,7 +21,7 @@ public class DamageProcessor(
         for (var i = 0; i < _playerHits.Count; i++)
         {
             var (player, damager) = _playerHits[i];
-            player.TakeDamage(damager.Damage);
+            player.TakeDamage(gameTime, damager.Damage);
         }
 
         collisionChecker.FindOverlapsWithEnemyDamagers(entityManager.Enemies, _enemyHits);

@@ -1,67 +1,64 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Gameplay.Rendering.Effects;
 
 /// <summary>
-///     Manages the lifecycle of visual effects across all entities
+///     Manages timed visual effects per entity.
+///     Stores expiry separately so VisualEffect stays a stable dictionary key.
 /// </summary>
-public class EffectManager
+public sealed class EffectManager
 {
-    private readonly Dictionary<object, List<VisualEffect>> _effectsByEntity = [];
+    private readonly List<object> _emptyKeys = [];
+    private readonly Dictionary<object, List<ActiveEffect>> _effectsByEntity = new();
 
-    /// <summary>
-    ///     Create a new effect for the given entity
-    /// </summary>
-    public void FireEffect<T>(T entity, VisualEffect effect)
+    public void FireEffect<T>(T entity, VisualEffect effect, GameTime gameTime, TimeSpan duration)
         where T : notnull
     {
-        if (!_effectsByEntity.ContainsKey(entity))
-            _effectsByEntity[entity] = [];
+        if (!_effectsByEntity.TryGetValue(entity, out var list))
+        {
+            list = new List<ActiveEffect>(2);
+            _effectsByEntity.Add(entity, list);
+        }
 
-        _effectsByEntity[entity].Add(effect);
+        var expiresAt = gameTime.TotalGameTime + duration;
+
+        // Refresh if the same logical effect already exists
+        for (var i = 0; i < list.Count; i++)
+            if (Equals(list[i].Effect, effect))
+            {
+                if (expiresAt > list[i].ExpiresAt)
+                    list[i] = list[i] with { ExpiresAt = expiresAt };
+                return;
+            }
+
+        list.Add(new ActiveEffect(effect, expiresAt));
     }
 
-    public IReadOnlyList<VisualEffect> GetEffects<T>(T entity)
+    public IReadOnlyList<ActiveEffect> GetEffects<T>(T entity)
         where T : notnull =>
-        _effectsByEntity.TryGetValue(entity, out var effects) ? effects.AsReadOnly() : [];
+        _effectsByEntity.TryGetValue(entity, out var list) ? list : Array.Empty<ActiveEffect>();
 
-    /// <summary>
-    ///     Update all effects and remove expired ones
-    /// </summary>
+
     public void Update(GameTime gameTime)
     {
-        foreach (var effect in _effectsByEntity.Values.SelectMany(effects => effects))
-            effect.Update(gameTime);
+        var now = gameTime.TotalGameTime;
+        _emptyKeys.Clear();
 
-        _effectsByEntity.RemoveValuesWhere(value => !value.IsActive);
-        _effectsByEntity.RemoveKeysWhere(kvp => kvp.Value.Count == 0);
-    }
-}
-
-internal static class DictionaryExtensions
-{
-    extension<TKey, TValue>(Dictionary<TKey, List<TValue>> dict) where TKey : notnull
-    {
-        internal void RemoveKeysWhere(Func<KeyValuePair<TKey, List<TValue>>, bool> filterPredicate)
+        foreach (var (entity, list) in _effectsByEntity)
         {
-            var keysToRemove = dict
-                .Where(filterPredicate)
-                .Select(kvp => kvp.Key)
-                .ToList();
+            for (var i = list.Count - 1; i >= 0; i--)
+                if (list[i].ExpiresAt <= now)
+                    list.RemoveAt(i);
 
-            foreach (var key in keysToRemove)
-                dict.Remove(key);
+            if (list.Count == 0)
+                _emptyKeys.Add(entity);
         }
 
-        internal void RemoveValuesWhere(Func<TValue, bool> valuePredicate)
-        {
-            foreach (var key in dict.Keys.ToList())
-            {
-                var values = dict[key];
-                values.RemoveAll(v => valuePredicate(v));
-            }
-        }
+        for (var i = 0; i < _emptyKeys.Count; i++)
+            _effectsByEntity.Remove(_emptyKeys[i]);
     }
+
+
+    public readonly record struct ActiveEffect(VisualEffect Effect, TimeSpan ExpiresAt);
 }
