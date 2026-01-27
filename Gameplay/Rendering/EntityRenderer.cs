@@ -135,13 +135,14 @@ public class EntityRenderer(
         var origin = new Vector2(sourceRect.Width * 0.5f, sourceRect.Height * 0.5f);
 
         var layer = visual.Layer + visual.Position.Y * YSortScale;
+        var scale = GetScale(visual);
 
         if (visual.OutlineColor is { } outlineColor)
             outlineRenderer.DrawOutline(spriteBatch, texture, visual.Position, sourceRect, origin,
-                layer - 0.001f, outlineColor);
+                layer - 0.001f, outlineColor, scale);
 
         spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect, origin: origin,
-            layerDepth: layer);
+            layerDepth: layer, scale: scale);
     }
 
     private void DrawSimpleSprite(ISpriteVisual visual)
@@ -173,5 +174,12 @@ public class EntityRenderer(
             visibleBounds.Height + margin * 2);
 
         return expandedBounds.Contains(visual.Position);
+    }
+
+    private Vector2 GetScale(IVisual visual)
+    {
+        if (visual is IHasDrawTransform transform) return transform.DrawScale;
+
+        return Vector2.One;
     }
 }
