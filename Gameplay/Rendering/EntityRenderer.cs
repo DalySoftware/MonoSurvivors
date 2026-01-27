@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.Entities;
-using Gameplay.Rendering.Effects;
+using Gameplay.Rendering.Effects.SpriteBatch;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -22,14 +22,14 @@ public class EntityRenderer(
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
     private readonly Dictionary<string, Texture2D> _textureCache = [];
 
-    private readonly Dictionary<VisualEffect, List<IVisual>> _effectBuckets = new();
-    private readonly Stack<List<VisualEffect>> _effectsListPool = new();
+    private readonly Dictionary<SpriteBatchEffect, List<IVisual>> _effectBuckets = new();
+    private readonly Stack<List<SpriteBatchEffect>> _effectsListPool = new();
 
-    private List<VisualEffect> RentEffectsList() => _effectsListPool.Count > 0
+    private List<SpriteBatchEffect> RentEffectsList() => _effectsListPool.Count > 0
         ? _effectsListPool.Pop()
-        : new List<VisualEffect>(4);
+        : new List<SpriteBatchEffect>(4);
 
-    private void ReturnEffectsList(List<VisualEffect> list)
+    private void ReturnEffectsList(List<SpriteBatchEffect> list)
     {
         list.Clear();
         _effectsListPool.Push(list);
@@ -93,7 +93,7 @@ public class EntityRenderer(
         }
     }
 
-    private void BeginForEffect(VisualEffect fx)
+    private void BeginForEffect(SpriteBatchEffect fx)
     {
         switch (fx)
         {

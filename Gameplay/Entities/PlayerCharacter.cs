@@ -10,7 +10,7 @@ using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Rendering;
-using Gameplay.Rendering.Effects;
+using Gameplay.Rendering.Effects.SpriteBatch;
 using Gameplay.Utilities;
 
 namespace Gameplay.Entities;
@@ -69,9 +69,6 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
     public ICollider[] Colliders { get; }
 
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
-    public float Layer => Layers.Player;
-
-    public string TexturePath => Paths.Images.Player;
 
     public void TakeDamage(GameTime gameTime, int damage)
     {
@@ -81,7 +78,7 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
 
         Health -= damage;
         _invincibilityDuration = _invincibilityOnHit;
-        _effectManager.FireEffect(this, VisualEffect.Greyscale, gameTime, _invincibilityOnHit);
+        _effectManager.FireEffect(this, SpriteBatchEffect.Greyscale, gameTime, _invincibilityOnHit);
         _audio.Play(SoundEffectTypes.PlayerHurt);
 
         if (Health > 0) return;
@@ -90,6 +87,9 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         MarkedForDeletion = true;
         _onDeath?.Invoke();
     }
+    public float Layer => Layers.Player;
+
+    public string TexturePath => Paths.Images.Player;
 
     public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
 

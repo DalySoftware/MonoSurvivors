@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Gameplay.Rendering.Effects;
+namespace Gameplay.Rendering.Effects.SpriteBatch;
 
 /// <summary>
 ///     Manages timed visual effects per entity.
@@ -12,7 +12,7 @@ public sealed class EffectManager
     private readonly List<object> _emptyKeys = [];
     private readonly Dictionary<object, List<ActiveEffect>> _effectsByEntity = new();
 
-    public void FireEffect<T>(T entity, VisualEffect effect, GameTime gameTime, TimeSpan duration)
+    public void FireEffect<T>(T entity, SpriteBatchEffect effect, GameTime gameTime, TimeSpan duration)
         where T : notnull
     {
         if (!_effectsByEntity.TryGetValue(entity, out var list))
@@ -60,5 +60,5 @@ public sealed class EffectManager
     }
 
 
-    public readonly record struct ActiveEffect(VisualEffect Effect, TimeSpan ExpiresAt);
+    public readonly record struct ActiveEffect(SpriteBatchEffect Effect, TimeSpan ExpiresAt);
 }

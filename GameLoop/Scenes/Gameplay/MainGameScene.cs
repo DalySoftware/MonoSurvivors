@@ -20,7 +20,7 @@ using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.Generation;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
-using Gameplay.Rendering.Effects;
+using Gameplay.Rendering.Effects.SpriteBatch;
 using Gameplay.Telemetry;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework;
