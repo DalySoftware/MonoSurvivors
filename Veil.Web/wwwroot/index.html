@@ -82,8 +82,9 @@
         const holder = document.getElementById('canvasHolder');
         if (!canvas || !holder) return;
 
-        const cssW = holder.clientWidth | 0;
-        const cssH = holder.clientHeight | 0;
+        const r = holder.getBoundingClientRect();
+        const cssW = r.width | 0;
+        const cssH = r.height | 0;
         const dpr = window.devicePixelRatio || 1;
 
         if (cssW <= 0 || cssH <= 0) return;
