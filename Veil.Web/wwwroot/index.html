@@ -75,12 +75,42 @@
 <script src="_content/nkast.Wasm.XR/js/XR.8.0.11.js"></script>
 
 <script>
+    let lastCssW = 0, lastCssH = 0, lastDpr = 0;
+
+    function resizeCanvasToHolder() {
+        const canvas = document.getElementById('theCanvas');
+        const holder = document.getElementById('canvasHolder');
+        if (!canvas || !holder) return;
+
+        const cssW = holder.clientWidth | 0;
+        const cssH = holder.clientHeight | 0;
+        const dpr = window.devicePixelRatio || 1;
+
+        if (cssW <= 0 || cssH <= 0) return;
+
+        // Only resize when something actually changed
+        if (cssW === lastCssW && cssH === lastCssH && dpr === lastDpr) return;
+
+        lastCssW = cssW;
+        lastCssH = cssH;
+        lastDpr = dpr;
+
+        // Keep CSS size in logical pixels
+        canvas.style.width = cssW + "px";
+        canvas.style.height = cssH + "px";
+
+        // Backing buffer in physical pixels
+        canvas.width = Math.max(1, Math.floor(cssW * dpr));
+        canvas.height = Math.max(1, Math.floor(cssH * dpr));
+    }
+
     let stopped = false;
 
     async function tickJS() {
         if (stopped) return;
 
         try {
+            resizeCanvasToHolder();
             await window.theInstance.invokeMethodAsync('TickDotNet');
             window.requestAnimationFrame(tickJS);
         } catch (e) {
@@ -93,12 +123,10 @@
     window.initRenderJS = (instance) => {
         window.theInstance = instance;
 
-        // set initial canvas size
-        var canvas = document.getElementById('theCanvas');
-        var holder = document.getElementById('canvasHolder');
-        canvas.width = holder.clientWidth;
-        canvas.height = holder.clientHeight;
+        resizeCanvasToHolder();
+
         // disable context menu on right click
+        const canvas = document.getElementById('theCanvas');
         canvas.addEventListener("contextmenu", e => e.preventDefault());
 
         // begin game loop
