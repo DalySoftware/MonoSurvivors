@@ -111,13 +111,14 @@ public class EntityRenderer(
 
     private void Draw(IVisual visual)
     {
+        var transform = visual as IHasDrawTransform;
         switch (visual)
         {
             case ISpriteSheetVisual spriteSheetVisual:
-                DrawFromSpriteSheet(spriteSheetVisual);
+                DrawFromSpriteSheet(spriteSheetVisual, transform);
                 break;
             case ISpriteVisual simpleVisual:
-                DrawSimpleSprite(simpleVisual);
+                DrawSimpleSprite(simpleVisual, transform);
                 break;
             case IPrimitiveVisual primitiveVisual:
                 primitiveVisual.Draw(spriteBatch, primitiveRenderer);
@@ -128,30 +129,29 @@ public class EntityRenderer(
         }
     }
 
-    private void DrawFromSpriteSheet(ISpriteSheetVisual visual)
+    private void DrawFromSpriteSheet(ISpriteSheetVisual visual, IHasDrawTransform? transform)
     {
         var texture = visual.SpriteSheet.Texture;
         var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
         var origin = new Vector2(sourceRect.Width * 0.5f, sourceRect.Height * 0.5f);
 
         var layer = visual.Layer + visual.Position.Y * YSortScale;
-        var scale = GetScale(visual);
 
         if (visual.OutlineColor is { } outlineColor)
             outlineRenderer.DrawOutline(spriteBatch, texture, visual.Position, sourceRect, origin,
-                layer - 0.001f, outlineColor, scale);
+                layer - 0.001f, outlineColor, transform?.DrawScale);
 
         spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect, origin: origin,
-            layerDepth: layer, scale: scale);
+            layerDepth: layer, scale: transform?.DrawScale);
     }
 
-    private void DrawSimpleSprite(ISpriteVisual visual)
+    private void DrawSimpleSprite(ISpriteVisual visual, IHasDrawTransform? transform)
     {
         var texture = GetTexture(visual.TexturePath);
         var origin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
 
         var layer = visual.Layer + visual.Position.Y * YSortScale;
-        spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: layer);
+        spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: layer, scale: transform?.DrawScale);
     }
 
     private Texture2D GetTexture(string path)
@@ -174,12 +174,5 @@ public class EntityRenderer(
             visibleBounds.Height + margin * 2);
 
         return expandedBounds.Contains(visual.Position);
-    }
-
-    private Vector2 GetScale(IVisual visual)
-    {
-        if (visual is IHasDrawTransform transform) return transform.DrawScale;
-
-        return Vector2.One;
     }
 }

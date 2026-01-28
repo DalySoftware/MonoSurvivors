@@ -62,14 +62,14 @@ public class SnakeBoss : EnemyBase, IGenericVisual
         var headFrame = new SnakeBossHeadSheet.HeadDirectionFrame(Velocity);
         var headRectangle = _headSpriteSheet.GetFrameRectangle(headFrame);
         spriteBatch.Draw(_headSpriteSheet.Texture, Position, ColorPalette.White, headRectangle, origin: _headOrigin,
-            layerDepth: layer);
+            layerDepth: layer, scale: DrawScale);
 
         // Body
         layer -= 0.00001f;
         foreach (var segment in _segments)
         {
             spriteBatch.Draw(_bodyTexture, segment.Position, ColorPalette.White, origin: _bodyOrigin,
-                layerDepth: layer);
+                layerDepth: layer, scale: DrawScale);
             layer -= 0.00001f;
         }
     }

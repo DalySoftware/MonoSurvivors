@@ -5,6 +5,7 @@ using System.Threading;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
+using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
@@ -15,6 +16,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     private int _isDead; // Marker for concurrency
     private readonly List<SlowdownInstance> _activeSlows = [];
     private float _currentSlowMultiplier = 1f;
+    private readonly HitSquash _hitSquash = new();
 
     public float Health { get; private set; } = stats.MaxHealth;
     public EnemyStats Stats { get; } = stats;
@@ -46,11 +48,20 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     public float Experience => Stats.Experience;
     public int Damage => Stats.Damage;
     public required ICollider[] Colliders { get; init; }
-    public Vector2 DrawScale { get; } = Vector2.One;
+    public Vector2 DrawScale => _hitSquash.Scale;
 
     public void TakeDamage(PlayerCharacter damager, float amount)
     {
         Health -= amount;
+
+        // Trigger squash on any hit (including lethal)
+        _hitSquash.Trigger(
+            Position,
+            damager.Position,
+            amount,
+            Stats.MaxHealth,
+            Health <= 0f);
+
         if (Health > 0) return;
 
         if (Interlocked.Exchange(ref _isDead, 1) == 1)
@@ -94,6 +105,8 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
             Vector2.Zero,
             knockbackDamping * (float)gameTime.ElapsedGameTime.TotalMilliseconds
         );
+
+        _hitSquash.Update(gameTime);
     }
 
     private void UpdateActiveSlowdowns(GameTime gameTime)

@@ -21,8 +21,9 @@ public class OutlineRenderer(GraphicsDevice graphics)
     ];
 
     public void DrawOutline(SpriteBatch spriteBatch, Texture2D texture, Vector2 position, Rectangle sourceRectangle,
-        Vector2 origin, float layerDepth, Color color, Vector2 scale)
+        Vector2 origin, float layerDepth, Color color, Vector2? scale = null)
     {
+        scale ??= Vector2.One;
         var silhouetteTexture = GetSilhouetteTexture(texture);
 
         foreach (var outline in _outlineVectors)
