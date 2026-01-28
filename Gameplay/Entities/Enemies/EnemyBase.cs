@@ -55,12 +55,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
         Health -= amount;
 
         // Trigger squash on any hit (including lethal)
-        _hitSquash.Trigger(
-            Position,
-            damager.Position,
-            amount,
-            Stats.MaxHealth,
-            Health <= 0f);
+        _hitSquash.Trigger(Position, damager.Position, amount, Stats.MaxHealth);
 
         if (Health > 0) return;
 

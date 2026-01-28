@@ -18,7 +18,7 @@ public sealed class HitSquash
 
     public Vector2 Scale { get; private set; } = Vector2.One;
 
-    public void Trigger(Vector2 ownerPosition, Vector2 hitSourcePosition, float damage, float maxHealth, bool lethal)
+    public void Trigger(Vector2 ownerPosition, Vector2 hitSourcePosition, float damage, float maxHealth)
     {
         var dir = ownerPosition - hitSourcePosition;
 
@@ -29,7 +29,7 @@ public sealed class HitSquash
 
         // Strength: base + scaled by damage fraction (+ extra on lethal).
         var normalized = maxHealth > 0f ? damage / maxHealth : 0f; // approx 0..1
-        var strength = 0.06f + normalized * 0.22f + (lethal ? 0.08f : 0f);
+        var strength = 0.06f + normalized * 0.22f;
         _strength = MathHelper.Clamp(strength, 0.06f, 0.20f);
 
         _remainingMs = DurationMs;
