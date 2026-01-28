@@ -78,7 +78,7 @@ internal class MainGameScene(
 
         spriteBatch.End();
 
-        entityRenderer.DrawManagedEffects();
+        entityRenderer.DrawManagedPasses();
 
         spriteBatch.Begin(SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp);
 

@@ -641,6 +641,12 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/greyscale.fx
 
+#begin Shaders/silhouette.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/silhouette.fx
+
 #begin SoundEffects/BouncerShoot1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

@@ -66,5 +66,6 @@ public static class Paths
     {
         public const string Greyscale = @"Shaders\greyscale";
         public const string Crt = @"Shaders\crt";
+        public const string Silhouette = @"Shaders\silhouette";
     }
 }

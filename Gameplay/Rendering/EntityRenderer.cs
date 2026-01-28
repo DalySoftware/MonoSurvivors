@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.Entities;
+using Gameplay.Entities.Effects;
+using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects.SpriteBatch;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,10 +22,13 @@ public class EntityRenderer(
     private const float YSortScale = 0.00000000001f;
 
     private readonly Effect _grayscaleEffect = content.Load<Effect>(Paths.ShaderEffects.Greyscale);
+    private readonly Effect _silhouetteEffect = content.Load<Effect>(Paths.ShaderEffects.Silhouette);
+
     private readonly Dictionary<string, Texture2D> _textureCache = [];
 
     private readonly Dictionary<SpriteBatchEffect, List<IVisual>> _effectBuckets = new();
     private readonly Stack<List<SpriteBatchEffect>> _effectsListPool = new();
+    private readonly List<FlashDraw> _flashDraws = new(128);
 
     private List<SpriteBatchEffect> RentEffectsList() => _effectsListPool.Count > 0
         ? _effectsListPool.Pop()
@@ -42,26 +47,33 @@ public class EntityRenderer(
     public void Draw(IReadOnlyList<IEntity> entities)
     {
         _effectBuckets.Clear();
+        _flashDraws.Clear();
 
         var visibleBounds = camera.VisibleWorldBounds;
 
         for (var i = 0; i < entities.Count; i++)
         {
-            if (entities[i] is not IVisual e)
+            if (entities[i] is not IVisual visual)
                 continue;
 
-            if (!IsVisible(e, visibleBounds))
+            if (!IsVisible(visual, visibleBounds))
                 continue;
+
+            var hasSprite = TryBuildSpriteDraw(visual, out var sprite);
+            if (hasSprite && visual is IHasHitFlash { FlashIntensity: > 0f } flash)
+                _flashDraws.Add(new FlashDraw(sprite, flash.FlashColor * flash.FlashIntensity));
 
             var list = RentEffectsList();
 
-            foreach (var fx in effectManager.GetEffects(e))
+            foreach (var fx in effectManager.GetEffects(visual))
                 list.Add(fx.Effect);
 
             if (list.Count == 0)
             {
                 ReturnEffectsList(list);
-                Draw(e);
+                if (hasSprite) DrawSprite(sprite, visual);
+                else Draw(visual);
+
                 continue;
             }
 
@@ -70,10 +82,47 @@ public class EntityRenderer(
                 if (!_effectBuckets.TryGetValue(fx, out var visuals))
                     _effectBuckets[fx] = visuals = [];
 
-                visuals.Add(e);
+                visuals.Add(visual);
             }
 
             ReturnEffectsList(list);
+        }
+    }
+
+    private bool TryBuildSpriteDraw(IVisual visual, out SpriteDraw draw)
+    {
+        var scale = (visual as IHasDrawTransform)?.DrawScale ?? Vector2.One;
+
+        switch (visual)
+        {
+            case ISpriteSheetVisual v:
+            {
+                var texture = v.SpriteSheet.Texture;
+                var src = v.SpriteSheet.GetFrameRectangle(v.CurrentFrame);
+                var origin = new Vector2(src.Width * 0.5f, src.Height * 0.5f);
+                var layer = v.Layer + v.Position.Y * YSortScale;
+
+
+                draw = new SpriteDraw(texture, v.Position, src, origin, layer, scale);
+                return true;
+            }
+
+
+            case ISpriteVisual v:
+            {
+                var texture = GetTexture(v.TexturePath);
+                var origin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
+                var layer = v.Layer + v.Position.Y * YSortScale;
+
+
+                draw = new SpriteDraw(texture, v.Position, null, origin, layer, scale);
+                return true;
+            }
+
+
+            default:
+                draw = default;
+                return false;
         }
     }
 
@@ -81,7 +130,13 @@ public class EntityRenderer(
     ///     Draws the subset of entities/effects that require EntityRenderer to manage SpriteBatch.Begin/End.
     ///     Call this after Draw() and after ending your main SpriteBatch.
     /// </summary>
-    public void DrawManagedEffects()
+    public void DrawManagedPasses()
+    {
+        DrawManagedEffectsPass();
+        DrawHitFlashPass();
+    }
+
+    private void DrawManagedEffectsPass()
     {
         foreach (var (fx, visuals) in _effectBuckets)
         {
@@ -92,6 +147,26 @@ public class EntityRenderer(
             visuals.Clear();
         }
     }
+
+    private void DrawHitFlashPass()
+    {
+        if (_flashDraws.Count == 0)
+            return;
+
+        spriteBatch.Begin(
+            transformMatrix: camera.Transform,
+            blendState: BlendState.Additive,
+            sortMode: SpriteSortMode.FrontToBack,
+            effect: _silhouetteEffect);
+
+        foreach (var f in _flashDraws)
+            // f.Color already includes intensity
+            DrawSprite(f.Sprite, f.Color); // draws original texture, effect turns it into silhouette
+
+        spriteBatch.End();
+        _flashDraws.Clear();
+    }
+
 
     private void BeginForEffect(SpriteBatchEffect fx)
     {
@@ -111,15 +186,14 @@ public class EntityRenderer(
 
     private void Draw(IVisual visual)
     {
-        var transform = visual as IHasDrawTransform;
+        if (TryBuildSpriteDraw(visual, out var sprite))
+        {
+            DrawSprite(sprite, visual);
+            return;
+        }
+
         switch (visual)
         {
-            case ISpriteSheetVisual spriteSheetVisual:
-                DrawFromSpriteSheet(spriteSheetVisual, transform);
-                break;
-            case ISpriteVisual simpleVisual:
-                DrawSimpleSprite(simpleVisual, transform);
-                break;
             case IPrimitiveVisual primitiveVisual:
                 primitiveVisual.Draw(spriteBatch, primitiveRenderer);
                 break;
@@ -129,29 +203,30 @@ public class EntityRenderer(
         }
     }
 
-    private void DrawFromSpriteSheet(ISpriteSheetVisual visual, IHasDrawTransform? transform)
+    private void DrawSprite(SpriteDraw sprite, IVisual visual)
     {
-        var texture = visual.SpriteSheet.Texture;
-        var sourceRect = visual.SpriteSheet.GetFrameRectangle(visual.CurrentFrame);
-        var origin = new Vector2(sourceRect.Width * 0.5f, sourceRect.Height * 0.5f);
-
-        var layer = visual.Layer + visual.Position.Y * YSortScale;
-
-        if (visual.OutlineColor is { } outlineColor)
-            outlineRenderer.DrawOutline(spriteBatch, texture, visual.Position, sourceRect, origin,
-                layer - 0.001f, outlineColor, transform?.DrawScale);
-
-        spriteBatch.Draw(texture, visual.Position, sourceRectangle: sourceRect, origin: origin,
-            layerDepth: layer, scale: transform?.DrawScale);
+        Color? outline = visual is ISpriteSheetVisual { OutlineColor: { } color } ? color : null;
+        DrawSprite(sprite, outlineColor: outline);
     }
 
-    private void DrawSimpleSprite(ISpriteVisual visual, IHasDrawTransform? transform)
+    private void DrawSprite(SpriteDraw sprite, Color? color = null, Color? outlineColor = null)
     {
-        var texture = GetTexture(visual.TexturePath);
-        var origin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
+        color ??= ColorPalette.White;
+        if (outlineColor is { } outline)
+            // SourceRect must exist for sheets
+            outlineRenderer.DrawOutline(
+                spriteBatch,
+                sprite.Texture,
+                sprite.Position,
+                sprite.SourceRect,
+                sprite.Origin,
+                sprite.Layer - 0.001f,
+                outline,
+                sprite.Scale);
 
-        var layer = visual.Layer + visual.Position.Y * YSortScale;
-        spriteBatch.Draw(texture, visual.Position, origin: origin, layerDepth: layer, scale: transform?.DrawScale);
+        spriteBatch.Draw(sprite.Texture, sprite.Position,
+            sourceRectangle: sprite.SourceRect, origin: sprite.Origin, scale: sprite.Scale, layerDepth: sprite.Layer,
+            color: color);
     }
 
     private Texture2D GetTexture(string path)
@@ -175,4 +250,14 @@ public class EntityRenderer(
 
         return expandedBounds.Contains(visual.Position);
     }
+
+    private readonly record struct SpriteDraw(
+        Texture2D Texture,
+        Vector2 Position,
+        Rectangle? SourceRect,
+        Vector2 Origin,
+        float Layer,
+        Vector2 Scale);
+
+    private readonly record struct FlashDraw(SpriteDraw Sprite, Color Color);
 }

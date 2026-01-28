@@ -20,7 +20,7 @@ public class OutlineRenderer(GraphicsDevice graphics)
         new(4, 4),
     ];
 
-    public void DrawOutline(SpriteBatch spriteBatch, Texture2D texture, Vector2 position, Rectangle sourceRectangle,
+    public void DrawOutline(SpriteBatch spriteBatch, Texture2D texture, Vector2 position, Rectangle? sourceRectangle,
         Vector2 origin, float layerDepth, Color color, Vector2? scale = null)
     {
         scale ??= Vector2.One;
@@ -31,13 +31,9 @@ public class OutlineRenderer(GraphicsDevice graphics)
                 origin: origin, layerDepth: layerDepth, color: color, scale: scale);
     }
 
-    private Texture2D GetSilhouetteTexture(Texture2D texture)
-    {
-        var silhouetteTexture = _silhouetteCache.TryGetValue(texture, out var cached)
-            ? cached
-            : _silhouetteCache[texture] = CreateSilhouette(texture);
-        return silhouetteTexture;
-    }
+    private Texture2D GetSilhouetteTexture(Texture2D texture) => _silhouetteCache.TryGetValue(texture, out var cached)
+        ? cached
+        : _silhouetteCache[texture] = CreateSilhouette(texture);
 
     private Texture2D CreateSilhouette(Texture2D source)
     {

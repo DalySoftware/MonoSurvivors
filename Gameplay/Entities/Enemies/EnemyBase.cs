@@ -11,12 +11,13 @@ using Gameplay.Rendering;
 namespace Gameplay.Entities.Enemies;
 
 public abstract class EnemyBase(Vector2 position, EnemyStats stats)
-    : MovableEntity(position), IDamagesPlayer, IHasDrawTransform
+    : MovableEntity(position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
 {
     private int _isDead; // Marker for concurrency
     private readonly List<SlowdownInstance> _activeSlows = [];
     private float _currentSlowMultiplier = 1f;
     private readonly HitSquash _hitSquash = new();
+    private readonly HitFlash _hitFlash = new();
 
     public float Health { get; private set; } = stats.MaxHealth;
     public EnemyStats Stats { get; } = stats;
@@ -49,6 +50,8 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
     public int Damage => Stats.Damage;
     public required ICollider[] Colliders { get; init; }
     public Vector2 DrawScale => _hitSquash.Scale;
+    public float FlashIntensity => _hitFlash.Intensity;
+    public Color FlashColor => _hitFlash.Color;
 
     public void TakeDamage(PlayerCharacter damager, float amount)
     {
@@ -56,6 +59,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
 
         // Trigger squash on any hit (including lethal)
         _hitSquash.Trigger(Position, damager.Position, amount, Stats.MaxHealth);
+        _hitFlash.Trigger(amount, Stats.MaxHealth, Health <= 0f);
 
         if (Health > 0) return;
 
@@ -102,6 +106,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
         );
 
         _hitSquash.Update(gameTime);
+        _hitFlash.Update(gameTime);
     }
 
     private void UpdateActiveSlowdowns(GameTime gameTime)
