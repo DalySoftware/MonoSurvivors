@@ -18,6 +18,10 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
         Colliders = [new RectangleCollider(this, 96f, 96f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         _spriteSheet = new ScorcherSpriteSheet(content);
+        Behaviours =
+        [
+            new UpdateFrame(_spriteSheet),
+        ];
     }
 
     public ISpriteSheet SpriteSheet => _spriteSheet;
@@ -28,10 +32,9 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
         ? new EnemyStats(18f, 4f, 2, 2f)
         : new EnemyStats(12f, 2f, 1, 2f);
 
-    public override void Update(GameTime gameTime)
+    private class UpdateFrame(ScorcherSpriteSheet spriteSheet) : IEnemyBehaviour
     {
-        base.Update(gameTime);
-
-        _spriteSheet.Update(gameTime);
+        public void BeforeMove(GameTime gameTime) { }
+        public void AfterMove(GameTime gameTime) => spriteSheet.Update(gameTime);
     }
 }
