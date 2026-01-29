@@ -46,7 +46,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats, EnemyDeathHa
 
     public float Experience => Stats.Experience;
     public int Damage => Stats.Damage;
-    public required ICollider[] Colliders { get; init; }
+    public ICollider[] Colliders { get; protected init; } = [];
     public Vector2 DrawScale => _hitSquash.Scale;
     public float FlashIntensity => _hitFlash.Intensity;
     public Color FlashColor => _hitFlash.Color;

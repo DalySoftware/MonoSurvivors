@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Gameplay.Behaviour;
+﻿using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
@@ -13,7 +12,6 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
     private readonly FollowEntity _followEntity;
     private readonly ScorcherSpriteSheet _spriteSheet;
 
-    [SetsRequiredMembers]
     public Scorcher(ContentManager content, Vector2 position, IHasPosition target, bool elite,
         EnemyDeathHandler deathHandler) : base(position,
         ScorcherStats(elite), deathHandler)

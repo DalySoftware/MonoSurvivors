@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
@@ -17,7 +16,6 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 
     private readonly BasicEnemySpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
 
-    [SetsRequiredMembers]
     public BasicEnemy(ContentManager content, Vector2 initialPosition, IHasPosition target, bool elite,
         EnemyDeathHandler deathHandler)
         : base(initialPosition, BasicEnemyStats(elite), deathHandler)

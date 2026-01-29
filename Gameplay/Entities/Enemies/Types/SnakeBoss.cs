@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ContentLibrary;
 using Gameplay.Behaviour;
@@ -32,7 +31,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     private readonly List<Vector2> _positionHistory = [];
 
 
-    [SetsRequiredMembers]
     public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action<EnemyBase> onDeath,
         EnemyDeathHandler deathHandler) :
         base(initialPosition, StatValues, deathHandler)

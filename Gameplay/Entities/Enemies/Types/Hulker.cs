@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
@@ -14,7 +13,6 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
     private readonly FollowEntity _followEntity;
     private TimeSpan _animationCooldown;
 
-    [SetsRequiredMembers]
     public Hulker(ContentManager content, Vector2 position, IHasPosition target, bool elite,
         EnemyDeathHandler deathHandler) : base(position,
         HulkerStats(elite), deathHandler)
