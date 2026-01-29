@@ -49,6 +49,10 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
         var headCollider = new CircleCollider(this, 96f);
         Colliders = [headCollider, .._segments.Select(s => s.Collider)];
+        Behaviours =
+        [
+            new SnakeSegmentsBehaviour(this, _positionHistory, HistoryLimit),
+        ];
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -75,19 +79,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     {
         base.OnDeath(enemy);
         _customOnDeath(enemy);
-    }
-
-    public override void Update(GameTime gameTime)
-    {
-        base.Update(gameTime);
-
-        // Record head position
-        _positionHistory.Insert(0, Position);
-
-        if (_positionHistory.Count > HistoryLimit)
-            _positionHistory.RemoveAt(_positionHistory.Count - 1);
-
-        UpdateSegments();
     }
 
     private void UpdateSegments()
@@ -117,7 +108,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
         }
     }
 
-
     private sealed class SnakeSegment : IHasPosition
     {
         public SnakeSegment(Vector2 position)
@@ -128,5 +118,22 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
         public CircleCollider Collider { get; }
         public Vector2 Position { get; set; }
+    }
+
+    private sealed class SnakeSegmentsBehaviour(SnakeBoss boss, List<Vector2> history, int historyLimit)
+        : IEnemyBehaviour
+    {
+        public void BeforeMove(GameTime gameTime) { }
+
+        public void AfterMove(GameTime gameTime)
+        {
+            // Record head position after movement
+            history.Insert(0, boss.Position);
+
+            if (history.Count > historyLimit)
+                history.RemoveAt(history.Count - 1);
+
+            boss.UpdateSegments();
+        }
     }
 }
