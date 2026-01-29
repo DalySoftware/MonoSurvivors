@@ -22,7 +22,10 @@ public class HulkerSpriteSheet(ContentManager content) : ISpriteSheet
     private Rectangle FromCellCoords(int x, int y)
         => new(x * (int)_frameSize.X, y * (int)_frameSize.Y, (int)_frameSize.X, (int)_frameSize.Y);
 
-    public interface IFrame : Rendering.IFrame;
+    private interface IFrame : Rendering.IFrame;
 
-    public readonly record struct LookDirectionFrame(Vector2 Direction) : IFrame;
+    public class LookDirectionFrame(Vector2 direction) : IFrame
+    {
+        public Vector2 Direction { get; set; } = direction;
+    }
 }

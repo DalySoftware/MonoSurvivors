@@ -10,8 +10,7 @@ namespace Gameplay.Entities.Enemies.Types;
 
 public class Hulker : EnemyBase, ISpriteSheetVisual
 {
-    private TimeSpan _animationCooldown;
-
+    private readonly HulkerSpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
     public Hulker(ContentManager content, Vector2 position, IHasPosition target, bool elite,
         EnemyDeathHandler deathHandler) : base(position,
         HulkerStats(elite), deathHandler, new FollowEntity(target, 0.04f))
@@ -19,26 +18,19 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
         Colliders = [new RectangleCollider(this, 128f, 128f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         SpriteSheet = new HulkerSpriteSheet(content);
+        Behaviours =
+        [
+            new ApplyVectorEvery(
+                () => IntentVelocity,
+                v => _frame.Direction = v,
+                TimeSpan.FromMilliseconds(200)),
+        ];
     }
-
+    public IFrame CurrentFrame => _frame;
     public ISpriteSheet SpriteSheet { get; }
-    public IFrame CurrentFrame { get; private set; } = new HulkerSpriteSheet.LookDirectionFrame(Vector2.Zero);
     public Color? OutlineColor { get; }
 
     private static EnemyStats HulkerStats(bool elite) => elite
         ? new EnemyStats(500f, 20f, 1, 0.3f)
         : new EnemyStats(120f, 6f, 1, 0.3f);
-
-    public override void Update(GameTime gameTime)
-    {
-        base.Update(gameTime);
-
-        if (_animationCooldown <= TimeSpan.Zero)
-        {
-            CurrentFrame = new HulkerSpriteSheet.LookDirectionFrame(Velocity);
-            _animationCooldown = TimeSpan.FromMilliseconds(200);
-        }
-
-        _animationCooldown -= gameTime.ElapsedGameTime;
-    }
 }

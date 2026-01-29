@@ -97,13 +97,11 @@ public abstract class EnemyBase(
 
     public override void Update(GameTime gameTime)
     {
-        IntentVelocity = movement.GetIntentVelocity(this);
+        UpdateActiveSlowdowns(gameTime);
+        IntentVelocity = movement.GetIntentVelocity(this) * _currentSlowMultiplier;
 
         for (var i = 0; i < Behaviours.Length; i++)
             Behaviours[i].BeforeMove(gameTime);
-
-        UpdateActiveSlowdowns(gameTime);
-        IntentVelocity *= _currentSlowMultiplier;
 
         base.Update(gameTime);
 

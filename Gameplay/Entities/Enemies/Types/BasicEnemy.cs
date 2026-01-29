@@ -10,8 +10,6 @@ namespace Gameplay.Entities.Enemies.Types;
 
 public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 {
-    private TimeSpan _animationCooldown = TimeSpan.Zero;
-
     private readonly BasicEnemySpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
 
     public BasicEnemy(ContentManager content, Vector2 initialPosition, IHasPosition target, bool elite,
@@ -21,6 +19,13 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
         Colliders = [new CircleCollider(this, 32f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         SpriteSheet = new BasicEnemySpriteSheet(content);
+        Behaviours =
+        [
+            new ApplyVectorEvery(
+                () => IntentVelocity,
+                v => _frame.Direction = v,
+                TimeSpan.FromMilliseconds(200)),
+        ];
     }
 
     public ISpriteSheet SpriteSheet { get; }
@@ -31,17 +36,4 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
         elite
             ? new EnemyStats(40f, 2f, 1)
             : new EnemyStats(20f, 1f, 1);
-
-    public override void Update(GameTime gameTime)
-    {
-        base.Update(gameTime);
-
-        if (_animationCooldown <= TimeSpan.Zero)
-        {
-            _frame.Direction = IntentVelocity; // Eyes move based on intent, not actual velocity
-            _animationCooldown = TimeSpan.FromMilliseconds(200);
-        }
-
-        _animationCooldown -= gameTime.ElapsedGameTime;
-    }
 }
