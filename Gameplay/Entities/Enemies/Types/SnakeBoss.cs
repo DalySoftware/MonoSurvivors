@@ -7,7 +7,6 @@ using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.SpriteSheets;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies.Types;
@@ -30,13 +29,12 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     private readonly List<Vector2> _positionHistory = [];
 
 
-    public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action<EnemyBase> onDeath,
-        EnemyDeathHandler deathHandler) :
-        base(initialPosition, StatValues, deathHandler, new FollowEntity(target, 0.08f))
+    public SnakeBoss(SpawnContext spawnContext, Action<EnemyBase> onDeath) :
+        base(spawnContext, StatValues, new FollowEntity(spawnContext.Player, 0.08f))
     {
         _customOnDeath = onDeath;
-        _headSpriteSheet = new SnakeBossHeadSheet(content);
-        _bodyTexture = content.Load<Texture2D>(Paths.Images.SnakeBody);
+        _headSpriteSheet = new SnakeBossHeadSheet(spawnContext.Content);
+        _bodyTexture = spawnContext.Content.Load<Texture2D>(Paths.Images.SnakeBody);
 
         _headOrigin = _headSpriteSheet.FrameSize * 0.5f;
         _bodyOrigin = new Vector2(_bodyTexture.Width * 0.5f, _bodyTexture.Height * 0.5f);

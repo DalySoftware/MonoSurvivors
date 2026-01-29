@@ -4,20 +4,18 @@ using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.SpriteSheets;
-using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies.Types;
 
 public class Hulker : EnemyBase, ISpriteSheetVisual
 {
     private readonly HulkerSpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
-    public Hulker(ContentManager content, Vector2 position, IHasPosition target, bool elite,
-        EnemyDeathHandler deathHandler) : base(position,
-        HulkerStats(elite), deathHandler, new FollowEntity(target, 0.04f))
+    public Hulker(SpawnContext spawnContext, bool elite) :
+        base(spawnContext, HulkerStats(elite), new FollowEntity(spawnContext.Player, 0.04f))
     {
         Colliders = [new RectangleCollider(this, 128f, 128f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
-        SpriteSheet = new HulkerSpriteSheet(content);
+        SpriteSheet = new HulkerSpriteSheet(spawnContext.Content);
         Behaviours =
         [
             new ApplyVectorEvery(

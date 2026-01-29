@@ -7,15 +7,12 @@ using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
+using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies;
 
-public abstract class EnemyBase(
-    Vector2 position,
-    EnemyStats stats,
-    EnemyDeathHandler deathHandler,
-    IEnemyMovement movement)
-    : MovableEntity(position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
+public abstract class EnemyBase(EnemyBase.SpawnContext context, EnemyStats stats, IEnemyMovement movement)
+    : MovableEntity(context.Position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
 {
     private int _isDead; // Marker for concurrency
     private readonly List<SlowdownInstance> _activeSlows = [];
@@ -56,7 +53,7 @@ public abstract class EnemyBase(
     public Vector2 DrawScale => _hitSquash.Scale;
     public float FlashIntensity => _hitFlash.Intensity;
     public Color FlashColor => _hitFlash.Color;
-    protected virtual void OnDeath(EnemyBase enemy) => deathHandler.ProcessDeath(enemy);
+    protected virtual void OnDeath(EnemyBase enemy) => context.DeathHandler.ProcessDeath(enemy);
 
     public void TakeDamage(PlayerCharacter damager, float amount)
     {
@@ -139,6 +136,16 @@ public abstract class EnemyBase(
 
 
     private readonly record struct SlowdownInstance(float Amount, TimeSpan Expiry);
+
+    /// <summary>
+    ///     Container for dependencies used during enemy creation.
+    ///     This is not a conceptual grouping, it just exists to reduce boilerplate.
+    /// </summary>
+    public readonly record struct SpawnContext(
+        Vector2 Position,
+        EnemyDeathHandler DeathHandler,
+        PlayerCharacter Player,
+        ContentManager Content);
 }
 
 public record EnemyStats(float MaxHealth, float Experience, int Damage, float KnockbackMultiplier = 1f);

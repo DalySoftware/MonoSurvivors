@@ -3,7 +3,6 @@ using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.SpriteSheets;
-using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies.Types;
 
@@ -11,13 +10,12 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
 {
     private readonly ScorcherSpriteSheet _spriteSheet;
 
-    public Scorcher(ContentManager content, Vector2 position, IHasPosition target, bool elite,
-        EnemyDeathHandler deathHandler) : base(position,
-        ScorcherStats(elite), deathHandler, new FollowEntity(target, 0.12f))
+    public Scorcher(SpawnContext spawnContext, bool elite) :
+        base(spawnContext, ScorcherStats(elite), new FollowEntity(spawnContext.Player, 0.12f))
     {
         Colliders = [new RectangleCollider(this, 96f, 96f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
-        _spriteSheet = new ScorcherSpriteSheet(content);
+        _spriteSheet = new ScorcherSpriteSheet(spawnContext.Content);
         Behaviours =
         [
             new UpdateFrame(_spriteSheet),
