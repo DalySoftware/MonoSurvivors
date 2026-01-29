@@ -10,7 +10,7 @@ using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
 
-public abstract class EnemyBase(Vector2 position, EnemyStats stats)
+public abstract class EnemyBase(Vector2 position, EnemyStats stats, EnemyDeathHandler deathHandler)
     : MovableEntity(position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
 {
     private int _isDead; // Marker for concurrency
@@ -44,14 +44,13 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
         }
     } = -1f;
 
-    protected Action<EnemyBase>? OnDeath { get; init; } = null;
-
     public float Experience => Stats.Experience;
     public int Damage => Stats.Damage;
     public required ICollider[] Colliders { get; init; }
     public Vector2 DrawScale => _hitSquash.Scale;
     public float FlashIntensity => _hitFlash.Intensity;
     public Color FlashColor => _hitFlash.Color;
+    protected virtual void OnDeath(EnemyBase enemy) => deathHandler.ProcessDeath(enemy);
 
     public void TakeDamage(PlayerCharacter damager, float amount)
     {
@@ -68,7 +67,7 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats)
 
         MarkedForDeletion = true;
         damager.OnKill(this);
-        OnDeath?.Invoke(this);
+        OnDeath(this);
     }
 
     public void ApplyKnockback(Vector2 impulse)

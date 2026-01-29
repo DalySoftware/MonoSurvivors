@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
         <ClCompile Include="ContentLibrary\Shaders\crt.fx"/>
+        <ClCompile Include="ContentLibrary\Shaders\deathglitch.fx"/>
         <ClCompile Include="ContentLibrary\Shaders\silhouette.fx"/>
     </ItemGroup>
 </Project>

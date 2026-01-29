@@ -18,8 +18,9 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     private readonly BasicEnemySpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
 
     [SetsRequiredMembers]
-    public BasicEnemy(ContentManager content, Vector2 initialPosition, IHasPosition target, bool elite)
-        : base(initialPosition, BasicEnemyStats(elite))
+    public BasicEnemy(ContentManager content, Vector2 initialPosition, IHasPosition target, bool elite,
+        EnemyDeathHandler deathHandler)
+        : base(initialPosition, BasicEnemyStats(elite), deathHandler)
     {
         _followEntity = new FollowEntity(this, target, 0.07f);
         Colliders = [new CircleCollider(this, 32f)];

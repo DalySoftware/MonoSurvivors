@@ -15,8 +15,9 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
     private TimeSpan _animationCooldown;
 
     [SetsRequiredMembers]
-    public Hulker(ContentManager content, Vector2 position, IHasPosition target, bool elite) : base(position,
-        HulkerStats(elite))
+    public Hulker(ContentManager content, Vector2 position, IHasPosition target, bool elite,
+        EnemyDeathHandler deathHandler) : base(position,
+        HulkerStats(elite), deathHandler)
     {
         _followEntity = new FollowEntity(this, target, 0.04f);
         Colliders = [new RectangleCollider(this, 128f, 128f)];

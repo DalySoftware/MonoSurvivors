@@ -44,7 +44,8 @@ internal class MainGameScene(
     RunClock clock,
     BossHealthBar bossHealthBar,
     PerformanceMetrics performanceMetrics,
-    PerformanceHud performanceHud)
+    PerformanceHud performanceHud,
+    ExperienceSpawner experienceSpawner)
     : IScene
 {
     private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.02f);
@@ -58,10 +59,13 @@ internal class MainGameScene(
 
         if (inputGate.ShouldProcessInput())
             input.Update();
-        effectManager.Update(gameTime);
-        entityManager.Update(gameTime);
         camera.Update(gameTime);
+        experienceSpawner.Update(gameTime);
+        entityManager.Update(gameTime);
+        effectManager.Update(gameTime);
+        entityRenderer.Update(gameTime);
         spawner.Update(gameTime);
+
 
         performanceHud.Update(gameTime);
     }
@@ -78,7 +82,7 @@ internal class MainGameScene(
 
         spriteBatch.End();
 
-        entityRenderer.DrawManagedPasses();
+        entityRenderer.DrawManagedPasses(gameTime);
 
         spriteBatch.Begin(SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp);
 
@@ -144,8 +148,9 @@ internal class MainGameScene(
         builder.RegisterInstance(new LevelCalculator(4, 1.4f));
         builder.RegisterType<LevelManager>().SingleInstance();
 
-        builder.RegisterType<EntityRenderer>().SingleInstance();
+        builder.RegisterType<EntityRenderer>().AsSelf().As<IRequestDeathGlitch>().SingleInstance();
         builder.RegisterType<OutlineRenderer>().SingleInstance();
+        builder.RegisterType<EnemyDeathHandler>().SingleInstance();
 
         builder.RegisterType<SpatialHashManager>().SingleInstance();
         builder.RegisterType<SpatialCollisionChecker>().SingleInstance();

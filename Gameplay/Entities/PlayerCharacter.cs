@@ -5,7 +5,6 @@ using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
-using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.PowerUps.Player;
@@ -25,30 +24,24 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
     private int _killsSinceLastLifeSteal = 0;
     private readonly EffectManager _effectManager;
     private readonly IAudioPlayer _audio;
-    private readonly ExperienceSpawner _experienceSpawner;
     private readonly HealthRegenManager _healthRegen;
     private readonly EnemyDeathBlast _deathBlast;
-    private readonly CrtGlitchPulse _glitchPulse;
 
     public PlayerCharacter(
         Vector2 position,
         EffectManager effectManager,
         IAudioPlayer audio,
-        ExperienceSpawner experienceSpawner,
         IGlobalCommands globalCommands,
         WeaponBelt weaponBelt,
         HealthRegenManager healthRegen,
         PlayerStats stats,
         WeaponFactory weaponFactory,
-        EnemyDeathBlast deathBlast,
-        CrtGlitchPulse glitchPulse) : base(position)
+        EnemyDeathBlast deathBlast) : base(position)
     {
         _effectManager = effectManager;
         _audio = audio;
-        _experienceSpawner = experienceSpawner;
         _healthRegen = healthRegen;
         _deathBlast = deathBlast;
-        _glitchPulse = glitchPulse;
         _onDeath = globalCommands.ShowGameOver;
         WeaponFactory = weaponFactory;
         WeaponBelt = weaponBelt;
@@ -146,15 +139,11 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
 
     public void OnKill(EnemyBase enemy)
     {
-        _experienceSpawner.SpawnExperienceFor(enemy);
-        _audio.Play(SoundEffectTypes.EnemyDeath);
         TrackKills(1);
-
-        MaybeExplodeOnDeath(enemy);
-        var glitchAmount = MathHelper.Clamp(enemy.Stats.MaxHealth * 0.015f, 0.3f, 1f);
-        _glitchPulse.Trigger(glitchAmount);
+        MaybeExplodeOnKill(enemy);
     }
-    private void MaybeExplodeOnDeath(EnemyBase enemy)
+
+    private void MaybeExplodeOnKill(EnemyBase enemy)
     {
         const int baseBullets = 4;
         var chance = Stats.EnemyDeathExplosionChance;

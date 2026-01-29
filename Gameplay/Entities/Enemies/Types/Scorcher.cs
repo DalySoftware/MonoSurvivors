@@ -14,8 +14,9 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
     private readonly ScorcherSpriteSheet _spriteSheet;
 
     [SetsRequiredMembers]
-    public Scorcher(ContentManager content, Vector2 position, IHasPosition target, bool elite) : base(position,
-        ScorcherStats(elite))
+    public Scorcher(ContentManager content, Vector2 position, IHasPosition target, bool elite,
+        EnemyDeathHandler deathHandler) : base(position,
+        ScorcherStats(elite), deathHandler)
     {
         _followEntity = new FollowEntity(this, target, 0.12f);
         Colliders = [new RectangleCollider(this, 96f, 96f)];

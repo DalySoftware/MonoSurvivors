@@ -20,6 +20,7 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     private const int HistoryLimit = 2048;
 
     private readonly static EnemyStats StatValues = new(4000f, 100f, 2, 0.05f);
+    private readonly Action<EnemyBase> _customOnDeath;
     private readonly FollowEntity _followEntity;
 
     private readonly SnakeBossHeadSheet _headSpriteSheet;
@@ -32,9 +33,11 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
 
     [SetsRequiredMembers]
-    public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action<EnemyBase> onDeath) :
-        base(initialPosition, StatValues)
+    public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action<EnemyBase> onDeath,
+        EnemyDeathHandler deathHandler) :
+        base(initialPosition, StatValues, deathHandler)
     {
+        _customOnDeath = onDeath;
         _followEntity = new FollowEntity(this, target, 0.08f);
         _headSpriteSheet = new SnakeBossHeadSheet(content);
         _bodyTexture = content.Load<Texture2D>(Paths.Images.SnakeBody);
@@ -50,8 +53,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
         var headCollider = new CircleCollider(this, 96f);
         Colliders = [headCollider, .._segments.Select(s => s.Collider)];
-
-        OnDeath = onDeath;
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -72,6 +73,12 @@ public class SnakeBoss : EnemyBase, IGenericVisual
                 layerDepth: layer, scale: DrawScale);
             layer -= 0.00001f;
         }
+    }
+
+    protected override void OnDeath(EnemyBase enemy)
+    {
+        base.OnDeath(enemy);
+        _customOnDeath(enemy);
     }
 
     public override void Update(GameTime gameTime)

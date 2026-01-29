@@ -635,6 +635,12 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/crt.fx
 
+#begin Shaders/deathglitch.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/deathglitch.fx
+
 #begin Shaders/greyscale.fx
 /importer:EffectImporter
 /processor:EffectProcessor

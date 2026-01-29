@@ -16,7 +16,7 @@ public class EntityRenderer(
     ChaseCamera camera,
     EffectManager effectManager,
     PrimitiveRenderer primitiveRenderer,
-    OutlineRenderer outlineRenderer)
+    OutlineRenderer outlineRenderer) : IRequestDeathGlitch
 {
     // Used to slightly bias lower enemies towards front. Makes render roughly deterministic
     private const float YSortScale = 0.00000000001f;
@@ -30,6 +30,20 @@ public class EntityRenderer(
     private readonly Stack<List<SpriteBatchEffect>> _effectsListPool = new();
     private readonly List<FlashDraw> _flashDraws = new(128);
 
+    private readonly DeathGlitch _deathGlitch = new();
+    private readonly Effect _deathGlitchEffect = content.Load<Effect>(Paths.ShaderEffects.DeathGlitch);
+
+    public void EnqueueDeathGlitch(IVisual visual)
+    {
+        if (!TryBuildSpriteDraw(visual, out var sprite))
+            return;
+
+        // Seed: stable-ish, no need for RNG state elsewhere.
+        var seed = sprite.Position.X * 0.013f + sprite.Position.Y * 0.017f;
+
+        _deathGlitch.Spawn(sprite.Texture, sprite.SourceRect, sprite.Position, sprite.Origin, 0f, sprite.Scale, seed);
+    }
+
     private List<SpriteBatchEffect> RentEffectsList() => _effectsListPool.Count > 0
         ? _effectsListPool.Pop()
         : new List<SpriteBatchEffect>(4);
@@ -39,6 +53,8 @@ public class EntityRenderer(
         list.Clear();
         _effectsListPool.Push(list);
     }
+
+    public void Update(GameTime gameTime) => _deathGlitch.Update(gameTime);
 
     /// <summary>
     ///     Draws entities that do NOT require EntityRenderer-managed SpriteBatch.Begin/End.
@@ -130,11 +146,15 @@ public class EntityRenderer(
     ///     Draws the subset of entities/effects that require EntityRenderer to manage SpriteBatch.Begin/End.
     ///     Call this after Draw() and after ending your main SpriteBatch.
     /// </summary>
-    public void DrawManagedPasses()
+    public void DrawManagedPasses(GameTime gameTime)
     {
         DrawManagedEffectsPass();
         DrawHitFlashPass();
+        DrawDeathGlitchPass(gameTime);
     }
+
+    private void DrawDeathGlitchPass(GameTime gameTime) =>
+        _deathGlitch.Draw(spriteBatch, _deathGlitchEffect, camera.Transform, gameTime);
 
     private void DrawManagedEffectsPass()
     {
