@@ -9,14 +9,12 @@ namespace Gameplay.Entities.Enemies.Types;
 
 public class Scorcher : EnemyBase, ISpriteSheetVisual
 {
-    private readonly FollowEntity _followEntity;
     private readonly ScorcherSpriteSheet _spriteSheet;
 
     public Scorcher(ContentManager content, Vector2 position, IHasPosition target, bool elite,
         EnemyDeathHandler deathHandler) : base(position,
-        ScorcherStats(elite), deathHandler)
+        ScorcherStats(elite), deathHandler, new FollowEntity(target, 0.12f))
     {
-        _followEntity = new FollowEntity(this, target, 0.12f);
         Colliders = [new RectangleCollider(this, 96f, 96f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         _spriteSheet = new ScorcherSpriteSheet(content);
@@ -34,7 +32,6 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
     {
         base.Update(gameTime);
 
-        IntentVelocity = _followEntity.CalculateVelocity(SeparationForce);
         _spriteSheet.Update(gameTime);
     }
 }

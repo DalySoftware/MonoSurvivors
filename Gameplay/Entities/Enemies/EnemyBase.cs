@@ -10,7 +10,11 @@ using Gameplay.Rendering;
 
 namespace Gameplay.Entities.Enemies;
 
-public abstract class EnemyBase(Vector2 position, EnemyStats stats, EnemyDeathHandler deathHandler)
+public abstract class EnemyBase(
+    Vector2 position,
+    EnemyStats stats,
+    EnemyDeathHandler deathHandler,
+    IEnemyMovement movement)
     : MovableEntity(position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
 {
     private int _isDead; // Marker for concurrency
@@ -18,6 +22,8 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats, EnemyDeathHa
     private float _currentSlowMultiplier = 1f;
     private readonly HitSquash _hitSquash = new();
     private readonly HitFlash _hitFlash = new();
+
+    protected IEnemyBehaviour[] Behaviours { get; init; } = [];
 
     public float Health { get; private set; } = stats.MaxHealth;
     public EnemyStats Stats { get; } = stats;
@@ -91,13 +97,17 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats, EnemyDeathHa
 
     public override void Update(GameTime gameTime)
     {
+        IntentVelocity = movement.GetIntentVelocity(this);
+
+        for (var i = 0; i < Behaviours.Length; i++)
+            Behaviours[i].BeforeMove(gameTime);
+
         UpdateActiveSlowdowns(gameTime);
         IntentVelocity *= _currentSlowMultiplier;
 
         base.Update(gameTime);
 
         const float knockbackDamping = 0.005f;
-
         ExternalVelocity = Vector2.Lerp(
             ExternalVelocity,
             Vector2.Zero,
@@ -106,6 +116,9 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats, EnemyDeathHa
 
         _hitSquash.Update(gameTime);
         _hitFlash.Update(gameTime);
+
+        for (var i = 0; i < Behaviours.Length; i++)
+            Behaviours[i].AfterMove(gameTime);
     }
 
     private void UpdateActiveSlowdowns(GameTime gameTime)
@@ -131,3 +144,14 @@ public abstract class EnemyBase(Vector2 position, EnemyStats stats, EnemyDeathHa
 }
 
 public record EnemyStats(float MaxHealth, float Experience, int Damage, float KnockbackMultiplier = 1f);
+
+public interface IEnemyBehaviour
+{
+    void BeforeMove(GameTime gameTime);
+    void AfterMove(GameTime gameTime);
+}
+
+public interface IEnemyMovement
+{
+    Vector2 GetIntentVelocity(EnemyBase owner);
+}

@@ -10,17 +10,14 @@ namespace Gameplay.Entities.Enemies.Types;
 
 public class BasicEnemy : EnemyBase, ISpriteSheetVisual
 {
-    private readonly FollowEntity _followEntity;
-
     private TimeSpan _animationCooldown = TimeSpan.Zero;
 
     private readonly BasicEnemySpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
 
     public BasicEnemy(ContentManager content, Vector2 initialPosition, IHasPosition target, bool elite,
         EnemyDeathHandler deathHandler)
-        : base(initialPosition, BasicEnemyStats(elite), deathHandler)
+        : base(initialPosition, BasicEnemyStats(elite), deathHandler, new FollowEntity(target, 0.07f))
     {
-        _followEntity = new FollowEntity(this, target, 0.07f);
         Colliders = [new CircleCollider(this, 32f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         SpriteSheet = new BasicEnemySpriteSheet(content);
@@ -38,7 +35,6 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        IntentVelocity = _followEntity.CalculateVelocity(SeparationForce);
 
         if (_animationCooldown <= TimeSpan.Zero)
         {

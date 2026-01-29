@@ -10,14 +10,12 @@ namespace Gameplay.Entities.Enemies.Types;
 
 public class Hulker : EnemyBase, ISpriteSheetVisual
 {
-    private readonly FollowEntity _followEntity;
     private TimeSpan _animationCooldown;
 
     public Hulker(ContentManager content, Vector2 position, IHasPosition target, bool elite,
         EnemyDeathHandler deathHandler) : base(position,
-        HulkerStats(elite), deathHandler)
+        HulkerStats(elite), deathHandler, new FollowEntity(target, 0.04f))
     {
-        _followEntity = new FollowEntity(this, target, 0.04f);
         Colliders = [new RectangleCollider(this, 128f, 128f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;
         SpriteSheet = new HulkerSpriteSheet(content);
@@ -34,7 +32,6 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        IntentVelocity = _followEntity.CalculateVelocity(SeparationForce);
 
         if (_animationCooldown <= TimeSpan.Zero)
         {

@@ -20,7 +20,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
     private readonly static EnemyStats StatValues = new(4000f, 100f, 2, 0.05f);
     private readonly Action<EnemyBase> _customOnDeath;
-    private readonly FollowEntity _followEntity;
 
     private readonly SnakeBossHeadSheet _headSpriteSheet;
     private readonly Vector2 _headOrigin;
@@ -33,10 +32,9 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
     public SnakeBoss(ContentManager content, Vector2 initialPosition, IHasPosition target, Action<EnemyBase> onDeath,
         EnemyDeathHandler deathHandler) :
-        base(initialPosition, StatValues, deathHandler)
+        base(initialPosition, StatValues, deathHandler, new FollowEntity(target, 0.08f))
     {
         _customOnDeath = onDeath;
-        _followEntity = new FollowEntity(this, target, 0.08f);
         _headSpriteSheet = new SnakeBossHeadSheet(content);
         _bodyTexture = content.Load<Texture2D>(Paths.Images.SnakeBody);
 
@@ -82,8 +80,6 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-
-        IntentVelocity = _followEntity.CalculateVelocity(SeparationForce);
 
         // Record head position
         _positionHistory.Insert(0, Position);

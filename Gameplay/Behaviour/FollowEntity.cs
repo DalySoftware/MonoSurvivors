@@ -3,9 +3,9 @@ using Gameplay.Utilities;
 
 namespace Gameplay.Behaviour;
 
-internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
+public class FollowEntity(IHasPosition target, float speed) : IEnemyMovement
 {
-    internal Vector2 CalculateVelocity(Vector2 separationForce)
+    public Vector2 GetIntentVelocity(EnemyBase owner)
     {
         var ownerPosition = owner.Position;
 
@@ -17,6 +17,6 @@ internal class FollowEntity(EnemyBase owner, IHasPosition target, float speed)
         var velocity = normalizedTargetDirection * speed;
 
         const float scaleFactor = 5f;
-        return velocity + separationForce * scaleFactor * speed;
+        return velocity + owner.SeparationForce * scaleFactor * speed;
     }
 }

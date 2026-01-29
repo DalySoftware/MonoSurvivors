@@ -4,7 +4,7 @@ namespace Gameplay.Entities;
 
 public abstract class MovableEntity(Vector2 position) : IEntity, IHasPosition
 {
-    protected Vector2 IntentVelocity { get; set; }
+    internal Vector2 IntentVelocity { get; protected private set; }
     protected Vector2 ExternalVelocity { get; set; }
 
     public Vector2 Velocity => IntentVelocity + ExternalVelocity;
