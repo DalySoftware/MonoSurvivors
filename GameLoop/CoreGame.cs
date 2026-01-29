@@ -13,6 +13,7 @@ using GameLoop.Scenes.Title;
 using GameLoop.UI;
 using Gameplay;
 using Gameplay.Audio;
+using Gameplay.Entities.Effects;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
@@ -35,6 +36,7 @@ public class CoreGame : Game, IGlobalCommands
     private InputStateManager _inputStateManager = null!;
     private RenderScaler _renderScaler = null!;
     private IViewportSync _viewportSync = null!;
+    private CrtGlitchPulse _crtGlitchPulse = null!;
 
     /// <param name="configurePlatformServices">Called during <see cref="LoadContent" /></param>
     public CoreGame(Action<ContainerBuilder>? configurePlatformServices = null)
@@ -145,6 +147,7 @@ public class CoreGame : Game, IGlobalCommands
             builder.RegisterInstance(Content).As<ContentManager>();
 
             builder.RegisterType<RenderScaler>().AsSelf().As<IRenderViewport>().SingleInstance();
+            builder.RegisterType<CrtGlitchPulse>().SingleInstance();
 
             builder.RegisterType<PrimitiveRenderer>().SingleInstance();
             builder.RegisterType<Panel.Factory>().SingleInstance();
@@ -169,6 +172,7 @@ public class CoreGame : Game, IGlobalCommands
         _contentScope.Resolve<GameInputState>();
         _inputStateManager = _contentScope.Resolve<InputStateManager>();
         _renderScaler = _contentScope.Resolve<RenderScaler>();
+        _crtGlitchPulse = _contentScope.Resolve<CrtGlitchPulse>();
         _contentScope.Resolve<IDisplayModeManager>().InitializeDefault();
         _viewportSync = _contentScope.Resolve<IViewportSync>();
         _viewportSync.ForceRefresh();
@@ -183,6 +187,7 @@ public class CoreGame : Game, IGlobalCommands
         _viewportSync.Update();
         SceneManager.Current?.Update(gameTime);
         _inputStateManager.Update(IsActive);
+        _crtGlitchPulse.Update(gameTime); // Affects RenderScaler so needs to decay scene independently
         base.Update(gameTime);
     }
 
@@ -191,7 +196,7 @@ public class CoreGame : Game, IGlobalCommands
         _renderScaler.BeginRenderTarget();
         GraphicsDevice.Clear(BackgroundColor);
         SceneManager.Current?.Draw(gameTime);
-        _renderScaler.EndRenderTarget();
+        _renderScaler.EndRenderTarget(gameTime);
 
         base.Draw(gameTime);
     }

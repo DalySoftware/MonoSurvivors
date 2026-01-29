@@ -3,6 +3,7 @@ using ContentLibrary;
 using GameLoop.Persistence;
 using GameLoop.UI;
 using GameLoop.UserSettings;
+using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -22,15 +23,17 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
     private readonly SpriteBatch _spriteBatch;
     private readonly IBackground _background;
     private readonly ISettingsPersistence _settingsPersistence;
+    private readonly CrtGlitchPulse _glitchPulse;
     private readonly Effect? _crtEffect;
 
     public RenderScaler(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, ContentManager content,
-        IBackground background, ISettingsPersistence settingsPersistence)
+        IBackground background, ISettingsPersistence settingsPersistence, CrtGlitchPulse glitchPulse)
     {
         _graphicsDevice = graphicsDevice;
         _spriteBatch = spriteBatch;
         _background = background;
         _settingsPersistence = settingsPersistence;
+        _glitchPulse = glitchPulse;
         _settingsPersistence.OnChanged -= OnSettingsChanged;
         _settingsPersistence.OnChanged += OnSettingsChanged;
         EnableCrt = _settingsPersistence.Load(PersistenceJsonContext.Default.VideoSettings).CrtEnabled;
@@ -125,7 +128,7 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
         _graphicsDevice.Clear(_background.Color);
     }
 
-    public void EndRenderTarget()
+    public void EndRenderTarget(GameTime gameTime)
     {
         _graphicsDevice.SetRenderTarget(null);
         _graphicsDevice.Clear(_background.Color);
@@ -141,6 +144,9 @@ public sealed class RenderScaler : IRenderViewport, IDisposable
 
             var r = _outputRect;
             effect.Parameters["OutputRectPx"]?.SetValue(new Vector4(r.X, r.Y, r.Width, r.Height));
+
+            effect.Parameters["GlitchAmount"]?.SetValue(_glitchPulse.Amount);
+            effect.Parameters["GlitchTime"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
         }
 
         _spriteBatch.Begin(

@@ -39,6 +39,12 @@ float ChromaticBleedPx = 0.75; // in SOURCE pixels, try 0.25..1.5
 float ChromaticBleedX  = 1.0;  // 0..1 (1 = horizontal, 0 = vertical)
 float ChromaStrength = 0.35; // 0..1 (try 0.15..0.6)
 
+float GlitchAmount = 0.0;   // 0..1 how much is the effect enabled in current frame. Updated externally
+float GlitchTime = 0.0;     // Seconds. Effectively a randomness seed
+float GlitchTearPx = 16.0;   // Maximum horizontal offset for a torn line in screen pixels
+float GlitchLineStepPx = 2.0; // Vertical granularity of the bands. Higher = coarser
+float GlitchProbability = 0.22;
+
 float Gain             = 1.10;   // 1..1.3
 
 float2 SourceTexel = float2(1.0 / 1920.0, 1.0 / 1080.0); // set from C#
@@ -85,16 +91,48 @@ float ExtractWeight(float3 c)
     return w;
 }
 
+float Hash11(float p)
+{
+    p = frac(p * 0.1031);
+    p *= p + 33.33;
+    p *= p + p;
+    return frac(p);
+}
+
 float4 PS(VSOut i) : COLOR0
 {
+    float2 p = i.ScreenPx;
+    float2 uv = i.TexCoord;
+
+    if (GlitchAmount > 0.001)
+    {
+        float lineId = floor(p.y / GlitchLineStepPx);
+    
+        // If you want less jitter, drop 60 -> 12 (or 8)
+        float ti = floor(GlitchTime * 60.0);
+    
+        // Separate noise streams
+        float nOn  = Hash11(lineId + ti * 13.37 + 0.11); // gating only
+        float nDir = Hash11(lineId + ti * 13.37 + 7.77); // direction
+        float nMag = Hash11(lineId + ti * 13.37 + 19.19); // magnitude
+    
+        float on = step(1.0 - GlitchProbability * GlitchAmount, nOn);
+    
+        float dir = (nDir * 2.0 - 1.0);                     // -1..+1 unbiased
+        float mag = lerp(0.25, 1.0, nMag);                  // avoid always max tear
+    
+        float tearPx = dir * mag * GlitchTearPx * GlitchAmount * on;
+        uv.x += tearPx * SourceTexel.x;
+    }
+
     // Base blur taps
     float2 o  = SourceTexel * BlurRadiusPx;
-    
-    float4 c0  = tex2D(TextureSampler, i.TexCoord);
-    float4 cR  = tex2D(TextureSampler, i.TexCoord + float2( o.x, 0));
-    float4 cL  = tex2D(TextureSampler, i.TexCoord + float2(-o.x, 0));
-    float4 cU  = tex2D(TextureSampler, i.TexCoord + float2(0,  o.y));
-    float4 cD  = tex2D(TextureSampler, i.TexCoord + float2(0, -o.y));
+
+    float4 c0  = tex2D(TextureSampler, uv);
+    float4 cR  = tex2D(TextureSampler, uv + float2( o.x, 0));
+    float4 cL  = tex2D(TextureSampler, uv + float2(-o.x, 0));
+    float4 cU  = tex2D(TextureSampler, uv + float2(0,  o.y));
+    float4 cD  = tex2D(TextureSampler, uv + float2(0, -o.y));
     
     float3 blur =
         c0.rgb * 0.40 +
@@ -108,7 +146,6 @@ float4 PS(VSOut i) : COLOR0
     float a = c0.a;
     
     float2 bo = SourceTexel * BloomRadiusPx;
-    float2 uv = i.TexCoord;
     
     // chromatic offset in texcoords
     float cx = saturate(ChromaticBleedX); // clamp 0..1
@@ -118,8 +155,8 @@ float4 PS(VSOut i) : COLOR0
     // Center tap (reuse c0 for G + weight, only sample R/B shifted)
     float3 s0 = c0.rgb;
     float  w0 = ExtractWeight(s0);
-    float  r0 = tex2D(TextureSampler, i.TexCoord + co).r;
-    float  b0c = tex2D(TextureSampler, i.TexCoord - co).b;
+    float  r0 = tex2D(TextureSampler, uv + co).r;
+    float  b0c = tex2D(TextureSampler, uv - co).b;
     float3 cb0 = float3(r0, s0.g, b0c) * w0;
     
     // Extra visible chroma fringe (directional: red on one side, cyan on the other)
@@ -157,7 +194,6 @@ float4 PS(VSOut i) : COLOR0
     col.b += bAdd * (ChromaStrength * 0.80) * wPlus * rightIsBright * darkFactor;
 
     // Right tap
-    float2 uvR = i.TexCoord + float2( bo.x, 0);
     float3 sR = cR.rgb;
     float  wR = ExtractWeight(sR);
     float  rR = tex2D(TextureSampler, uv + float2( bo.x, 0) + co).r;
@@ -165,7 +201,6 @@ float4 PS(VSOut i) : COLOR0
     float3 cbR = float3(rR, sR.g, bR) * wR;
     
     // Left tap
-    float2 uvL = i.TexCoord + float2(-bo.x, 0);
     float3 sL = cL.rgb;
     float  wL = ExtractWeight(sL);
     float  rL = tex2D(TextureSampler, uv + float2(-bo.x, 0) + co).r;
@@ -173,7 +208,6 @@ float4 PS(VSOut i) : COLOR0
     float3 cbL = float3(rL, sL.g, bL) * wL;
     
     // Up tap
-    float2 uvU = i.TexCoord + float2(0,  bo.y);
     float3 sU = cU.rgb;
     float  wU = ExtractWeight(sU);
     float  rU = tex2D(TextureSampler, uv + float2(0,  bo.y) + co).r;
@@ -181,7 +215,6 @@ float4 PS(VSOut i) : COLOR0
     float3 cbU = float3(rU, sU.g, bU) * wU;
     
     // Down tap
-    float2 uvD = i.TexCoord + float2(0, -bo.y);
     float3 sD = cD.rgb;
     float  wD = ExtractWeight(sD);
     float  rD = tex2D(TextureSampler, uv + float2(0, -bo.y) + co).r;
@@ -197,8 +230,6 @@ float4 PS(VSOut i) : COLOR0
         cbD * 0.15;
     
     col += chromaBloom * BloomStrength;
-
-    float2 p = i.ScreenPx;
 
     // Horizontal scanlines (visible at any scale because it's in SCREEN pixels)
     float fy = frac(p.y / ScanlineStepPx);
