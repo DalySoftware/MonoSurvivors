@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Gameplay.Rendering;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Gameplay.Entities.Effects;
+namespace Gameplay.Rendering.Effects;
 
 public sealed class DeathGlitch
 {
@@ -39,7 +38,7 @@ public sealed class DeathGlitch
     }
 
     public void Draw(
-        SpriteBatch spriteBatch,
+        Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch,
         Effect deathGlitchEffect,
         Matrix cameraMatrix,
         GameTime gameTime)

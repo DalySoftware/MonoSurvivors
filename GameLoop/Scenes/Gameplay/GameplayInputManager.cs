@@ -1,4 +1,3 @@
-using GameLoop.Debug;
 using GameLoop.Input;
 using GameLoop.Persistence;
 using GameLoop.Rendering;
@@ -8,6 +7,9 @@ using Gameplay;
 using Gameplay.Entities;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Input;
+#if DEBUG
+using GameLoop.Debug;
+#endif
 
 namespace GameLoop.Scenes.Gameplay;
 

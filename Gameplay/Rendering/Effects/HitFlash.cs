@@ -1,7 +1,7 @@
 ﻿using System;
 using Gameplay.Rendering.Colors;
 
-namespace Gameplay.Entities.Effects;
+namespace Gameplay.Rendering.Effects;
 
 public sealed class HitFlash
 {

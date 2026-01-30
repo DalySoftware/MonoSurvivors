@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Audio;
-using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies;
 using Gameplay.Levelling;
+using Gameplay.Rendering.Effects;
 
 namespace Gameplay.Entities;
 

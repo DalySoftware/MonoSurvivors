@@ -5,8 +5,8 @@ using System.Threading;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
-using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
+using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies;

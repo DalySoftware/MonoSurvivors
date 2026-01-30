@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Gameplay.Entities.Effects;
+namespace Gameplay.Rendering.Effects;
 
 public sealed class CrtGlitchPulse
 {
