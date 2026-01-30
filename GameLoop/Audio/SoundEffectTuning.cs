@@ -23,7 +23,8 @@ public static class SoundEffectTuning
     public static SfxTuning Get(SoundEffectTypes type) => type switch
     {
         SoundEffectTypes.LevelUp => new SfxTuning(0.7f),
-        SoundEffectTypes.IceAura or SoundEffectTypes.Crit => new SfxTuning(0.5f),
+        SoundEffectTypes.Crit => new SfxTuning(0.5f),
+        SoundEffectTypes.IceAura => new SfxTuning(0.3f),
         SoundEffectTypes.ExperiencePickup or SoundEffectTypes.EnemyExplode => new SfxTuning(0.2f),
         SoundEffectTypes.Lightning => new SfxTuning(0.15f),
         SoundEffectTypes.SniperShoot => new SfxTuning(1.0f, 0.2f),
