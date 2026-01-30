@@ -9,6 +9,7 @@ using Gameplay.Combat;
 using Gameplay.Combat.Weapons;
 using Gameplay.Combat.Weapons.AreaOfEffect;
 using Gameplay.Combat.Weapons.OnHitEffects;
+using Gameplay.Combat.Weapons.OnHitEffects.Visual;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Effects;
@@ -123,6 +124,8 @@ internal class MainGameScene(
 
 
         builder.RegisterType<BulletPool>().SingleInstance();
+        builder.RegisterType<GritBurstPool>().SingleInstance();
+        builder.RegisterType<GritBurstOnHit>().SingleInstance();
         builder.RegisterType<EnemyDeathBlast>().SingleInstance();
         builder.RegisterType<HealthRegenManager>().SingleInstance();
 

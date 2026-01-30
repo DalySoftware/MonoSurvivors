@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat.Weapons.OnHitEffects;
+using Gameplay.Combat.Weapons.OnHitEffects.Visual;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
 using Gameplay.Entities.Pooling;
@@ -19,24 +20,28 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     private float _distanceTraveled = 0f;
 
     private IOnHitEffect[] _onHitEffects = [];
+    private readonly List<IOnHitVisualEffect> _onHitVisualEffects = [];
 
     public Bullet(BulletPool pool, PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage,
         float maxRange, float radius, string texturePath,
         IReadOnlyList<IOnHitEffect> onHits, HashSet<EnemyBase>? immuneEnemies,
-        int pierceEnemies = 0) : base(initialPosition)
+        int pierceEnemies = 0, IReadOnlyList<IOnHitVisualEffect>? visualOnHits = null) : base(initialPosition)
     {
         Owner = owner;
         MaxRange = maxRange;
         _pool = pool;
         TexturePath = texturePath;
         _piercesLeft = pierceEnemies;
-        SetOnHitEffects(onHits);
         _immuneEnemies = immuneEnemies ?? [];
 
         IntentVelocity = velocity;
         Damage = damage;
         _circle = new CircleCollider(this, radius);
         Colliders = [_circle];
+
+        SetOnHitEffects(onHits);
+        if (visualOnHits is not null)
+            _onHitVisualEffects.AddRange(visualOnHits);
     }
 
     internal PlayerCharacter Owner { get; private set; }
@@ -57,6 +62,9 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
 
         for (var i = 0; i < _onHitEffects.Length; i++)
             _onHitEffects[i].Apply(context);
+
+        for (var i = 0; i < _onHitVisualEffects.Count; i++)
+            _onHitVisualEffects[i].Apply(context);
 
         Resolve(context);
     }
@@ -92,7 +100,8 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         string texturePath,
         int pierceEnemies,
         IReadOnlyList<IOnHitEffect> onHits,
-        HashSet<EnemyBase>? immuneEnemies = null)
+        HashSet<EnemyBase>? immuneEnemies = null,
+        IReadOnlyList<IOnHitVisualEffect>? visualOnHits = null)
     {
         Owner = owner;
         Position = position;
@@ -106,6 +115,12 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         MarkedForDeletion = false;
 
         SetOnHitEffects(onHits);
+        if (visualOnHits is not null)
+        {
+            _onHitVisualEffects.Clear();
+            _onHitVisualEffects.AddRange(visualOnHits);
+        }
+
         if (immuneEnemies != null) _immuneEnemies = immuneEnemies;
         else _immuneEnemies.Clear();
 

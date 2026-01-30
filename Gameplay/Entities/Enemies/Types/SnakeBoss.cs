@@ -30,7 +30,7 @@ public class SnakeBoss : EnemyBase, IGenericVisual
 
 
     public SnakeBoss(SpawnContext spawnContext, Action<EnemyBase> onDeath) :
-        base(spawnContext, StatValues, new FollowEntity(spawnContext.Player, 0.08f))
+        base(spawnContext, StatValues, new FollowEntity(spawnContext.Player, 0.08f), ColorPalette.Green)
     {
         _customOnDeath = onDeath;
         _headSpriteSheet = new SnakeBossHeadSheet(spawnContext.Content);

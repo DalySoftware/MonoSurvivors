@@ -11,7 +11,11 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies;
 
-public abstract class EnemyBase(EnemyBase.SpawnContext context, EnemyStats stats, IEnemyMovement movement)
+public abstract class EnemyBase(
+    EnemyBase.SpawnContext context,
+    EnemyStats stats,
+    IEnemyMovement movement,
+    Color gritColor)
     : MovableEntity(context.Position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
 {
     private int _isDead; // Marker for concurrency
@@ -48,11 +52,13 @@ public abstract class EnemyBase(EnemyBase.SpawnContext context, EnemyStats stats
     } = -1f;
 
     public float Experience => Stats.Experience;
+    public Color GritColor => gritColor;
     public int Damage => Stats.Damage;
     public ICollider[] Colliders { get; protected init; } = [];
     public Vector2 DrawScale => _hitSquash.Scale;
     public float FlashIntensity => _hitFlash.Intensity;
     public Color FlashColor => _hitFlash.Color;
+
     protected virtual void OnDeath(EnemyBase enemy) => context.DeathHandler.ProcessDeath(enemy);
 
     public void TakeDamage(PlayerCharacter damager, float amount)

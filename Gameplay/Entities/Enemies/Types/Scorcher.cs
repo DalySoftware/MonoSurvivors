@@ -11,7 +11,7 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
     private readonly ScorcherSpriteSheet _spriteSheet;
 
     public Scorcher(SpawnContext spawnContext, bool elite) :
-        base(spawnContext, ScorcherStats(elite), new FollowEntity(spawnContext.Player, 0.12f))
+        base(spawnContext, ScorcherStats(elite), new FollowEntity(spawnContext.Player, 0.12f), ColorPalette.Orange)
     {
         Colliders = [new RectangleCollider(this, 96f, 96f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;

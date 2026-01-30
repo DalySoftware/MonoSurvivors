@@ -12,7 +12,7 @@ public class BasicEnemy : EnemyBase, ISpriteSheetVisual
     private readonly BasicEnemySpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
 
     public BasicEnemy(SpawnContext spawnContext, bool elite)
-        : base(spawnContext, BasicEnemyStats(elite), new FollowEntity(spawnContext.Player, 0.07f))
+        : base(spawnContext, BasicEnemyStats(elite), new FollowEntity(spawnContext.Player, 0.07f), ColorPalette.Violet)
     {
         Colliders = [new CircleCollider(this, 32f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;

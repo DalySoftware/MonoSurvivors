@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.Combat.Weapons.OnHitEffects;
+using Gameplay.Combat.Weapons.OnHitEffects.Visual;
 using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities.Enemies;
 using Gameplay.Utilities;
 
 namespace Gameplay.Entities.Pooling;
 
-public class BulletPool
+public class BulletPool(GritBurstOnHit gritBurst)
 {
     private readonly Stack<Bullet> _pool = new();
+    private readonly IOnHitVisualEffect[] _gritOnHit = [gritBurst];
 
     public Bullet Get(
         BulletType type,
@@ -39,12 +41,13 @@ public class BulletPool
         HashSet<EnemyBase>? immuneEnemies = null,
         int pierce = 0)
     {
-        var (radius, sprite) = GetTypeSpecificValues(type);
+        var (radius, sprite, visualEffects) = GetTypeSpecificValues(type);
         if (_pool.TryPop(out var bullet))
             return bullet.Reinitialize(owner, position, velocity, damage, range, radius, sprite, pierce, onHits,
-                immuneEnemies);
+                immuneEnemies, visualEffects);
 
-        return Create(owner, position, velocity, damage, range, radius, sprite, onHits, immuneEnemies, pierce);
+        return Create(owner, position, velocity, damage, range, radius, sprite, onHits, immuneEnemies, pierce,
+            visualEffects);
     }
 
     private Bullet Create(
@@ -57,15 +60,18 @@ public class BulletPool
         string spritePath,
         IReadOnlyList<IOnHitEffect> onHits,
         HashSet<EnemyBase>? immuneEnemies,
-        int pierce) =>
-        new(this, owner, position, velocity, damage, range, radius, spritePath, onHits, immuneEnemies, pierce);
+        int pierce,
+        IReadOnlyList<IOnHitVisualEffect>? onHitVisualEffects) =>
+        new(this, owner, position, velocity, damage, range, radius, spritePath, onHits, immuneEnemies, pierce,
+            onHitVisualEffects);
 
-    private static (float radius, string spritePath) GetTypeSpecificValues(BulletType type) => type switch
+    private (float radius, string spritePath, IReadOnlyList<IOnHitVisualEffect> onHitVisualEffects)
+        GetTypeSpecificValues(BulletType type) => type switch
     {
-        BulletType.Basic => (16f, Paths.Images.Bullets.Basic),
-        BulletType.BasicSmall => (12f, Paths.Images.Bullets.BasicSmall),
-        BulletType.Bouncer => (24f, Paths.Images.Bullets.Bouncer),
-        BulletType.Sniper => (16f, Paths.Images.Bullets.Sniper),
+        BulletType.Basic => (16f, Paths.Images.Bullets.Basic, _gritOnHit),
+        BulletType.BasicSmall => (12f, Paths.Images.Bullets.BasicSmall, _gritOnHit),
+        BulletType.Bouncer => (24f, Paths.Images.Bullets.Bouncer, _gritOnHit),
+        BulletType.Sniper => (16f, Paths.Images.Bullets.Sniper, _gritOnHit),
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
