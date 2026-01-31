@@ -1,10 +1,12 @@
 ﻿using System;
 using Gameplay.Behaviour;
 using Gameplay.Levelling.SphereGrid.UI;
+using Gameplay.Rendering.Effects;
 
 namespace Gameplay.Rendering;
 
-public class ChaseCamera(IRenderViewport viewport, IHasPosition? target, float decayRate = 0.005f) : ISphereGridCamera
+public class ChaseCamera(IRenderViewport viewport, IHasPosition? target, CameraShake shake, float decayRate = 0.005f)
+    : ISphereGridCamera
 {
     private Vector2 ViewportSize => new(viewport.Width, viewport.Height);
     private Vector2 ViewportCentre => ViewportSize / 2;
@@ -17,7 +19,10 @@ public class ChaseCamera(IRenderViewport viewport, IHasPosition? target, float d
     public Vector2 Position { get; set; } = target?.Position ?? Vector2.Zero;
 
     public Matrix Transform =>
-        Matrix.CreateTranslation(-Position.X + ViewportCentre.X, -Position.Y + ViewportCentre.Y, 0);
+        Matrix.CreateTranslation(
+            -Position.X + ViewportCentre.X + shake.Offset.X,
+            -Position.Y + ViewportCentre.Y + shake.Offset.Y,
+            0);
 
     public void Update(GameTime gameTime) => Position = ExpDecay(gameTime);
 

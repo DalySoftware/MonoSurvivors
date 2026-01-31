@@ -47,7 +47,8 @@ internal class MainGameScene(
     BossHealthBar bossHealthBar,
     PerformanceMetrics performanceMetrics,
     PerformanceHud performanceHud,
-    ExperienceSpawner experienceSpawner)
+    ExperienceSpawner experienceSpawner,
+    CameraShake cameraShake)
     : IScene
 {
     private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.02f);
@@ -62,6 +63,7 @@ internal class MainGameScene(
         if (inputGate.ShouldProcessInput())
             input.Update();
         camera.Update(gameTime);
+        cameraShake.Update(gameTime);
         experienceSpawner.Update(gameTime);
         entityManager.Update(gameTime);
         effectManager.Update(gameTime);
@@ -99,8 +101,13 @@ internal class MainGameScene(
         performanceHud.Draw(spriteBatch);
     }
 
-    private void DrawBackground() => spriteBatch.Draw(_backgroundTile, camera.VisibleWorldBounds,
-        camera.VisibleWorldBounds, BackgroundColor);
+    private void DrawBackground()
+    {
+        var bounds = camera.VisibleWorldBounds;
+        const float margin = CameraShake.MaxShakePx + 10;
+        bounds.Inflate(margin, margin);
+        spriteBatch.Draw(_backgroundTile, bounds, bounds, BackgroundColor);
+    }
 
     internal static void ConfigureServices(ContainerBuilder builder)
     {
@@ -166,6 +173,7 @@ internal class MainGameScene(
         builder.RegisterType<ChaseCamera>()
             .WithParameter((pi, _) => pi.Name == "target", (_, ctx) => ctx.Resolve<PlayerCharacter>())
             .SingleInstance();
+        builder.RegisterType<CameraShake>().SingleInstance();
 
         builder.Register<SphereGrid>(ctx =>
         {

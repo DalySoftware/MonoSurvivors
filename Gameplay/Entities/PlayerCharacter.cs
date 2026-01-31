@@ -66,6 +66,9 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
     public ICollider[] Colliders { get; }
 
     public bool Damageable => _invincibilityDuration <= TimeSpan.Zero;
+    public float Layer => Layers.Player;
+
+    public string TexturePath => Paths.Images.Player;
 
     public void TakeDamage(GameTime gameTime, int damage)
     {
@@ -84,9 +87,6 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         MarkedForDeletion = true;
         _onDeath?.Invoke();
     }
-    public float Layer => Layers.Player;
-
-    public string TexturePath => Paths.Images.Player;
 
     public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
 
@@ -164,6 +164,5 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
 
         var bullets = baseBullets * explosionCount;
         _deathBlast.Explode(this, enemy.Position, bullets, WeaponBelt.Stats.DamageMultiplier);
-        _audio.Play(SoundEffectTypes.EnemyExplode);
     }
 }

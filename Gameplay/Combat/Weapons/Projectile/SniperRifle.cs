@@ -2,6 +2,7 @@
 using Gameplay.Audio;
 using Gameplay.Entities;
 using Gameplay.Entities.Pooling;
+using Gameplay.Rendering.Effects;
 
 namespace Gameplay.Combat.Weapons.Projectile;
 
@@ -11,7 +12,8 @@ public class SniperRifle(
     IEntityFinder entityFinder,
     IAudioPlayer audio,
     BulletPool pool,
-    CritCalculator critCalculator) : GunBase(owner.WeaponBelt.Stats)
+    CritCalculator critCalculator,
+    CameraShake cameraShake) : GunBase(owner.WeaponBelt.Stats)
 {
     protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(3.5);
     protected override void Shoot()
@@ -29,6 +31,9 @@ public class SniperRifle(
             bulletSpeed * Stats.SpeedMultiplier, damage,
             range, owner.WeaponBelt.OnHitEffects, pierce: pierce);
         spawnEntity.Spawn(bullet);
+
+        var impulse = Vector2.Normalize(owner.Position - target.Position) * 300f;
+        cameraShake.AddImpulse(impulse);
         audio.Play(SoundEffectTypes.SniperShoot);
     }
 }
