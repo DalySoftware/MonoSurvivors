@@ -1,6 +1,7 @@
 ﻿using Gameplay.Combat.Weapons.Projectile;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies;
+using Gameplay.Rendering.Colors;
 
 namespace Gameplay.Combat.Weapons.OnHitEffects;
 
@@ -33,6 +34,7 @@ public sealed class BulletHitContext(GameTime gameTime, PlayerCharacter owner, E
     public PlayerCharacter Owner { get; } = owner;
     public EnemyBase Enemy { get; } = enemy;
     public GameTime GameTime { get; } = gameTime;
+    public Color EffectColor { get; } = Color.LerpOklch(bullet.EffectColor, enemy.EffectColor, 0.5f);
 
     public void RequestBounce(Vector2 newVelocity, float damageMultiplier = 1f)
     {

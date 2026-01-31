@@ -7,7 +7,7 @@ public sealed class GritBurstOnHit(ISpawnEntity spawnEntity, GritBurstPool pool)
 {
     public void Apply(IHitContext hitContext)
     {
-        if (hitContext is not BulletHitContext { Bullet: var bullet, Enemy: var enemy })
+        if (hitContext is not BulletHitContext { Bullet: var bullet, Enemy: var enemy, EffectColor: var color })
             return;
 
         var velocity = bullet.Velocity;
@@ -15,7 +15,7 @@ public sealed class GritBurstOnHit(ISpawnEntity spawnEntity, GritBurstPool pool)
             return;
 
         // Spawn at bullet position. May not be super accurate for fast bullets
-        var burst = pool.Get(bullet.Position, velocity, enemy.Velocity, enemy.GritColor);
+        var burst = pool.Get(bullet.Position, velocity, enemy.Velocity, color);
 
         spawnEntity.Spawn(burst);
     }

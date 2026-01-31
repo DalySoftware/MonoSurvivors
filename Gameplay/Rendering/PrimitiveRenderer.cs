@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ContentLibrary;
 using Gameplay.Rendering.Colors;
 using Microsoft.Xna.Framework.Content;
@@ -23,6 +24,7 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
     };
     private readonly Texture2D _pixelTexture = CreatePixelTexture(graphicsDevice);
     private readonly Texture2D _triangleTexture = content.Load<Texture2D>(Paths.Images.PanelTriangle);
+    private readonly Dictionary<SoftCircleKey, Texture2D> _softCircleCache = new();
 
     private static Texture2D CreatePixelTexture(GraphicsDevice graphicsDevice)
     {
@@ -71,17 +73,38 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
         layerDepth: layerDepth
     );
 
-    public static Texture2D CreateSoftCircle(
-        GraphicsDevice graphics,
+    public Texture2D CreateSoftCircle(
         int radius,
         SoftCircleMaskType maskType = SoftCircleMaskType.OutsideTransparent,
-        float ditherStrength = 1.5f)
+        decimal ditherStrength = 1.5m)
+    {
+        var key = new SoftCircleKey(radius, maskType, ditherStrength);
+        return _softCircleCache.TryGetValue(key, out var cached)
+            ? cached
+            : _softCircleCache[key] = CreateSoftCircleUncached(radius, maskType, ditherStrength);
+    }
+
+    public void DrawSoftCircle(
+        SpriteBatch spriteBatch,
+        Vector2 center,
+        int radius,
+        Color color,
+        SoftCircleMaskType maskType = SoftCircleMaskType.OutsideTransparent,
+        decimal ditherStrength = 1.5m,
+        float layerDepth = 0f)
+    {
+        var texture = CreateSoftCircle(radius, maskType, ditherStrength);
+        spriteBatch.Draw(texture, center, color, origin: new Vector2(radius, radius), layerDepth: layerDepth);
+    }
+
+    private Texture2D CreateSoftCircleUncached(int radius,
+        SoftCircleMaskType maskType = SoftCircleMaskType.OutsideTransparent, decimal ditherStrength = 1.5m)
     {
         const float softnessPx = 50f;
         const int pixelStep = 4;
 
         var size = radius * 2;
-        var tex = new Texture2D(graphics, size, size);
+        var tex = new Texture2D(graphicsDevice, size, size);
         var data = new Color[size * size];
 
         var center = new Vector2(radius);
@@ -114,7 +137,7 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
                 var bx = (x / pixelStep) & 3;
                 var by = (y / pixelStep) & 3;
                 var threshold =
-                    (Bayer4[bx, by] / 16f - 0.5f) * ditherStrength;
+                    (Bayer4[bx, by] / 16f - 0.5f) * (float)ditherStrength;
 
                 var shouldFill = maskType == SoftCircleMaskType.OutsideTransparent ? t < threshold : t >= threshold;
                 alpha = shouldFill ? 1f : 0f;
@@ -134,4 +157,6 @@ public class PrimitiveRenderer(ContentManager content, GraphicsDevice graphicsDe
         t = MathHelper.Clamp((t - a) / (b - a), 0f, 1f);
         return t * t * (3f - 2f * t);
     }
+
+    private readonly record struct SoftCircleKey(int Radius, SoftCircleMaskType MaskType, decimal DitherStrength);
 }

@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Effects;
 
-public class IceAuraEffect(PlayerCharacter owner, GraphicsDevice graphicsDevice) : IEntity, IGenericVisual
+public class IceAuraEffect(PlayerCharacter owner, PrimitiveRenderer primitiveRenderer) : IEntity, IGenericVisual
 {
     private Texture2D? _circleTexture;
 
@@ -18,10 +18,13 @@ public class IceAuraEffect(PlayerCharacter owner, GraphicsDevice graphicsDevice)
         set
         {
             field = value;
-            _circleTexture = PrimitiveRenderer.CreateSoftCircle(graphicsDevice, (int)field,
-                PrimitiveRenderer.SoftCircleMaskType.InsideTransparent, 0.8f);
+            _circleTexture = primitiveRenderer.CreateSoftCircle((int)field,
+                PrimitiveRenderer.SoftCircleMaskType.InsideTransparent, 0.8m);
         }
     }
+
+    public float Layer => Layers.Pickups - 0.02f;
+    public Vector2 Position => owner.Position;
 
     public void Update(GameTime gameTime)
     {
@@ -50,9 +53,6 @@ public class IceAuraEffect(PlayerCharacter owner, GraphicsDevice graphicsDevice)
             };
         }
     }
-
-    public float Layer => Layers.Pickups - 0.02f;
-    public Vector2 Position => owner.Position;
 
     public void Draw(SpriteBatch spriteBatch)
     {

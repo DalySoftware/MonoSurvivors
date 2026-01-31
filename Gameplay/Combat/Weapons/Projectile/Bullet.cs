@@ -23,7 +23,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     private readonly List<IOnHitVisualEffect> _onHitVisualEffects = [];
 
     public Bullet(BulletPool pool, PlayerCharacter owner, Vector2 initialPosition, Vector2 velocity, float damage,
-        float maxRange, float radius, string texturePath,
+        float maxRange, float radius, string texturePath, Color effectColor,
         IReadOnlyList<IOnHitEffect> onHits, HashSet<EnemyBase>? immuneEnemies,
         int pierceEnemies = 0, IReadOnlyList<IOnHitVisualEffect>? visualOnHits = null) : base(initialPosition)
     {
@@ -31,6 +31,7 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
         MaxRange = maxRange;
         _pool = pool;
         TexturePath = texturePath;
+        EffectColor = effectColor;
         _piercesLeft = pierceEnemies;
         _immuneEnemies = immuneEnemies ?? [];
 
@@ -51,6 +52,11 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     public float Damage { get; private set; }
     public ICollider[] Colliders { get; }
 
+    public float Layer => Layers.Projectiles;
+
+    public string TexturePath { get; private set; }
+    public Color EffectColor { get; }
+
     public void OnHit(GameTime gameTime, EnemyBase enemy)
     {
         if (!_immuneEnemies.Add(enemy))
@@ -70,10 +76,6 @@ public class Bullet : MovableEntity, IDamagesEnemies, ISpriteVisual, IPoolableEn
     }
 
     public void OnDespawned() => _pool.Return(this);
-
-    public float Layer => Layers.Projectiles;
-
-    public string TexturePath { get; private set; }
 
     private void SetOnHitEffects(IReadOnlyList<IOnHitEffect> value)
     {

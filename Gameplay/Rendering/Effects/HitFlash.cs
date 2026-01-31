@@ -22,7 +22,7 @@ public sealed class HitFlash
         }
     }
 
-    public Color Color { get; } = ColorPalette.White;
+    public Color Color { get; } = ColorPalette.White.ShiftLightness(-0.2f);
 
     public void Trigger(float damage, float maxHealth, bool isLethal)
     {

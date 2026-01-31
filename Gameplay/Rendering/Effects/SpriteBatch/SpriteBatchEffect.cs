@@ -6,4 +6,5 @@ namespace Gameplay.Rendering.Effects.SpriteBatch;
 public abstract record SpriteBatchEffect
 {
     public static GreyscaleEffect Greyscale { get; } = new();
+    public static AdditiveEffect Additive { get; } = new();
 }

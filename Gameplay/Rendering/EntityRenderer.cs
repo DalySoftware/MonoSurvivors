@@ -199,6 +199,14 @@ public class EntityRenderer(
                     sortMode: SpriteSortMode.FrontToBack);
                 return;
 
+            case AdditiveEffect:
+                spriteBatch.Begin(
+                    transformMatrix: camera.Transform,
+                    blendState: AdditiveEffect.PremultipliedBlend,
+                    sortMode: SpriteSortMode.FrontToBack,
+                    samplerState: SamplerState.LinearClamp);
+                return;
+
             default:
                 throw new InvalidOperationException($"Unhandled managed effect: {fx.GetType().Name}");
         }

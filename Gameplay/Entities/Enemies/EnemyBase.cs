@@ -15,7 +15,7 @@ public abstract class EnemyBase(
     EnemyBase.SpawnContext context,
     EnemyStats stats,
     IEnemyMovement movement,
-    Color gritColor)
+    Color effectColor)
     : MovableEntity(context.Position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
 {
     private int _isDead; // Marker for concurrency
@@ -52,7 +52,7 @@ public abstract class EnemyBase(
     } = -1f;
 
     public float Experience => Stats.Experience;
-    public Color GritColor => gritColor;
+    public Color EffectColor => effectColor;
     public int Damage => Stats.Damage;
     public ICollider[] Colliders { get; protected init; } = [];
     public Vector2 DrawScale => _hitSquash.Scale;

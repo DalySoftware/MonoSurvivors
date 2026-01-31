@@ -45,4 +45,67 @@ public static class ColorOperations
             return o.ToColor();
         }
     }
+
+
+    extension(Color)
+    {
+        private static float Lerp(float a, float b, float t) => a + (b - a) * t;
+
+        // Returns shortest signed delta in [-pi, +pi]
+        private static float ShortestHueDelta(float from, float to)
+        {
+            var d = WrapHue(to) - WrapHue(from);
+            if (d > MathF.PI) d -= MathF.Tau;
+            if (d < -MathF.PI) d += MathF.Tau;
+            return d;
+        }
+
+        public static Color LerpOklch(Color from, Color to, float t, bool shortestHue = true)
+        {
+            t = Math.Clamp(t, 0f, 1f);
+
+            var a = OklchColor.FromColor(from);
+            var b = OklchColor.FromColor(to);
+
+            // If one side is basically grey, keep the other's hue to avoid "random" hue swings.
+            float ha;
+            float hb;
+
+            const float hueEpsilon = 1e-5f;
+            if (a.Chroma < hueEpsilon && b.Chroma < hueEpsilon)
+            {
+                ha = hb = 0f; // hue irrelevant
+            }
+            else if (a.Chroma < hueEpsilon)
+            {
+                ha = hb = b.Hue;
+            }
+            else if (b.Chroma < hueEpsilon)
+            {
+                ha = hb = a.Hue;
+            }
+            else
+            {
+                ha = a.Hue;
+                hb = b.Hue;
+            }
+
+            var h = shortestHue
+                ? WrapHue(ha + Color.ShortestHueDelta(ha, hb) * t)
+                : WrapHue(Color.Lerp(ha, hb, t)); // "long way" allowed
+
+            var o = new OklchColor
+            {
+                Lightness = Color.Lerp(a.Lightness, b.Lightness, t), Chroma = Color.Lerp(a.Chroma, b.Chroma, t),
+                Hue = h,
+            };
+
+            // Interpolate alpha separately (OKLCH is just RGB; alpha isn't part of it)
+            var af = Color.Lerp(from.A / 255f, to.A / 255f, t);
+            var aByte = (byte)Math.Clamp((int)MathF.Round(af * 255f), 0, 255);
+
+            var rgb = o.ToColor();
+            return new Color(rgb.R, rgb.G, rgb.B, aByte);
+        }
+    }
 }

@@ -31,10 +31,11 @@ internal sealed class FogOfWarMask
     private List<Vector2> _visibleCentres = [];
 
     private readonly PlayerStats _playerStats;
+    private readonly PrimitiveRenderer _primitiveRenderer;
     private float _visionRadiusMultiplier = 1f;
 
     public FogOfWarMask(GraphicsDevice graphics, IRenderViewport viewport, int baseVisionRadius,
-        ISphereGridCamera camera, PlayerStats playerStats)
+        ISphereGridCamera camera, PlayerStats playerStats, PrimitiveRenderer primitiveRenderer)
     {
         _graphics = graphics;
         _camera = camera;
@@ -42,12 +43,13 @@ internal sealed class FogOfWarMask
         _spriteBatch = new SpriteBatch(graphics);
         _baseVisionRadius = baseVisionRadius;
         _playerStats = playerStats;
+        _primitiveRenderer = primitiveRenderer;
 
         _fogTarget = new RenderTarget2D(
             graphics, viewport.Width, viewport.Height,
             false, SurfaceFormat.Color, DepthFormat.None);
 
-        _circle = PrimitiveRenderer.CreateSoftCircle(graphics, VisionRadius,
+        _circle = primitiveRenderer.CreateSoftCircle(VisionRadius,
             PrimitiveRenderer.SoftCircleMaskType.InsideTransparent);
     }
 
@@ -80,7 +82,7 @@ internal sealed class FogOfWarMask
         if (Math.Abs(_playerStats.GridVisionMultiplier - _visionRadiusMultiplier) < 0.001f) return;
 
         _visionRadiusMultiplier = _playerStats.GridVisionMultiplier;
-        _circle = PrimitiveRenderer.CreateSoftCircle(_graphics, VisionRadius,
+        _circle = _primitiveRenderer.CreateSoftCircle(VisionRadius,
             PrimitiveRenderer.SoftCircleMaskType.InsideTransparent);
     }
 
