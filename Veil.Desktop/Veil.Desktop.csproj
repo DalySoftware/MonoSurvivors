@@ -1,4 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyTitle>Veil of Cataclysm</AssemblyTitle>
+        <Product>Veil of Cataclysm</Product>
+        <Description>An action roguelike with sphere grid levelling</Description>
+        <Company>DalySoftware</Company>
+    </PropertyGroup>
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
