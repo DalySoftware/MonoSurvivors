@@ -68,75 +68,149 @@ internal class ExperienceBar(
     SphereGrid sphereGrid,
     GameInputState inputState)
 {
+    private readonly static TimeSpan SiphonDuration = TimeSpan.FromSeconds(0.5);
+    private readonly static TimeSpan ReceivePulseDuration = TimeSpan.FromSeconds(0.7);
+
     private bool _provideFeedbackToSpendPoints;
-    private int Points => sphereGrid.AvailablePoints;
+
+    private readonly ExperiencePointsSyphon _pointsSyphon =
+        new(SiphonDuration, ReceivePulseDuration, sphereGrid.AvailablePoints);
+
+    private Color _pointsBoxFrameColor;
+    private Color _pointsBoxInteriorColor;
+    private float _pointsTextScale;
+
+    private bool _showSpendPrompt;
+    private InputMethod _lastPromptInputMethod;
+    private string _spendPrompt = string.Empty;
+
+    private int ActualPoints => sphereGrid.AvailablePoints;
 
     private float Progress => MathHelper.Clamp(
         levelManager.ExperienceSinceLastLevel / levelManager.ExperienceToNextLevel, 0f, 1f);
 
-    internal void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+    internal void Update(GameTime gameTime)
     {
         _provideFeedbackToSpendPoints = sphereGrid.AvailablePoints >= 3 ||
                                         (sphereGrid.AvailablePoints >= 1 &&
                                          gameTime.TotalGameTime <= TimeSpan.FromMinutes(3));
 
-        progressBar.End = Progress;
+        _pointsSyphon.Update(ActualPoints, gameTime.ElapsedGameTime);
 
+        var draining = _pointsSyphon.IsDraining;
+        progressBar.Start = draining ? _pointsSyphon.DrainStartFraction : 0f;
+        progressBar.End = draining ? 1f : Progress;
+
+        _pointsBoxFrameColor = PointsBoxTint(gameTime);
+        _pointsBoxInteriorColor = _pointsBoxFrameColor.ShiftChroma(-0.08f);
+        _pointsTextScale = PointsTextScale(gameTime);
+
+        _showSpendPrompt = _provideFeedbackToSpendPoints;
+        UpdateSpendPromptText();
+    }
+
+    private void UpdateSpendPromptText()
+    {
+        if (!_showSpendPrompt)
+        {
+            _spendPrompt = string.Empty;
+            return;
+        }
+
+        var inputMethod = inputState.CurrentInputMethod;
+        if (_spendPrompt.Length > 0 && inputMethod == _lastPromptInputMethod)
+            return;
+
+        _lastPromptInputMethod = inputMethod;
+
+        var button = inputMethod is InputMethod.KeyboardMouse ? "SPACE" : "[Y]";
+        _spendPrompt = $"Press {button} to spend your points!";
+    }
+
+    internal void Draw(SpriteBatch spriteBatch)
+    {
         progressBar.Draw(spriteBatch);
-        DrawPointsBox(spriteBatch, gameTime);
+        DrawPointsBox(spriteBatch);
         DrawSpendPrompt(spriteBatch);
     }
 
     private void DrawSpendPrompt(SpriteBatch spriteBatch)
     {
-        // Draw feedback text if applicable
-        if (!_provideFeedbackToSpendPoints) return;
+        if (!_showSpendPrompt) return;
 
-        var button = inputState.CurrentInputMethod is InputMethod.KeyboardMouse ? "SPACE" : "[Y]";
-        var spendPrompt = $"Press {button} to spend your points!";
-        var textSize = font.MeasureString(spendPrompt);
+        var textSize = font.MeasureString(_spendPrompt);
 
-        // Centre the text horizontally in the bar
         var interiorRect = progressBar.InteriorRectangle;
         var textPosition = interiorRect.TopLeft() + (interiorRect.Size.ToVector2() - textSize) * 0.5f;
 
         var textLayer = progressBar.FillLayerDepth + 0.01f;
-        spriteBatch.DrawString(font, spendPrompt, textPosition, ColorPalette.Candy, layerDepth: textLayer);
+        spriteBatch.DrawString(font, _spendPrompt, textPosition, ColorPalette.Candy, layerDepth: textLayer);
     }
 
-    private void DrawPointsBox(SpriteBatch spriteBatch, GameTime gameTime)
+    private void DrawPointsBox(SpriteBatch spriteBatch)
     {
-        var boxColor = PointsBoxTint(gameTime);
+        pointsBoxPanel.Draw(spriteBatch, _pointsBoxFrameColor, _pointsBoxInteriorColor);
 
-        pointsBoxPanel.Draw(spriteBatch, boxColor, boxColor.ShiftChroma(-0.08f));
-
-        var text = Points.ToString();
+        var text = _pointsSyphon.DisplayPoints.ToString();
         var textSize = font.MeasureString(text);
-        var textScale = PointsTextScale(gameTime);
 
-        // Anchor text to the panel center
-        var textOrigin = textSize * 0.5f; // center of the text
+        var textOrigin = textSize * 0.5f;
         var textPosition = pointsBoxPanel.Interior.AnchorForPoint(UiAnchor.Centre);
         var textLayer = (pointsBoxPanel.InteriorLayerDepth + pointsBoxPanel.Frame.LayerDepth) * 0.5f;
 
-        spriteBatch.DrawString(font, text, textPosition, origin: textOrigin, scale: Vector2.One * textScale,
-            layerDepth: textLayer, color: ColorPalette.LightGray
-        );
+        spriteBatch.DrawString(
+            font,
+            text,
+            textPosition,
+            origin: textOrigin,
+            scale: Vector2.One * _pointsTextScale,
+            layerDepth: textLayer,
+            color: ColorPalette.LightGray);
     }
 
     private Color PointsBoxTint(GameTime gameTime)
     {
-        var baseColor = ColorPalette.Royal;
-        if (!_provideFeedbackToSpendPoints) return baseColor;
+        var color = ColorPalette.Royal;
 
-        var pulse = 0.5f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
-        return Color.Lerp(baseColor, ColorPalette.Lime, pulse);
+        // "spend points" hint pulse, 0..1
+        if (_provideFeedbackToSpendPoints)
+        {
+            var t = 0.5f + 0.5f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
+            color = Color.Lerp(color, ColorPalette.Lime, 0.35f * t);
+        }
+
+        // While siphoning, add a "charging" bias towards Lime.
+        if (_pointsSyphon.IsDraining)
+            color = Color.Lerp(color, ColorPalette.Lime, 0.25f * _pointsSyphon.ChargeStrength);
+
+        // After siphon completes, add a stronger "received" pulse.
+        var receivePulse = _pointsSyphon.ReceivePulseStrength;
+        if (receivePulse > 0f)
+        {
+            var p = receivePulse * receivePulse; // ease-out
+            color = Color.Lerp(color, ColorPalette.Candy, 0.65f * p);
+        }
+
+        return color;
     }
 
     private float PointsTextScale(GameTime gameTime)
     {
-        if (!_provideFeedbackToSpendPoints) return 1f;
+        var scale = 1f;
 
-        return 1.3f + 0.1f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
+        if (_provideFeedbackToSpendPoints)
+            scale = 1.3f + 0.1f * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * 2);
+
+        if (_pointsSyphon.IsDraining)
+            scale += 0.05f * _pointsSyphon.ChargeStrength;
+
+        var receivePulse = _pointsSyphon.ReceivePulseStrength;
+        if (receivePulse > 0f)
+        {
+            var p = receivePulse * receivePulse;
+            scale += 0.25f * p;
+        }
+
+        return scale;
     }
 }

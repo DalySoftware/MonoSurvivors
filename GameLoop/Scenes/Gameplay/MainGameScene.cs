@@ -69,7 +69,7 @@ internal class MainGameScene(
         effectManager.Update(gameTime);
         entityRenderer.Update(gameTime);
         spawner.Update(gameTime);
-
+        experienceBar.Update(gameTime);
 
         performanceHud.Update(gameTime);
     }
@@ -91,7 +91,7 @@ internal class MainGameScene(
         spriteBatch.Begin(SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp);
 
         healthBar.Draw(spriteBatch);
-        experienceBar.Draw(spriteBatch, gameTime);
+        experienceBar.Draw(spriteBatch);
         clock.Draw(spriteBatch);
         bossHealthBar.Draw(spriteBatch);
 
