@@ -80,7 +80,7 @@ internal class ExperienceBar(
                                         (sphereGrid.AvailablePoints >= 1 &&
                                          gameTime.TotalGameTime <= TimeSpan.FromMinutes(3));
 
-        progressBar.Progress = Progress;
+        progressBar.End = Progress;
 
         progressBar.Draw(spriteBatch);
         DrawPointsBox(spriteBatch, gameTime);

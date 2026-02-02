@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Gameplay.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,67 +12,94 @@ internal sealed class PanelProgressBar(
     Color backgroundColor,
     Color fillColor)
 {
-    internal float Progress { get; set; } // 0..1
+    private const float Epsilon = 0.0001f;
+    internal float Start { get; set; } // 0..1
+    internal float End { get; set; } // 0..1
+    private bool TouchesLeft => Start <= Epsilon;
+    private bool TouchesRight => End >= 1f - Epsilon;
+
     internal Rectangle InteriorRectangle { get; } = panel.Frame.InteriorRectangle;
     internal float FillLayerDepth { get; } = (panel.InteriorLayerDepth + panel.Frame.LayerDepth) * 0.5f;
     private Frame Frame => panel.Frame;
 
     internal void Draw(SpriteBatch spriteBatch)
     {
-        var filledWidth = (int)(InteriorRectangle.Width * MathHelper.Clamp(Progress, 0f, 1f));
+        // Convert to pixels in interior space
+        var interior = InteriorRectangle;
 
-        DrawInterior(spriteBatch, InteriorRectangle, filledWidth);
-        DrawEdges(spriteBatch, InteriorRectangle, filledWidth);
-        DrawCorners(spriteBatch, InteriorRectangle, filledWidth);
+        var startX = interior.X + (int)MathF.Round(interior.Width * Start);
+        var endX = interior.X + (int)MathF.Round(interior.Width * End);
+
+        var fillWidth = Math.Max(0, endX - startX);
+        if (fillWidth > 0)
+        {
+            DrawInterior(spriteBatch, interior, startX, fillWidth);
+            DrawEdges(spriteBatch, startX, fillWidth);
+            DrawCorners(spriteBatch, fillWidth);
+        }
 
         panel.Draw(spriteBatch, frameColor, backgroundColor);
     }
 
-    private void DrawInterior(SpriteBatch spriteBatch, Rectangle interiorRect, int filledWidth)
+    private void DrawInterior(SpriteBatch spriteBatch, Rectangle interiorRect, int startX, int fillWidth)
     {
-        var filledCenterRect = new Rectangle(interiorRect.X, interiorRect.Y, filledWidth, interiorRect.Height);
+        var filledCenterRect = new Rectangle(startX, interiorRect.Y, fillWidth, interiorRect.Height);
         primitiveRenderer.DrawRectangle(spriteBatch, filledCenterRect, fillColor, FillLayerDepth);
     }
 
-    private void DrawEdges(SpriteBatch spriteBatch, Rectangle interiorRect, int filledWidth)
+    private void DrawEdges(SpriteBatch spriteBatch, int startX, int fillWidth)
     {
+        // Top/bottom strips inside the rounded frame area
         var topEdge = Frame.TopEdgeRectangle;
-        var topInterior = new Rectangle(topEdge.X, topEdge.Y, Math.Min((int)(topEdge.Width * Progress), filledWidth),
-            topEdge.Height);
+        primitiveRenderer.DrawRectangle(
+            spriteBatch,
+            new Rectangle(startX, topEdge.Y, fillWidth, topEdge.Height),
+            fillColor,
+            FillLayerDepth);
 
         var bottomEdge = Frame.BottomEdgeRectangle;
-        var bottomInterior = new Rectangle(bottomEdge.X, bottomEdge.Y,
-            Math.Min((int)(bottomEdge.Width * Progress), filledWidth), bottomEdge.Height);
+        primitiveRenderer.DrawRectangle(
+            spriteBatch,
+            new Rectangle(startX, bottomEdge.Y, fillWidth, bottomEdge.Height),
+            fillColor,
+            FillLayerDepth);
 
-        IEnumerable<Rectangle> toDraw = [topInterior, bottomInterior];
-        foreach (var rectangle in toDraw)
-            primitiveRenderer.DrawRectangle(spriteBatch, rectangle, fillColor, FillLayerDepth);
-
-        if (filledWidth > 0)
+        // Only fill the rounded left cap if the segment actually touches the left end.
+        if (TouchesLeft)
         {
             var leftEdge = Frame.LeftEdgeRectangle;
             primitiveRenderer.DrawRectangle(spriteBatch, leftEdge, fillColor, FillLayerDepth);
         }
 
-        // Only draw right edge once the fill reaches it
-        var rightEdge = Frame.RightEdgeRectangle;
-        var rightEdgeStartX = rightEdge.X - interiorRect.X;
-        if (filledWidth >= rightEdgeStartX)
+        // Only fill the rounded right cap if the segment touches the right end.
+        if (TouchesRight)
+        {
+            var rightEdge = Frame.RightEdgeRectangle;
             primitiveRenderer.DrawRectangle(spriteBatch, rightEdge, fillColor, FillLayerDepth);
+        }
     }
 
-    private void DrawCorners(SpriteBatch spriteBatch, Rectangle interiorRect, int filledWidth)
+    private void DrawCorners(SpriteBatch spriteBatch, int fillWidth)
     {
-        List<(Vector2 position, float rotation)> toDraw = [];
+        // Avoid per-frame list allocs; just draw what applies.
+        if (fillWidth <= 0) return;
 
-        if (filledWidth > 0)
-            toDraw.AddRange([Frame.TopLeftTriangle, Frame.BottomLeftTriangle]);
+        if (TouchesLeft)
+        {
+            var (p0, r0) = Frame.TopLeftTriangle;
+            primitiveRenderer.DrawTriangle(spriteBatch, p0, fillColor, r0, FillLayerDepth);
 
-        var rightEdgeStartX = Frame.RightEdgeRectangle.X - interiorRect.X;
-        if (filledWidth >= rightEdgeStartX)
-            toDraw.AddRange([Frame.TopRightTriangle, Frame.BottomRightTriangle]);
+            var (p1, r1) = Frame.BottomLeftTriangle;
+            primitiveRenderer.DrawTriangle(spriteBatch, p1, fillColor, r1, FillLayerDepth);
+        }
 
-        foreach (var (pos, rotation) in toDraw)
-            primitiveRenderer.DrawTriangle(spriteBatch, pos, fillColor, rotation, FillLayerDepth);
+        if (TouchesRight)
+        {
+            var (p0, r0) = Frame.TopRightTriangle;
+            primitiveRenderer.DrawTriangle(spriteBatch, p0, fillColor, r0, FillLayerDepth);
+
+            var (p1, r1) = Frame.BottomRightTriangle;
+            primitiveRenderer.DrawTriangle(spriteBatch, p1, fillColor, r1, FillLayerDepth);
+        }
     }
 }

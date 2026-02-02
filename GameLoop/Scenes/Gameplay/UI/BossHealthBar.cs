@@ -59,7 +59,7 @@ internal sealed class BossHealthBar(
         if (boss is null)
             return;
 
-        progressBar.Progress = boss.Health / boss.Stats.MaxHealth;
+        progressBar.End = boss.Health / boss.Stats.MaxHealth;
 
         progressBar.Draw(spriteBatch);
         DrawBossName(spriteBatch);
