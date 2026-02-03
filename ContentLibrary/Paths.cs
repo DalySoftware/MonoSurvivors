@@ -22,6 +22,7 @@ public static class Paths
             public const string Scorcher = @"Images\Sheets\Scorcher";
             public const string PowerUpIcons = @"Images\Sheets\PowerUpIcons";
             public const string WeaponIcons = @"Images\Sheets\WeaponIcons";
+            public const string BackgroundDecals = @"Images\Sheets\BackgroundDecals";
         }
 
         public static class GridNode

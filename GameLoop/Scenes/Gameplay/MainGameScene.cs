@@ -3,6 +3,7 @@ using Autofac;
 using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Scenes.Gameplay.UI;
+using Gameplay.Background;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
@@ -48,7 +49,8 @@ internal class MainGameScene(
     PerformanceMetrics performanceMetrics,
     PerformanceHud performanceHud,
     ExperienceSpawner experienceSpawner,
-    CameraShake cameraShake)
+    CameraShake cameraShake,
+    DecalLayer decalLayer)
     : IScene
 {
     private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.02f);
@@ -80,10 +82,12 @@ internal class MainGameScene(
 
         spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: camera.Transform,
             sortMode: SpriteSortMode.FrontToBack);
-
         DrawBackground();
-        entityRenderer.Draw(entityManager.Entities);
+        spriteBatch.End();
 
+        spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: camera.Transform,
+            sortMode: SpriteSortMode.FrontToBack);
+        entityRenderer.Draw(entityManager.Entities);
         spriteBatch.End();
 
         entityRenderer.DrawManagedPasses(gameTime);
@@ -107,10 +111,15 @@ internal class MainGameScene(
         const float margin = CameraShake.MaxShakePx + 10;
         bounds.Inflate(margin, margin);
         spriteBatch.Draw(_backgroundTile, bounds, bounds, BackgroundColor);
+
+        decalLayer.Draw(spriteBatch);
     }
 
     internal static void ConfigureServices(ContainerBuilder builder)
     {
+        builder.RegisterType<BackgroundDecalSpriteSheet>().SingleInstance();
+        builder.RegisterType<DecalLayer>().SingleInstance();
+
         builder.RegisterType<BulletSplitOnHit>();
         builder.RegisterType<ChainLightningOnHit>();
 

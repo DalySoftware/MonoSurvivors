@@ -533,6 +533,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/PowerUpIcons/WeaponSniper.png;Images/PowerUpIcons/WeaponSniper
 
+#begin Images/Sheets/BackgroundDecals.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Sheets/BackgroundDecals.png;Images/Sheets/BackgroundDecals
+
 #begin Images/Sheets/BasicEnemy.png
 /importer:TextureImporter
 /processor:TextureProcessor

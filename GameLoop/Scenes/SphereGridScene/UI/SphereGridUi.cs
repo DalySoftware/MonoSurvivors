@@ -12,7 +12,6 @@ using Gameplay.Levelling.SphereGrid.UI;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Tooltips;
-using Gameplay.Telemetry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -35,7 +34,6 @@ internal class SphereGridUi
     private readonly FogOfWarMask _fog;
     private readonly GameInputState _inputState;
     private readonly IAudioPlayer _audio;
-    private readonly PerformanceMetrics _perf;
 
     private List<Node> _nodesOrdered = [];
     private Dictionary<Node, int> _nodeIndex = [];
@@ -69,8 +67,7 @@ internal class SphereGridUi
         NodePositionMap nodePositions,
         ISphereGridCamera camera,
         GameInputState inputState,
-        IAudioPlayer audio,
-        PerformanceMetrics perf)
+        IAudioPlayer audio)
     {
         _graphicsDevice = graphicsDevice;
         _renderScaler = renderScaler;
@@ -81,7 +78,6 @@ internal class SphereGridUi
         _fog = fog;
         _inputState = inputState;
         _audio = audio;
-        _perf = perf;
         NodePositions = nodePositions.Positions;
 
         Camera = camera;
@@ -287,19 +283,15 @@ internal class SphereGridUi
     {
         _graphicsDevice.Clear(ColorPalette.Charcoal);
 
-        using (var _ = _perf.MeasureProbe("World"))
-        {
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp,
-                sortMode: SpriteSortMode.Deferred,
-                transformMatrix: Camera.Transform);
+        spriteBatch.Begin(samplerState: SamplerState.PointClamp,
+            sortMode: SpriteSortMode.Deferred,
+            transformMatrix: Camera.Transform);
 
-            DrawEdges(spriteBatch); // uses _uniqueEdges
-            DrawNodeBackplates(spriteBatch); // only the 3 node textures
-            DrawIcons(spriteBatch); // grouped by icon texture
+        DrawEdges(spriteBatch); // uses _uniqueEdges
+        DrawNodeBackplates(spriteBatch); // only the 3 node textures
+        DrawIcons(spriteBatch); // grouped by icon texture
 
-            spriteBatch.End();
-        }
-
+        spriteBatch.End();
 
         // Screen space batch - Will be layered on top of the world space batch 
         spriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.Deferred);
