@@ -8,7 +8,7 @@ namespace Gameplay.Rendering.Effects;
 public sealed class HitSquash
 {
     private const float DurationMs = 120f; // 80..140 feels good
-    private const float Decay = 10f; // higher = settles faster
+    private const float Decay = 2f; // higher = settles faster
     private const float Frequency = 18f; // higher = snappier ring
     private const float SquashFactor = 1.5f; // area-ish compensation
 
