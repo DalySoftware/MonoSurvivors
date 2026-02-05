@@ -1,6 +1,5 @@
 using System;
 using Autofac;
-using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay.Background;
@@ -21,13 +20,11 @@ using Gameplay.Levelling.PowerUps;
 using Gameplay.Levelling.SphereGrid;
 using Gameplay.Levelling.SphereGrid.Generation;
 using Gameplay.Rendering;
-using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.Effects;
 using Gameplay.Rendering.Effects.SpriteBatch;
 using Gameplay.Telemetry;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLoop.Scenes.Gameplay;
@@ -38,7 +35,6 @@ internal class MainGameScene(
     EffectManager effectManager,
     EnemySpawner spawner,
     ChaseCamera camera,
-    ContentManager content,
     ExperienceBar experienceBar,
     EntityRenderer entityRenderer,
     GameplayInputManager input,
@@ -50,12 +46,9 @@ internal class MainGameScene(
     PerformanceHud performanceHud,
     ExperienceSpawner experienceSpawner,
     CameraShake cameraShake,
-    DecalLayer decalLayer)
+    BackgroundRenderer background)
     : IScene
 {
-    private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.02f);
-    private readonly Texture2D _backgroundTile = content.Load<Texture2D>(Paths.Images.BackgroundTile);
-
     public void Dispose() { }
 
     public void Update(GameTime gameTime)
@@ -80,10 +73,7 @@ internal class MainGameScene(
     {
         using var _ = performanceMetrics.MeasureDraw();
 
-        spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: camera.Transform,
-            sortMode: SpriteSortMode.FrontToBack);
-        DrawBackground();
-        spriteBatch.End();
+        background.Draw(spriteBatch);
 
         spriteBatch.Begin(samplerState: SamplerState.PointWrap, transformMatrix: camera.Transform,
             sortMode: SpriteSortMode.FrontToBack);
@@ -105,20 +95,12 @@ internal class MainGameScene(
         performanceHud.Draw(spriteBatch);
     }
 
-    private void DrawBackground()
-    {
-        var bounds = camera.VisibleWorldBounds;
-        const float margin = CameraShake.MaxShakePx + 10;
-        bounds.Inflate(margin, margin);
-        spriteBatch.Draw(_backgroundTile, bounds, bounds, BackgroundColor);
-
-        decalLayer.Draw(spriteBatch);
-    }
 
     internal static void ConfigureServices(ContainerBuilder builder)
     {
         builder.RegisterType<BackgroundDecalSpriteSheet>().SingleInstance();
         builder.RegisterType<DecalLayer>().SingleInstance();
+        builder.RegisterType<BackgroundRenderer>().SingleInstance();
 
         builder.RegisterType<BulletSplitOnHit>();
         builder.RegisterType<ChainLightningOnHit>();

@@ -69,5 +69,6 @@ public static class Paths
         public const string Crt = @"Shaders\crt";
         public const string Silhouette = @"Shaders\silhouette";
         public const string DeathGlitch = @"Shaders\deathglitch";
+        public const string BackgroundFloor = @"Shaders\backgroundfloor";
     }
 }

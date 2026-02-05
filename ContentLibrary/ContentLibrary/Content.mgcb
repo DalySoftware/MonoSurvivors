@@ -641,6 +641,12 @@
 /processorParam:Quality=Best
 /build:Music/Venezuela.wav
 
+#begin Shaders/backgroundfloor.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/backgroundfloor.fx
+
 #begin Shaders/crt.fx
 /importer:EffectImporter
 /processor:EffectProcessor

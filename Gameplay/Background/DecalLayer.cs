@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Rendering;
-using Gameplay.Telemetry;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Background;
@@ -18,7 +17,6 @@ public sealed class DecalLayer
     private readonly FifoCache<PatchKey, Patch> _patchCache = new(MaxCachedPatches);
     private readonly BackgroundDecalSpriteSheet _sheet;
     private readonly ChaseCamera _camera;
-    private readonly PerformanceMetrics _perf;
     private readonly Func<PatchKey, Patch> _buildPatchFactory;
 
     private readonly PerlinNoise2D _noise;
@@ -31,11 +29,10 @@ public sealed class DecalLayer
     private readonly Vector2 _tuftDarkOffset;
     private readonly Vector2 _rocksOffset;
 
-    public DecalLayer(BackgroundDecalSpriteSheet sheet, ChaseCamera camera, PerformanceMetrics perf)
+    public DecalLayer(BackgroundDecalSpriteSheet sheet, ChaseCamera camera)
     {
         _sheet = sheet;
         _camera = camera;
-        _perf = perf;
 
         _buildPatchFactory = BuildPatch;
 
@@ -61,8 +58,6 @@ public sealed class DecalLayer
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        using var _ = _perf.MeasureProbe("Decal");
-
         // Expand by one slot so decals don’t “pop” at edges.
         var bounds = _camera.VisibleWorldBounds;
         bounds.Inflate(SlotSize, SlotSize);
