@@ -176,7 +176,7 @@ public sealed class EnemySpawner
             return 1f + linearFactor * minutes;
 
         const float finalLinearFactor = 1f + linearFactor * linearEndInMinutes;
-        const float exponentialBase = 1.3f;
+        const float exponentialBase = 1.33f;
         return finalLinearFactor * MathF.Pow(exponentialBase, minutes - linearEndInMinutes);
     }
 }
