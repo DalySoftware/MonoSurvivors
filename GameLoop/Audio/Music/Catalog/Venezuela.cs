@@ -24,7 +24,7 @@ internal sealed class Venezuela : IMusicModule
             .Sometimes([Stems.PercHatsTight, Stems.PercKickSparse, Stem.Low(Stems.BassA)])
             .Rarely([Stems.PercHatsTight, Stem.Low(Stems.BassA2), Stem.Low(Stems.PercPulse)])
             .Rarely([Stems.BassPad, Stems.PercHatsTight, Stem.Low(Stems.BassA)])
-            .VeryRarely([Stems.PercHatsTight, Stems.PercKickSparse, Stem.Low(Stems.BassA), Stems.LeadA])
+            .VeryRarely([Stems.PercHatsTight, Stems.PercKickSparse, Stem.Low(Stems.BassA), Stems.LeadA2])
             .VeryRarely([Stems.PercHatsTight, Stem.Low(Stems.BassA2), Stems.LeadB]);
 
     private readonly static WeightedChoice CoreChoices =
@@ -43,9 +43,9 @@ internal sealed class Venezuela : IMusicModule
             .Sometimes([Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassA])
             .Sometimes([Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassA2, Stems.PercPulse])
             .Sometimes([Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassB, Stems.PercSnare])
-            .Rarely([Stems.BassPad, Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassA2, Stems.PercPulse])
+            .Rarely([Stems.BassPad, Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassA2, Stems.PercPulse, Stems.LeadB])
             .Rarely([Stems.BassPad, Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassB, Stems.PercPulse, Stems.LeadA])
-            .VeryRarely([Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassB, Stems.PercPulse, Stems.LeadB]);
+            .VeryRarely([Stems.PercHatsBusy, Stems.PercKickFour, Stems.BassB, Stems.PercPulse, Stems.LeadA2]);
 
     private readonly static Stems[] StemValues = Enum.GetValues<Stems>();
 
@@ -121,6 +121,7 @@ internal sealed class Venezuela : IMusicModule
         BassB,
         BassPad,
         LeadA,
+        LeadA2,
         LeadB,
         PercKickFour,
         PercKickSparse,
@@ -132,31 +133,11 @@ internal sealed class Venezuela : IMusicModule
 
     private static class Levels
     {
-        private const float Bass = 0.8f;
-
-        private const float BassPad = 1f;
-
-        private const float Pulse = 0.80f;
-        private const float Kick = 0.80f;
-        private const float Snare = 0.8f;
-        private const float Hats = 0.8f;
-
-        private const float Lead = 0.80f;
-
+        // Min 0.0f, Max 1.0f
         internal static float LevelFor(Stems stem) => stem switch
         {
-            Stems.BassPad => BassPad,
-
-            Stems.BassA or Stems.BassA2 or Stems.BassB => Bass,
-
-            Stems.PercHatsBusy or Stems.PercHatsTight => Hats,
-            Stems.PercSnare => Snare,
-            Stems.PercPulse => Pulse,
-            Stems.PercKickFour or Stems.PercKickSparse => Kick,
-
-            Stems.LeadA or Stems.LeadB => Lead,
-
-            _ => 0f,
+            Stems.BassPad => 1f,
+            _ => 0.8f,
         };
 
         internal static float LowLevelFor(Stems stem) => stem switch

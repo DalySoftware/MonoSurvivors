@@ -665,6 +665,12 @@
 /processorParam:Quality=Best
 /build:Music/Venezuela/LeadA.wav
 
+#begin Music/Venezuela/LeadA2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/LeadA2.wav;Music/Venezuela/LeadA2
+
 #begin Music/Venezuela/LeadB.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
