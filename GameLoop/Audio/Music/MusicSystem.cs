@@ -35,6 +35,7 @@ internal sealed class MusicSystem(
     {
         if (!_started) return;
 
+        director.Update(gameTime);
         transport.Update(gameTime);
         player.Update(gameTime);
     }

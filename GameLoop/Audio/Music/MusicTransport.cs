@@ -10,10 +10,12 @@ namespace GameLoop.Audio.Music;
 
 /// <summary>
 ///     Drives a fixed-duration musical grid (module.LoopDuration) and applies the module's
-///     per-channel volumes. Stems are started once from module.Bindings and are not swapped.
+///     per-channel volumes.
 /// </summary>
 internal sealed class MusicTransport(IMusicPlayer player, AsyncPump asyncPump, MusicDirector director)
 {
+    private readonly static TimeSpan ModuleSwitchFade = TimeSpan.FromSeconds(2);
+
     private readonly Dictionary<ushort, ChannelState> _channels = new();
 
     private bool _started;
@@ -22,6 +24,8 @@ internal sealed class MusicTransport(IMusicPlayer player, AsyncPump asyncPump, M
 
     private bool _applyInFlight;
     private bool _applyDirty;
+    private bool _switchInFlight;
+
 
     // Reused buffer for per-binding volumes.
     private float[] _volumes = [];
@@ -58,30 +62,46 @@ internal sealed class MusicTransport(IMusicPlayer player, AsyncPump asyncPump, M
             _boundaryIndex++;
             director.OnLoopBoundary(_boundaryIndex);
             boundaryAdvanced = true;
+
+            // If the director switched modules on this boundary,
+            // perform the transport-level switch.
+            if (!_switchInFlight && director.ConsumeSwitchedThisBoundary())
+            {
+                _switchInFlight = true;
+                asyncPump.Track(SwitchModuleAsync());
+                return;
+            }
         }
 
         if (boundaryAdvanced)
             RequestApplyVolumes();
-
-        // Apply volumes (tier changes etc).
-        RequestApplyVolumes();
     }
 
-    internal async ValueTask StopAllAsync(TimeSpan fadeDuration, CancellationToken ct = default)
+    private async ValueTask SwitchModuleAsync()
     {
-        if (!_started)
-            return;
-
-        _started = false;
-
-        // Stop every channel we started.
+        // 1) Fade out and stop all current channels.
         foreach (var channel in _channels.Keys)
-        {
-            ct.ThrowIfCancellationRequested();
-            await player.Stop(channel, fadeDuration);
-        }
+            await player.Stop(channel, ModuleSwitchFade);
+
+        // Wait for fade to complete before starting new module.
+        await Task.Delay(ModuleSwitchFade);
 
         _channels.Clear();
+
+        // 2) Reset musical phase for new module.
+        _boundaryIndex = 0;
+        _sinceBoundary = TimeSpan.Zero;
+
+        // 3) Let director initialise the new module at boundary 0.
+        director.OnLoopBoundary(_boundaryIndex);
+
+        // 4) Start new bindings.
+        await StartModuleBindingsAsync(CancellationToken.None);
+
+        // 5) Apply initial volumes (ramps will fade in).
+        await ApplyVolumesAsync(CancellationToken.None);
+
+        _switchInFlight = false;
     }
 
     internal void RequestApplyVolumes()

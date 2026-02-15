@@ -635,6 +635,12 @@
 /processorParam:Quality=Best
 /build:Music/AppleStrudel.wav
 
+#begin Music/SwingyThing/WholeSong.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/WholeSong.wav
+
 #begin Music/Venezuela/BassA.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

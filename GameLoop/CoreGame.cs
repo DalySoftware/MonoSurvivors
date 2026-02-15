@@ -165,6 +165,7 @@ public class CoreGame : Game, IGlobalCommands
 
             builder.RegisterType<MusicDucker>().SingleInstance();
             builder.RegisterType<Venezuela>().As<IMusicModule>().SingleInstance();
+            builder.RegisterType<SwingyThing>().As<IMusicModule>().SingleInstance();
             builder.RegisterType<MusicTierPolicySwitcher>().AsSelf().As<IMusicTierPolicy>().SingleInstance();
             builder.RegisterType<MusicDirector>().SingleInstance();
             builder.RegisterType<MusicTransport>().SingleInstance();

@@ -37,7 +37,7 @@ internal interface IMusicModule
     void GetVolumes(Span<float> volumes);
 }
 
-internal enum MusicTier
+public enum MusicTier
 {
     Ambient,
     Soft,
