@@ -16,7 +16,7 @@ public class Shotgun(
     CritCalculator critCalculator)
     : GunBase(owner.WeaponBelt.Stats)
 {
-    private readonly static KnockbackOnHit KnockbackOnHit = new(0.15f);
+    private readonly static KnockbackOnHit KnockbackOnHit = new(0.10f);
 
     protected override TimeSpan Cooldown { get; } = TimeSpan.FromSeconds(1.5);
     protected override void Shoot()
@@ -25,7 +25,7 @@ public class Shotgun(
         if (target == null) return;
 
         const float bulletSpeed = 1f;
-        var baseDamage = 1.3f * Stats.DamageMultiplier;
+        var baseDamage = 1.9f * Stats.DamageMultiplier;
         var damage = critCalculator.CalculateCritDamage(baseDamage, Stats);
         var range = 300f * Stats.RangeMultiplier;
 
