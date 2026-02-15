@@ -1,6 +1,9 @@
 ﻿using System;
 using Autofac;
+using GameLoop.Audio.Music;
+using GameLoop.Audio.Music.Catalog;
 using GameLoop.DependencyInjection;
+using GameLoop.Exceptions;
 using GameLoop.Input;
 using GameLoop.Rendering;
 using GameLoop.Scenes;
@@ -12,7 +15,6 @@ using GameLoop.Scenes.SphereGridScene;
 using GameLoop.Scenes.Title;
 using GameLoop.UI;
 using Gameplay;
-using Gameplay.Audio;
 using Gameplay.Levelling.PowerUps;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
@@ -30,6 +32,7 @@ public class CoreGame : Game, IGlobalCommands
     private readonly static Color BackgroundColor = ColorPalette.Wine.ShiftChroma(-0.04f).ShiftLightness(-0.05f);
     private readonly Action<ContainerBuilder> _configurePlatformServices;
     private readonly GameContainer _container;
+    private readonly AsyncPump _asyncPump;
 
     private ILifetimeScope _contentScope = null!;
     private ILifetimeScope _gameplayScope = null!;
@@ -37,6 +40,7 @@ public class CoreGame : Game, IGlobalCommands
     private RenderScaler _renderScaler = null!;
     private IViewportSync _viewportSync = null!;
     private CrtGlitchPulse _crtGlitchPulse = null!;
+    private MusicSystem _musicSystem = null!;
 
     /// <param name="configurePlatformServices">Called during <see cref="LoadContent" /></param>
     public CoreGame(Action<ContainerBuilder>? configurePlatformServices = null)
@@ -49,30 +53,32 @@ public class CoreGame : Game, IGlobalCommands
         var graphicsManager = new GraphicsDeviceManager(this);
         graphicsManager.GraphicsProfile = GraphicsProfile.HiDef;
         _container = new GameContainer(this, graphicsManager);
+        _asyncPump = _container.Root.Resolve<AsyncPump>();
     }
 
     private SceneManager SceneManager => _contentScope.Resolve<SceneManager>();
 
+    public void ReturnToTitle()
+    {
+        var title = _contentScope.Resolve<TitleScene>();
+        SceneManager.ClearAndSet(title);
+        _musicSystem.SetTier(MusicTier.Ambient);
+    }
+
     public void ShowGameOver()
     {
         var scope = _gameplayScope.BeginLifetimeScope(GameOverScene.ConfigureServices);
-
         var gameOverScene = scope.Resolve<GameOverScene>();
-        SceneManager.Push(gameOverScene);
+        SceneManager.ClearAndSet(gameOverScene, scope);
+        _musicSystem.SetTier(MusicTier.Ambient);
     }
 
     public void ShowWinGame()
     {
         var scope = _gameplayScope.BeginLifetimeScope(WinScene.ConfigureServices);
-
-        var scene = scope.Resolve<WinScene>();
-        SceneManager.Push(scene);
-    }
-
-    public void ReturnToTitle()
-    {
-        var title = _contentScope.Resolve<TitleScene>();
-        SceneManager.Push(title);
+        var winScene = scope.Resolve<WinScene>();
+        SceneManager.ClearAndSet(winScene, scope);
+        _musicSystem.SetTier(MusicTier.Ambient);
     }
 
     public void ShowSphereGrid()
@@ -84,11 +90,7 @@ public class CoreGame : Game, IGlobalCommands
 
         // Resolve the scene from the scope
         var scene = scope.Resolve<SphereGridScene>();
-        SceneManager.Push(scene);
-
-        // Duck the music while the scene is active
-        var music = scope.Resolve<IMusicPlayer>();
-        music.DuckBackgroundMusic();
+        SceneManager.Push(scene, scope);
     }
 
 
@@ -97,7 +99,7 @@ public class CoreGame : Game, IGlobalCommands
         var scope = _gameplayScope.BeginLifetimeScope(PauseMenuScene.ConfigureServices);
 
         var scene = scope.Resolve<PauseMenuScene>();
-        SceneManager.Push(scene);
+        SceneManager.Push(scene, scope);
     }
 
     public void ResumeGame() => SceneManager.Pop();
@@ -108,9 +110,7 @@ public class CoreGame : Game, IGlobalCommands
             return;
 
         SceneManager.Pop();
-        _gameplayScope.Resolve<IMusicPlayer>().RestoreBackgroundMusic();
     }
-
 
     public void ShowMouse() => IsMouseVisible = true;
     public void HideMouse() => IsMouseVisible = false;
@@ -131,11 +131,8 @@ public class CoreGame : Game, IGlobalCommands
 
         // Resolve and push the scene
         var mainScene = _gameplayScope.Resolve<MainGameScene>();
-        SceneManager.Push(mainScene);
-
-        // Play background music
-        var music = _gameplayScope.Resolve<IMusicPlayer>();
-        music.PlayBackgroundMusic();
+        SceneManager.Push(mainScene, _gameplayScope);
+        _musicSystem.SetTier(MusicTier.Soft);
     }
 
     protected override void LoadContent()
@@ -166,6 +163,13 @@ public class CoreGame : Game, IGlobalCommands
 
             builder.RegisterType<PerformanceMetrics>().SingleInstance();
 
+            builder.RegisterType<MusicDucker>().SingleInstance();
+            builder.RegisterType<Venezuela>().As<IMusicModule>().SingleInstance();
+            builder.RegisterType<MusicTierPolicySwitcher>().AsSelf().As<IMusicTierPolicy>().SingleInstance();
+            builder.RegisterType<MusicDirector>().SingleInstance();
+            builder.RegisterType<MusicTransport>().SingleInstance();
+            builder.RegisterType<MusicSystem>().SingleInstance();
+
             _configurePlatformServices(builder);
         });
 
@@ -176,6 +180,8 @@ public class CoreGame : Game, IGlobalCommands
         _contentScope.Resolve<IDisplayModeManager>().InitializeDefault();
         _viewportSync = _contentScope.Resolve<IViewportSync>();
         _viewportSync.ForceRefresh();
+        _musicSystem = _contentScope.Resolve<MusicSystem>();
+        _musicSystem.Start();
 
         ReturnToTitle();
 
@@ -184,10 +190,13 @@ public class CoreGame : Game, IGlobalCommands
 
     protected override void Update(GameTime gameTime)
     {
+        _asyncPump.ThrowIfAny();
+
         _viewportSync.Update();
         SceneManager.Current?.Update(gameTime);
         _inputStateManager.Update(IsActive);
         _crtGlitchPulse.Update(gameTime); // Affects RenderScaler so needs to decay scene independently
+        _musicSystem.Update(gameTime);
         base.Update(gameTime);
     }
 

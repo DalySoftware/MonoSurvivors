@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using GameLoop.Audio.Music;
 using GameLoop.Input;
 using GameLoop.Rendering;
 using GameLoop.UI;
@@ -20,7 +21,8 @@ internal class TitleScene : IScene
         Title.Factory titleFactory,
         HelpText.Factory helpTextFactory,
         WeaponSelect.Factory weaponSelectFactory,
-        TitleInputManager.Factory inputFactory)
+        TitleInputManager.Factory inputFactory,
+        MusicDirector musicDirector)
     {
         _spriteBatch = spriteBatch;
         _inputGate = inputGate;

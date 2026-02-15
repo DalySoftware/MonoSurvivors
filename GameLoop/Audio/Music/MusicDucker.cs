@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GameLoop.Audio;
+namespace GameLoop.Audio.Music;
 
 public sealed class MusicDucker
 {

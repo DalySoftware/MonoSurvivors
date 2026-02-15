@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using GameLoop.Audio;
+using GameLoop.Exceptions;
 using GameLoop.Scenes;
 using Gameplay;
 using Microsoft.Xna.Framework;
@@ -27,8 +27,7 @@ public sealed class GameContainer
 
 
         builder.RegisterType<SceneManager>().SingleInstance();
-
-        builder.RegisterType<MusicDucker>().SingleInstance();
+        builder.RegisterType<AsyncPump>().SingleInstance();
 
         builder.ConfigureOptions();
 

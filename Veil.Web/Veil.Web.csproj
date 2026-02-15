@@ -36,19 +36,20 @@
         <KniContentReference Include="..\ContentLibrary\ContentLibrary\Content.mgcb"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <_SoundEffectFiles Include="..\ContentLibrary\ContentLibrary\SoundEffects\**\*.wav"/>
-    </ItemGroup>
     <Target Name="CopySoundEffectsToWwwroot" BeforeTargets="ResolveStaticWebAssetsInputs">
+        <ItemGroup>
+            <_SoundEffectFiles Include="..\ContentLibrary\ContentLibrary\SoundEffects\**\*.wav"/>
+        </ItemGroup>
+
         <Copy SourceFiles="@(_SoundEffectFiles)"
               DestinationFiles="@(_SoundEffectFiles->'$(MSBuildProjectDirectory)\wwwroot\soundEffects\%(RecursiveDir)%(Filename)%(Extension)')"
               SkipUnchangedFiles="true"/>
     </Target>
 
-    <ItemGroup>
-        <_MusicFiles Include="..\ContentLibrary\ContentLibrary\Music\**\*.wav"/>
-    </ItemGroup>
     <Target Name="CopyMusicToWwwroot" BeforeTargets="ResolveStaticWebAssetsInputs">
+        <ItemGroup>
+            <_MusicFiles Include="..\ContentLibrary\ContentLibrary\Music\**\*.wav"/>
+        </ItemGroup>
         <Copy SourceFiles="@(_MusicFiles)"
               DestinationFiles="@(_MusicFiles->'$(MSBuildProjectDirectory)\wwwroot\music\%(RecursiveDir)%(Filename)%(Extension)')"
               SkipUnchangedFiles="true"/>

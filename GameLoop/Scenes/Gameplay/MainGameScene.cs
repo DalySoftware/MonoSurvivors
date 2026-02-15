@@ -1,5 +1,6 @@
 using System;
 using Autofac;
+using GameLoop.Audio.Music;
 using GameLoop.Input;
 using GameLoop.Scenes.Gameplay.UI;
 using Gameplay.Background;
@@ -98,6 +99,14 @@ internal class MainGameScene(
 
     internal static void ConfigureServices(ContainerBuilder builder)
     {
+        builder.RegisterType<MainGameTierPolicy>().SingleInstance();
+        builder.RegisterBuildCallback(scope =>
+        {
+            var switcher = scope.Resolve<MusicTierPolicySwitcher>(); // from core scope
+            var policy = scope.Resolve<MainGameTierPolicy>(); // from this scope
+            scope.Resolve<ILifetimeScope>().Disposer.AddInstanceForDisposal(switcher.Use(policy));
+        });
+
         builder.RegisterType<BackgroundDecalSpriteSheet>().SingleInstance();
         builder.RegisterType<DecalLayer>().SingleInstance();
         builder.RegisterType<BackgroundRenderer>().SingleInstance();

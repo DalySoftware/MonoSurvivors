@@ -635,11 +635,77 @@
 /processorParam:Quality=Best
 /build:Music/AppleStrudel.wav
 
-#begin Music/Venezuela.wav
+#begin Music/Venezuela/BassA.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:Music/Venezuela.wav
+/build:Music/Venezuela/BassA.wav
+
+#begin Music/Venezuela/BassA2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/BassA2.wav
+
+#begin Music/Venezuela/BassB.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/BassB.wav
+
+#begin Music/Venezuela/BassPad.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/BassPad.wav
+
+#begin Music/Venezuela/LeadA.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/LeadA.wav
+
+#begin Music/Venezuela/LeadB.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/LeadB.wav
+
+#begin Music/Venezuela/PercHatsBusy.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/PercHatsBusy.wav;Music/Venezuela/PercHatsBusy
+
+#begin Music/Venezuela/PercHatsTight.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/PercHatsTight.wav;Music/Venezuela/PercHatsTight
+
+#begin Music/Venezuela/PercKickFour.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/PercKickFour.wav
+
+#begin Music/Venezuela/PercKickSparse.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/PercKickSparse.wav
+
+#begin Music/Venezuela/PercPulse.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/PercPulse.wav;Music/Venezuela/PercPulse
+
+#begin Music/Venezuela/PercSnare.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/Venezuela/PercSnare.wav;Music/Venezuela/PercSnare
 
 #begin Shaders/backgroundfloor.fx
 /importer:EffectImporter

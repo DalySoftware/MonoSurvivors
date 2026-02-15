@@ -68,7 +68,7 @@ public sealed class SpatialHashManager
 
 public interface ISpatialHashSources
 {
-    IReadOnlyList<EnemyBase> Enemies { get; }
+    public IReadOnlyList<EnemyBase> Enemies { get; }
     IReadOnlyList<IDamagesEnemies> DamagesEnemies { get; }
     IReadOnlyList<Experience> Experiences { get; }
 }

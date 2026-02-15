@@ -15,7 +15,7 @@ internal static class ServiceConfigurator
 {
     public static void Configure(ContainerBuilder builder, IJSRuntime jsRuntime)
     {
-        builder.RegisterInstance(jsRuntime).As<IJSInProcessRuntime>().SingleInstance();
+        builder.RegisterInstance(jsRuntime).As<IJSRuntime>().As<IJSInProcessRuntime>().SingleInstance();
         builder.RegisterType<LocalStoragePersistence>().As<ISettingsPersistence>().SingleInstance();
 
         builder.RegisterType<WebMusicPlayer>().As<IMusicPlayer>().SingleInstance();
