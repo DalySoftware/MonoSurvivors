@@ -212,10 +212,11 @@
         smoothSet(musicMasterGain.gain, clamp01(volume));
     }
 
-    function setMusicChannelVolume(channel, volume) {
+    function setMusicChannelVolume(channel, volume, timeConstant) {
         if (!ctx) return;
         const {chGain} = ensureMusicChannel(channel);
-        smoothSet(chGain.gain, clamp01(volume));
+        
+        smoothSet(chGain.gain, clamp01(volume), +timeConstant);
     }
 
     function fadeOutAndStopChannel(channel, durationSeconds) {

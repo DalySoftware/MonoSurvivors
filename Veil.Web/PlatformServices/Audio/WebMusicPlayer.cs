@@ -89,7 +89,8 @@ public sealed class WebMusicPlayer : IMusicPlayer, IDisposable
             if (_pendingVolumeByChannel.Count > 0)
             {
                 foreach (var (channel, vol) in _pendingVolumeByChannel)
-                    await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, vol);
+                    await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, vol,
+                        IMusicPlayer.StemRampConstantSeconds);
 
                 _pendingVolumeByChannel.Clear();
             }
@@ -153,7 +154,8 @@ public sealed class WebMusicPlayer : IMusicPlayer, IDisposable
         _pendingVolumeByChannel[channel] = volumeMultiplier;
 
         if (_started)
-            await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, volumeMultiplier);
+            await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, volumeMultiplier,
+                IMusicPlayer.StemRampConstantSeconds);
         else
             await TryFlushAsync();
     }

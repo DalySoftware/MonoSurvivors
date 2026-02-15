@@ -6,6 +6,8 @@ namespace Gameplay.Audio;
 
 public interface IMusicPlayer
 {
+    public const float StemRampConstantSeconds = 4; // ~63% toward target after this duration.
+
     void Update(GameTime gameTime);
 
     ValueTask StartModule(IReadOnlyList<(ushort Channel, string StemKey)> bindings);

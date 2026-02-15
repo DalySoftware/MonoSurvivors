@@ -54,7 +54,10 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
     {
         var dt = gameTime.ElapsedGameTime;
         foreach (var ch in _channels.Values)
+        {
             UpdateChannelFade(ch, dt);
+            UpdateChannelRamp(ch, dt);
+        }
     }
 
     public ValueTask StartModule(IReadOnlyList<(ushort Channel, string StemKey)> bindings)
@@ -74,7 +77,7 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
 
             ch.Instance = CreateInstance(stemKey);
 
-            // Start audible by default; module can set channel volumes immediately after.
+            // Module can set channel volumes immediately after.
             ch.Gain = 1f;
 
             ApplyChannelVolume(ch);
@@ -126,7 +129,10 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
     public ValueTask SetChannelVolume(ushort channel, float volumeMultiplier)
     {
         var ch = GetChannel(channel);
-        ch.ChannelVolume = MathHelper.Clamp(volumeMultiplier, 0f, 1f);
+        ch.TargetChannelVolume = MathHelper.Clamp(volumeMultiplier, 0f, 1f);
+
+        // Apply immediately in case ramp is effectively disabled (or very short),
+        // and to make new channels react without waiting a frame.
         ApplyChannelVolume(ch);
         return ValueTask.CompletedTask;
     }
@@ -178,7 +184,33 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
         ApplyChannelVolume(ch);
     }
 
-    private void FinishFade(ChannelState ch)
+    private void UpdateChannelRamp(ChannelState ch, TimeSpan dt)
+    {
+        // If instance doesn't exist, nothing to apply; but keep state so it resumes correctly.
+        if (ch.Instance == null)
+            return;
+
+        var target = MathHelper.Clamp(ch.TargetChannelVolume, 0f, 1f);
+        var current = MathHelper.Clamp(ch.ChannelVolume, 0f, 1f);
+
+        // Exponential smoothing toward target.
+        // alpha = 1 - exp(-dt/tau)
+        var dtSeconds = (float)dt.TotalSeconds;
+        if (dtSeconds <= 0f)
+            return;
+
+        const float timeConstantSeconds = IMusicPlayer.StemRampConstantSeconds;
+        var alpha = 1f - MathF.Exp(-dtSeconds / timeConstantSeconds);
+        var next = current + (target - current) * alpha;
+
+        if (MathF.Abs(next - current) <= 0.0005f)
+            return;
+
+        ch.ChannelVolume = next;
+        ApplyChannelVolume(ch);
+    }
+
+    private static void FinishFade(ChannelState ch)
     {
         // FadeOut only
         StopAndDispose(ref ch.Instance);
@@ -203,7 +235,8 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
     {
         StopAndDispose(ref ch.Instance);
 
-        ch.ChannelVolume = 1f;
+        ch.ChannelVolume = 0f;
+        ch.TargetChannelVolume = 0f;
         ch.Gain = 0f;
 
         ch.Mode = FadeMode.None;
@@ -280,15 +313,19 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
     {
         public SoundEffectInstance? Instance;
 
-        public float ChannelVolume = 0f;
+        // Current (ramped) channel volume multiplier.
+        public float ChannelVolume { get; set; } = 0f;
+
+        // Target requested by transport.
+        public float TargetChannelVolume { get; set; } = 0f;
 
         // Current fade gain (1 -> 0 during FadeOut).
-        public float Gain = 0f;
+        public float Gain { get; set; } = 0f;
 
-        public FadeMode Mode = FadeMode.None;
+        public FadeMode Mode { get; set; } = FadeMode.None;
 
-        public TimeSpan FadeElapsed = TimeSpan.Zero;
-        public TimeSpan FadeDuration = TimeSpan.Zero;
+        public TimeSpan FadeElapsed { get; set; } = TimeSpan.Zero;
+        public TimeSpan FadeDuration { get; set; } = TimeSpan.Zero;
     }
 
     private enum FadeMode
