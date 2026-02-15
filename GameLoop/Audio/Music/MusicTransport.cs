@@ -50,13 +50,18 @@ internal sealed class MusicTransport(IMusicPlayer player, AsyncPump asyncPump, M
         _sinceBoundary += gameTime.ElapsedGameTime;
 
         var loop = director.LoopDuration;
-        // Advance boundaries (handle large dt).
+        var boundaryAdvanced = false;
+
         while (_sinceBoundary >= loop)
         {
             _sinceBoundary -= loop;
             _boundaryIndex++;
             director.OnLoopBoundary(_boundaryIndex);
+            boundaryAdvanced = true;
         }
+
+        if (boundaryAdvanced)
+            RequestApplyVolumes();
 
         // Apply volumes (tier changes etc).
         RequestApplyVolumes();
@@ -79,7 +84,7 @@ internal sealed class MusicTransport(IMusicPlayer player, AsyncPump asyncPump, M
         _channels.Clear();
     }
 
-    private void RequestApplyVolumes()
+    internal void RequestApplyVolumes()
     {
         if (_applyInFlight)
         {

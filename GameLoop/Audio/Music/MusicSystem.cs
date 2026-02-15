@@ -23,7 +23,13 @@ internal sealed class MusicSystem(
         asyncPump.Track(transport.StartAsync());
     }
 
-    internal void SetTier(MusicTier tier) => director.SetTier(tier);
+    internal void SetTier(MusicTier tier)
+    {
+        director.SetTier(tier);
+
+        if (_started)
+            transport.RequestApplyVolumes();
+    }
 
     internal void Update(GameTime gameTime)
     {
