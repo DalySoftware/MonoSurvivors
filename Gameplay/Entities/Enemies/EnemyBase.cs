@@ -5,6 +5,7 @@ using System.Threading;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
 using Gameplay.Combat;
+using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Microsoft.Xna.Framework.Content;
@@ -151,7 +152,9 @@ public abstract class EnemyBase(
         Vector2 Position,
         EnemyDeathHandler DeathHandler,
         PlayerCharacter Player,
-        ContentManager Content);
+        ContentManager Content,
+        EmberPool EmberPool,
+        ISpawnEntity SpawnEntity);
 }
 
 public record EnemyStats(float MaxHealth, float Experience, int Damage, float KnockbackMultiplier = 1f);

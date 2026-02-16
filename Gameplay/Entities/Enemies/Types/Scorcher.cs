@@ -1,5 +1,6 @@
 ﻿using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
+using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.SpriteSheets;
@@ -20,6 +21,9 @@ public class Scorcher : EnemyBase, ISpriteSheetVisual
         [
             new UpdateFrame(_spriteSheet),
         ];
+
+        spawnContext.SpawnEntity.Spawn(new ScorcherGlow(this, spawnContext.SpawnEntity, spawnContext.EmberPool,
+            spawnContext.Content));
     }
 
     public ISpriteSheet SpriteSheet => _spriteSheet;

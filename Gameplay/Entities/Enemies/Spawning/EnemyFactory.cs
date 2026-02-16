@@ -1,12 +1,19 @@
 ﻿using System;
+using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies.Types;
 using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies.Spawning;
 
-public class EnemyFactory(PlayerCharacter player, ContentManager content, EnemyDeathHandler deathHandler)
+public class EnemyFactory(
+    PlayerCharacter player,
+    ContentManager content,
+    EnemyDeathHandler deathHandler,
+    EmberPool emberPool,
+    ISpawnEntity spawnEntity)
 {
-    private EnemyBase.SpawnContext SpawnContext(Vector2 position) => new(position, deathHandler, player, content);
+    private EnemyBase.SpawnContext SpawnContext(Vector2 position) =>
+        new(position, deathHandler, player, content, emberPool, spawnEntity);
 
     public BasicEnemy BasicEnemy(Vector2 position) => new(SpawnContext(position), false);
     public BasicEnemy EliteBasicEnemy(Vector2 position) => new(SpawnContext(position), true);

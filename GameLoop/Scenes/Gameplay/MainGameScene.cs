@@ -135,6 +135,7 @@ internal class MainGameScene(
         builder.RegisterType<GritBurstOnHit>().SingleInstance();
         builder.RegisterType<BloomPuffPool>().SingleInstance();
         builder.RegisterType<BloomPuffOnHit>().SingleInstance();
+        builder.RegisterType<EmberPool>().SingleInstance();
         builder.RegisterType<EnemyDeathBlast>().SingleInstance();
         builder.RegisterType<HealthRegenManager>().SingleInstance();
 
