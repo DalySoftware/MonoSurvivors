@@ -199,12 +199,13 @@ internal sealed class MusicPlayer : IDisposable, IMusicPlayer
         if (dtSeconds <= 0f)
             return;
 
-        const float timeConstantSeconds = IMusicPlayer.StemRampConstantSeconds;
-        var alpha = 1f - MathF.Exp(-dtSeconds / timeConstantSeconds);
+        var tau = target < current ? IMusicPlayer.StemRampDownConstantSeconds : IMusicPlayer.StemRampUpConstantSeconds;
+        var alpha = 1f - MathF.Exp(-dtSeconds / tau);
         var next = current + (target - current) * alpha;
 
-        if (MathF.Abs(next - current) <= 0.0005f)
-            return;
+        // Snap to 0 when very quiet
+        if (target == 0f && next <= 0.02f)
+            next = 0f;
 
         ch.ChannelVolume = next;
         ApplyChannelVolume(ch);

@@ -6,7 +6,9 @@ namespace Gameplay.Audio;
 
 public interface IMusicPlayer
 {
-    public const float StemRampConstantSeconds = 4; // ~63% toward target after this duration.
+    // ~63% toward target after these durations.
+    public const float StemRampUpConstantSeconds = 4;
+    public const float StemRampDownConstantSeconds = 0.6f;
 
     void Update(GameTime gameTime);
 

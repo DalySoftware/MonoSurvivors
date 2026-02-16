@@ -49,6 +49,10 @@
         if (!ctx) return;
         const t = ctx.currentTime;
         param.cancelScheduledValues(t);
+
+        // Snap to silent if very quiet
+        if (value <= 0.02) value = 0.0;
+
         param.setTargetAtTime(value, t, timeConstantSec);
     }
 
@@ -215,7 +219,7 @@
     function setMusicChannelVolume(channel, volume, timeConstant) {
         if (!ctx) return;
         const {chGain} = ensureMusicChannel(channel);
-        
+
         smoothSet(chGain.gain, clamp01(volume), +timeConstant);
     }
 

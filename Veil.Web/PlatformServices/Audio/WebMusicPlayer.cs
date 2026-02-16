@@ -89,8 +89,12 @@ public sealed class WebMusicPlayer : IMusicPlayer, IDisposable
             if (_pendingVolumeByChannel.Count > 0)
             {
                 foreach (var (channel, vol) in _pendingVolumeByChannel)
-                    await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, vol,
-                        IMusicPlayer.StemRampConstantSeconds);
+                {
+                    var tau = vol <= 0f
+                        ? IMusicPlayer.StemRampDownConstantSeconds
+                        : IMusicPlayer.StemRampUpConstantSeconds;
+                    await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, vol, tau);
+                }
 
                 _pendingVolumeByChannel.Clear();
             }
@@ -153,9 +157,12 @@ public sealed class WebMusicPlayer : IMusicPlayer, IDisposable
         // Cache always; if we're not started yet, this prevents the "startModule resets to 0" issue.
         _pendingVolumeByChannel[channel] = volumeMultiplier;
 
+        var tau = volumeMultiplier <= 0f
+            ? IMusicPlayer.StemRampDownConstantSeconds
+            : IMusicPlayer.StemRampUpConstantSeconds;
+
         if (_started)
-            await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, volumeMultiplier,
-                IMusicPlayer.StemRampConstantSeconds);
+            await _js.InvokeVoidAsync("veilAudio.setMusicChannelVolume", channel, volumeMultiplier, tau);
         else
             await TryFlushAsync();
     }
