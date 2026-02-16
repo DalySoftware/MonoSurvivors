@@ -140,16 +140,10 @@ internal sealed class WeightedChoice<TStem>
         {
             roll -= _items[i].Weight;
             if (roll < 0)
-            {
-                var result = _items[i].Value;
-                Console.WriteLine("Picked: " + result);
-                return result;
-            }
+                return _items[i].Value;
         }
 
-        var fallback = _items[^1].Value;
-        Console.WriteLine("Picked: " + fallback);
-        return fallback;
+        return _items[^1].Value;
     }
 }
 

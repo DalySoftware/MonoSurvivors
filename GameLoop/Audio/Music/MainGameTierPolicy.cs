@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Gameplay.Entities;
 using Gameplay.Entities.Enemies.Spawning;
 
@@ -29,7 +28,6 @@ internal sealed class MainGameTierPolicy(IEntityFinder entities, PlayerCharacter
     {
         // --- sample signals once per boundary ---
         var hpSample = _enemyHp.Sample();
-        Console.WriteLine("HP: " + hpSample.Smoothed);
 
         if (_boundariesInTier < MinDwellBoundaries)
             return currentTier;
@@ -85,7 +83,6 @@ internal sealed class MainGameTierPolicy(IEntityFinder entities, PlayerCharacter
         if (nextTier == currentTier)
             return currentTier;
 
-        Console.WriteLine("Switching music tier to " + nextTier);
         _boundariesInTier = 0;
         return nextTier;
     }
