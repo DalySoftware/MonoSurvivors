@@ -147,13 +147,7 @@ internal sealed class MusicTransport(IMusicPlayer player, AsyncPump asyncPump, M
         {
             ct.ThrowIfCancellationRequested();
 
-            // Track locally (same invariant checks you already had)
-            if (_channels.TryGetValue(channel, out var existing) &&
-                !string.Equals(existing.StemKey, stemKey, StringComparison.Ordinal))
-                throw new InvalidOperationException(
-                    $"Channel bindings must be stable. Channel {channel} changed stem from '{existing.StemKey}' to '{stemKey}'.");
-
-            _channels[channel] = new ChannelState(stemKey) { LastVolume = float.NaN };
+            _channels[channel] = new ChannelState { LastVolume = float.NaN };
             start[channel] = (channel, stemKey);
         }
 
@@ -191,10 +185,8 @@ internal sealed class MusicTransport(IMusicPlayer player, AsyncPump asyncPump, M
 
     private static bool NearlyEqual(float a, float b) => MathF.Abs(a - b) <= 0.0005f;
 
-    private sealed class ChannelState(string stemKey)
+    private sealed class ChannelState
     {
-        internal string StemKey { get; } = stemKey;
-
         // Cached last-applied channel volume (0..1). NaN means "unknown / not yet applied".
         internal float LastVolume { get; set; } = float.NaN;
     }
