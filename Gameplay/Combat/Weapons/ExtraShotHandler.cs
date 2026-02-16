@@ -5,7 +5,9 @@ namespace Gameplay.Combat.Weapons;
 internal class ExtraShotHandler(WeaponBeltStats stats, Action shoot)
 {
     private int _remainingShots;
-    private TimeSpan _remainingCooldown = TimeSpan.Zero;
+
+    // This will cause the first shot in a run to be slightly slow if you've gained attack speed since init. Good enough
+    private TimeSpan _remainingCooldown = TimeSpan.FromSeconds(0.2) / stats.AttackSpeedMultiplier;
     private TimeSpan Cooldown => TimeSpan.FromSeconds(0.2) / stats.AttackSpeedMultiplier;
 
     internal ExtraShotResult Update(GameTime gameTime)
