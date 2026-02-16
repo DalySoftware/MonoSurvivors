@@ -635,11 +635,83 @@
 /processorParam:Quality=Best
 /build:Music/AppleStrudel.wav
 
-#begin Music/SwingyThing/WholeSong.wav
+#begin Music/SwingyThing/BassBounce.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:Music/SwingyThing/WholeSong.wav
+/build:Music/SwingyThing/BassBounce.wav
+
+#begin Music/SwingyThing/BassRoots.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/BassRoots.wav
+
+#begin Music/SwingyThing/ChordsBeat.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/ChordsBeat.wav
+
+#begin Music/SwingyThing/ChordsPad.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/ChordsPad.wav
+
+#begin Music/SwingyThing/ChordsTight.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/ChordsTight.wav
+
+#begin Music/SwingyThing/HatsBusy.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/HatsBusy.wav
+
+#begin Music/SwingyThing/HatsTight.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/HatsTight.wav
+
+#begin Music/SwingyThing/KickFour.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/KickFour.wav
+
+#begin Music/SwingyThing/KickSparse.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/KickSparse.wav
+
+#begin Music/SwingyThing/LeadA.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/LeadA.wav
+
+#begin Music/SwingyThing/LeadB.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/LeadB.wav
+
+#begin Music/SwingyThing/LeadPreB.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/LeadPreB.wav
+
+#begin Music/SwingyThing/Snare.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/SwingyThing/Snare.wav
 
 #begin Music/Venezuela/BassA.wav
 /importer:WavImporter
