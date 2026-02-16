@@ -25,6 +25,13 @@ internal abstract class StemChoiceModule<TStem> : IMusicModule
 
     public IReadOnlyDictionary<ushort, string> Bindings { get; }
 
+    public void Activate(MusicTier tier)
+    {
+        SetTier(tier);
+        _holdBoundariesRemaining = 0;
+        _selection = PickSelection(Tier);
+    }
+
     public void SetTier(MusicTier tier) => Tier = tier;
 
     public void OnLoopBoundary(long boundaryIndex)

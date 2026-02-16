@@ -5,18 +5,28 @@ using Microsoft.Xna.Framework;
 
 namespace GameLoop.Audio.Music;
 
-internal sealed class MusicDirector(IEnumerable<IMusicModule> modules, IMusicTierPolicy tierPolicy)
+internal sealed class MusicDirector
 {
     private readonly static TimeSpan SwitchInterval = TimeSpan.FromMinutes(8);
 
-    private readonly IMusicModule[] _modules = modules.ToArray();
+    private readonly IMusicModule[] _modules;
     private int _moduleIndex;
-    private MusicTier _tier = MusicTier.Ambient;
+    private MusicTier _tier;
 
     // > 0 : counting down
     // <= 0: switch armed; will occur on next loop boundary
     private TimeSpan _untilSwitch = SwitchInterval;
     private bool _switchedThisBoundary;
+    private readonly IMusicTierPolicy _tierPolicy;
+    public MusicDirector(IEnumerable<IMusicModule> modules, IMusicTierPolicy tierPolicy)
+    {
+        _tierPolicy = tierPolicy;
+        _modules = modules.ToArray();
+        _tier = MusicTier.Ambient;
+
+        _moduleIndex = 0;
+        _modules[_moduleIndex].Activate(_tier);
+    }
 
     private IMusicModule Module => _modules[_moduleIndex];
 
@@ -56,8 +66,8 @@ internal sealed class MusicDirector(IEnumerable<IMusicModule> modules, IMusicTie
 
         if (_tier != MusicTier.Ambient)
         {
-            tierPolicy.OnLoopBoundary();
-            var desired = tierPolicy.DecideTier(_tier);
+            _tierPolicy.OnLoopBoundary();
+            var desired = _tierPolicy.DecideTier(_tier);
             if (desired != _tier)
                 SetTier(desired);
         }
@@ -70,7 +80,7 @@ internal sealed class MusicDirector(IEnumerable<IMusicModule> modules, IMusicTie
 
         _moduleIndex = (_moduleIndex + 1) % _modules.Length;
 
-        Module.SetTier(_tier);
+        Module.Activate(_tier);
 
         _switchedThisBoundary = true;
     }

@@ -19,6 +19,13 @@ internal interface IMusicModule
     IReadOnlyDictionary<ushort, string> Bindings { get; }
 
     /// <summary>
+    ///     Called when the module becomes the active module (after a switch or initial start).
+    ///     Use to reset transient state so the first boundary produces a valid snapshot.
+    /// </summary>
+    /// <param name="tier">Tier to use on activate</param>
+    void Activate(MusicTier tier);
+
+    /// <summary>
     ///     Called when game state changes (routing only).
     ///     Module stores whatever it needs for next snapshot.
     /// </summary>
@@ -31,8 +38,8 @@ internal interface IMusicModule
     void OnLoopBoundary(long boundaryIndex);
 
     /// <summary>
-    ///     Writes per-binding volumes (0..1), in the same order as <see cref="Bindings" />.
-    ///     The span length will be exactly Bindings.Count.
+    ///     Writes per-channel volumes (0..1), indexed by channel id.
+    ///     Channels are dense 0..Bindings.Count-1 by convention.
     /// </summary>
     void GetVolumes(Span<float> volumes);
 }
