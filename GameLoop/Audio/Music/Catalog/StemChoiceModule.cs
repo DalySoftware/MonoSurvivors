@@ -7,9 +7,7 @@ namespace GameLoop.Audio.Music.Catalog;
 internal abstract class StemChoiceModule<TStem> : IMusicModule
     where TStem : struct, Enum
 {
-    protected readonly static TStem[] StemValues = Enum.GetValues<TStem>();
-
-    private MusicTier _tier = MusicTier.Ambient;
+    private readonly static TStem[] StemValues = Enum.GetValues<TStem>();
 
     private int _holdBoundariesRemaining;
     private StemSelection<TStem> _selection;
@@ -19,13 +17,15 @@ internal abstract class StemChoiceModule<TStem> : IMusicModule
         // Channel ids are the enum numeric values (0..N-1 contiguous by convention).
         Bindings = StemValues.ToDictionary(stem => (ushort)Convert.ToInt32(stem), StemKey);
     }
+
+    protected MusicTier Tier { get; private set; } = MusicTier.Ambient;
     protected Random Random { get; } = new();
 
     public abstract TimeSpan LoopDuration { get; }
 
     public IReadOnlyDictionary<ushort, string> Bindings { get; }
 
-    public void SetTier(MusicTier tier) => _tier = tier;
+    public void SetTier(MusicTier tier) => Tier = tier;
 
     public void OnLoopBoundary(long boundaryIndex)
     {
@@ -35,7 +35,7 @@ internal abstract class StemChoiceModule<TStem> : IMusicModule
             return;
         }
 
-        _selection = PickSelection(_tier);
+        _selection = PickSelection(Tier);
 
         _holdBoundariesRemaining = NextHold();
     }
@@ -66,7 +66,13 @@ internal abstract class StemChoiceModule<TStem> : IMusicModule
         }
     }
 
-    protected virtual int NextHold() => Random.Next(1, 3 + 1); // + 1 converts to exclusive bound
+    protected virtual int NextHold() => Tier switch
+    {
+        // + 1 converts to exclusive bound
+        MusicTier.Ambient => Random.Next(2, 4 + 1),
+        MusicTier.Peak => Random.Next(1, 2 + 1),
+        _ => Random.Next(1, 3 + 1),
+    };
 
     protected abstract string StemKey(TStem stem);
     protected abstract StemSelection<TStem> PickSelection(MusicTier tier);

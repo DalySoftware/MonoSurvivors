@@ -51,7 +51,14 @@ internal sealed class SwingyThing : StemChoiceModule<SwingyThing.Stems>
         _ => default,
     };
 
-    protected override int NextHold() => Random.Next(2, 5 + 1); // + 1 converts to exclusive bound
+    protected override int NextHold() => Tier switch
+    {
+        // + 1 converts to exclusive bound
+        MusicTier.Ambient => Random.Next(4, 8 + 1),
+        MusicTier.Peak => Random.Next(1, 3 + 1),
+        _ => Random.Next(2, 5 + 1),
+    };
+
     protected override float LevelFor(Stems stem) => 0.8f;
     protected override float LowLevelFor(Stems stem) => LevelFor(stem) * 0.5f;
 
