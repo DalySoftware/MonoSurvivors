@@ -1,6 +1,7 @@
 ﻿using System;
 using Gameplay.Behaviour;
 using Gameplay.CollisionDetection;
+using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.SpriteSheets;
@@ -23,6 +24,8 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
                 v => _frame.Direction = v,
                 TimeSpan.FromMilliseconds(200)),
         ];
+
+        spawnContext.SpawnEntity.Spawn(new HulkerDrool(this, spawnContext.SpawnEntity));
     }
     public IFrame CurrentFrame => _frame;
     public ISpriteSheet SpriteSheet { get; }
