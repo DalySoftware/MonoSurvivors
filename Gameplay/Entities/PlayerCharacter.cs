@@ -88,6 +88,8 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         _onDeath?.Invoke();
     }
 
+    public void Heal(int amount) => Health += amount;
+
     public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
 
     public void GainExperience(float amount)
@@ -103,7 +105,7 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         _invincibilityDuration -= gameTime.ElapsedGameTime;
         WeaponBelt.Update(gameTime);
         ApplyLifeSteal();
-        _healthRegen.Update(gameTime, Stats);
+        _healthRegen.Update(gameTime, this);
         base.Update(gameTime);
     }
 
