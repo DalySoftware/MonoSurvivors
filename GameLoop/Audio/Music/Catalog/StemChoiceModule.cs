@@ -73,13 +73,7 @@ internal abstract class StemChoiceModule<TStem> : IMusicModule
         }
     }
 
-    protected virtual int NextHold() => Tier switch
-    {
-        // + 1 converts to exclusive bound
-        MusicTier.Ambient => Random.Next(2, 4 + 1),
-        MusicTier.Peak => Random.Next(1, 2 + 1),
-        _ => Random.Next(1, 3 + 1),
-    };
+    protected abstract int NextHold();
 
     protected abstract string StemKey(TStem stem);
     protected abstract StemSelection<TStem> PickSelection(MusicTier tier);

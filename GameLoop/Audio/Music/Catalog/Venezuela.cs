@@ -57,6 +57,13 @@ internal sealed class Venezuela : StemChoiceModule<Venezuela.Stems>
         _ => default,
     };
 
+    protected override int NextHold() => Tier switch
+    {
+        MusicTier.Ambient => Random.Next(2, 4),
+        MusicTier.Peak => Random.Next(1, 2),
+        _ => Random.Next(1, 3),
+    };
+
     protected override float LevelFor(Stems stem) => Levels.LevelFor(stem);
 
     protected override float LowLevelFor(Stems stem) => Levels.LowLevelFor(stem);
