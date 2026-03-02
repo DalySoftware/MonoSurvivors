@@ -11,6 +11,7 @@ using Gameplay.Levelling.PowerUps.Player;
 using Gameplay.Levelling.PowerUps.Weapon;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects.SpriteBatch;
+using Gameplay.Stats;
 using Gameplay.Utilities;
 
 namespace Gameplay.Entities;
@@ -26,6 +27,7 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
     private readonly IAudioPlayer _audio;
     private readonly HealthRegenManager _healthRegen;
     private readonly EnemyDeathBlast _deathBlast;
+    private readonly StatsCounter _runStats;
 
     public PlayerCharacter(
         Vector2 position,
@@ -36,12 +38,14 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         HealthRegenManager healthRegen,
         PlayerStats stats,
         WeaponFactory weaponFactory,
-        EnemyDeathBlast deathBlast) : base(position)
+        EnemyDeathBlast deathBlast,
+        StatsCounter runStats) : base(position)
     {
         _effectManager = effectManager;
         _audio = audio;
         _healthRegen = healthRegen;
         _deathBlast = deathBlast;
+        _runStats = runStats;
         _onDeath = globalCommands.ShowGameOver;
         WeaponFactory = weaponFactory;
         WeaponBelt = weaponBelt;
@@ -80,6 +84,7 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         _invincibilityDuration = _invincibilityOnHit;
         _effectManager.FireEffect(this, SpriteBatchEffect.Greyscale, gameTime, _invincibilityOnHit);
         _audio.Play(SoundEffectTypes.PlayerHurt);
+        _runStats.TrackDamageTaken(damage);
 
         if (Health > 0) return;
 
@@ -88,7 +93,11 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         _onDeath?.Invoke();
     }
 
-    public void Heal(int amount) => Health += amount;
+    public void Heal(int amount)
+    {
+        Health += amount;
+        _runStats.TrackHealing(amount);
+    }
 
     public event EventHandler<PlayerCharacter> OnExperienceGain = (_, _) => { };
 
@@ -96,6 +105,7 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
     {
         Experience += amount * Stats.ExperienceMultiplier;
         OnExperienceGain(this, this);
+        _runStats.TrackExperienceGained(amount);
     }
 
     public void DirectionInput(UnitVector2 input) => IntentVelocity = (Vector2)input * Stats.Speed;
@@ -109,14 +119,13 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
         base.Update(gameTime);
     }
 
-    public void TrackKills(int numberOfKills) => _killsSinceLastLifeSteal += numberOfKills;
-
     private void ApplyLifeSteal()
     {
         if (_killsSinceLastLifeSteal < Stats.KillsPerHeal) return;
 
-        Health += 1;
-        _killsSinceLastLifeSteal -= Stats.KillsPerHeal;
+        Heal(1);
+        _killsSinceLastLifeSteal -=
+            Stats.KillsPerHeal; // Only consume the required number of kills rather than reset to 0
     }
 
     public void AddPowerUp(IPowerUp powerUp)
@@ -141,8 +150,9 @@ public class PlayerCharacter : MovableEntity, IDamageablePlayer, ISpriteVisual
 
     public void OnKill(EnemyBase enemy)
     {
-        TrackKills(1);
+        _killsSinceLastLifeSteal += 1;
         MaybeExplodeOnKill(enemy);
+        _runStats.TrackKill(enemy);
     }
 
     private void MaybeExplodeOnKill(EnemyBase enemy)

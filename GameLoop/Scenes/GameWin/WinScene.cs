@@ -3,9 +3,11 @@ using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Persistence;
 using GameLoop.Rendering;
+using GameLoop.Stats;
 using GameLoop.UI;
 using Gameplay;
 using Gameplay.Rendering.Colors;
+using Gameplay.Stats;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,6 +22,7 @@ internal class WinScene : IScene
     private readonly IAppLifeCycle _appLifeCycle;
 
     private readonly Label _titleLabel;
+    private readonly RunStatsPanel _statsPanel;
     private readonly Label _instructionsLabel;
     private InputMethod _lastInputMethod;
 
@@ -30,7 +33,8 @@ internal class WinScene : IScene
         InputGate inputGate,
         GameInputState inputState,
         Label.Factory labelFactory,
-        IAppLifeCycle appLifeCycle)
+        IAppLifeCycle appLifeCycle,
+        StatsCounter stats)
     {
         _spriteBatch = spriteBatch;
         _input = input;
@@ -41,8 +45,8 @@ internal class WinScene : IScene
         // Title label
         const string titleText = "You Win!";
         var titleSize = labelFactory.Measure(Paths.Fonts.Righteous.Large, titleText);
-        var titleRectangle = renderScaler.UiRectangle()
-            .CreateAnchoredRectangle(UiAnchor.Centre, titleSize, new Vector2(0f, -100f));
+        var screen = renderScaler.UiRectangle();
+        var titleRectangle = screen.CreateAnchoredRectangle(UiAnchor.TopCenter, titleSize, new Vector2(0f, 50f));
 
         _titleLabel = labelFactory.Create(
             Paths.Fonts.Righteous.Large,
@@ -52,12 +56,14 @@ internal class WinScene : IScene
             ColorPalette.Yellow,
             TextAlignment.Center);
 
-        // Instructions label (dynamic)
+        _statsPanel = new RunStatsPanel(titleRectangle.AnchorForPoint(UiAnchor.BottomCenter), labelFactory, stats);
+
+        // Instructions label
         _lastInputMethod = inputState.CurrentInputMethod;
         _instructionsLabel = labelFactory.Create(
             Paths.Fonts.BoldPixels.Large,
             GetInstructionsText(),
-            titleRectangle.AnchorForPoint(UiAnchor.BottomCenter) + new Vector2(0f, 100f),
+            screen.AnchorForPoint(UiAnchor.BottomCenter) + new Vector2(0f, -150f),
             UiAnchor.TopCenter,
             ColorPalette.LightGray,
             TextAlignment.Center);
@@ -82,6 +88,7 @@ internal class WinScene : IScene
         _spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
         _titleLabel.Draw(_spriteBatch);
+        _statsPanel.Draw(_spriteBatch);
         _instructionsLabel.Draw(_spriteBatch);
 
         _spriteBatch.End();

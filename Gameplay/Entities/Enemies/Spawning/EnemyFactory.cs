@@ -1,6 +1,7 @@
 ﻿using System;
 using Gameplay.Entities.Effects;
 using Gameplay.Entities.Enemies.Types;
+using Gameplay.Stats;
 using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies.Spawning;
@@ -10,10 +11,11 @@ public class EnemyFactory(
     ContentManager content,
     EnemyDeathHandler deathHandler,
     EmberPool emberPool,
-    ISpawnEntity spawnEntity)
+    ISpawnEntity spawnEntity,
+    StatsCounter runStats)
 {
     private EnemyBase.SpawnContext SpawnContext(Vector2 position) =>
-        new(position, deathHandler, player, content, emberPool, spawnEntity);
+        new(position, deathHandler, player, content, emberPool, spawnEntity, runStats);
 
     public Skug Skug(Vector2 position) => new(SpawnContext(position), false);
     public Skug EliteSkug(Vector2 position) => new(SpawnContext(position), true);

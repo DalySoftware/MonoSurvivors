@@ -12,7 +12,8 @@ public class Skug : EnemyBase, ISpriteSheetVisual
     private readonly SkugSpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
 
     public Skug(SpawnContext spawnContext, bool elite)
-        : base(spawnContext, SkugStats(elite), new FollowEntity(spawnContext.Player, 0.07f), ColorPalette.Violet)
+        : base(spawnContext, SkugStats(elite), new FollowEntity(spawnContext.Player, 0.07f), ColorPalette.Violet,
+            elite)
     {
         Colliders = [new CircleCollider(this, 32f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;

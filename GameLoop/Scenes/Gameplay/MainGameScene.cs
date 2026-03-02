@@ -23,6 +23,7 @@ using Gameplay.Levelling.SphereGrid.Generation;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
 using Gameplay.Rendering.Effects.SpriteBatch;
+using Gameplay.Stats;
 using Gameplay.Telemetry;
 using Gameplay.Utilities;
 using Microsoft.Xna.Framework;
@@ -194,6 +195,8 @@ internal class MainGameScene(
 
         builder.RegisterType<RunClockFactory>().SingleInstance();
         builder.Register<RunClock>(ctx => ctx.Resolve<RunClockFactory>().Create());
+
+        builder.RegisterType<StatsCounter>().SingleInstance();
 
         builder.RegisterType<GameplayInputManager>()
             .SingleInstance();

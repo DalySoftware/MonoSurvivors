@@ -30,7 +30,7 @@ public class Jorgie : EnemyBase, IGenericVisual
 
 
     public Jorgie(SpawnContext spawnContext, Action<EnemyBase> onDeath) :
-        base(spawnContext, StatValues, new FollowEntity(spawnContext.Player, 0.08f), ColorPalette.Green)
+        base(spawnContext, StatValues, new FollowEntity(spawnContext.Player, 0.08f), ColorPalette.Green, false)
     {
         _customOnDeath = onDeath;
         _headSpriteSheet = new SnakeBossHeadSheet(spawnContext.Content);

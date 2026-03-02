@@ -12,7 +12,7 @@ public class Hulker : EnemyBase, ISpriteSheetVisual
 {
     private readonly HulkerSpriteSheet.LookDirectionFrame _frame = new(Vector2.Zero);
     public Hulker(SpawnContext spawnContext, bool elite) :
-        base(spawnContext, HulkerStats(elite), new FollowEntity(spawnContext.Player, 0.04f), ColorPalette.Teal)
+        base(spawnContext, HulkerStats(elite), new FollowEntity(spawnContext.Player, 0.04f), ColorPalette.Teal, elite)
     {
         Colliders = [new RectangleCollider(this, 128f, 128f)];
         OutlineColor = elite ? ColorPalette.Cyan : null;

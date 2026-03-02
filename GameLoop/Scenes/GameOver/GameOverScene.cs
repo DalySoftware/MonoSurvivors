@@ -2,9 +2,11 @@ using Autofac;
 using ContentLibrary;
 using GameLoop.Input;
 using GameLoop.Rendering;
+using GameLoop.Stats;
 using GameLoop.UI;
 using Gameplay;
 using Gameplay.Rendering.Colors;
+using Gameplay.Stats;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -18,6 +20,7 @@ internal class GameOverScene : IScene
     private readonly GameInputState _inputState;
     private readonly IAppLifeCycle _appLifeCycle;
     private readonly Label _titleLabel;
+    private readonly RunStatsPanel _statsPanel;
     private readonly Label _instructionsLabel;
     private InputMethod _lastInputMethod;
 
@@ -28,7 +31,8 @@ internal class GameOverScene : IScene
         InputGate inputGate,
         GameInputState inputState,
         Label.Factory labelFactory,
-        IAppLifeCycle appLifeCycle)
+        IAppLifeCycle appLifeCycle,
+        StatsCounter stats)
     {
         _spriteBatch = spriteBatch;
         _input = input;
@@ -36,10 +40,10 @@ internal class GameOverScene : IScene
         _inputState = inputState;
         _appLifeCycle = appLifeCycle;
 
+        var screen = renderScaler.UiRectangle();
         const string titleText = "Game Over";
         var titleSize = labelFactory.Measure(Paths.Fonts.Righteous.Large, titleText);
-        var titleRectangle = renderScaler.UiRectangle()
-            .CreateAnchoredRectangle(UiAnchor.Centre, titleSize, new Vector2(0f, -100f));
+        var titleRectangle = screen.CreateAnchoredRectangle(UiAnchor.TopCenter, titleSize, new Vector2(0f, 50f));
 
         _titleLabel = labelFactory.Create(
             Paths.Fonts.Righteous.Large,
@@ -49,12 +53,14 @@ internal class GameOverScene : IScene
             ColorPalette.Red,
             TextAlignment.Center);
 
-        var instructionsText = GetInstructionsText();
+        _statsPanel = new RunStatsPanel(titleRectangle.AnchorForPoint(UiAnchor.BottomCenter), labelFactory, stats);
 
+
+        var instructionsText = GetInstructionsText();
         _instructionsLabel = labelFactory.Create(
             Paths.Fonts.BoldPixels.Large,
             instructionsText,
-            titleRectangle.AnchorForPoint(UiAnchor.BottomCenter) + new Vector2(0f, 100f),
+            screen.AnchorForPoint(UiAnchor.BottomCenter) + new Vector2(0f, -150f),
             UiAnchor.TopCenter,
             ColorPalette.LightGray,
             TextAlignment.Center);
@@ -79,6 +85,7 @@ internal class GameOverScene : IScene
         _spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
         _titleLabel.Draw(_spriteBatch);
+        _statsPanel.Draw(_spriteBatch);
         _instructionsLabel.Draw(_spriteBatch);
 
         _spriteBatch.End();

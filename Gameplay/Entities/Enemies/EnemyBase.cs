@@ -8,6 +8,7 @@ using Gameplay.Combat;
 using Gameplay.Entities.Effects;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Effects;
+using Gameplay.Stats;
 using Microsoft.Xna.Framework.Content;
 
 namespace Gameplay.Entities.Enemies;
@@ -16,7 +17,8 @@ public abstract class EnemyBase(
     EnemyBase.SpawnContext context,
     EnemyStats stats,
     IEnemyMovement movement,
-    Color effectColor)
+    Color effectColor,
+    bool isElite)
     : MovableEntity(context.Position), IDamagesPlayer, IHasDrawTransform, IHasHitFlash
 {
     private int _isDead; // Marker for concurrency
@@ -29,6 +31,7 @@ public abstract class EnemyBase(
 
     public float Health { get; private set; } = stats.MaxHealth;
     public EnemyStats Stats { get; } = stats;
+    public bool IsElite { get; } = isElite;
     public float Layer => Layers.Enemies;
 
     internal Vector2 SeparationForce { get; set; }
@@ -69,6 +72,8 @@ public abstract class EnemyBase(
         // Trigger squash on any hit (including lethal)
         _hitSquash.Trigger(Position, damager.Position, amount, Stats.MaxHealth);
         _hitFlash.Trigger(amount, Stats.MaxHealth, Health <= 0f);
+
+        context.RunStats.TrackDamageDealt(amount);
 
         if (Health > 0) return;
 
@@ -154,7 +159,8 @@ public abstract class EnemyBase(
         PlayerCharacter Player,
         ContentManager Content,
         EmberPool EmberPool,
-        ISpawnEntity SpawnEntity);
+        ISpawnEntity SpawnEntity,
+        StatsCounter RunStats);
 }
 
 public record EnemyStats(float MaxHealth, float Experience, int Damage, float KnockbackMultiplier = 1f);
