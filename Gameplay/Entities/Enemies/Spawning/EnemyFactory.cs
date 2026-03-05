@@ -15,8 +15,8 @@ public class EnemyFactory(
     private EnemyBase.SpawnContext SpawnContext(Vector2 position) =>
         new(position, deathHandler, player, content, emberPool, spawnEntity);
 
-    public BasicEnemy BasicEnemy(Vector2 position) => new(SpawnContext(position), false);
-    public BasicEnemy EliteBasicEnemy(Vector2 position) => new(SpawnContext(position), true);
+    public Skug Skug(Vector2 position) => new(SpawnContext(position), false);
+    public Skug EliteSkug(Vector2 position) => new(SpawnContext(position), true);
 
     public Hulker Hulker(Vector2 position) => new(SpawnContext(position), false);
     public Hulker EliteHulker(Vector2 position) => new(SpawnContext(position), true);

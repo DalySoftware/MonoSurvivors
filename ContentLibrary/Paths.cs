@@ -19,7 +19,7 @@ public static class Paths
         public static class Sheets
         {
             public const string Hulker = @"Images\Sheets\Hulker";
-            public const string BasicEnemy = @"Images\Sheets\BasicEnemy";
+            public const string Skug = @"Images\Sheets\BasicEnemy";
             public const string Scorcher = @"Images\Sheets\Scorcher";
             public const string PowerUpIcons = @"Images\Sheets\PowerUpIcons";
             public const string WeaponIcons = @"Images\Sheets\WeaponIcons";
