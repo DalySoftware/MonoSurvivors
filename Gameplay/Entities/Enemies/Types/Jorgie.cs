@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies.Types;
 
-public class SnakeBoss : EnemyBase, IGenericVisual
+public class Jorgie : EnemyBase, IGenericVisual
 {
     private const float SegmentSpacing = 64f; // tune vs sprite size
     private const int SegmentCount = 12;
@@ -29,7 +29,7 @@ public class SnakeBoss : EnemyBase, IGenericVisual
     private readonly List<Vector2> _positionHistory = [];
 
 
-    public SnakeBoss(SpawnContext spawnContext, Action<EnemyBase> onDeath) :
+    public Jorgie(SpawnContext spawnContext, Action<EnemyBase> onDeath) :
         base(spawnContext, StatValues, new FollowEntity(spawnContext.Player, 0.08f), ColorPalette.Green)
     {
         _customOnDeath = onDeath;
@@ -118,7 +118,7 @@ public class SnakeBoss : EnemyBase, IGenericVisual
         public Vector2 Position { get; set; }
     }
 
-    private sealed class SnakeSegmentsBehaviour(SnakeBoss boss, List<Vector2> history, int historyLimit)
+    private sealed class SnakeSegmentsBehaviour(Jorgie boss, List<Vector2> history, int historyLimit)
         : IEnemyBehaviour
     {
         public void BeforeMove(GameTime gameTime) { }

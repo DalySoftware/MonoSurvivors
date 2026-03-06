@@ -24,5 +24,5 @@ public class EnemyFactory(
     public Scorcher Scorcher(Vector2 position) => new(SpawnContext(position), false);
     public Scorcher EliteScorcher(Vector2 position) => new(SpawnContext(position), true);
 
-    public SnakeBoss SnakeBoss(Vector2 position, Action<EnemyBase> onDeath) => new(SpawnContext(position), onDeath);
+    public Jorgie SnakeBoss(Vector2 position, Action<EnemyBase> onDeath) => new(SpawnContext(position), onDeath);
 }
