@@ -7,6 +7,7 @@ using Gameplay.CollisionDetection;
 using Gameplay.Rendering;
 using Gameplay.Rendering.Colors;
 using Gameplay.Rendering.SpriteSheets;
+using Gameplay.Utilities;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Gameplay.Entities.Enemies.Types;
@@ -43,11 +44,11 @@ public class Jorgie : EnemyBase, IGenericVisual
         _bodyOrigin = new Vector2(_bodyTexture.Width * 0.5f, _bodyTexture.Height * 0.5f);
         _tailOrigin = new Vector2(_tailTexture.Width * 0.5f, _tailTexture.Height * 0.5f);
 
-        // Initialise history so the snake doesn't collapse on spawn
-        for (var i = 0; i < HistoryLimit; i++) _positionHistory.Add(Position);
+        InitializeHistory(spawnContext.Player);
 
         // Create body segments
         for (var i = 0; i < SegmentCount; i++) _segments.Add(new SnakeSegment(Position));
+        UpdateSegments(); // Reposition according to initialised history
 
         var headCollider = new CircleCollider(this, 96f);
         Colliders = [headCollider, .._segments.Select(s => s.Collider)];
@@ -58,6 +59,17 @@ public class Jorgie : EnemyBase, IGenericVisual
     }
 
     public override bool AffectedBySeparationForces => false;
+
+    private void InitializeHistory(PlayerCharacter player)
+    {
+        _positionHistory.Clear();
+
+        var awayFromPlayer = new UnitVector2(Position - player.Position);
+        const float historyStep = 2f;
+
+        for (var i = 0; i < HistoryLimit; i++)
+            _positionHistory.Add(Position + awayFromPlayer * (i * historyStep));
+    }
 
     public void Draw(SpriteBatch spriteBatch)
     {
