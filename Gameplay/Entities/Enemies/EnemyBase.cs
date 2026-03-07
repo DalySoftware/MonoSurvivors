@@ -62,6 +62,7 @@ public abstract class EnemyBase(
     public Vector2 DrawScale => _hitSquash.Scale;
     public float FlashIntensity => _hitFlash.Intensity;
     public Color FlashColor => _hitFlash.Color;
+    public virtual bool AffectedBySeparationForces => true;
 
     protected virtual void OnDeath(EnemyBase enemy) => context.DeathHandler.ProcessDeath(enemy);
 
@@ -107,7 +108,7 @@ public abstract class EnemyBase(
     public override void Update(GameTime gameTime)
     {
         UpdateActiveSlowdowns(gameTime);
-        IntentVelocity = movement.GetIntentVelocity(this) * _currentSlowMultiplier;
+        IntentVelocity = movement.GetIntentVelocity(this, gameTime) * _currentSlowMultiplier;
 
         for (var i = 0; i < Behaviours.Length; i++)
             Behaviours[i].BeforeMove(gameTime);
@@ -173,5 +174,5 @@ public interface IEnemyBehaviour
 
 public interface IEnemyMovement
 {
-    Vector2 GetIntentVelocity(EnemyBase owner);
+    Vector2 GetIntentVelocity(EnemyBase owner, GameTime gameTime);
 }

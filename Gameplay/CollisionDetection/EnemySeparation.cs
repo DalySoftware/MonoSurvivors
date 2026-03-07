@@ -28,6 +28,8 @@ public sealed class EnemySeparation(SpatialHashManager spatialHashManager)
             var i = (_cursor + k) % count;
             var enemy = enemies[i];
 
+            if (!enemy.AffectedBySeparationForces) continue;
+
             var newForce = Compute(enemy);
             enemy.SeparationForce = Vector2.Lerp(enemy.SeparationForce, newForce, Smoothing);
         }

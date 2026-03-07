@@ -5,7 +5,7 @@ namespace Gameplay.Behaviour;
 
 public class FollowEntity(IHasPosition target, float speed) : IEnemyMovement
 {
-    public Vector2 GetIntentVelocity(EnemyBase owner)
+    public Vector2 GetIntentVelocity(EnemyBase owner, GameTime gameTime)
     {
         var ownerPosition = owner.Position;
 

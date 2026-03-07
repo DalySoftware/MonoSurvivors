@@ -14,7 +14,7 @@ namespace Gameplay.Entities.Enemies.Types;
 public class Jorgie : EnemyBase, IGenericVisual
 {
     private const float SegmentSpacing = 64f; // tune vs sprite size
-    private const int SegmentCount = 12;
+    private const int SegmentCount = 24;
     private const int HistoryLimit = 2048;
 
     private readonly static EnemyStats StatValues = new(4000f, 100f, 2, 0.05f);
@@ -30,7 +30,7 @@ public class Jorgie : EnemyBase, IGenericVisual
 
 
     public Jorgie(SpawnContext spawnContext, Action<EnemyBase> onDeath) :
-        base(spawnContext, StatValues, new FollowEntity(spawnContext.Player, 0.08f), ColorPalette.Green, false)
+        base(spawnContext, StatValues, GetMovement(spawnContext.Player), ColorPalette.Green, false)
     {
         _customOnDeath = onDeath;
         _headSpriteSheet = new SnakeBossHeadSheet(spawnContext.Content);
@@ -53,6 +53,8 @@ public class Jorgie : EnemyBase, IGenericVisual
         ];
     }
 
+    public override bool AffectedBySeparationForces => false;
+
     public void Draw(SpriteBatch spriteBatch)
     {
         var layer = Layers.Enemies + 0.02f;
@@ -67,8 +69,8 @@ public class Jorgie : EnemyBase, IGenericVisual
         layer -= 0.00001f;
         foreach (var segment in _segments)
         {
-            spriteBatch.Draw(_bodyTexture, segment.Position, ColorPalette.White, origin: _bodyOrigin,
-                layerDepth: layer, scale: DrawScale);
+            spriteBatch.Draw(_bodyTexture, segment.Position, origin: _bodyOrigin, layerDepth: layer, scale: DrawScale,
+                rotation: segment.Rotation);
             layer -= 0.00001f;
         }
     }
@@ -78,6 +80,8 @@ public class Jorgie : EnemyBase, IGenericVisual
         base.OnDeath(enemy);
         _customOnDeath(enemy);
     }
+
+    private static SlitherFollowEntity GetMovement(PlayerCharacter player) => new(player, 0.08f, 2f, 0.05f);
 
     private void UpdateSegments()
     {
@@ -102,7 +106,21 @@ public class Jorgie : EnemyBase, IGenericVisual
                 historyIndex++;
             }
 
-            _segments[i].Position = _positionHistory[historyIndex];
+            var segment = _segments[i];
+            segment.Position = _positionHistory[historyIndex];
+
+            var targetAhead = i == 0
+                ? Position
+                : _segments[i - 1].Position;
+
+            var direction = targetAhead - segment.Position;
+            if (direction.LengthSquared() > 0.0001f)
+            {
+                var angle = MathF.Atan2(direction.Y, direction.X) + MathF.PI * 0.5f;
+
+                const float step = MathF.Tau / 32f;
+                segment.Rotation = MathF.Round(angle / step) * step;
+            }
         }
     }
 
@@ -116,6 +134,7 @@ public class Jorgie : EnemyBase, IGenericVisual
 
         public CircleCollider Collider { get; }
         public Vector2 Position { get; set; }
+        public float Rotation { get; set; }
     }
 
     private sealed class SnakeSegmentsBehaviour(Jorgie boss, List<Vector2> history, int historyLimit)
