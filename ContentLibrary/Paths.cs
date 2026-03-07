@@ -15,6 +15,7 @@ public static class Paths
         public const string ScorcherEmberMask = @"Images\ScorcherEmberMask";
         public const string SnakeHead = @"Images\Sheets\BossHead";
         public const string SnakeBody = @"Images\BossBody";
+        public const string SnakeTail = @"Images\BossTail";
 
         public static class Sheets
         {

@@ -24,6 +24,8 @@ public class Jorgie : EnemyBase, IGenericVisual
     private readonly Vector2 _headOrigin;
     private readonly Texture2D _bodyTexture;
     private readonly Vector2 _bodyOrigin;
+    private readonly Texture2D _tailTexture;
+    private readonly Vector2 _tailOrigin;
 
     private readonly List<SnakeSegment> _segments = [];
     private readonly List<Vector2> _positionHistory = [];
@@ -35,9 +37,11 @@ public class Jorgie : EnemyBase, IGenericVisual
         _customOnDeath = onDeath;
         _headSpriteSheet = new SnakeBossHeadSheet(spawnContext.Content);
         _bodyTexture = spawnContext.Content.Load<Texture2D>(Paths.Images.SnakeBody);
+        _tailTexture = spawnContext.Content.Load<Texture2D>(Paths.Images.SnakeTail);
 
         _headOrigin = _headSpriteSheet.FrameSize * 0.5f;
         _bodyOrigin = new Vector2(_bodyTexture.Width * 0.5f, _bodyTexture.Height * 0.5f);
+        _tailOrigin = new Vector2(_tailTexture.Width * 0.5f, _tailTexture.Height * 0.5f);
 
         // Initialise history so the snake doesn't collapse on spawn
         for (var i = 0; i < HistoryLimit; i++) _positionHistory.Add(Position);
@@ -67,12 +71,17 @@ public class Jorgie : EnemyBase, IGenericVisual
 
         // Body
         layer -= 0.00001f;
-        foreach (var segment in _segments)
+        foreach (var segment in _segments[..^1]) // skip last
         {
             spriteBatch.Draw(_bodyTexture, segment.Position, origin: _bodyOrigin, layerDepth: layer, scale: DrawScale,
                 rotation: segment.Rotation);
             layer -= 0.00001f;
         }
+
+        // Tail
+        var tail = _segments[^1];
+        spriteBatch.Draw(_tailTexture, tail.Position, origin: _tailOrigin, layerDepth: layer, scale: DrawScale,
+            rotation: tail.Rotation);
     }
 
     protected override void OnDeath(EnemyBase enemy)
