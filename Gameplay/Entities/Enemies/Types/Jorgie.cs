@@ -90,7 +90,7 @@ public class Jorgie : EnemyBase, IGenericVisual
         _customOnDeath(enemy);
     }
 
-    private static SlitherFollowEntity GetMovement(PlayerCharacter player) => new(player, 0.08f, 2f, 0.05f);
+    private static SlitherFollowEntity GetMovement(PlayerCharacter player) => new(player, 0.12f, 2f, 0.05f);
 
     private void UpdateSegments()
     {
