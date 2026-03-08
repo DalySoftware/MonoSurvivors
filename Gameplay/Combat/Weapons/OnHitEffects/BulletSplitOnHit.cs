@@ -29,7 +29,7 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity, BulletPool pool) 
         if (stats.BulletSplit <= 0)
             return;
 
-        var spawnPoint = enemy.Position;
+        var spawnPoint = context.Bullet.Position;
         var range = bullet.MaxRange * 0.5f; // this will already have taken stats into account
 
         var bulletDirections = ArcSpreader.Arc(bullet.Velocity, stats.BulletSplit, ArcAngle);
@@ -46,7 +46,7 @@ public sealed class BulletSplitOnHit(ISpawnEntity spawnEntity, BulletPool pool) 
                 bullet.Damage * DamageRatio,
                 range,
                 [],
-                immuneEnemies: [enemy]);
+                [enemy]);
 
             spawnEntity.Spawn(splitBullet);
         }
